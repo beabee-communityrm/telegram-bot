@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "emitDecoratorMetadata": true
+  },
+  "imports": {
+    "alosaur": "https://deno.land/x/alosaur@v0.38.0/mod.ts",
+    "grammy": "https://deno.land/x/grammy@v1.19.2/mod.ts",
+    "dotenv": "https://deno.land/std@0.207.0/dotenv/mod.ts",
+    "denodb": "https://deno.land/x/denodb@v1.4.0/mod.ts"
+  },
+  "tasks": {
+    "dev": "deno run --allow-net --allow-read --allow-env --watch main.ts"
+  }
+}
