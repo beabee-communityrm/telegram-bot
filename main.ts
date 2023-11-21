@@ -1,7 +1,6 @@
 import { load } from "dotenv"
 import { App } from "alosaur";
-
-import { CoreArea } from "./areas/core.area.ts";
+import { CoreArea } from './areas/core.area.ts'
 
 await load({ export: true});
 

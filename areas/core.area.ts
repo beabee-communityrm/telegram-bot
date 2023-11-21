@@ -1,24 +1,6 @@
-import { Area, Controller, Get } from "alosaur";
-import { TelegramService } from '../services/telegram.service.ts';
+import { Area } from "alosaur";
+import { CoreController } from "../controllers/core.controller.ts";
 
-@Controller()
-export class CoreController {
-
-  constructor(private telegram: TelegramService) {}
-
-  @Get()
-  helloWorld() {
-    this.telegram.subscriptions.forEach((id) => this.telegram.bot.api.sendMessage(id, "Hello world"));
-    return "Hello world message to all subscribers sent!";
-  }
-
-  @Get("/subscribers")
-  subscribers() {
-    return this.telegram.subscriptions
-  }
-}
-
-@Area({
-  controllers: [CoreController],
-})
+// Declare module
+@Area({  controllers: [CoreController],})
 export class CoreArea {}
