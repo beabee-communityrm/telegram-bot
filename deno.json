@@ -10,6 +10,7 @@
     "std/": "https://deno.land/std@0.207.0/"
   },
   "scopes": {
+    // See https://github.com/eveningkid/denodb/issues/381#issuecomment-1564066771
     "https://raw.githubusercontent.com/Zhomart/dex/": {
       "https://deno.land/std/": "https://deno.land/std@0.177.0/"
     }
