@@ -1,21 +1,21 @@
-# telegram-bot
-A telegram bot for beabee
+# Beabee Telegram Bot
+
+This repository contains the source code for the Beabee Telegram Bot.
 
 ## Development
 
-### Setup
+### Setup Instructions
 
-Install Deno e.g. with a [Deno Version Manager](https://github.com/justjavac/dvm) to be able to migrate more easily to new Deno versions.
+To get started, install Deno. We recommend using a [Deno Version Manager (DVM)](https://github.com/justjavac/dvm) for easier migration between different versions of Deno.
 
-## Run
+### Configuring Your Environment
 
-Checkout the `deno.json` for available commands, to run the bot in development mode use:
+Begin by duplicating the `.env.example` file and renaming it to `.env`. Then, fill in the necessary values as per your setup requirements.
+
+## Running the Bot
+
+To view the list of available commands, refer to the `deno.json` file. For running the bot in development mode, execute the following command:
 
 ```bash
 deno task dev
 ```
-
-# TODO
-- ORM
-  - [Prisma](https://www.prisma.io/docs/guides/deployment/edge/deploy-to-deno-deploy)
-  - [DenoDB](https://eveningkid.com/denodb-docs/)

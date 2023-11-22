@@ -8,7 +8,7 @@ export class TelegramService {
     bot: Bot;
 
 
-    constructor(readonly subscriber: SubscriberService) {
+    constructor(private readonly subscriber: SubscriberService) {
         const token = Deno.env.get("TELEGRAM_TOKEN");
         if(!token) throw new Error("TELEGRAM_TOKEN is not set");
         this.bot = new Bot(token);
@@ -18,14 +18,14 @@ export class TelegramService {
 
         // Fake callout subscription
         this.bot.command("subscribe", async (ctx) => {
-            this.subscriber.add(ctx)
-            await ctx.reply("You are now subscribed\\!");
+            this.subscriber.create(ctx)
+            await ctx.reply("You are now subscribed\!");
         });
 
         // Fake callout unsubscribes
         this.bot.command("unsubscribe", async (ctx) => {
-            this.subscriber.remove(ctx)
-            await ctx.reply("You are now unsubscribed\\!");
+            this.subscriber.delete(ctx)
+            await ctx.reply("You are now unsubscribed\!");
         });
 
 
