@@ -1,6 +1,6 @@
 # Beabee Telegram Bot
 
-This repository contains the source code for the Beabee Telegram Bot.
+This repository contains the source code for the Beabee Telegram Bot prototype.
 
 ## Development
 
