@@ -1,8 +1,11 @@
-import { DataTypes, Model, } from 'denodb';
+import { DataTypes, Model, } from "denodb/mod.ts";
 
 import type { SubscriberFields } from '../types/index.ts';
 
-// See https://eveningkid.com/denodb-docs/docs/guides/create-models
+/**
+ * A subscriber is a telegram user who has subscribed to a callout.
+ * @see https://eveningkid.com/denodb-docs/docs/guides/create-models
+ */
 export class SubscriberModel extends Model {
   static table = 'subscribers';
   static timestamps = true;

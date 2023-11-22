@@ -1,5 +1,5 @@
-import { Singleton } from 'alosaur';
-import { Bot } from "grammy";
+import { Singleton } from 'alosaur/mod.ts';
+import { Bot } from "grammy/mod.ts";
 import { SubscriberService } from './subscriber.service.ts';
 
 @Singleton()
@@ -18,7 +18,7 @@ export class TelegramService {
 
         // Fake callout subscription
         this.bot.command("subscribe", async (ctx) => {
-            this.subscriber.create(ctx)
+            this.subscriber.createOrUpdate(ctx)
             await ctx.reply("You are now subscribed\!");
         });
 

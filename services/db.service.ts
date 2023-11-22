@@ -1,5 +1,5 @@
-import { Singleton } from 'alosaur';
-import { Database, SQLite3Connector } from 'denodb';
+import { Singleton } from 'alosaur/mod.ts';
+import { Database, SQLite3Connector } from 'denodb/mod.ts';
 import * as Models from '../models/index.ts';
 
 @Singleton() // See https://github.com/alosaur/alosaur/tree/master/src/injection

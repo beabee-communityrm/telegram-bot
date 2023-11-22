@@ -1,8 +1,8 @@
-import { Singleton } from 'alosaur';
+import { Singleton } from 'alosaur/mod.ts';
 import { SubscriberModel } from '../models/index.ts';
 import { DatabaseService } from './db.service.ts';
 
-import type { Context } from "grammy";
+import type { Context } from "grammy/mod.ts";
 import type { Subscriber } from '../types/index.ts';
 
 @Singleton() // See https://github.com/alosaur/alosaur/tree/master/src/injection
@@ -76,7 +76,7 @@ export class SubscriberService {
      * @param ctx 
      * @returns 
      */
-    public async create(ctx: Context): Promise<SubscriberModel | null> {
+    public async create(ctx: Context): Promise<(SubscriberModel & Subscriber) | null> {
         const id = this.getIdentifier(ctx);
         if(await this.exists(id)) {
             console.debug("Subscriber already exists", id);
@@ -85,7 +85,7 @@ export class SubscriberService {
         const data = this.transform(ctx);
         console.debug("New subscriber", data);
         const result = await this.model.create({ ...data });
-        return result;
+        return result as (SubscriberModel & Subscriber) | null;
     }
 
     /**
@@ -93,12 +93,12 @@ export class SubscriberService {
      * @param ctx 
      * @returns 
      */
-    public async createOrUpdate(ctx: Context): Promise<SubscriberModel> {
+    public async createOrUpdate(ctx: Context): Promise<SubscriberModel & Subscriber> {
         const id = ctx.chat?.id || ctx.from?.id;
         if(await this.exists(id || 0)) {
             return this.update(ctx);
         }
-        return this.create(ctx) as Promise<SubscriberModel>;
+        return this.create(ctx) as Promise<SubscriberModel & Subscriber>;
     }
 
     /**
@@ -106,10 +106,10 @@ export class SubscriberService {
      * @param ctx 
      * @returns 
      */
-    public async update(ctx: Context): Promise<SubscriberModel> {
+    public async update(ctx: Context): Promise<SubscriberModel & Subscriber> {
         const data = this.transform(ctx);
         const result = await this.model.where('id', data.id).update({ ...data });        
-        return result as SubscriberModel;
+        return result as SubscriberModel & Subscriber;
     }
 
     /**
@@ -117,18 +117,18 @@ export class SubscriberService {
      * @param ctx 
      * @returns 
      */
-    public async delete(ctx: Context): Promise<SubscriberModel> {
+    public async delete(ctx: Context): Promise<SubscriberModel & Subscriber> {
         const id = this.getIdentifier(ctx);
         const result = await this.model.deleteById(id);
-        return result as SubscriberModel;
+        return result as SubscriberModel & Subscriber;
     }
 
     /**
      * Get a all subscribers
      * @returns All subscribers
      */
-    public async all(): Promise<SubscriberModel[]> {
-        return await this.model.all();
+    public async all(): Promise<Array<SubscriberModel & Subscriber>> {
+        return (await this.model.all()) as Array<SubscriberModel & Subscriber>;
     }
 
 

@@ -1,5 +1,5 @@
 import type { NullableProperties } from './index.ts';
-import type { User } from 'grammy_types';
+import type { User } from 'grammy_types/mod.ts';
 
 /**
  * A subscriber is a telegram user who has subscribed to a channel.

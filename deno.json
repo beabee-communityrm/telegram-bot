@@ -3,16 +3,10 @@
     "emitDecoratorMetadata": true
   },
   "imports": {
-    "alosaur": "https://deno.land/x/alosaur@v0.38.0/mod.ts",
     "alosaur/": "https://deno.land/x/alosaur@v0.38.0/",
-    "grammy": "https://deno.land/x/grammy@v1.19.2/mod.ts",
     "grammy/": "https://deno.land/x/grammy@v1.19.2/",
-    "grammy_types": "https://deno.land/x/grammy_types@v3.3.0/mod.ts",
     "grammy_types/": "https://deno.land/x/grammy_types@v3.3.0/",
-    "dotenv": "https://deno.land/std@0.207.0/dotenv/mod.ts",
-    "denodb": "https://deno.land/x/denodb@v1.4.0/mod.ts",
     "denodb/": "https://deno.land/x/denodb@v1.4.0/",
-    "std": "https://deno.land/std@0.207.0/mod.ts",
     "std/": "https://deno.land/std@0.207.0/"
   },
   "scopes": {

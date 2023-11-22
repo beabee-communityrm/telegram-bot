@@ -1,4 +1,4 @@
-import { Area } from "alosaur";
+import { Area } from "alosaur/mod.ts";
 import { CoreController } from "../controllers/core.controller.ts";
 
 // Declare module
