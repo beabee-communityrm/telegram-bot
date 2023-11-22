@@ -1,32 +1,43 @@
+import { DataSource } from 'typeorm';
 import { Singleton } from 'alosaur/mod.ts';
-import { Database, SQLite3Connector } from 'denodb/mod.ts';
 import * as Models from '../models/index.ts';
 
-@Singleton() // See https://github.com/alosaur/alosaur/tree/master/src/injection
-export class DatabaseService {
+@Singleton()
+export class DatabaseService extends DataSource {
 
-  db: Database;
+    constructor() {
 
-  constructor() {
+        const dbPath = Deno.env.get("DB_PATH") || "./database.sqlite";
+        const dropDb = Deno.env.get("DB_DROP") === 'true' || false;
 
-    const token = Deno.env.get("TELEGRAM_TOKEN");
-    if(!token) throw new Error("TELEGRAM_TOKEN is not set");
+        super({
+            type: "sqlite",
+            database: dbPath,
+            synchronize: dropDb,
+            logging: false,
+            entities: Object.values(Models),
+            migrations: [],
+            subscribers: [],
+        })
 
-    const dbPath = Deno.env.get("DB_PATH") || "./database.sqlite";
-    const dropDb = Deno.env.get("DB_DROP") === 'true' || false;
+        this.init().catch(error => console.log(error));
+    }
 
-    const connector = new SQLite3Connector({
-        filepath: dbPath,
-    });
-    
-    this.db = new Database(connector);
+    async init() {
+        await this.initialize();
 
-    // https://eveningkid.com/denodb-docs/docs/guides/synchronize-database#link-models
-    this.db.link(Object.values(Models))
+        // console.log("Inserting a new user into the database...")
+        // const user = new User()
+        // user.firstName = "Timber"
+        // user.lastName = "Saw"
+        // user.age = 25
+        // await AppDataSource.manager.save(user)
+        // console.log("Saved a new user with id: " + user.id)
 
-    // https://eveningkid.com/denodb-docs/docs/guides/synchronize-database#synchronize-models
-    this.db.sync({drop: dropDb});
+        // console.log("Loading users from the database...")
+        // const users = await AppDataSource.manager.find(User)
+        // console.log("Loaded users: ", users)
 
-    console.debug("Database initialized")
-  }
+        // console.log("Here you can setup and run express / fastify / any other framework.")
+    }
 }

@@ -14,7 +14,7 @@ export class SubscriberService {
      * 
      * @param _ DatabaseService injected to make sure the database is initialized
      */
-    constructor(_: DatabaseService) {
+    constructor(private readonly db: DatabaseService) {
     }
 
     /**
@@ -22,17 +22,12 @@ export class SubscriberService {
      * @param ctx 
      * @returns 
      */
-    private transformAnonymous(ctx: Context): Subscriber {
+    private transformAnonymous(ctx: Context) {
         const id = this.getIdentifier(ctx);
-        return {
-            id,
-            first_name: null,
-            last_name: null,
-            username: null,
-            language_code: null,
-            is_bot: null,
-            anonymityStatus: "full"
-        };
+        const subscriber = new SubscriberModel()
+        subscriber.id = id;
+        subscriber.anonymityStatus = "full";
+        return subscriber;
     }
 
     /**
@@ -41,18 +36,19 @@ export class SubscriberService {
      * @param forceAnonymous 
      * @returns 
      */
-    private transform(ctx: Context, forceAnonymous = false): Subscriber {
+    private transform(ctx: Context, forceAnonymous = false) {
         if(!ctx.from || forceAnonymous) return this.transformAnonymous(ctx);
         const id = this.getIdentifier(ctx);
-        return {
-            id,
-            anonymityStatus: "none",
-            first_name: ctx.from.first_name || null,
-            last_name: ctx.from.last_name || null,
-            username: ctx.from.username || null,
-            language_code: ctx.from.language_code || null,
-            is_bot: ctx.from.is_bot || false,
-        };
+
+        const subscriber = new SubscriberModel()
+        subscriber.id = id;
+        subscriber.anonymityStatus = "none";
+        subscriber.first_name = ctx.from.first_name || null;
+        subscriber.last_name = ctx.from.last_name || null;
+        subscriber.username = ctx.from.username || null;
+        subscriber.language_code = ctx.from.language_code || null;
+        subscriber.is_bot = ctx.from.is_bot || false;
+        return subscriber;
     }
 
     private getIdentifier(ctx: Context) {
@@ -67,8 +63,11 @@ export class SubscriberService {
      * @returns 
      */
     public async exists(id: number) {
-        const first = (await this.model.where('id', id).first()) as SubscriberModel | undefined;
-        return !!first;
+        return await this.db.manager.exists(SubscriberModel, { 
+            where: { id }
+        });
+        // const first = (await this.model.where('id', id).first()) as SubscriberModel | undefined;
+        // return !!first;
     }
 
     /**
@@ -82,23 +81,11 @@ export class SubscriberService {
             console.debug("Subscriber already exists", id);
             return null;
         }
-        const data = this.transform(ctx);
-        console.debug("New subscriber", data);
-        const result = await this.model.create({ ...data });
-        return result as (SubscriberModel & Subscriber) | null;
-    }
+        const subscriber = this.transform(ctx);
+        console.debug("New subscriber", subscriber);
 
-    /**
-     * Create or update a subscriber
-     * @param ctx 
-     * @returns 
-     */
-    public async createOrUpdate(ctx: Context): Promise<SubscriberModel & Subscriber> {
-        const id = ctx.chat?.id || ctx.from?.id;
-        if(await this.exists(id || 0)) {
-            return this.update(ctx);
-        }
-        return this.create(ctx) as Promise<SubscriberModel & Subscriber>;
+        const result = await this.db.manager.save(subscriber)
+        return result;
     }
 
     /**
@@ -106,10 +93,11 @@ export class SubscriberService {
      * @param ctx 
      * @returns 
      */
-    public async update(ctx: Context): Promise<SubscriberModel & Subscriber> {
+    public async update(ctx: Context) {
         const data = this.transform(ctx);
-        const result = await this.model.where('id', data.id).update({ ...data });        
-        return result as SubscriberModel & Subscriber;
+        const result = await this.db.manager.update(SubscriberModel, data.id, data);
+        // const result = await this.model.where('id', data.id).update({ ...data });        
+        return result;
     }
 
     /**
@@ -117,10 +105,11 @@ export class SubscriberService {
      * @param ctx 
      * @returns 
      */
-    public async delete(ctx: Context): Promise<SubscriberModel & Subscriber> {
+    public async delete(ctx: Context) {
         const id = this.getIdentifier(ctx);
-        const result = await this.model.deleteById(id);
-        return result as SubscriberModel & Subscriber;
+        const result = await this.db.manager.delete(SubscriberModel, id);
+        // const result = await this.model.deleteById(id);
+        return result;
     }
 
     /**
@@ -128,7 +117,8 @@ export class SubscriberService {
      * @returns All subscribers
      */
     public async all(): Promise<Array<SubscriberModel & Subscriber>> {
-        return (await this.model.all()) as Array<SubscriberModel & Subscriber>;
+        return await this.db.manager.find(SubscriberModel);
+        // return (await this.model.all()) as Array<SubscriberModel & Subscriber>;
     }
 
 

@@ -14,7 +14,7 @@ export class SubscribeCommand implements Command {
     }
 
     async action(ctx: Context) {
-        this.subscriber.createOrUpdate(ctx)
+        this.subscriber.create(ctx)
         await ctx.reply("You are now subscribed\!");
     }
 }
