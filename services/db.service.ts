@@ -1,6 +1,9 @@
 import { DataSource } from 'typeorm';
 import { Singleton } from 'alosaur/mod.ts';
-import * as Models from '../models/index.ts';
+import { SubscriberModel } from '../models/index.ts';
+import sqlite3 from './node-sqlite3.ts';
+
+
 
 @Singleton()
 export class DatabaseService extends DataSource {
@@ -13,31 +16,19 @@ export class DatabaseService extends DataSource {
         super({
             type: "sqlite",
             database: dbPath,
-            synchronize: dropDb,
-            logging: false,
-            entities: Object.values(Models),
+            dropSchema: dropDb,
+            synchronize: true,
+            logging: true,
+            entities: [SubscriberModel],
             migrations: [],
             subscribers: [],
+            driver: sqlite3
         })
 
-        this.init().catch(error => console.log(error));
-    }
-
-    async init() {
-        await this.initialize();
-
-        // console.log("Inserting a new user into the database...")
-        // const user = new User()
-        // user.firstName = "Timber"
-        // user.lastName = "Saw"
-        // user.age = 25
-        // await AppDataSource.manager.save(user)
-        // console.log("Saved a new user with id: " + user.id)
-
-        // console.log("Loading users from the database...")
-        // const users = await AppDataSource.manager.find(User)
-        // console.log("Loaded users: ", users)
-
-        // console.log("Here you can setup and run express / fastify / any other framework.")
+        try {
+            this.initialize();
+        } catch (error) {
+            console.error(error);
+        }
     }
 }

@@ -8,8 +8,6 @@ import type { Subscriber } from '../types/index.ts';
 @Singleton() // See https://github.com/alosaur/alosaur/tree/master/src/injection
 export class SubscriberService {
 
-    private model = SubscriberModel;
-
     /**
      * 
      * @param _ DatabaseService injected to make sure the database is initialized

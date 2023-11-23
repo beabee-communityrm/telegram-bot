@@ -8,19 +8,19 @@ export class SubscriberModel {
     @PrimaryColumn()
     id!: number;
 
-    @Column({ nullable: true })
+    @Column({ type: String, nullable: true })
     first_name!: string | null;
 
-    @Column({ nullable: true })
+    @Column({ type: String, nullable: true })
     last_name!: string | null;
 
-    @Column({ nullable: true })
+    @Column({ type: String, nullable: true })
     username!: string | null;
 
-    @Column({ nullable: true })
+    @Column({ type: String, nullable: true })
     language_code!: string | null;
 
-    @Column({ nullable: true })
+    @Column({ type: String, nullable: true })
     is_bot!: boolean | null;
 
     @Column({ type: String })
