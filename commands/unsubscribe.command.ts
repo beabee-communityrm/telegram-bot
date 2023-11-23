@@ -1,4 +1,4 @@
-import { Singleton } from 'alosaur/mod.ts';
+import { Singleton, container } from 'alosaur/mod.ts';
 import { Command } from '../types/command.ts';
 import { SubscriberService } from '../services/index.ts';
 
@@ -9,7 +9,11 @@ export class UnsubscribeCommand implements Command {
     command = 'unsubscribe';
     description = 'Unsubscribe from a Callout';
 
-    constructor(private readonly subscriber: SubscriberService) {
+    get subscriber() {
+        return container.resolve(SubscriberService);
+    }
+
+    constructor() {
         // this.subscriber = subscriber;
     }
 

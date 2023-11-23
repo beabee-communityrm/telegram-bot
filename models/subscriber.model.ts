@@ -1,27 +1,28 @@
-import { DataTypes, Model, } from "denodb/mod.ts";
-
-import type { SubscriberFields } from '../types/index.ts';
+import { Entity, PrimaryColumn, Column } from "typeorm";
 
 /**
  * A subscriber is a telegram user who has subscribed to a callout.
- * @see https://eveningkid.com/denodb-docs/docs/guides/create-models
  */
-export class SubscriberModel extends Model {
-  static table = 'subscribers';
-  static timestamps = true;
+@Entity()
+export class SubscriberModel {
+    @PrimaryColumn()
+    id!: number;
 
-  static fields: SubscriberFields = {
-    id: { primaryKey: true, type: DataTypes.INTEGER, autoIncrement: false },
-    type: { type: DataTypes.STRING, allowNull: true },
-    first_name: { type: DataTypes.STRING, allowNull: true },
-    last_name: { type: DataTypes.STRING, allowNull: true },
-    username: { type: DataTypes.STRING, allowNull: true },
-    language_code: { type: DataTypes.STRING, allowNull: true },
-    is_bot: { type: DataTypes.BOOLEAN, allowNull: true },
-    anonymityStatus: DataTypes.enum(['full', 'partial', 'none'])
-  };
+    @Column({ type: String, nullable: true })
+    first_name!: string | null;
 
-  static defaults = {
-    anonymityStatus: 'full',
-  };
+    @Column({ type: String, nullable: true })
+    last_name!: string | null;
+
+    @Column({ type: String, nullable: true })
+    username!: string | null;
+
+    @Column({ type: String, nullable: true })
+    language_code!: string | null;
+
+    @Column({ type: String, nullable: true })
+    is_bot!: boolean | null;
+
+    @Column({ type: String })
+    anonymityStatus!: 'full' | 'partial' | 'none';
 }
