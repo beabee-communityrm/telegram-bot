@@ -1,5 +1,3 @@
-// deno-lint-ignore-file
-
 import { Database as _Database } from 'sqlite3'
 import { Statement } from './statement.ts'
 
@@ -41,8 +39,15 @@ export class Database extends _Database {
         })
     }
 
+    /**
+     * Get the callback from the last parameters, and remove it from the array.
+     * Also bind the callback to the statement if it exists, because sqlite3 for nodejs does the same.
+     * @param statement 
+     * @param arr 
+     * @returns 
+     */
     private getCallback(statement: Statement | null, arr: any[]) {
-        let callback = (error: Error | null, result?: any) => {};
+        let callback: Callback = () => {};
 
         if (arr.length > 0 && typeof arr[arr.length - 1] === 'function') {
             callback = arr.pop();
@@ -176,6 +181,7 @@ export class Database extends _Database {
         let { callback } = this.getCallback(statement, params);
 
         if (error) {
+            console.error(error);
             callback(error);
             return statement as Statement;
         }
