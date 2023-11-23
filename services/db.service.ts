@@ -1,9 +1,7 @@
 import { DataSource } from 'typeorm';
 import { Singleton } from 'alosaur/mod.ts';
 import { SubscriberModel } from '../models/index.ts';
-import sqlite3 from './node-sqlite3.ts';
-
-
+import sqlite3 from '../node-sqlite3/sqlite3.ts';
 
 @Singleton()
 export class DatabaseService extends DataSource {

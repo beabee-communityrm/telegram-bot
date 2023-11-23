@@ -1,6 +1,7 @@
-import * as _sqlite3 from 'sqlite3'
-import { Statement } from 'sqlite3'
-import type { DatabaseOpenOptions,  } from 'sqlite3'
+// deno-lint-ignore-file
+
+import { Database as _Database, Statement } from 'sqlite3'
+import type { DatabaseOpenOptions, RestBindParameters } from 'sqlite3'
 
 type ErrorCallback = (err: Error | null) => void;
 
@@ -9,7 +10,8 @@ interface RunResult extends Statement {
     changes: number;
 }
 
-class Database extends _sqlite3.Database {
+
+export class Database extends _Database {
 
     // Constructor interface of the sqlite3 npm package
     constructor(filename: string, callback?: ErrorCallback);
@@ -57,14 +59,13 @@ class Database extends _sqlite3.Database {
         return { arr, callback };
     }
 
-    run(sql: string, ...params: _sqlite3.RestBindParameters): number // deno sqlite3
-    run(sql: string, ...params: _sqlite3.RestBindParameters): Database // node sqlite3
+    run(sql: string, ...params: RestBindParameters): number // deno sqlite3
+    run(sql: string, ...params: RestBindParameters): Database // node sqlite3
 
-    run(sql: string, ...params: _sqlite3.RestBindParameters): Database | number {
+    run(sql: string, ...params: RestBindParameters): Database | number {
         let { callback } = this.getCallback(params);
         try {
             // TODO check result for errors
-            // const result = super.run(sql, ...params)
             const statement = new Statement(this, sql);
             const number = statement.run(...params);
             (statement as RunResult).changes = this.changes;
@@ -100,13 +101,3 @@ class Database extends _sqlite3.Database {
     }
 
 }
-
-export const sqlite3 = {
-    ..._sqlite3,
-    Database,
-    verbose: () => {
-        return sqlite3
-    }
-}
-
-export default sqlite3;
