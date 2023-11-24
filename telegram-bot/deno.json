@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "emitDecoratorMetadata": true
+  },
+  "imports": {
+    "alosaur/": "https://deno.land/x/alosaur@v0.38.0/",
+    "grammy/": "https://deno.land/x/grammy@v1.19.2/",
+    "grammy_types/": "https://deno.land/x/grammy_types@v3.3.0/",
+    "std/": "https://deno.land/std@0.207.0/",
+    "npm:typeorm": "npm:typeorm@0.3.17",
+    "sqlite3": "https://deno.land/x/sqlite3@0.10.0/mod.ts"
+  },
+  "scopes": {
+    "https://raw.githubusercontent.com/Zhomart/dex/": {
+      "https://deno.land/std/": "https://deno.land/std@0.177.0/"
+    }
+  },
+  "tasks": {
+    "dev": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --watch main.ts",
+    "debug": "deno run -A --unstable --inspect-brk main.ts"
+  }
+}
