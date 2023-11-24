@@ -4,5 +4,9 @@
         "Beabee",
         "Deno",
         "denodb"
-    ]
+    ],
+    "deno.enablePaths": [
+        "./telegram-bot",
+        "./beabee-client"
+      ]
 }

@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": ".",
+			"name": "root"
+		},
+		{
+			"path": "telegram-bot"
+		},
+		{
+			"path": "beabee-client"
+		}
+	],
+	"settings": {
+		"deno.config": "",
+		"deno.enablePaths": [
+			"./telegram-bot"
+		]
+	}
+}
