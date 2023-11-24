@@ -1,0 +1,13 @@
+import type {
+  UpdateContactData,
+  ContactRoleData,
+  ForceUpdateContributionData,
+} from './index.ts';
+
+export interface CreateContactData extends UpdateContactData {
+  email: string;
+  firstname: string;
+  lastname: string;
+  roles?: ContactRoleData[];
+  contribution?: ForceUpdateContributionData;
+}

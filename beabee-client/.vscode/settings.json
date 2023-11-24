@@ -9,5 +9,6 @@
         "./node_modules",
         "./jest.config.web.js",
         "./jest.config.node.js",
-    ]
+    ],
+    "editor.formatOnSave": true,
 }

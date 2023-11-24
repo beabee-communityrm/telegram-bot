@@ -21,10 +21,12 @@
 		"deno.enable": true,
 		"deno.lint": true,
 		"deno.unstable": true,
+		"deno.cacheOnSave": true,
 		"deno.disablePaths": [
 			"./beabee-client/test/web",
 			"./beabee-client/test/node",
 			"./beabee-client/out",
-		]
+		],
+		"editor.formatOnSave": true,
 	}
 }

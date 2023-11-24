@@ -23,6 +23,7 @@
         "test:node": "NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.node.js"
     },
     "dependencies": {
+        "@beabee/beabee-common": "^1.18.1",
         "node-fetch": "^2.7.0"
     },
     "devDependencies": {
