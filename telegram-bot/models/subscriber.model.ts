@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column } from "npm:typeorm";
+import { Entity, PrimaryColumn, Column } from "typeorm";
 
 /**
  * A subscriber is a telegram user who has subscribed to a callout.

@@ -12,9 +12,18 @@
 		}
 	],
 	"settings": {
-		"deno.config": "",
+		"cSpell.words": [
+			"alosaur",
+			"Beabee",
+			"Deno",
+			"denodb"
+		],
+		"deno.enable": true,
+		"deno.lint": true,
+		"deno.unstable": true,
 		"deno.enablePaths": [
-			"./telegram-bot"
-		]
+			"telegram-bot",
+			"beabee-client"
+		],
 	}
 }

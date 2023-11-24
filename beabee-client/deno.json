@@ -1,17 +1,7 @@
 {
-  "compilerOptions": {
-    "emitDecoratorMetadata": true
-  },
-  "imports": {
-    "alosaur/": "https://deno.land/x/alosaur@v0.38.0/",
-    "grammy/": "https://deno.land/x/grammy@v1.19.2/",
-    "grammy_types/": "https://deno.land/x/grammy_types@v3.3.0/",
-    "std/": "https://deno.land/std@0.207.0/",
-    "axios": "npm:axios@1.6.2",
-    "sqlite3": "https://deno.land/x/sqlite3@0.10.0/mod.ts"
-  },
-  "tasks": {
-    "dev": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --watch main.ts",
-    "debug": "deno run -A --unstable --inspect-brk main.ts"
-  }
+    "name": "beabee-client",
+    "version": "0.0.1",
+    "tasks": {
+        "dev": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces --watch ./main.ts"
+    }
 }

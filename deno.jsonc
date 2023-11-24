@@ -1,9 +1,12 @@
 {
-    "name": "telegram-bot",
-    "version": "0.0.1",
-    "tasks": {
-        "dev": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces --watch ./main.ts"
-    },
+    // TODO use this workspaces feature as soon as this is supported by denoland.vscode-deno
+    // As long as this is not supported, we need to place all imports in this file instead of 'telegram-bot/deno.jsonc' and 'beabee-client/deno.jsonc'
+    // See https://github.com/denoland/deno/pull/20410
+    "workspaces": [
+        "telegram-bot",
+        "beabee-client"
+    ],
+    
     "compilerOptions": {
         "emitDecoratorMetadata": true
     },
