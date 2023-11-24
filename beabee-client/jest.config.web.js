@@ -5,6 +5,9 @@ export default {
   testMatch: [
     '<rootDir>/test/web/**/*.test.ts'
   ],
+  setupFiles: [
+    '<rootDir>/test/web/setup-jest.js',
+  ],
   extensionsToTreatAsEsm: ['.ts'],
   transform: {
     '^.+\\.tsx?$': [

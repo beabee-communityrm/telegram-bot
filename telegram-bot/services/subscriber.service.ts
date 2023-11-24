@@ -64,8 +64,6 @@ export class SubscriberService {
         return await this.db.manager.exists(SubscriberModel, { 
             where: { id }
         });
-        // const first = (await this.model.where('id', id).first()) as SubscriberModel | undefined;
-        // return !!first;
     }
 
     /**
@@ -93,8 +91,7 @@ export class SubscriberService {
      */
     public async update(ctx: Context) {
         const data = this.transform(ctx);
-        const result = await this.db.manager.update(SubscriberModel, data.id, data);
-        // const result = await this.model.where('id', data.id).update({ ...data });        
+        const result = await this.db.manager.update(SubscriberModel, data.id, data);     
         return result;
     }
 
@@ -106,7 +103,6 @@ export class SubscriberService {
     public async delete(ctx: Context) {
         const id = this.getIdentifier(ctx);
         const result = await this.db.manager.delete(SubscriberModel, id);
-        // const result = await this.model.deleteById(id);
         return result;
     }
 
@@ -116,7 +112,6 @@ export class SubscriberService {
      */
     public async all(): Promise<Array<SubscriberModel & Subscriber>> {
         return await this.db.manager.find(SubscriberModel);
-        // return (await this.model.all()) as Array<SubscriberModel & Subscriber>;
     }
 
 

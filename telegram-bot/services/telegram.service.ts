@@ -46,7 +46,6 @@ export class TelegramService {
         const commands: BotCommand[] = [];
 
         for (const Command of Commands) {
-            // See https://github.com/alosaur/alosaur/tree/master/src/injection
             const command = container.resolve(Command); // Get the singleton instance
             commands.push({ command: command.command, description: command.description });
             this.bot.command(command.command, command.action.bind(command));

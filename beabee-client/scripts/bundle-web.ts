@@ -1,4 +1,4 @@
-// Credits https://github.com/grammyjs/grammY/blob/main/bundling/bundle-web.ts
+// Based on https://github.com/grammyjs/grammY/blob/main/bundling/bundle-web.ts
 import { bundle } from "https://deno.land/x/emit@0.28.0/mod.ts";
 import { createCache } from "https://deno.land/x/deno_cache@0.6.0/mod.ts";
 
@@ -30,6 +30,7 @@ const { code: bundledCode } = await bundle(url, {
 });
 
 console.log("Emitting ...");
+
 // Strip the huge inline source map which is somehow generated anyway
 await Deno.writeTextFile(
     "../out/web.js",

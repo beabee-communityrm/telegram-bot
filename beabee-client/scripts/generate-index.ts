@@ -1,14 +1,14 @@
+// Simple script to generate index.ts files for each folder
 const paths = ["./src/types", "./src/api", "./src/utils"];
 
 const encoder = new TextEncoder();
 
 for (const path of paths) {
   const files = [...Deno.readDirSync(path)];
-  files.sort((a, b) => a.name.localeCompare(b.name)); // Sort by file name
+  // Sort files by file name
+  files.sort((a, b) => a.name.localeCompare(b.name));
 
   let indexContent = "";
-
-
 
   for (const file of files) {
     if (file.name.endsWith('.ts') && file.name !== 'index.ts') {

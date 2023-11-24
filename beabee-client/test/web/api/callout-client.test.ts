@@ -1,4 +1,4 @@
-import { CalloutClient } from '../../../../out/web.js';
+import { CalloutClient } from '../../../out/web.js';
 import { describe, expect, test } from '@jest/globals';
 
 describe("CalloutClient", () => {

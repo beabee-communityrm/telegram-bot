@@ -66,7 +66,7 @@ class Fetch {
      * @param dataType The type of data expected from the server. Default: Intelligent Guess (xml, json, script, text, html).
      */
     protected parseDataType(dataType: string) {
-        const headers: { "Content-Type"?: string; Accept?: string } = {};
+        const headers: Record<string, string> = {};
         let contentType = "application/x-www-form-urlencoded";
         let accept = "*/*";
         switch (dataType) {
@@ -142,7 +142,6 @@ class Fetch {
                 body = JSON.stringify(data);
             }
         }
-
 
         const response = await globalThis.fetch(url, {
             ...options,
