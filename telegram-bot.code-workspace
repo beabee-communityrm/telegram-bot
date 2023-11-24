@@ -5,10 +5,10 @@
 			"name": "root"
 		},
 		{
-			"path": "telegram-bot"
+			"path": "./telegram-bot"
 		},
 		{
-			"path": "beabee-client"
+			"path": "./beabee-client"
 		}
 	],
 	"settings": {
@@ -21,9 +21,10 @@
 		"deno.enable": true,
 		"deno.lint": true,
 		"deno.unstable": true,
-		"deno.enablePaths": [
-			"telegram-bot",
-			"beabee-client"
-		],
+		"deno.disablePaths": [
+			"./beabee-client/test/web",
+			"./beabee-client/test/node",
+			"./beabee-client/out",
+		]
 	}
 }

@@ -1,0 +1,17 @@
+{
+    "name": "beabee-client",
+    "version": "0.0.1",
+    "tasks": {
+        "dev": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces --watch ./mod.ts",
+        "bundle": "deno task bundle:node && deno task bundle:web",
+        "bundle:node": "deno run --no-prompt --allow-read=. --allow-write=. https://deno.land/x/deno2node/src/cli.ts",
+        "bundle:web": "mkdir -p out deno_cache && cd scripts && DENO_DIR=$PWD/../deno_cache deno run --unstable --quiet --allow-net --allow-read --allow-env --allow-write bundle-web.ts ../src/mod.ts",
+        "test": "deno task test:deno && deno task test:node && deno task test:web",
+        "test:deno": "deno test ./test/deno",
+        "test:node": "npm run test:node",
+        "test:web": "npm run test:web"
+    },
+    "imports": {
+        "std/": "https://deno.land/std@0.207.0/"
+    }
+}

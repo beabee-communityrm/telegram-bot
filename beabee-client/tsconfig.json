@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "rootDir": "./src/",
+        "strict": true,
+        "declaration": true,
+        "moduleResolution": "Bundler",
+        "module": "ESNext",
+        "outDir": "./out/",
+        "skipLibCheck": true,
+        "target": "ESNext",
+        "esModuleInterop": true,
+    },
+    "include": [
+        "src/"
+    ],
+    "exclude": [
+        "src/*.web.ts",
+        "src/**/*.test.ts"
+    ],
+    "deno2node": {
+        "shim": "./src/shim.node.ts"
+    }
+}

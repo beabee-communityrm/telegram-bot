@@ -33,6 +33,10 @@ To use the Telegram API, you need to create a bot and obtain a token. Follow the
 
 Ensure the `.env` file is saved and your bot is ready to connect with the Telegram API.
 
+### Testing
+
+Just run `deno test` in the project root directory.
+
 ## Running the Bot
 
 To view the list of available commands, refer to the `deno.json` file. For running the bot in development mode, execute the following command:

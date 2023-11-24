@@ -131,3 +131,6 @@ dist
 
 # SQLlite files
 *.sqlite
+
+# deno2node
+deno_cache/
