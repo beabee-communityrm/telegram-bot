@@ -60,6 +60,7 @@ export * from './http-method.ts';
 export * from './manual-payment-source.ts';
 export * from './noop.ts';
 export * from './notice-data.ts';
+export * from './parse-iso-options.ts';
 export * from './payment-source.ts';
 export * from './serial.ts';
 export * from './set-contribution-data.ts';

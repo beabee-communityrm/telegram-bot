@@ -2,17 +2,33 @@
 import { isJson } from "./index.ts";
 
 import type { FetchOptions, FetchResponse, HttpMethod } from "../types/index.ts";
-import { AnyError } from "typeorm";
 
 /**
  * A wrapper for the fetch API with some additional features.
  */
 export class Fetch {
 
-    constructor(token?: string) {
-        if (token) {
-            this.setRequestHeaderEachRequest('Authorization', `Bearer ${token}`)
+    protected readonly options: FetchOptions;
+
+    protected readonly baseUrl: URL;
+
+    constructor(options: FetchOptions = {}) {
+        if (options.token) {
+            this.setRequestHeaderEachRequest('Authorization', `Bearer ${options.token}`)
         }
+
+        // Set default options
+        options.dataType ||= 'json'
+        options.cache ||= "default";
+        options.credentials ||= "same-origin";
+        options.method ||= "GET";
+        options.mode ||= "cors";
+        options.isAjax ||= typeof options.isAjax === "boolean" ? options.isAjax : true;
+        options.basePath ||= "/";
+
+        this.baseUrl = new URL(options.basePath, options.host);
+
+        this.options = options;
     }
 
     /**
@@ -54,6 +70,14 @@ export class Fetch {
         return this.fetch<T>(url, "PUT", data, options);
     }
 
+    public patch<T = any, D = any>(
+        url: string | URL,
+        data?: D,
+        options: FetchOptions = {},
+    ) {
+        return this.fetch<T>(url, "PATCH", data, options);
+    }
+
     /**
      * Load data from the server using a HTTP GET request.
      * @param url A string containing the URL to which the request is sent.
@@ -73,7 +97,7 @@ export class Fetch {
      * Parse the dataType to headers
      * @param dataType The type of data expected from the server. Default: Intelligent Guess (xml, json, script, text, html).
      */
-    protected parseDataType(dataType: string) {
+    protected parseDataType(dataType?: string) {
         const headers: Record<string, string> = {};
         let contentType = "application/x-www-form-urlencoded";
         let accept = "*/*";
@@ -139,17 +163,15 @@ export class Fetch {
             );
         }
 
-        url = new URL(url, globalThis.location?.origin);
+        options = { ...this.options, ...options };
 
-        // Set default options
-        const dataType = options.dataType || 'json'
-        const cache = options.cache ? options.cache : "default";
-        const credentials = options.credentials || "same-origin";
-        method ||= options.method || "GET";
-        let body = options.body;
-        const mode = options.mode || "cors";
+        if (typeof url === 'string' && url.startsWith('/')) {
+            url = (this.options.basePath + url).replaceAll('//', '/');
+        }
 
-        const headers: Record<string, string> = { ...this._requestHeadersEachRequest, ...options.headers, ...this.parseDataType(dataType) };
+        url = new URL(url, this.baseUrl);
+
+        const headers: Record<string, string> = { ...this._requestHeadersEachRequest, ...options.headers, ...this.parseDataType(options.dataType) };
 
         // This is a common technique used to identify Ajax requests.
         // The `X-Requested-With` header is not a standard HTTP header, but it is commonly used in the context of web development.
@@ -157,11 +179,13 @@ export class Fetch {
             headers["X-Requested-With"] = "XMLHttpRequest";
         }
 
+        let body = options.body;
+
         // If this is a GET request and there is data, add query string to url
         if (method === "GET" && data) {
             url.search = this.objectToSearchParams(data);
         } else if (data) {
-            if (dataType === "form") {
+            if (options.dataType === "form") {
                 body = new URLSearchParams(data);
             } else {
                 body = JSON.stringify(data);
@@ -170,12 +194,9 @@ export class Fetch {
 
         const response = await globalThis.fetch(url, {
             ...options,
-            credentials,
-            cache,
             method,
             body,
             headers,
-            mode,
         });
 
         // Automatically parse json response

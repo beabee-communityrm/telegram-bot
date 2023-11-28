@@ -6,4 +6,7 @@ export interface FetchOptions extends RequestInit {
   dataType?: string;
   isAjax?: boolean;
   method?: HttpMethod;
+  token?: string;
+  host?: string;
+  basePath?: string;
 }
