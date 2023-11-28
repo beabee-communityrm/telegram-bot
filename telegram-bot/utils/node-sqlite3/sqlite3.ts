@@ -2,6 +2,10 @@ import * as _sqlite3 from 'sqlite3'
 import { Database } from './database.ts'
 import { Statement } from './statement.ts'
 
+/**
+ * This is a custom driver to support sqlite3 in deno.
+ * See https://github.com/denodrivers/sqlite3/issues/113
+ */
 export const sqlite3 = {
     ..._sqlite3,
     Database,

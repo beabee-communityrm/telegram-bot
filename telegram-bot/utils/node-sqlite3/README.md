@@ -2,6 +2,8 @@
 
 This project provides a compatibility layer for the Deno SQLite3 module ([denodrivers/sqlite3](https://github.com/denodrivers/sqlite3)), adapting its behavior to match that of the Node.js SQLite3 module ([TryGhost/node-sqlite3](https://github.com/TryGhost/node-sqlite3/tree/master)). This adaptation is essential for enabling the use of TypeORM with SQLite in a Deno environment, ensuring compatibility and consistent behavior across different platforms.
 
+See also [the corresponding issue](https://github.com/denodrivers/sqlite3/issues/113).
+
 ## Overview
 
 TypeORM, a popular ORM for TypeScript, is designed to work seamlessly with various database drivers, including SQLite. However, the native SQLite module for Deno has differences in API and behavior compared to its Node.js counterpart. This project bridges these gaps, providing a unified interface that conforms to the expectations of TypeORM when using SQLite as the database.

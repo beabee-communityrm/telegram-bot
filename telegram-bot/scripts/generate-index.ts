@@ -1,5 +1,5 @@
 // Simple script to generate index.ts files for each folder
-const paths = ["./src/types", "./src/api", "./src/utils"];
+const paths = ["./areas", "./commands", "./controllers", "./models", "./services", "./types", "./utils"];
 
 const encoder = new TextEncoder();
 

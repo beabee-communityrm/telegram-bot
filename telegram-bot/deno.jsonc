@@ -10,7 +10,9 @@
         "grammy_types/": "https://deno.land/x/grammy_types@v3.3.0/",
         "std/": "https://deno.land/std@0.207.0/",
         "typeorm": "npm:typeorm@0.3.17",
-        "sqlite3": "https://deno.land/x/sqlite3@0.10.0/mod.ts"
+        "sqlite3": "https://deno.land/x/sqlite3@0.10.0/mod.ts",
+        "@beabee/beabee-common": "npm:@beabee/beabee-common@1.18.1",
+        "@beabee/client": "../beabee-client/mod.ts"
     },
     "scopes": {
         "https://raw.githubusercontent.com/Zhomart/dex/": {
@@ -18,6 +20,7 @@
         }
     },
     "tasks": {
-        "dev": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces --watch ./main.ts"
+        "dev": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces --watch ./main.ts",
+        "generate:index": "deno run --allow-read --allow-write scripts/generate-index.ts"
     }
 }

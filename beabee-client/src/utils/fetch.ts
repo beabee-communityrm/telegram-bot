@@ -2,11 +2,19 @@
 import { isJson } from "./index.ts";
 
 import type { FetchOptions, FetchResponse, HttpMethod } from "../types/index.ts";
+import { AnyError } from "typeorm";
 
 /**
  * A wrapper for the fetch API with some additional features.
  */
-class Fetch {
+export class Fetch {
+
+    constructor(token?: string) {
+        if (token) {
+            this.setRequestHeaderEachRequest('Authorization', `Bearer ${token}`)
+        }
+    }
+
     /**
      * Set header for each request
      * @param name Header name
@@ -23,7 +31,7 @@ class Fetch {
      * @param options Options for the request
      */
     public post<T = any, D = any>(
-        url: string,
+        url: string | URL,
         data?: D,
         options: FetchOptions = {},
     ) {
@@ -31,7 +39,7 @@ class Fetch {
     }
 
     public delete<T = any, D = any>(
-        url: string,
+        url: string | URL,
         data?: D,
         options: FetchOptions = {},
     ) {
@@ -39,7 +47,7 @@ class Fetch {
     }
 
     public put<T = any, D = any>(
-        url: string,
+        url: string | URL,
         data?: D,
         options: FetchOptions = {},
     ) {
@@ -54,7 +62,7 @@ class Fetch {
      * @param options Additional options for the request
      */
     public get<T = unknown, D = any>(
-        url: string,
+        url: string | URL,
         data?: D,
         options: FetchOptions = {},
     ) {
@@ -75,7 +83,7 @@ class Fetch {
                 break;
             case "json":
                 contentType = "application/json";
-                accept = "application/json, text/javascript";
+                accept = "application/json";
                 break;
             case "xml":
                 contentType = "application/xml";
@@ -100,8 +108,27 @@ class Fetch {
         return headers;
     }
 
+    objectToSearchParams(obj: Record<string, any>, prefix = ''): string {
+        const params = [];
+
+        for (const key in obj) {
+            if (obj[key]) {
+                const value = obj[key];
+                const paramKey = prefix ? `${prefix}[${key}]` : key;
+
+                if (value !== null && typeof value === 'object') {
+                    params.push(this.objectToSearchParams(value, paramKey));
+                } else {
+                    params.push(encodeURIComponent(paramKey) + '=' + encodeURIComponent(value));
+                }
+            }
+        }
+
+        return params.join('&');
+    }
+
     protected async fetch<T = unknown, D = any>(
-        url: string,
+        url: string | URL,
         method: HttpMethod = "GET",
         data: D,
         options: FetchOptions = {},
@@ -111,6 +138,8 @@ class Fetch {
                 "Your platform does not support the fetch API, use xhr instead or install a polyfill.",
             );
         }
+
+        url = new URL(url, globalThis.location?.origin);
 
         // Set default options
         const dataType = options.dataType || 'json'
@@ -130,11 +159,7 @@ class Fetch {
 
         // If this is a GET request and there is data, add query string to url
         if (method === "GET" && data) {
-            const queryStr = new URLSearchParams(data).toString();
-            if (queryStr) {
-                const separator = url.includes("?") ? "&" : "?";
-                url = url + separator + new URLSearchParams(data).toString();
-            }
+            url.search = this.objectToSearchParams(data);
         } else if (data) {
             if (dataType === "form") {
                 body = new URLSearchParams(data);
@@ -188,10 +213,3 @@ class Fetch {
      */
     protected _requestHeadersEachRequest: Record<string, string> = {};
 }
-
-// Export a singleton
-
-/**
- * A wrapper for the fetch API with some additional features.
- */
-export const fetch = new Fetch();

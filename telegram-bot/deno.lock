@@ -2,6 +2,7 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "npm:@beabee/beabee-common@1.18.1": "npm:@beabee/beabee-common@1.18.1",
       "npm:typeorm@0.3.17": "npm:typeorm@0.3.17"
     },
     "npm": {
@@ -9,6 +10,12 @@
         "integrity": "sha512-2Yv65nlWnWlSpe3fXEyX5i7fx5kIKo4Qbcj+hMO0odwaneFjfXw5fdum+4yL20O0QiaHpia0cYQ9xpNMqrBwHg==",
         "dependencies": {
           "regenerator-runtime": "regenerator-runtime@0.14.0"
+        }
+      },
+      "@beabee/beabee-common@1.18.1": {
+        "integrity": "sha512-plPsV6r1NA+EVvyvS6UzFH52KWXhzWIvIH79EoioldA2WmvjhUU4Zs9yff9agXMT4MP4LFOUBPXKrN2zvvhIVg==",
+        "dependencies": {
+          "date-fns": "date-fns@2.30.0"
         }
       },
       "@sqltools/formatter@1.2.5": {
