@@ -26,8 +26,15 @@ export class ListCommand implements Command {
 
     // Handle the /list command
     async action(ctx: Context) {
-        const list = await this.callout.list();
-        console.debug("list", list);
-        await ctx.reply("*Hi\\!* _Welcome_ to [beabee](https://beabee.io/)\\.", { parse_mode: "MarkdownV2" });
+        const callouts = await this.callout.list();
+        console.debug("callouts", callouts);
+
+        let text = "*List of active callouts:*\n";
+
+        for (const item of callouts.items) {
+            text += `\\- [${item.title.replaceAll('-', '\\-')}](${item.slug})\n`;
+        }
+
+        await ctx.reply(text, { parse_mode: "MarkdownV2" });
     }
 }

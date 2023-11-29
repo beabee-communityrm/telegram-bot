@@ -12,11 +12,9 @@ export class CalloutClient extends BaseClient {
     }
 
     protected deserialize(callout: any) {
-        return {
-            ...callout,
-            starts: this.deserializeDate(callout.starts),
-            expires: this.deserializeDate(callout.expires),
-        };
+        callout.starts = this.deserializeDate(callout.starts);
+        callout.expires = this.deserializeDate(callout.expires);
+        return callout;
     }
 
     async get<With extends GetCalloutWith = void>(slug: string, _with?: readonly With[]) {
@@ -32,11 +30,8 @@ export class CalloutClient extends BaseClient {
             '/',
             { with: _with },
         );
-        console.debug("data", data);
-        return {
-            ...data,
-            items: data.items.map(this.deserialize),
-        };
+        data.items = data.items.map(this.deserialize.bind(this));
+        return data as Paginated<GetCalloutDataWith<With>>;
     }
 
     async create(newData: CreateCalloutData) {
