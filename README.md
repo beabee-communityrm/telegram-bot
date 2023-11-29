@@ -10,6 +10,7 @@ Welcome to the Beabee Workspace, a multi-project development environment managed
 
 To get started with this workspace:
 
+- Ensure you have Deno installed. We recommend using a [Deno Version Manager (DVM)](https://github.com/justjavac/dvm) for easier migration between different versions of Deno.
 - Ensure you have Visual Studio Code installed with support for Deno.
 - Clone this repository and open it in VSCode.
 - VSCode will recognize the workspace configuration and load each project with its specific settings and dependencies.

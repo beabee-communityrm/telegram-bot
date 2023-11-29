@@ -13,7 +13,7 @@ const generateIndex = (paths: string[]) => {
     let indexContent = "";
 
     for (const file of files) {
-      if (file.name.endsWith('.ts') && file.name !== 'index.ts') {
+      if ((file.name.endsWith('.ts') || file.name.endsWith('.tsx')) && file.name !== 'index.ts') {
         indexContent += `export * from './${file.name}';\n`;
       }
     }

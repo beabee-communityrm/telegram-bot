@@ -1,6 +1,7 @@
 import { Singleton } from 'alosaur/mod.ts';
 import { Command } from '../types/command.ts';
-import { CalloutClient } from '@beabee/client';
+import { CalloutService } from '../services/callout.service.ts';
+import { escapeMd } from '../utils/index.ts';
 
 import type { Context } from "grammy/context.ts";
 
@@ -9,32 +10,22 @@ export class ListCommand implements Command {
     command = 'list';
     description = 'List active Callouts';
 
-    callout: CalloutClient;
-
-    constructor() {
-        const host = Deno.env.get("BEABEE_API_BASE_HOST") || "http://localhost:3001";
-        const path = Deno.env.get("BEABEE_API_BASE_PATH") || "/api/1.0/";
-        const token = Deno.env.get("BEABEE_API_TOKEN");
-
-        if (!token) {
-            throw new Error("BEABEE_API_TOKEN is required");
-        }
-
-        this.callout = new CalloutClient({ path, host, token });
+    constructor(protected readonly callout: CalloutService) {
+        //...
     }
-
 
     // Handle the /list command
     async action(ctx: Context) {
-        const callouts = await this.callout.list();
-        console.debug("callouts", callouts);
+        const calloutsMd = await this.callout.list();
 
-        let text = "*List of active callouts:*\n";
+        const infoMessage = `_${escapeMd('Which callout would you like to get more information displayed about? Type in the number and send it to me.')}_`;
 
-        for (const item of callouts.items) {
-            text += `\\- [${item.title.replaceAll('-', '\\-')}](${item.slug})\n`;
-        }
+        const message = `${calloutsMd}\n\n${infoMessage}`;
 
-        await ctx.reply(text, { parse_mode: "MarkdownV2" });
+        console.debug("Sending message", message);
+
+        ctx.hasCommand
+
+        await ctx.reply(message, { parse_mode: "MarkdownV2" });
     }
 }

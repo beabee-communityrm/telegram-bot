@@ -3,6 +3,7 @@
   "packages": {
     "specifiers": {
       "npm:@beabee/beabee-common@1.18.1": "npm:@beabee/beabee-common@1.18.1",
+      "npm:query-string@8.1.0": "npm:query-string@8.1.0",
       "npm:typeorm@0.3.17": "npm:typeorm@0.3.17"
     },
     "npm": {
@@ -117,6 +118,10 @@
           "ms": "ms@2.1.2"
         }
       },
+      "decode-uri-component@0.4.1": {
+        "integrity": "sha512-+8VxcR21HhTy8nOt6jf20w0c9CADrw1O8d+VZ/YzzCt4bJ3uBjw+D1q2osAB8RnpwwaeYBxy0HyKQxD5JBMuuQ==",
+        "dependencies": {}
+      },
       "dotenv@16.3.1": {
         "integrity": "sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ==",
         "dependencies": {}
@@ -127,6 +132,10 @@
       },
       "escalade@3.1.1": {
         "integrity": "sha512-k0er2gUkLf8O0zKJiAhmkTnJlTvINGv7ygDNPbeIsX/TJjGJZHuh9B2UxbsaEkmlEo9MfhrSzmhIlhRlI2GXnw==",
+        "dependencies": {}
+      },
+      "filter-obj@5.1.0": {
+        "integrity": "sha512-qWeTREPoT7I0bifpPUXtxkZJ1XJzxWtfoWWkdVGqa+eCr3SHW/Ocp89o8vLvbUuQnadybJpjOKu4V+RwO6sGng==",
         "dependencies": {}
       },
       "fs.realpath@1.0.0": {
@@ -220,6 +229,14 @@
         "integrity": "sha512-Ofn/CTFzRGTTxwpNEs9PP93gXShHcTq255nzRYSKe8AkVpZY7e1fpmTfOyoIvjP5HG7Z2ZM7VS9PPhQGW2pOpw==",
         "dependencies": {}
       },
+      "query-string@8.1.0": {
+        "integrity": "sha512-BFQeWxJOZxZGix7y+SByG3F36dA0AbTy9o6pSmKFcFz7DAj0re9Frkty3saBn3nHo3D0oZJ/+rx3r8H8r8Jbpw==",
+        "dependencies": {
+          "decode-uri-component": "decode-uri-component@0.4.1",
+          "filter-obj": "filter-obj@5.1.0",
+          "split-on-first": "split-on-first@3.0.0"
+        }
+      },
       "reflect-metadata@0.1.13": {
         "integrity": "sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg==",
         "dependencies": {}
@@ -242,6 +259,10 @@
           "inherits": "inherits@2.0.4",
           "safe-buffer": "safe-buffer@5.2.1"
         }
+      },
+      "split-on-first@3.0.0": {
+        "integrity": "sha512-qxQJTx2ryR0Dw0ITYyekNQWpz6f8dGd7vffGNflQQ3Iqj9NJ6qiZ7ELpZsJ/QBhIVAiDfXdag3+Gp8RvWa62AA==",
+        "dependencies": {}
       },
       "string-width@4.2.3": {
         "integrity": "sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==",

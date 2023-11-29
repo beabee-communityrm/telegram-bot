@@ -2,7 +2,9 @@
     "name": "telegram-bot",
     "version": "0.0.1",
     "compilerOptions": {
-        "emitDecoratorMetadata": true
+        "emitDecoratorMetadata": true,
+        "jsxFactory": "h",
+        "jsxFragmentFactory": "Fragment"
     },
     "imports": {
         "alosaur/": "https://deno.land/x/alosaur@v0.38.0/",
@@ -12,7 +14,8 @@
         "typeorm": "npm:typeorm@0.3.17",
         "sqlite3": "https://deno.land/x/sqlite3@0.10.0/mod.ts",
         "@beabee/beabee-common": "npm:@beabee/beabee-common@1.18.1",
-        "@beabee/client": "../beabee-client/mod.ts"
+        "@beabee/client": "../beabee-client/mod.ts",
+        "@beabee/telegram-bot": "./main.ts"
     },
     "scopes": {
         "https://raw.githubusercontent.com/Zhomart/dex/": {

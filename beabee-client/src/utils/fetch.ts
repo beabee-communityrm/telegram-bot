@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
-import { isJson } from "./index.ts";
+import { isJson, cleanUrl, objToQueryString } from "./index.ts";
 
 import type { FetchOptions, FetchResponse, HttpMethod } from "../types/index.ts";
 
@@ -132,25 +132,6 @@ export class Fetch {
         return headers;
     }
 
-    objectToSearchParams(obj: Record<string, any>, prefix = ''): string {
-        const params = [];
-
-        for (const key in obj) {
-            if (obj[key]) {
-                const value = obj[key];
-                const paramKey = prefix ? `${prefix}[${key}]` : key;
-
-                if (value !== null && typeof value === 'object') {
-                    params.push(this.objectToSearchParams(value, paramKey));
-                } else {
-                    params.push(encodeURIComponent(paramKey) + '=' + encodeURIComponent(value));
-                }
-            }
-        }
-
-        return params.join('&');
-    }
-
     protected async fetch<T = unknown, D = any>(
         url: string | URL,
         method: HttpMethod = "GET",
@@ -166,7 +147,7 @@ export class Fetch {
         options = { ...this.options, ...options };
 
         if (typeof url === 'string' && url.startsWith('/')) {
-            url = (this.options.basePath + url).replaceAll('//', '/');
+            url = cleanUrl(this.options.basePath + '/' + url);
         }
 
         url = new URL(url, this.baseUrl);
@@ -183,7 +164,9 @@ export class Fetch {
 
         // If this is a GET request and there is data, add query string to url
         if (method === "GET" && data) {
-            url.search = this.objectToSearchParams(data);
+            url.search = objToQueryString(data);
+            console.debug("GET", url);
+            console.debug("GET", url.search);
         } else if (data) {
             if (options.dataType === "form") {
                 body = new URLSearchParams(data);
@@ -225,7 +208,25 @@ export class Fetch {
         const result: FetchResponse<T> = {
             ...response,
             data: bodyResult,
+            // WORKAROUND: 
+            ok: response.status >= 200 && response.status < 300,
         };
+
+        // Makes it sense to throw an error if the response is not ok?
+        if (!result.ok) {
+            if (result.data) {
+                const data = result.data as any;
+                console.error("Error response", data);
+                if (Array.isArray(data.errors)) {
+                    for (const error of data.errors) {
+                        console.error(JSON.stringify(error, null, 2));
+                    }
+                }
+                throw new Error(data.message || data.name || data.code || data.statusText || 'Unknown error');
+            }
+            throw result;
+        }
+
         return result;
     }
 
