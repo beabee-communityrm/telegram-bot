@@ -1,9 +1,12 @@
 import { CalloutClient } from '@beabee/client';
 import { ItemStatus } from '@beabee/beabee-common';
 import { Singleton } from 'alosaur/mod.ts';
-import { escapeMd } from '../utils/index.ts';
 
-import type { CalloutData, GetCalloutsQuery } from '@beabee/client';
+import type {
+    CalloutData, GetCalloutsQuery, GetCalloutData
+} from '@beabee/client';
+import type { CalloutDataExt, GetCalloutDataExt } from '../types/index.ts';
+import type { Paginated } from '@beabee/beabee-common';
 
 const CALLOUTS_ACTIVE_QUERY: GetCalloutsQuery = {
     rules: {
@@ -40,33 +43,35 @@ export class CalloutService {
         return new URL(slug, this.baseUrl);
     }
 
-    protected createListItem(callout: CalloutData, listChar: string = '\\-') {
-        listChar = escapeMd(listChar);
-        if (callout.slug) {
-            return `${listChar} [${escapeMd(callout.title)}](${this.getUrl(callout.slug)})\n`;
-        } else {
-            return `${listChar} ${escapeMd(callout.title)}\n`;
+    protected extend(callout: GetCalloutData): GetCalloutDataExt
+    protected extend(callout: CalloutData): CalloutDataExt {
+        return {
+            ...callout,
+            url: callout.slug ? this.getUrl(callout.slug).toString() : null,
         }
-
     }
 
-    protected createListItems(callouts: CalloutData[]) {
-        let text = `*List of active callouts*\n\n`;
-        let p = 1;
-        for (const callout of callouts) {
-            text += `${this.createListItem(callout, `${p}.`)}`;
-        }
-
-        return text;
+    /**
+     * Get a callout
+     * @param slug The slug of the callout to get
+     * @returns The callout
+     */
+    public async get(slug: string) {
+        const callout = await this.client.get(slug);
+        return this.extend(callout);
     }
 
-    public async list() {
-        const callouts = await this.client.list({
+    public async list(limit = 10) {
+        const data = await this.client.list({
             ...CALLOUTS_ACTIVE_QUERY,
-            limit: 100,
+            limit,
             sort: 'title',
         });
-        if (callouts.items.length === 0) return 'No active callouts';
-        return this.createListItems(callouts.items);
+        const callouts: Paginated<GetCalloutDataExt> = {
+            ...data,
+            items: data.items.map((item) => this.extend(item)),
+        };
+
+        return callouts;
     }
 }

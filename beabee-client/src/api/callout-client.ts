@@ -26,6 +26,7 @@ export class CalloutClient extends BaseClient {
             starts: this.deserializeDate(_callout.starts),
             expires: this.deserializeDate(_callout.expires),
         };
+
         return callout;
     }
 
