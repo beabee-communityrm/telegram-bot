@@ -32,9 +32,8 @@ export class ShowCommand implements Command {
             const callout = await this.callout.get(slug);
             console.debug("Got callout", callout);
 
-            const { photo } = await this.render.callout(callout);
-
-            await ctx.replyWithMediaGroup([photo]);
+            const res = await this.render.callout(callout);
+            await this.render.reply(ctx, res);
         } catch (error) {
             console.error("Error sending callout", error);
             await ctx.reply("Error sending callout");

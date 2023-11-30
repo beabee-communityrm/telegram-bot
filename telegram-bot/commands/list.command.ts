@@ -1,6 +1,6 @@
 import { Injectable } from 'alosaur/mod.ts';
 import { Command } from '../types/command.ts';
-import { CalloutService, RenderService } from '../services/index.ts';
+import { CalloutService, RenderService, KeyboardService } from '../services/index.ts';
 import { escapeMd } from '../utils/index.ts';
 import { InlineKeyboard } from "grammy/mod.ts";
 
@@ -11,7 +11,7 @@ export class ListCommand implements Command {
     command = 'list';
     description = 'List active Callouts';
 
-    constructor(protected readonly callout: CalloutService, protected readonly render: RenderService) {
+    constructor(protected readonly callout: CalloutService, protected readonly render: RenderService, protected readonly keyboard: KeyboardService) {
         //...
     }
 
@@ -24,20 +24,16 @@ export class ListCommand implements Command {
             return;
         }
 
-        const { markdown } = this.render.calloutListItems(callouts.items);
+        const res = this.render.calloutListItems(callouts.items);
+        await this.render.reply(ctx, res);
 
-        console.debug("Sending message", markdown);
+        console.debug("Sending message", res);
 
-        await ctx.reply(markdown, { parse_mode: "MarkdownV2" });
-
-        const inlineKeyboard = new InlineKeyboard();
-        for (let i = 0; i < callouts.items.length; i++) {
-            inlineKeyboard.text(`${i + 1}`, `show-callout-slug:${callouts.items[i].slug}`);
-        }
+        const keyboard = this.keyboard.calloutSelection(callouts.items);
         const keyboardMessageMd = `_${escapeMd('Which callout would you like to get more information displayed about? Choose a number')}_`;
 
         await ctx.reply(keyboardMessageMd, {
-            reply_markup: inlineKeyboard,
+            reply_markup: keyboard,
             parse_mode: "MarkdownV2"
         });
 

@@ -1,6 +1,6 @@
 import { Injectable } from 'alosaur/mod.ts';
 import { SubscriberModel } from '../models/index.ts';
-import { DatabaseService } from './db.service.ts';
+import { DatabaseService } from './database.service.ts';
 
 import type { Context } from "grammy/mod.ts";
 import type { Subscriber } from '../types/index.ts';
