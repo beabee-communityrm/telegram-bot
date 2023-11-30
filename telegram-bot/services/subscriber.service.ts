@@ -1,11 +1,11 @@
-import { Singleton } from 'alosaur/mod.ts';
+import { Injectable } from 'alosaur/mod.ts';
 import { SubscriberModel } from '../models/index.ts';
 import { DatabaseService } from './db.service.ts';
 
 import type { Context } from "grammy/mod.ts";
 import type { Subscriber } from '../types/index.ts';
 
-@Singleton() // See https://github.com/alosaur/alosaur/tree/master/src/injection
+@Injectable() // See https://github.com/alosaur/alosaur/tree/master/src/injection
 export class SubscriberService {
 
     /**
@@ -35,7 +35,7 @@ export class SubscriberService {
      * @returns 
      */
     private transform(ctx: Context, forceAnonymous = false) {
-        if(!ctx.from || forceAnonymous) return this.transformAnonymous(ctx);
+        if (!ctx.from || forceAnonymous) return this.transformAnonymous(ctx);
         const id = this.getIdentifier(ctx);
 
         const subscriber = new SubscriberModel()
@@ -51,7 +51,7 @@ export class SubscriberService {
 
     private getIdentifier(ctx: Context) {
         const id = ctx.chat?.id || ctx.from?.id;
-        if(!id) throw new Error("No id found on context");
+        if (!id) throw new Error("No id found on context");
         return id;
     }
 
@@ -61,7 +61,7 @@ export class SubscriberService {
      * @returns 
      */
     public async exists(id: number) {
-        return await this.db.manager.exists(SubscriberModel, { 
+        return await this.db.manager.exists(SubscriberModel, {
             where: { id }
         });
     }
@@ -73,7 +73,7 @@ export class SubscriberService {
      */
     public async create(ctx: Context): Promise<(SubscriberModel & Subscriber) | null> {
         const id = this.getIdentifier(ctx);
-        if(await this.exists(id)) {
+        if (await this.exists(id)) {
             console.debug("Subscriber already exists", id);
             return null;
         }
@@ -91,7 +91,7 @@ export class SubscriberService {
      */
     public async update(ctx: Context) {
         const data = this.transform(ctx);
-        const result = await this.db.manager.update(SubscriberModel, data.id, data);     
+        const result = await this.db.manager.update(SubscriberModel, data.id, data);
         return result;
     }
 

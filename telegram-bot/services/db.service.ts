@@ -1,9 +1,9 @@
 import { DataSource } from 'typeorm';
-import { Singleton } from 'alosaur/mod.ts';
+import { Injectable } from 'alosaur/mod.ts';
 import { SubscriberModel } from '../models/index.ts';
 import { nodeSqlite3 } from '../utils/node-sqlite3/index.ts';
 
-@Singleton()
+@Injectable()
 export class DatabaseService extends DataSource {
 
     constructor() {
@@ -16,7 +16,7 @@ export class DatabaseService extends DataSource {
             database: dbPath,
             dropSchema: dropDb,
             synchronize: true,
-            logging: true,
+            logging: false, // Enable for debugging
             entities: [SubscriberModel],
             migrations: [],
             subscribers: [],

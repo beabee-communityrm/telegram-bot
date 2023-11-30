@@ -1,17 +1,17 @@
-import { Singleton } from 'alosaur/mod.ts';
+import { Injectable } from 'alosaur/mod.ts';
 import { Command } from '../types/command.ts';
-import { CalloutService, MarkdownService } from '../services/index.ts';
+import { CalloutService, RenderService } from '../services/index.ts';
 import { escapeMd } from '../utils/index.ts';
 import { InlineKeyboard } from "grammy/mod.ts";
 
 import type { Context } from "grammy/context.ts";
 
-@Singleton()
+@Injectable()
 export class ListCommand implements Command {
     command = 'list';
     description = 'List active Callouts';
 
-    constructor(protected readonly callout: CalloutService, protected readonly markdown: MarkdownService) {
+    constructor(protected readonly callout: CalloutService, protected readonly render: RenderService) {
         //...
     }
 
@@ -24,11 +24,11 @@ export class ListCommand implements Command {
             return;
         }
 
-        const calloutListMd = this.markdown.calloutsListItems(callouts.items);
+        const { markdown } = this.render.calloutListItems(callouts.items);
 
-        console.debug("Sending message", calloutListMd);
+        console.debug("Sending message", markdown);
 
-        await ctx.reply(calloutListMd, { parse_mode: "MarkdownV2" });
+        await ctx.reply(markdown, { parse_mode: "MarkdownV2" });
 
         const inlineKeyboard = new InlineKeyboard();
         for (let i = 0; i < callouts.items.length; i++) {

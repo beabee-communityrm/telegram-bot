@@ -1,18 +1,18 @@
-import { Singleton, container } from 'alosaur/mod.ts';
+import { Injectable } from 'alosaur/mod.ts';
 import { InputMediaBuilder, InputFile } from "grammy/mod.ts";
-import { CalloutService, TelegramService } from '../services/index.ts';
+import { CalloutService, RenderService } from '../services/index.ts';
 import { escapeMd, downloadImage } from '../utils/index.ts';
 
 import type { Context } from "grammy/context.ts";
 import type { Command } from '../types/command.ts';
 
-@Singleton()
+@Injectable()
 export class ShowCommand implements Command {
     command = 'show';
-    description = `Shows you information about a specific callout. If you want to see what active callouts are available, use '/list'.`;
+    description = `Shows you information about a specific callout`;
 
-    constructor(protected readonly callout: CalloutService) {
-
+    constructor(protected readonly callout: CalloutService, protected readonly render: RenderService) {
+        //...
     }
 
     // Handle the /show command
@@ -32,14 +32,9 @@ export class ShowCommand implements Command {
             const callout = await this.callout.get(slug);
             console.debug("Got callout", callout);
 
-            const imagePath = await downloadImage(callout.image);
-            const inputFile = new InputFile(await Deno.open(imagePath), callout.title);
+            const { photo } = await this.render.callout(callout);
 
-            // TODO: Add URL to callout
-            const captionMd = `*${escapeMd(callout.title)}*\n\n${escapeMd(callout.excerpt)}`;
-            const calloutImage = InputMediaBuilder.photo(inputFile, { caption: captionMd, parse_mode: "MarkdownV2" });
-
-            await ctx.replyWithMediaGroup([calloutImage]);
+            await ctx.replyWithMediaGroup([photo]);
         } catch (error) {
             console.error("Error sending callout", error);
             await ctx.reply("Error sending callout");

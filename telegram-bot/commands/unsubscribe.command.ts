@@ -1,10 +1,10 @@
-import { Singleton, container } from 'alosaur/mod.ts';
+import { Injectable, container } from 'alosaur/mod.ts';
 import { Command } from '../types/command.ts';
 import { SubscriberService } from '../services/index.ts';
 
 import type { Context } from "grammy/context.ts";
 
-@Singleton()
+@Injectable()
 export class UnsubscribeCommand implements Command {
     command = 'unsubscribe';
     description = 'Unsubscribe from a Callout';
