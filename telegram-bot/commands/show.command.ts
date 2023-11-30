@@ -1,9 +1,10 @@
 import { Singleton, container } from 'alosaur/mod.ts';
-import { Command } from '../types/command.ts';
+import { InputMediaBuilder, InputFile } from "grammy/mod.ts";
 import { CalloutService, TelegramService } from '../services/index.ts';
-import { escapeMd } from '../utils/index.ts';
+import { escapeMd, downloadImage } from '../utils/index.ts';
 
 import type { Context } from "grammy/context.ts";
+import type { Command } from '../types/command.ts';
 
 @Singleton()
 export class ShowCommand implements Command {
@@ -27,11 +28,21 @@ export class ShowCommand implements Command {
             return;
         }
 
-        const callout = await this.callout.get(slug);
-        console.debug("Got callout", callout);
+        try {
+            const callout = await this.callout.get(slug);
+            console.debug("Got callout", callout);
 
-        // Send the callout excerpt
-        // TODO: Send the full callout with title, image and excerpt
-        await ctx.reply(callout.excerpt);
+            const imagePath = await downloadImage(callout.image);
+            const inputFile = new InputFile(await Deno.open(imagePath), callout.title);
+
+            // TODO: Add URL to callout
+            const captionMd = `*${escapeMd(callout.title)}*\n\n${escapeMd(callout.excerpt)}`;
+            const calloutImage = InputMediaBuilder.photo(inputFile, { caption: captionMd, parse_mode: "MarkdownV2" });
+
+            await ctx.replyWithMediaGroup([calloutImage]);
+        } catch (error) {
+            console.error("Error sending callout", error);
+            await ctx.reply("Error sending callout");
+        }
     }
 }
