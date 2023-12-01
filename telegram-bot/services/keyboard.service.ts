@@ -1,14 +1,15 @@
 import { Singleton } from 'alosaur/mod.ts';
 import { InlineKeyboard } from "grammy/mod.ts";
+import { EventService, CalloutService, RenderService } from './index.ts';
 
 import type { CalloutDataExt } from "../types/index.ts";
+import type { Context } from "grammy/context.ts";
 
 /**
  * Service to create Telegram keyboard buttons
  */
 @Singleton()
 export class KeyboardService {
-
     /**
      * Create a keyboard button to select a callout
      * @param startIndex The index of the first callout to show, starting at 1

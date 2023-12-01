@@ -54,6 +54,12 @@ export class RenderService {
         return result;
     }
 
+    /**
+     * Render a callout title in Markdown
+     * @param callout The callout to render
+     * @param withUrl Whether to include the URL in the title
+     * @returns 
+     */
     public calloutTitle(callout: CalloutDataExt, withUrl = true) {
         const result: RenderResult = {
             type: RenderResultType.MARKDOWN,

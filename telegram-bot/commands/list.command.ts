@@ -1,8 +1,7 @@
 import { Singleton } from 'alosaur/mod.ts';
 import { Command } from '../types/command.ts';
-import { CalloutService, RenderService, KeyboardService } from '../services/index.ts';
+import { CalloutService, RenderService, KeyboardService, EventService } from '../services/index.ts';
 import { escapeMd } from '../utils/index.ts';
-import { InlineKeyboard } from "grammy/mod.ts";
 
 import type { Context } from "grammy/context.ts";
 
@@ -11,12 +10,42 @@ export class ListCommand implements Command {
     command = 'list';
     description = 'List active Callouts';
 
-    constructor(protected readonly callout: CalloutService, protected readonly render: RenderService, protected readonly keyboard: KeyboardService) {
-        //...
+    constructor(
+        protected readonly callout: CalloutService,
+        protected readonly render: RenderService,
+        protected readonly keyboard: KeyboardService,
+        protected readonly event: EventService
+    ) {
+        // Listen for the callback query data event with the `show-callout-slug` data
+        this.event.on("callback_query:data:show-callout-slug", (event) => {
+            this.onCalloutSelectionKeyboardPressed(event.detail);
+        });
+    }
+
+    protected async onCalloutSelectionKeyboardPressed(ctx: Context) {
+        const slug = ctx.callbackQuery?.data?.split(':')[1];
+
+        if (!slug) {
+            await ctx.reply("This button has not a callout slug associated with it");
+            return;
+        }
+
+        try {
+            const callout = await this.callout.get(slug);
+            console.debug("Got callout", callout);
+
+            const res = await this.render.callout(callout);
+            await this.render.reply(ctx, res);
+        } catch (error) {
+            console.error("Error sending callout", error);
+            await ctx.reply("Error sending callout");
+        }
+
+        await ctx.answerCallbackQuery(); // remove loading animation
     }
 
     // Handle the /list command
-    async action(ctx: Context) {
+    public async action(ctx: Context) {
         const callouts = await this.callout.list();
 
         if (callouts.items.length === 0) {

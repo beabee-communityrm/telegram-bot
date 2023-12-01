@@ -1,5 +1,4 @@
 import { Singleton } from 'alosaur/mod.ts';
-import { TelegramService } from '../services/index.ts';
 import { CalloutService, RenderService } from '../services/index.ts';
 
 import type { Context } from "grammy/context.ts";
@@ -10,25 +9,16 @@ export class ShowCommand implements Command {
     command = 'show';
     description = `Shows you information about a specific callout`;
 
-    constructor(protected readonly callout: CalloutService, protected readonly render: RenderService, protected readonly telegramService: TelegramService) {
-        // Listen for the callback query data event with the `show-callout-slug` data
-        telegramService.on("callback_query:data:show-callout-slug", (event) => {
-            this.onShowCalloutButtonPressed(event.detail);
-        });
-    }
-
-    async onShowCalloutButtonPressed(ctx: Context) {
-        await this.action(ctx);
-        await ctx.answerCallbackQuery(); // remove loading animation
+    constructor(protected readonly callout: CalloutService, protected readonly render: RenderService) {
+        //...
     }
 
     // Handle the /show command
     async action(ctx: Context) {
         console.debug("Show command called");
 
-        // Get the slug from the `/show slug` message text or from the callback query data
-        const slug = ctx.message?.text?.split(' ')[1] || ctx.callbackQuery?.data?.split(':')[1];
-        console.debug("Slug", slug);
+        // Get the slug from the `/show slug` message text
+        const slug = ctx.message?.text?.split(' ')[1];
 
         if (!slug) {
             await ctx.reply("Please specify a callout slug. E.g. `/show my-callout`");

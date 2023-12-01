@@ -1,4 +1,3 @@
-import { TelegramService } from '../services/index.ts';
 import { BotCommandScope } from '../enums/index.ts';
 
 import type { Context } from "grammy/context.ts";
@@ -19,8 +18,6 @@ export interface Command {
      * Not yet implemented.
      */
     scope?: BotCommandScope;
-
-    // init(telegramService: TelegramService): Promise<void>;
 
     /**
      * The action that is executed when the command is called.
