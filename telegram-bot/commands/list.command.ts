@@ -16,6 +16,10 @@ export class ListCommand implements Command {
         protected readonly keyboard: KeyboardService,
         protected readonly event: EventService
     ) {
+        this.addEventListeners();
+    }
+
+    protected addEventListeners() {
         // Listen for the callback query data event with the `show-callout-slug` data
         this.event.on("callback_query:data:show-callout-slug", (event) => {
             this.onCalloutSelectionKeyboardPressed(event.detail);

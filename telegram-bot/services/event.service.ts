@@ -42,6 +42,8 @@ export class EventService {
      * Emits a series of detailed events based on a given event name. 
      * The method takes an event name, splits it by the ':' character, 
      * and emits progressively more detailed events for each segment.
+     * @param eventName E.g. "callback_query:data:show-callout-slug:my-callout"
+     * @param ctx The Telegram context
      *
      * For example, given the event name 'callback_query:data:show-callout-slug:my-callout',
      * it emits the following events in order:
@@ -58,8 +60,6 @@ export class EventService {
      * @fires message
      * @fires message:user-123456789
      *
-     * @param eventName E.g. "callback_query:data:show-callout-slug:my-callout"
-     * @param ctx 
      */
     public emitDetailedEvents(eventName: string, ctx: Context) {
         const eventNameParts = eventName.split(':');

@@ -1,17 +1,21 @@
 import { Singleton } from 'alosaur/mod.ts';
 import { InlineKeyboard } from "grammy/mod.ts";
-import { EventService, CalloutService, RenderService } from './index.ts';
+import { BUTTON_CALLBACK_SHOW_CALLOUT_SLUG } from "../constants.ts";
 
 import type { CalloutDataExt } from "../types/index.ts";
-import type { Context } from "grammy/context.ts";
 
 /**
  * Service to create Telegram keyboard buttons
  */
 @Singleton()
 export class KeyboardService {
+
     /**
-     * Create a keyboard button to select a callout
+     * Create a keyboard button to select a callout.
+     * 
+     * To respond to the button press, listen for the `callback_query:data:show-callout-slug` event using the EventService.
+     * 
+     * @param callouts The callouts to select from
      * @param startIndex The index of the first callout to show, starting at 1
      * @param endIndex The index of the last callout to show, starting at 1 and must be larger than startIndex
      */
@@ -27,8 +31,23 @@ export class KeyboardService {
             throw new Error("endIndex is larger than callouts.length");
         }
         for (let i = startIndex; i <= endIndex; i++) {
-            inlineKeyboard.text(`${i}`, `show-callout-slug:${callouts[i - 1].slug}`);
+            inlineKeyboard.text(`${i}`, `${BUTTON_CALLBACK_SHOW_CALLOUT_SLUG}:${callouts[i - 1].slug}`);
         }
+        return inlineKeyboard;
+    }
+
+    /**
+     * Create a keyboard with Yes and No buttons.
+     * 
+     * To respond to the button press, listen for the `callback_query:data:yes` and `callback_query:data:no` events using the EventService.
+     * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `callback_query:data:callout-respond:yes`.
+     * 
+     * @param prefix A prefix to add to the button data, e.g. "callout-respond"
+     */
+    public yesNo(prefix = '') {
+        const inlineKeyboard = new InlineKeyboard();
+        inlineKeyboard.text('Yes', prefix ? `${prefix}:yes` : `yes`);
+        inlineKeyboard.text('No', prefix ? `${prefix}:no` : `no`);
         return inlineKeyboard;
     }
 }

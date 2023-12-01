@@ -1,3 +1,3 @@
-import type { RenderResultMarkdown, RenderResultPhoto } from "./index.ts";
+import type { RenderResultMarkdown, RenderResultPhoto, RenderResultHtml } from "./index.ts";
 
-export type RenderResult = RenderResultMarkdown | RenderResultPhoto;
+export type RenderResult = RenderResultMarkdown | RenderResultPhoto | RenderResultHtml;

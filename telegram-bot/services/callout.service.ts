@@ -3,9 +3,9 @@ import { ItemStatus } from '@beabee/beabee-common';
 import { Singleton } from 'alosaur/mod.ts';
 
 import type {
-    CalloutData, GetCalloutsQuery, GetCalloutData
+    CalloutData, GetCalloutsQuery, GetCalloutData, GetCalloutWith, GetCalloutDataWith
 } from '@beabee/client';
-import type { CalloutDataExt, GetCalloutDataExt } from '../types/index.ts';
+import type { CalloutDataExt, GetCalloutDataExt, GetCalloutDataWithExt } from '../types/index.ts';
 import type { Paginated } from '@beabee/beabee-common';
 
 const CALLOUTS_ACTIVE_QUERY: GetCalloutsQuery = {
@@ -43,6 +43,7 @@ export class CalloutService {
         return new URL(slug, this.baseUrl);
     }
 
+    protected extend<With extends GetCalloutWith = void>(callout: GetCalloutDataWith<With>): GetCalloutDataWithExt<With>
     protected extend(callout: GetCalloutData): GetCalloutDataExt
     protected extend(callout: CalloutData): CalloutDataExt {
         return {
@@ -54,10 +55,11 @@ export class CalloutService {
     /**
      * Get a callout
      * @param slug The slug of the callout to get
+     * @param _with The relations to include
      * @returns The callout
      */
-    public async get(slug: string) {
-        const callout = await this.client.get(slug);
+    public async get<With extends GetCalloutWith = void>(slug: string, _with?: readonly With[]) {
+        const callout = await this.client.get(slug, _with);
         return this.extend(callout);
     }
 

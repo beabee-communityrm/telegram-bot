@@ -1,9 +1,9 @@
 import { Singleton } from 'alosaur/mod.ts';
-import { escapeMd, downloadImage } from '../utils/index.ts';
+import { escapeMd, downloadImage, sanitizeHtml } from '../utils/index.ts';
 import { InputMediaBuilder, InputFile } from "grammy/mod.ts";
 import { RenderResultType } from "../enums/index.ts";
 
-import type { CalloutDataExt, RenderResult } from "../types/index.ts";
+import type { CalloutDataExt, RenderResult, GetCalloutDataWithExt } from "../types/index.ts";
 import type { Context } from "grammy/context.ts";
 
 /**
@@ -97,6 +97,39 @@ export class RenderService {
         return result;
     }
 
+    protected calloutResponseIntro(callout: GetCalloutDataWithExt<"form">) {
+        const result: RenderResult = {
+            type: RenderResultType.HTML,
+            html: '',
+        };
+
+        result.html = `${sanitizeHtml(callout.intro)}`;
+        return result;
+    }
+
+    /**
+     * Render a callout response in Markdown
+     * @param callout The callout to render
+     * @param slideNum The slide number to render (0 for welcome)
+     * @returns 
+     */
+    public calloutResponse(callout: GetCalloutDataWithExt<"form">, slideNum: number) {
+        const result: RenderResult = {
+            type: RenderResultType.MARKDOWN,
+            markdown: '',
+        };
+
+        if (slideNum === 0) {
+            return this.calloutResponseIntro(callout);
+        }
+
+        // TODO: Render form / slide
+        // const form = callout.formSchema;
+        /// const slide = form.slides[slideNum - 1];
+
+        return result;
+    }
+
     /**
      * Automatically reply to a message with a render result
      * @param ctx 
@@ -105,8 +138,10 @@ export class RenderService {
     public async reply(ctx: Context, res: RenderResult) {
         if (res.type === RenderResultType.PHOTO) {
             await ctx.replyWithMediaGroup([res.photo]);
-        } else {
+        } else if (res.type === RenderResultType.MARKDOWN) {
             await ctx.reply(res.markdown, { parse_mode: "MarkdownV2" });
+        } else {
+            await ctx.reply(res.html, { parse_mode: "HTML" });
         }
     }
 }
