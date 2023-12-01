@@ -1,9 +1,9 @@
-import { Injectable } from 'alosaur/mod.ts';
+import { Singleton } from 'alosaur/mod.ts';
 import { Command } from '../types/command.ts';
 
 import type { Context } from "grammy/context.ts";
 
-@Injectable()
+@Singleton()
 export class StartCommand implements Command {
     command = 'start';
     description = 'Start the bot';

@@ -1,4 +1,4 @@
-import { Injectable } from 'alosaur/mod.ts';
+import { Singleton } from 'alosaur/mod.ts';
 import { InlineKeyboard } from "grammy/mod.ts";
 
 import type { CalloutDataExt } from "../types/index.ts";
@@ -6,7 +6,7 @@ import type { CalloutDataExt } from "../types/index.ts";
 /**
  * Service to create Telegram keyboard buttons
  */
-@Injectable()
+@Singleton()
 export class KeyboardService {
 
     /**

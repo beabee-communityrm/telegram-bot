@@ -1,11 +1,11 @@
-import { Injectable } from 'alosaur/mod.ts';
+import { Singleton } from 'alosaur/mod.ts';
 import { SubscriberModel } from '../models/index.ts';
 import { DatabaseService } from './database.service.ts';
 
 import type { Context } from "grammy/mod.ts";
 import type { Subscriber } from '../types/index.ts';
 
-@Injectable() // See https://github.com/alosaur/alosaur/tree/master/src/injection
+@Singleton() // See https://github.com/alosaur/alosaur/tree/master/src/injection
 export class SubscriberService {
 
     /**

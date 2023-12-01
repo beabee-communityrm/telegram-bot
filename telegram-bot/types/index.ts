@@ -8,3 +8,5 @@ export * from './props-from.ts';
 export * from './render-result-photo.ts';
 export * from './render-result.ts';
 export * from './subscriber.ts';
+export * from './telegram-bot-event-listener.ts';
+export * from './telegram-bot-event.ts';

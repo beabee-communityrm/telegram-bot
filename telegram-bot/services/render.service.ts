@@ -1,4 +1,4 @@
-import { Injectable } from 'alosaur/mod.ts';
+import { Singleton } from 'alosaur/mod.ts';
 import { escapeMd, downloadImage } from '../utils/index.ts';
 import { InputMediaBuilder, InputFile } from "grammy/mod.ts";
 import { RenderResultType } from "../enums/index.ts";
@@ -9,7 +9,7 @@ import type { Context } from "grammy/context.ts";
 /**
  * Service to render callouts for Telegram messages in Markdown
  */
-@Injectable()
+@Singleton()
 export class RenderService {
 
     /**

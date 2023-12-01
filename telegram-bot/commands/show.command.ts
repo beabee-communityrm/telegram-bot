@@ -1,18 +1,25 @@
-import { Injectable } from 'alosaur/mod.ts';
-import { InputMediaBuilder, InputFile } from "grammy/mod.ts";
+import { Singleton } from 'alosaur/mod.ts';
+import { TelegramService } from '../services/index.ts';
 import { CalloutService, RenderService } from '../services/index.ts';
-import { escapeMd, downloadImage } from '../utils/index.ts';
 
 import type { Context } from "grammy/context.ts";
 import type { Command } from '../types/command.ts';
 
-@Injectable()
+@Singleton()
 export class ShowCommand implements Command {
     command = 'show';
     description = `Shows you information about a specific callout`;
 
-    constructor(protected readonly callout: CalloutService, protected readonly render: RenderService) {
-        //...
+    constructor(protected readonly callout: CalloutService, protected readonly render: RenderService, protected readonly telegramService: TelegramService) {
+        // Listen for the callback query data event with the `show-callout-slug` data
+        telegramService.on("callback_query:data:show-callout-slug", (event) => {
+            this.onShowCalloutButtonPressed(event.detail);
+        });
+    }
+
+    async onShowCalloutButtonPressed(ctx: Context) {
+        await this.action(ctx);
+        await ctx.answerCallbackQuery(); // remove loading animation
     }
 
     // Handle the /show command

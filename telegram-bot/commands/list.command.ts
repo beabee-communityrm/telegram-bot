@@ -1,4 +1,4 @@
-import { Injectable } from 'alosaur/mod.ts';
+import { Singleton } from 'alosaur/mod.ts';
 import { Command } from '../types/command.ts';
 import { CalloutService, RenderService, KeyboardService } from '../services/index.ts';
 import { escapeMd } from '../utils/index.ts';
@@ -6,7 +6,7 @@ import { InlineKeyboard } from "grammy/mod.ts";
 
 import type { Context } from "grammy/context.ts";
 
-@Injectable()
+@Singleton()
 export class ListCommand implements Command {
     command = 'list';
     description = 'List active Callouts';
@@ -26,8 +26,6 @@ export class ListCommand implements Command {
 
         const res = this.render.calloutListItems(callouts.items);
         await this.render.reply(ctx, res);
-
-        console.debug("Sending message", res);
 
         const keyboard = this.keyboard.calloutSelection(callouts.items);
         const keyboardMessageMd = `_${escapeMd('Which callout would you like to get more information displayed about? Choose a number')}_`;

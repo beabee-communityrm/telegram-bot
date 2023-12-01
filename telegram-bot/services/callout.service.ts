@@ -1,6 +1,6 @@
 import { CalloutClient } from '@beabee/client';
 import { ItemStatus } from '@beabee/beabee-common';
-import { Injectable } from 'alosaur/mod.ts';
+import { Singleton } from 'alosaur/mod.ts';
 
 import type {
     CalloutData, GetCalloutsQuery, GetCalloutData
@@ -18,7 +18,7 @@ const CALLOUTS_ACTIVE_QUERY: GetCalloutsQuery = {
     },
 }
 
-@Injectable()
+@Singleton()
 export class CalloutService {
 
     public readonly client: CalloutClient;

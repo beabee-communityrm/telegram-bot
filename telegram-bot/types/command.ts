@@ -1,5 +1,7 @@
-import type { Context } from "grammy/context.ts";
+import { TelegramService } from '../services/index.ts';
 import { BotCommandScope } from '../enums/index.ts';
+
+import type { Context } from "grammy/context.ts";
 
 export interface Command {
     /**
@@ -18,5 +20,11 @@ export interface Command {
      */
     scope?: BotCommandScope;
 
+    // init(telegramService: TelegramService): Promise<void>;
+
+    /**
+     * The action that is executed when the command is called.
+     * @param ctx The context of the Telegram message that triggered the command.
+     */
     action(ctx: Context): Promise<void>;
 }
