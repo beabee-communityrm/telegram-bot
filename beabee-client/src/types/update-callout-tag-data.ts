@@ -1,3 +1,3 @@
-import { CreateCalloutTagData } from './index.ts';
+import { CreateCalloutTagData } from "./index.ts";
 
 export type UpdateCalloutTagData = Partial<CreateCalloutTagData>;

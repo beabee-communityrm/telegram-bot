@@ -1,14 +1,14 @@
 {
-    // "deno.enable": true,
-    // "deno.lint": true,
-    // "deno.unstable": true
-    "deno.disablePaths": [
-        "./test/web",
-        "./test/node",
-        "./out",
-        "./node_modules",
-        "./jest.config.web.js",
-        "./jest.config.node.js"
-    ],
-    "editor.formatOnSave": true,
+  // "deno.enable": true,
+  // "deno.lint": true,
+  // "deno.unstable": true
+  "deno.disablePaths": [
+    "./test/web",
+    "./test/node",
+    "./out",
+    "./node_modules",
+    "./jest.config.web.js",
+    "./jest.config.node.js"
+  ],
+  "editor.formatOnSave": true
 }

@@ -1,5 +1,5 @@
-import type { NewsletterStatus } from '@beabee/beabee-common';
-import type { Address } from './index.ts';
+import type { NewsletterStatus } from "@beabee/beabee-common";
+import type { Address } from "./index.ts";
 
 export interface ContactProfileData {
   telephone: string;

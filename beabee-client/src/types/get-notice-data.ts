@@ -1,5 +1,5 @@
-import { ItemStatus } from '@beabee/beabee-common';
-import { NoticeData } from './index.ts';
+import { ItemStatus } from "@beabee/beabee-common";
+import { NoticeData } from "./index.ts";
 
 export interface GetNoticeData extends NoticeData {
   id: string;

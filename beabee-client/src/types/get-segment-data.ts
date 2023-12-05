@@ -1,4 +1,4 @@
-import type { RuleGroup } from '@beabee/beabee-common';
+import type { RuleGroup } from "@beabee/beabee-common";
 
 export interface GetSegmentData {
   id: string;

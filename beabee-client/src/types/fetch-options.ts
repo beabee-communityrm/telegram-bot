@@ -1,4 +1,4 @@
-import { HttpMethod } from './index.ts';
+import { HttpMethod } from "./index.ts";
 
 export interface FetchOptions extends RequestInit {
   headers?: Record<string, string>;

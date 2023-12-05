@@ -1,4 +1,4 @@
-import type { CalloutResponseCommentData, GetContactData } from './index.ts';
+import type { CalloutResponseCommentData, GetContactData } from "./index.ts";
 
 export interface GetCalloutResponseCommentData
   extends CalloutResponseCommentData {

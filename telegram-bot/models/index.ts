@@ -1,1 +1,1 @@
-export * from './subscriber.model.ts';
+export * from "./subscriber.model.ts";

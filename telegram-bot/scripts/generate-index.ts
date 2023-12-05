@@ -1,10 +1,19 @@
 // Simple script to generate index.ts files for each folder
-const paths = ["./areas", "./commands", "./controllers", "./enums", "./models", "./services", "./types", "./utils"];
+const paths = [
+  "./areas",
+  "./commands",
+  "./controllers",
+  "./enums",
+  "./models",
+  "./renderer",
+  "./services",
+  "./types",
+  "./utils",
+];
 
 const encoder = new TextEncoder();
 
 const generateIndex = (paths: string[]) => {
-
   for (const path of paths) {
     const files = [...Deno.readDirSync(path)];
     // Sort files by file name
@@ -13,13 +22,16 @@ const generateIndex = (paths: string[]) => {
     let indexContent = "";
 
     for (const file of files) {
-      if ((file.name.endsWith('.ts') || file.name.endsWith('.tsx')) && file.name !== 'index.ts') {
+      if (
+        (file.name.endsWith(".ts") || file.name.endsWith(".tsx")) &&
+        file.name !== "index.ts"
+      ) {
         indexContent += `export * from './${file.name}';\n`;
       }
     }
 
     Deno.writeFileSync(`${path}/index.ts`, encoder.encode(indexContent));
   }
-}
+};
 
-generateIndex(paths)
+generateIndex(paths);

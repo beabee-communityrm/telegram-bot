@@ -1,4 +1,4 @@
-import type { ContributionPeriod } from '@beabee/beabee-common';
+import type { ContributionPeriod } from "@beabee/beabee-common";
 
 export interface SetContributionData {
   amount: number;

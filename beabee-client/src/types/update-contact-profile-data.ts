@@ -1,3 +1,3 @@
-import type { ContactProfileData } from './index.ts';
+import type { ContactProfileData } from "./index.ts";
 
 export type UpdateContactProfileData = Partial<ContactProfileData>;

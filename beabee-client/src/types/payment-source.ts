@@ -1,10 +1,10 @@
 import type {
-  StripeCardPaymentSource,
   GoCardlessDirectDebitPaymentSource,
-  StripeBACSPaymentSource,
-  StripeSEPAPaymentSource,
   ManualPaymentSource,
-} from './index.ts';
+  StripeBACSPaymentSource,
+  StripeCardPaymentSource,
+  StripeSEPAPaymentSource,
+} from "./index.ts";
 
 export type PaymentSource =
   | StripeCardPaymentSource

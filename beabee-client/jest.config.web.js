@@ -1,17 +1,17 @@
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 export default {
-  preset: 'ts-jest',
-  testEnvironment: 'jsdom',
+  preset: "ts-jest",
+  testEnvironment: "jsdom",
   testMatch: [
-    '<rootDir>/test/web/**/*.test.ts'
+    "<rootDir>/test/web/**/*.test.ts",
   ],
   setupFiles: [
-    '<rootDir>/test/web/setup-jest.js',
+    "<rootDir>/test/web/setup-jest.js",
   ],
-  extensionsToTreatAsEsm: ['.ts'],
+  extensionsToTreatAsEsm: [".ts"],
   transform: {
-    '^.+\\.tsx?$': [
-      'ts-jest',
+    "^.+\\.tsx?$": [
+      "ts-jest",
       {
         useESM: true,
       },

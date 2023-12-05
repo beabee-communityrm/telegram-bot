@@ -1,8 +1,8 @@
 import { load } from "std/dotenv/mod.ts";
-import { App } from 'alosaur/mod.ts';
-import { CoreArea } from './areas/core.area.ts'
+import { App } from "alosaur/mod.ts";
+import { CoreArea } from "./areas/core.area.ts";
 
-await load({ export: true});
+await load({ export: true });
 
 const app = new App({
   areas: [CoreArea],

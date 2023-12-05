@@ -2,7 +2,7 @@ import type {
   CalloutResponseAnswerAddress,
   CalloutResponseAnswerFileUpload,
   CalloutResponseAnswers,
-} from '@beabee/beabee-common';
+} from "@beabee/beabee-common";
 
 export interface GetCalloutResponseMapData {
   number: number;

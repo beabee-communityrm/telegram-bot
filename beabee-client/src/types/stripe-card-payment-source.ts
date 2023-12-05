@@ -1,4 +1,4 @@
-import type { PaymentMethod } from '@beabee/beabee-common';
+import type { PaymentMethod } from "@beabee/beabee-common";
 
 export interface StripeCardPaymentSource {
   method: PaymentMethod.StripeCard;

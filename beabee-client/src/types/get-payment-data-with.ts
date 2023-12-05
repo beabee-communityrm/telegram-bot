@@ -1,9 +1,10 @@
 import type {
+  GetContactData,
+  GetPaymentData,
   GetPaymentWith,
   Noop,
-  GetPaymentData,
-  GetContactData,
-} from './index.ts';
+} from "./index.ts";
 
-export type GetPaymentDataWith<With extends GetPaymentWith> = GetPaymentData &
-  ('contact' extends With ? { contact: GetContactData | null } : Noop);
+export type GetPaymentDataWith<With extends GetPaymentWith> =
+  & GetPaymentData
+  & ("contact" extends With ? { contact: GetContactData | null } : Noop);

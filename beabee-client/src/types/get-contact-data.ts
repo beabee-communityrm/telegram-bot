@@ -1,6 +1,6 @@
-import type { ContributionPeriod, RoleType } from '@beabee/beabee-common';
+import type { ContributionPeriod, RoleType } from "@beabee/beabee-common";
 
-import type { ContactData } from './index.ts';
+import type { ContactData } from "./index.ts";
 
 export interface GetContactData extends ContactData {
   id: string;

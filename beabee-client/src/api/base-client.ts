@@ -1,8 +1,7 @@
-import { Fetch, parseISO } from '../utils/index.ts';
-import type { BaseClientOptions } from '../types/index.ts';
+import { Fetch, parseISO } from "../utils/index.ts";
+import type { BaseClientOptions } from "../types/index.ts";
 
 export abstract class BaseClient {
-
   protected readonly fetch: Fetch;
 
   constructor(protected readonly options: BaseClientOptions) {
@@ -15,10 +14,10 @@ export abstract class BaseClient {
 
   protected deserializeDate(s: string): Date;
   protected deserializeDate<T extends null | undefined>(
-    s: string | T
+    s: string | T,
   ): Date | T;
   protected deserializeDate<T extends null | undefined>(
-    s: string | T
+    s: string | T,
   ): Date | T {
     return s == null ? s : parseISO(s);
   }

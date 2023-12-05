@@ -1,3 +1,3 @@
-import type { CreateCalloutData } from './index.ts';
+import type { CreateCalloutData } from "./index.ts";
 
 export type UpdateCalloutData = Partial<CreateCalloutData>;

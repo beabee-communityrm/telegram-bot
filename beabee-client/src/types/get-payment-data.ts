@@ -1,4 +1,4 @@
-import type { PaymentStatus } from '@beabee/beabee-common';
+import type { PaymentStatus } from "@beabee/beabee-common";
 
 export interface GetPaymentData {
   chargeDate: Date;

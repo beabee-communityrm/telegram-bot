@@ -29,5 +29,7 @@
 			"./beabee-client/out",
 		],
 		"editor.formatOnSave": true,
+		"typescript.format.enable": true,
+		"editor.defaultFormatter": "denoland.vscode-deno"
 	}
 }

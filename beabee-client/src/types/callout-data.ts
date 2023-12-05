@@ -7,6 +7,6 @@ export interface CalloutData {
   expires: Date | null;
   allowUpdate: boolean;
   allowMultiple: boolean;
-  access: 'member' | 'guest' | 'anonymous' | 'only-anonymous';
+  access: "member" | "guest" | "anonymous" | "only-anonymous";
   hidden: boolean;
 }

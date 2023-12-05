@@ -1,7 +1,7 @@
 import type {
   ContributionPeriod,
   ContributionType,
-} from '@beabee/beabee-common';
+} from "@beabee/beabee-common";
 
 export interface ForceUpdateContributionData {
   type: ContributionType.Manual | ContributionType.None;

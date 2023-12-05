@@ -1,4 +1,4 @@
-import type { CalloutResponseAnswers } from '@beabee/beabee-common';
+import type { CalloutResponseAnswers } from "@beabee/beabee-common";
 
 export interface CreateCalloutResponseData {
   guestName?: string;

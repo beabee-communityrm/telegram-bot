@@ -1,5 +1,5 @@
 export interface BaseClientOptions {
-    host: string;
-    path?: string;
-    token: string;
+  host: string;
+  path?: string;
+  token: string;
 }

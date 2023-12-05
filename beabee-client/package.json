@@ -1,78 +1,78 @@
 {
-    "name": "@beabee/client",
-    "description": "The Beabee API Client for Deno, Node.js, and the browser",
-    "version": "0.0.0",
-    "license": "AGPL-3.0-or-later",
-    "type": "module",
-    "engines": {
-        "node": ">=20"
+  "name": "@beabee/client",
+  "description": "The Beabee API Client for Deno, Node.js, and the browser",
+  "version": "0.0.0",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "homepage": "https://github.com/beabee-communityrm/telegram-bot/tree/main/beabee-client",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/beabee-communityrm/telegram-bot/tree/main/beabee-client"
+  },
+  "scripts": {
+    "prepare": "npm run bundle",
+    "bundle": "npm run bundle:node && npm run bundle:web",
+    "bundle:node": "deno task bundle:node",
+    "bundle:web": "deno task bundle:web",
+    "test": "npm run test:deno && npm run test:node && npm run test:web",
+    "test:deno": "deno test ./test/deno",
+    "test:web": "NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.web.js",
+    "test:node": "NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.node.js"
+  },
+  "dependencies": {
+    "@beabee/beabee-common": "^1.18.1",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^12.20.55",
+    "@types/node-fetch": "2.6.2",
+    "deno2node": "^1.9.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jest-environment-node": "^29.7.0",
+    "jsdom": "^22.1.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.3.2",
+    "whatwg-fetch": "^3.6.19"
+  },
+  "files": [
+    "out/"
+  ],
+  "main": "./out/mod.js",
+  "types": "./out/mod.d.ts",
+  "exports": {
+    ".": {
+      "types": "./out/mod.d.ts",
+      "node": "./out/mod.js",
+      "browser": "./out/web.js",
+      "default": "./out/web.js"
     },
-    "homepage": "https://github.com/beabee-communityrm/telegram-bot/tree/main/beabee-client",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/beabee-communityrm/telegram-bot/tree/main/beabee-client"
+    "./types": {
+      "types": "./out/types.d.ts"
     },
-    "scripts": {
-        "prepare": "npm run bundle",
-        "bundle": "npm run bundle:node && npm run bundle:web",
-        "bundle:node": "deno task bundle:node",
-        "bundle:web": "deno task bundle:web",
-        "test": "npm run test:deno && npm run test:node && npm run test:web",
-        "test:deno": "deno test ./test/deno",
-        "test:web": "NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.web.js",
-        "test:node": "NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.node.js"
-    },
-    "dependencies": {
-        "@beabee/beabee-common": "^1.18.1",
-        "node-fetch": "^2.7.0"
-    },
-    "devDependencies": {
-        "@types/node": "^12.20.55",
-        "@types/node-fetch": "2.6.2",
-        "deno2node": "^1.9.0",
-        "jest": "^29.7.0",
-        "jest-environment-jsdom": "^29.7.0",
-        "jest-environment-node": "^29.7.0",
-        "jsdom": "^22.1.0",
-        "ts-jest": "^29.1.1",
-        "typescript": "^5.3.2",
-        "whatwg-fetch": "^3.6.19"
-    },
-    "files": [
-        "out/"
-    ],
-    "main": "./out/mod.js",
-    "types": "./out/mod.d.ts",
-    "exports": {
-        ".": {
-            "types": "./out/mod.d.ts",
-            "node": "./out/mod.js",
-            "browser": "./out/web.js",
-            "default": "./out/web.js"
-        },
-        "./types": {
-            "types": "./out/types.d.ts"
-        },
-        "./web": {
-            "types": "./out/web.d.ts",
-            "default": "./out/web.js"
-        }
-    },
-    "typesVersions": {
-        "*": {
-            "web": [
-                "out/web"
-            ],
-            "types": [
-                "out/types"
-            ]
-        }
-    },
-    "keywords": [
-        "beabee",
-        "client",
-        "framework",
-        "library",
-        "api"
-    ]
+    "./web": {
+      "types": "./out/web.d.ts",
+      "default": "./out/web.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "web": [
+        "out/web"
+      ],
+      "types": [
+        "out/types"
+      ]
+    }
+  },
+  "keywords": [
+    "beabee",
+    "client",
+    "framework",
+    "library",
+    "api"
+  ]
 }
