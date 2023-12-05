@@ -10,5 +10,6 @@
     "./jest.config.web.js",
     "./jest.config.node.js"
   ],
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "[typescript]": { "editor.defaultFormatter": "denoland.vscode-deno" }
 }
