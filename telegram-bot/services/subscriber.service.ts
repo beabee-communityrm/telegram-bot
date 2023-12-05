@@ -1,9 +1,9 @@
 import { Singleton } from "alosaur/mod.ts";
 import { SubscriberModel } from "../models/index.ts";
 import { DatabaseService } from "./database.service.ts";
+import { getIdentifier } from "../utils/index.ts";
 
-import type { Context } from "grammy/mod.ts";
-import type { Subscriber } from "../types/index.ts";
+import type { Context, Subscriber } from "../types/index.ts";
 
 @Singleton() // See https://github.com/alosaur/alosaur/tree/master/src/injection
 export class SubscriberService {
@@ -19,7 +19,7 @@ export class SubscriberService {
    * @returns
    */
   private transformAnonymous(ctx: Context) {
-    const id = this.getIdentifier(ctx);
+    const id = getIdentifier(ctx);
     const subscriber = new SubscriberModel();
     subscriber.id = id;
     subscriber.anonymityStatus = "full";
@@ -34,7 +34,7 @@ export class SubscriberService {
    */
   private transform(ctx: Context, forceAnonymous = false) {
     if (!ctx.from || forceAnonymous) return this.transformAnonymous(ctx);
-    const id = this.getIdentifier(ctx);
+    const id = getIdentifier(ctx);
 
     const subscriber = new SubscriberModel();
     subscriber.id = id;
@@ -45,12 +45,6 @@ export class SubscriberService {
     subscriber.language_code = ctx.from.language_code || null;
     subscriber.is_bot = ctx.from.is_bot || false;
     return subscriber;
-  }
-
-  private getIdentifier(ctx: Context) {
-    const id = ctx.chat?.id || ctx.from?.id;
-    if (!id) throw new Error("No id found on context");
-    return id;
   }
 
   /**
@@ -72,7 +66,7 @@ export class SubscriberService {
   public async create(
     ctx: Context,
   ): Promise<(SubscriberModel & Subscriber) | null> {
-    const id = this.getIdentifier(ctx);
+    const id = getIdentifier(ctx);
     if (await this.exists(id)) {
       console.debug("Subscriber already exists", id);
       return null;
@@ -101,7 +95,7 @@ export class SubscriberService {
    * @returns
    */
   public async delete(ctx: Context) {
-    const id = this.getIdentifier(ctx);
+    const id = getIdentifier(ctx);
     const result = await this.db.manager.delete(SubscriberModel, id);
     return result;
   }

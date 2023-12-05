@@ -1,7 +1,10 @@
 import { Singleton } from "alosaur/mod.ts";
 import { TelegramService } from "./index.ts";
 
-import type { TelegramBotEventListener } from "../types/index.ts";
+import type {
+  TelegramBotEvent,
+  TelegramBotEventListener,
+} from "../types/index.ts";
 import type { Context } from "grammy/mod.ts";
 
 /**
@@ -68,35 +71,107 @@ export class EventService {
    */
   public emitDetailedEvents(eventName: string, ctx: Context) {
     const eventNameParts = eventName.split(":");
+    const emittedEvents: { res: boolean; eventName: string }[] = [];
     let specificEventName = "";
     for (const eventNamePart of eventNameParts) {
       specificEventName += specificEventName.length
         ? ":" + eventNamePart
         : eventNamePart;
-      this.emit(specificEventName, ctx);
+      let res = this.emit(specificEventName, ctx);
+
+      emittedEvents.push({
+        res,
+        eventName: specificEventName,
+      });
 
       // Add user specific event
       if (ctx.from?.id) {
-        this.emit(specificEventName + ":user-" + ctx.from.id, ctx);
+        res = this.emit(specificEventName + ":user-" + ctx.from.id, ctx);
+
+        emittedEvents.push({
+          res,
+          eventName: specificEventName,
+        });
       }
     }
+
+    return emittedEvents;
   }
 
-  public on(event: string, callback: TelegramBotEventListener) {
-    this.events.addEventListener(event, callback as EventListener);
+  /**
+   * Emit / dispatch a Telegram bot event
+   * @param eventName
+   * @param ctx
+   */
+  public emit(eventName: string, ctx: Context) {
+    return this.events.dispatchEvent(
+      new CustomEvent(eventName, { detail: ctx }),
+    );
   }
 
-  public once(event: string, callback: TelegramBotEventListener) {
-    this.events.addEventListener(event, callback as EventListener, {
+  /**
+   * Listen for a Telegram bot event
+   * @param eventName
+   * @param ctx
+   */
+  public on(eventName: string, callback: TelegramBotEventListener) {
+    return this.events.addEventListener(eventName, callback as EventListener);
+  }
+
+  /**
+   * Listen for a Telegram bot event, but only once
+   * @param eventName
+   * @returns
+   */
+  public once(eventName: string, callback: TelegramBotEventListener) {
+    return this.events.addEventListener(eventName, callback as EventListener, {
       once: true,
     });
   }
 
-  public off(event: string, callback: TelegramBotEventListener) {
-    this.events.removeEventListener(event, callback as EventListener);
+  /**
+   * Returns a promise that resolves when the given event is emitted
+   * @param eventName
+   * @returns
+   */
+  public onceAsync(eventName: string): Promise<TelegramBotEvent> {
+    return new Promise((resolve) => {
+      this.on(eventName, (event) => {
+        resolve(event);
+      });
+    });
   }
 
-  public emit(event: string, ctx: Context) {
-    this.events.dispatchEvent(new CustomEvent(event, { detail: ctx }));
+  /**
+   * Stop listening for a Telegram bot event
+   * @param eventName
+   * @param ctx
+   */
+  public off(eventName: string, callback: TelegramBotEventListener) {
+    return this.events.removeEventListener(
+      eventName,
+      callback as EventListener,
+    );
+  }
+
+  /**
+   * Listen for a Telegram user message
+   * @param id
+   * @param callback
+   */
+  public onUserMessage(id: number, callback: TelegramBotEventListener) {
+    return this.on("message:user-" + id, callback);
+  }
+
+  public onceUserMessage(id: number, callback: TelegramBotEventListener) {
+    return this.once("message:user-" + id, callback);
+  }
+
+  public async onceUserMessageAsync(id: number): Promise<TelegramBotEvent> {
+    return await this.onceAsync("message:user-" + id) as TelegramBotEvent;
+  }
+
+  public offUserMessage(id: number, callback: TelegramBotEventListener) {
+    return this.off("message:user-" + id, callback);
   }
 }

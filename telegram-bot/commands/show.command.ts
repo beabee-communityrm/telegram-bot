@@ -17,8 +17,7 @@ import {
   BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
 } from "../constants.ts";
 
-import type { Context } from "grammy/context.ts";
-import type { Command } from "../types/command.ts";
+import type { Command, Context } from "../types/index.ts";
 
 @Singleton()
 export class ShowCommand implements Command {
@@ -59,15 +58,15 @@ export class ShowCommand implements Command {
     const slug = data?.[1];
     const startResponse = data?.[2] as "continue" | "cancel" === "continue";
 
+    await ctx.answerCallbackQuery(); // remove loading animation
+
     if (!startResponse) {
       await this.render.reply(ctx, this.messageRenderer.stop());
-      await ctx.answerCallbackQuery(); // remove loading animation
       return;
     }
 
     if (!slug) {
       await this.render.reply(ctx, this.messageRenderer.calloutNotFound());
-      await ctx.answerCallbackQuery(); // remove loading animation
       return;
     }
 
@@ -83,8 +82,8 @@ export class ShowCommand implements Command {
     console.debug("Got callout with form", calloutWithForm);
 
     const res = this.calloutResponseRenderer.response(calloutWithForm, 0);
-    await this.render.reply(ctx, res);
-    await ctx.answerCallbackQuery(); // remove loading animation
+    const answerCtx = await this.render.replayAndWaitForMessage(ctx, res);
+    console.debug("Got answer", answerCtx.message?.text);
   }
 
   /**
@@ -97,15 +96,15 @@ export class ShowCommand implements Command {
     const slug = data?.[1];
     const startIntro = data?.[2] as "yes" | "no" === "yes";
 
+    await ctx.answerCallbackQuery(); // remove loading animation
+
     if (!slug) {
       await this.render.reply(ctx, this.messageRenderer.calloutNotFound());
-      await ctx.answerCallbackQuery(); // remove loading animation
       return;
     }
 
     if (!startIntro) {
       await this.render.reply(ctx, this.messageRenderer.stop());
-      await ctx.answerCallbackQuery(); // remove loading animation
       return;
     }
 
@@ -115,7 +114,6 @@ export class ShowCommand implements Command {
 
     const res = this.calloutResponseRenderer.intro(calloutWithForm);
     await this.render.reply(ctx, res);
-    await ctx.answerCallbackQuery(); // remove loading animation
   }
 
   // Handle the /show command

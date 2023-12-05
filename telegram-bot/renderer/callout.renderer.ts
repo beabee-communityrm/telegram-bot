@@ -13,7 +13,7 @@ import type { CalloutDataExt, RenderResult } from "../types/index.ts";
 export class CalloutRenderer {
   constructor(
     protected readonly keyboard: KeyboardService,
-  ) { }
+  ) {}
 
   /**
    * Render a single callout line item in Markdown

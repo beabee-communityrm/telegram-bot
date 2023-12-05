@@ -1,6 +1,5 @@
 import { Singleton } from "alosaur/mod.ts";
 import { RenderResultType } from "../enums/index.ts";
-import { KeyboardService } from "../services/index.ts";
 
 import type { RenderResult } from "../types/index.ts";
 
@@ -9,14 +8,10 @@ import type { RenderResult } from "../types/index.ts";
  */
 @Singleton()
 export class MessageRenderer {
-  constructor(
-    protected readonly keyboard: KeyboardService,
-  ) {}
-
   public stop() {
     const result: RenderResult = {
-      type: RenderResultType.MARKDOWN,
-      markdown: "Ok, no problem",
+      type: RenderResultType.TEXT,
+      text: "Ok, no problem",
     };
 
     return result;
@@ -24,10 +19,17 @@ export class MessageRenderer {
 
   public calloutNotFound() {
     const result: RenderResult = {
-      type: RenderResultType.MARKDOWN,
-      markdown: "Callout not found",
+      type: RenderResultType.TEXT,
+      text: "Callout not found",
     };
 
     return result;
+  }
+
+  public notATextMessage() {
+    return {
+      type: RenderResultType.TEXT,
+      text: "Please send a text message",
+    } as RenderResult;
   }
 }

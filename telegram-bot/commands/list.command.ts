@@ -68,10 +68,11 @@ export class ListCommand implements Command {
     await this.render.reply(ctx, res);
 
     const keyboard = this.keyboard.calloutSelection(callouts.items);
-    const keyboardMessageMd = `_${escapeMd(
-      "Which callout would you like to get more information displayed about? Choose a number",
-    )
-      }_`;
+    const keyboardMessageMd = `_${
+      escapeMd(
+        "Which callout would you like to get more information displayed about? Choose a number",
+      )
+    }_`;
 
     await ctx.reply(keyboardMessageMd, {
       reply_markup: keyboard,
