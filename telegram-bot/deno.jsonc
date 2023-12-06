@@ -24,6 +24,6 @@
   },
   "tasks": {
     "dev": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces --watch ./main.ts",
-    "generate:index": "deno run --allow-read --allow-write scripts/generate-index.ts"
+    "generate:index": "deno run --allow-read --allow-write scripts/generate-index.ts && deno fmt"
   }
 }
