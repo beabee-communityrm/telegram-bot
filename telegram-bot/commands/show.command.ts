@@ -11,16 +11,12 @@ import {
   MessageRenderer,
 } from "../renderer/index.ts";
 import { ApiError } from "@beabee/client";
-import { escapeMd } from "../utils/index.ts";
-import {
-  BUTTON_CALLBACK_CALLOUT_INTRO,
-  BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
-} from "../constants.ts";
+import { Command } from "../core/index.ts";
 
-import type { Command, Context } from "../types/index.ts";
+import type { Context } from "../types/index.ts";
 
 @Singleton()
-export class ShowCommand implements Command {
+export class ShowCommand extends Command {
   command = "show";
   description = `Shows you information about a specific callout`;
 
@@ -33,87 +29,8 @@ export class ShowCommand implements Command {
     protected readonly calloutRenderer: CalloutRenderer,
     protected readonly calloutResponseRenderer: CalloutResponseRenderer,
   ) {
-    this.addEventListeners();
-  }
-
-  protected addEventListeners() {
-    // Listen for the callback query data event with the `callout-respond:yes` data
-    this.event.on(
-      `callback_query:data:${BUTTON_CALLBACK_CALLOUT_INTRO}`,
-      (event) => {
-        this.onCalloutIntroKeyboardPressed(event.detail);
-      },
-    );
-
-    this.event.on(
-      `callback_query:data:${BUTTON_CALLBACK_CALLOUT_PARTICIPATE}`,
-      (event) => {
-        this.onCalloutParticipateKeyboardPressed(event.detail);
-      },
-    );
-  }
-
-  protected async onCalloutParticipateKeyboardPressed(ctx: Context) {
-    const data = ctx.callbackQuery?.data?.split(":");
-    const slug = data?.[1];
-    const startResponse = data?.[2] as "continue" | "cancel" === "continue";
-
-    await ctx.answerCallbackQuery(); // remove loading animation
-
-    if (!startResponse) {
-      await this.render.reply(ctx, this.messageRenderer.stop());
-      return;
-    }
-
-    if (!slug) {
-      await this.render.reply(ctx, this.messageRenderer.calloutNotFound());
-      return;
-    }
-
-    console.debug(
-      "onCalloutParticipateKeyboardPressed",
-      data,
-      slug,
-      startResponse,
-    );
-
-    // Start intro
-    const calloutWithForm = await this.callout.get(slug, ["form"]);
-    console.debug("Got callout with form", calloutWithForm);
-
-    const res = this.calloutResponseRenderer.response(calloutWithForm, 0);
-    const answerCtx = await this.render.replayAndWaitForMessage(ctx, res);
-    console.debug("Got answer", answerCtx.message?.text);
-  }
-
-  /**
-   * Handle the callback query data event with the `callout-respond:yes` or `callout-respond:no` data.
-   * Called when the user presses the "Yes" or "No" button on the callout response keyboard.
-   * @param ctx
-   */
-  protected async onCalloutIntroKeyboardPressed(ctx: Context) {
-    const data = ctx.callbackQuery?.data?.split(":");
-    const slug = data?.[1];
-    const startIntro = data?.[2] as "yes" | "no" === "yes";
-
-    await ctx.answerCallbackQuery(); // remove loading animation
-
-    if (!slug) {
-      await this.render.reply(ctx, this.messageRenderer.calloutNotFound());
-      return;
-    }
-
-    if (!startIntro) {
-      await this.render.reply(ctx, this.messageRenderer.stop());
-      return;
-    }
-
-    // Start intro
-    const calloutWithForm = await this.callout.get(slug, ["form"]);
-    console.debug("Got callout with form", calloutWithForm);
-
-    const res = this.calloutResponseRenderer.intro(calloutWithForm);
-    await this.render.reply(ctx, res);
+    super();
+    console.debug(`${ShowCommand.name} created`);
   }
 
   // Handle the /show command
@@ -143,18 +60,5 @@ export class ShowCommand implements Command {
       await ctx.reply(`Error sending callout slug "${slug}": ${error.message}`);
       return;
     }
-
-    // TODO: Move to render service
-    const keyboardMessageMd = `_${
-      escapeMd("Would you like to respond to the callout?")
-    }_`;
-    const yesNoKeyboard = this.keyboard.yesNo(
-      `${BUTTON_CALLBACK_CALLOUT_INTRO}:${slug}`,
-    );
-
-    await ctx.reply(keyboardMessageMd, {
-      reply_markup: yesNoKeyboard,
-      parse_mode: "MarkdownV2",
-    });
   }
 }

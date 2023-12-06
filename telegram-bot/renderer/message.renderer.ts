@@ -8,6 +8,10 @@ import type { RenderResult } from "../types/index.ts";
  */
 @Singleton()
 export class MessageRenderer {
+  constructor() {
+    console.debug(`${MessageRenderer.name} created`);
+  }
+
   public stop() {
     const result: RenderResult = {
       type: RenderResultType.TEXT,

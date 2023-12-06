@@ -20,7 +20,9 @@ export class CalloutResponseRenderer {
   constructor(
     protected readonly keyboard: KeyboardService,
     protected readonly event: EventService,
-  ) {}
+  ) {
+    console.debug(`${CalloutResponseRenderer.name} created`);
+  }
 
   public intro(callout: GetCalloutDataWithExt<"form">) {
     const result: RenderResult = {

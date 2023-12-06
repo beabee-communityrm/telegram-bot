@@ -1,4 +1,4 @@
-import { Singleton } from "alosaur/mod.ts";
+import { container, Singleton } from "alosaur/mod.ts";
 import { TelegramService } from "./index.ts";
 
 import type {
@@ -14,37 +14,7 @@ import type { Context } from "grammy/mod.ts";
 export class EventService {
   protected events = new EventTarget();
 
-  /**
-   * Forward Telegram bot events to the EventService
-   * @param telegramService
-   */
-  public addTelegramEventListeners(telegramService: TelegramService) {
-    // Forward callback query data, e.g. Telegram keyboard button presses
-    telegramService.bot.on(
-      "callback_query:data",
-      (ctx) => this.onCallbackQueryData(ctx),
-    );
-
-    // Forward normale messages from the bot
-    telegramService.bot.on("message", (ctx) => this.onMessage(ctx));
-  }
-
-  protected onMessage(ctx: Context) {
-    this.emitDetailedEvents("message", ctx);
-  }
-
-  protected onCallbackQueryData(ctx: Context) {
-    if (!ctx.callbackQuery?.data) {
-      // Dispatch general callback event
-      this.emit("callback_query:data", ctx);
-      return;
-    }
-
-    // Dispatch specific callback events
-    this.emitDetailedEvents(
-      "callback_query:data:" + ctx.callbackQuery.data,
-      ctx,
-    );
+  constructor() {
   }
 
   /**

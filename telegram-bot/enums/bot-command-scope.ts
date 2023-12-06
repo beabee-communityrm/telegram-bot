@@ -1,3 +1,6 @@
+/**
+ * Not used yet.
+ */
 export enum BotCommandScope {
   /**
    * Default commands are used if no commands with a narrower scope are specified for the user.

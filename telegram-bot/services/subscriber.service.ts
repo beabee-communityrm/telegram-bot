@@ -11,6 +11,7 @@ export class SubscriberService {
    * @param _ DatabaseService injected to make sure the database is initialized
    */
   constructor(private readonly db: DatabaseService) {
+    console.debug(`${SubscriberService.name} created`);
   }
 
   /**

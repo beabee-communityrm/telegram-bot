@@ -3,6 +3,10 @@ import { downloadImage, escapeMd } from "../utils/index.ts";
 import { InputFile, InputMediaBuilder } from "grammy/mod.ts";
 import { RenderResultType } from "../enums/index.ts";
 import { KeyboardService } from "../services/index.ts";
+import {
+  BUTTON_CALLBACK_CALLOUT_INTRO,
+  BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
+} from "../constants.ts";
 
 import type { CalloutDataExt, RenderResult } from "../types/index.ts";
 
@@ -13,7 +17,31 @@ import type { CalloutDataExt, RenderResult } from "../types/index.ts";
 export class CalloutRenderer {
   constructor(
     protected readonly keyboard: KeyboardService,
-  ) {}
+  ) {
+    console.debug(`${CalloutRenderer.name} created`);
+  }
+
+  /**
+   * @fires `callback_query:data:${BUTTON_CALLBACK_CALLOUT_INTRO}`
+   *
+   * @param callout
+   * @returns
+   */
+  protected startResponseKeyboard(callout: CalloutDataExt) {
+    const keyboardMessageMd = `_${
+      escapeMd("Would you like to respond to the callout?")
+    }_`;
+    const yesNoKeyboard = this.keyboard.yesNo(
+      `${BUTTON_CALLBACK_CALLOUT_INTRO}:${callout.slug}`,
+    );
+
+    const result: RenderResult = {
+      type: RenderResultType.MARKDOWN,
+      markdown: keyboardMessageMd,
+      keyboard: yesNoKeyboard,
+    };
+    return result;
+  }
 
   /**
    * Render a single callout line item in Markdown
@@ -81,7 +109,10 @@ export class CalloutRenderer {
   }
 
   /**
-   * Render a callout as a photo
+   * Render a callout as a photo.
+   *
+   * @fires `callback_query:data:${BUTTON_CALLBACK_CALLOUT_INTRO}`
+   *
    * @param callout
    * @returns
    */
@@ -97,11 +128,13 @@ export class CalloutRenderer {
       parse_mode: "MarkdownV2",
     });
 
-    const result: RenderResult = {
+    const calloutResult: RenderResult = {
       type: RenderResultType.PHOTO,
       photo: calloutImage,
     };
 
-    return result;
+    const keyboardResult = this.startResponseKeyboard(callout);
+
+    return [calloutResult, keyboardResult];
   }
 }

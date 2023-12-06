@@ -46,6 +46,7 @@ export class CalloutService {
 
     this.client = new CalloutClient({ path, host, token });
     this.baseUrl = new URL(baseUrl);
+    console.debug(`${CalloutService.name} created`);
   }
 
   protected getUrl(slug: string) {

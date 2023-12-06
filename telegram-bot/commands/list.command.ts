@@ -1,5 +1,5 @@
 import { Singleton } from "alosaur/mod.ts";
-import { Command } from "../types/command.ts";
+import { Command } from "../core/command.ts";
 import {
   CalloutService,
   EventService,
@@ -12,7 +12,7 @@ import { escapeMd } from "../utils/index.ts";
 import type { Context } from "grammy/context.ts";
 
 @Singleton()
-export class ListCommand implements Command {
+export class ListCommand extends Command {
   command = "list";
   description = "List active Callouts";
 
@@ -23,36 +23,8 @@ export class ListCommand implements Command {
     protected readonly event: EventService,
     protected readonly calloutRenderer: CalloutRenderer,
   ) {
-    this.addEventListeners();
-  }
-
-  protected addEventListeners() {
-    // Listen for the callback query data event with the `show-callout-slug` data
-    this.event.on("callback_query:data:show-callout-slug", (event) => {
-      this.onCalloutSelectionKeyboardPressed(event.detail);
-    });
-  }
-
-  protected async onCalloutSelectionKeyboardPressed(ctx: Context) {
-    const slug = ctx.callbackQuery?.data?.split(":")[1];
-
-    if (!slug) {
-      await ctx.reply("This button has not a callout slug associated with it");
-      return;
-    }
-
-    try {
-      const callout = await this.callout.get(slug);
-      console.debug("Got callout", callout);
-
-      const res = await this.calloutRenderer.callout(callout);
-      await this.render.reply(ctx, res);
-    } catch (error) {
-      console.error("Error sending callout", error);
-      await ctx.reply("Error sending callout");
-    }
-
-    await ctx.answerCallbackQuery(); // remove loading animation
+    super();
+    console.debug(`${ListCommand.name} created`);
   }
 
   // Handle the /list command

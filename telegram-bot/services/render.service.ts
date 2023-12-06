@@ -12,14 +12,16 @@ export class RenderService {
   constructor(
     protected readonly event: EventService,
     protected readonly messageRenderer: MessageRenderer,
-  ) {}
+  ) {
+    console.debug(`${RenderService.name} created`);
+  }
 
   /**
    * Reply to a Telegram message or action with a render result
    * @param ctx
    * @param res
    */
-  public async reply(ctx: Context, res: RenderResult) {
+  protected async _reply(ctx: Context, res: RenderResult) {
     if (res.type === RenderResultType.PHOTO) {
       await ctx.replyWithMediaGroup([res.photo]);
       if (res.keyboard) {
@@ -44,13 +46,40 @@ export class RenderService {
     }
   }
 
-  public async replayAndWaitForMessage(ctx: Context, res: RenderResult) {
-    await this.reply(ctx, res);
-    let event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
-    while (!event.detail.message?.text) {
-      await this.reply(ctx, this.messageRenderer.notATextMessage());
-      event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
+  /**
+   * Reply to a Telegram message or action with a render result
+   * @param ctx
+   * @param res
+   */
+  public async reply(
+    ctx: Context,
+    renderResults: RenderResult | RenderResult[],
+  ) {
+    if (!Array.isArray(renderResults)) {
+      renderResults = [renderResults];
     }
-    return event.detail;
+    for (const renderResult of renderResults) {
+      await this._reply(ctx, renderResult);
+    }
+  }
+
+  public async replayAndWaitForMessage(
+    ctx: Context,
+    renderResults: RenderResult | RenderResult[],
+  ) {
+    if (!Array.isArray(renderResults)) {
+      renderResults = [renderResults];
+    }
+    const resultContexts: Context[] = [];
+    for (const renderResult of renderResults) {
+      await this.reply(ctx, renderResult);
+      let event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
+      while (!event.detail.message?.text) {
+        await this.reply(ctx, this.messageRenderer.notATextMessage());
+        event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
+      }
+      resultContexts.push(event.detail);
+    }
+    return resultContexts;
   }
 }

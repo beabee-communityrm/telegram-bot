@@ -9,6 +9,10 @@ import type { CalloutDataExt } from "../types/index.ts";
  */
 @Singleton()
 export class KeyboardService {
+  constructor() {
+    console.debug(`${KeyboardService.name} created`);
+  }
+
   /**
    * Create a keyboard button to select a callout.
    *

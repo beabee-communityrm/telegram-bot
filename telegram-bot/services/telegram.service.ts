@@ -1,8 +1,9 @@
 import { container, Singleton } from "alosaur/mod.ts";
 import { Bot } from "grammy/mod.ts";
 import { EventService } from "./index.ts";
+import { Command } from "../core/index.ts";
 
-import type { Command, CommandClass } from "../types/index.ts";
+import type { CommandClass, EventManagerClass } from "../types/index.ts";
 import type { BotCommand } from "grammy_types/mod.ts";
 
 @Singleton()
@@ -17,6 +18,7 @@ export class TelegramService {
     this.bot = new Bot(token);
 
     this.init().catch(console.error);
+    console.debug(`${TelegramService.name} created`);
   }
 
   /**
@@ -29,11 +31,20 @@ export class TelegramService {
     const Commands = await import("../commands/index.ts");
     await this.addCommands(Commands);
 
-    const eventService = container.resolve(EventService);
-    eventService.addTelegramEventListeners(this);
+    const EventMangers = await import("../event-managers/index.ts");
+    this.initEvents(EventMangers);
 
     // Start the bot
     this.bot.start();
+  }
+
+  protected initEvents(
+    EventManagers: { [key: string]: EventManagerClass },
+  ) {
+    for (const EventManager of Object.values(EventManagers)) {
+      const eventManager = container.resolve(EventManager); // Get the Singleton instance
+      eventManager.init();
+    }
   }
 
   /**
