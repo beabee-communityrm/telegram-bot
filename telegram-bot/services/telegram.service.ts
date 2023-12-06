@@ -1,6 +1,5 @@
 import { container, Singleton } from "alosaur/mod.ts";
 import { Bot } from "grammy/mod.ts";
-import { EventService } from "./index.ts";
 import { Command } from "../core/index.ts";
 
 import type { CommandClass, EventManagerClass } from "../types/index.ts";

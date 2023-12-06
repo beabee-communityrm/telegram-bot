@@ -3,6 +3,7 @@ export type {
   CalloutSlideSchema,
   InputCalloutComponentSchema,
   NestableCalloutComponentSchema,
+  Paginated,
   RadioCalloutComponentSchema,
   SelectCalloutComponentSchema,
 } from "@beabee/beabee-common";

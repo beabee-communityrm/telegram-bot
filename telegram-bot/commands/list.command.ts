@@ -30,25 +30,7 @@ export class ListCommand extends Command {
   // Handle the /list command
   public async action(ctx: Context) {
     const callouts = await this.callout.list();
-
-    if (callouts.items.length === 0) {
-      await ctx.reply("There are currently no active callouts");
-      return;
-    }
-
-    const res = this.calloutRenderer.listItems(callouts.items);
+    const res = this.calloutRenderer.listItems(callouts);
     await this.render.reply(ctx, res);
-
-    const keyboard = this.keyboard.calloutSelection(callouts.items);
-    const keyboardMessageMd = `_${
-      escapeMd(
-        "Which callout would you like to get more information displayed about? Choose a number",
-      )
-    }_`;
-
-    await ctx.reply(keyboardMessageMd, {
-      reply_markup: keyboard,
-      parse_mode: "MarkdownV2",
-    });
   }
 }

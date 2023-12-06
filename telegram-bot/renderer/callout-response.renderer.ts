@@ -1,14 +1,20 @@
 import { Singleton } from "alosaur/mod.ts";
 import { escapeMd, sanitizeHtml } from "../utils/index.ts";
 import { RenderResultType } from "../enums/index.ts";
-import { EventService, KeyboardService } from "../services/index.ts";
+import {
+  EventService,
+  KeyboardService,
+  RenderService,
+} from "../services/index.ts";
 import { BUTTON_CALLBACK_CALLOUT_PARTICIPATE } from "../constants.ts";
 
 import type {
   CalloutComponentSchema,
   CalloutSlideSchema,
+  Context,
   GetCalloutDataWithExt,
   InputCalloutComponentSchema,
+  Message,
   RenderResult,
 } from "../types/index.ts";
 
@@ -20,6 +26,7 @@ export class CalloutResponseRenderer {
   constructor(
     protected readonly keyboard: KeyboardService,
     protected readonly event: EventService,
+    protected readonly render: RenderService,
   ) {
     console.debug(`${CalloutResponseRenderer.name} created`);
   }
@@ -124,7 +131,7 @@ export class CalloutResponseRenderer {
     return result;
   }
 
-  protected component(component: CalloutComponentSchema) {
+  public component(component: CalloutComponentSchema) {
     const result: RenderResult = {
       type: RenderResultType.MARKDOWN,
       markdown: ``,
@@ -179,17 +186,40 @@ export class CalloutResponseRenderer {
     return result;
   }
 
-  protected slide(slide: CalloutSlideSchema, componentNum = 0) {
-    const result: RenderResult = {
-      type: RenderResultType.MARKDOWN,
-      markdown: "",
-    };
+  public async componentAndWaitForMessage(
+    ctx: Context,
+    component: CalloutComponentSchema,
+  ) {
+    const answer = await this.render.replayAndWaitForMessage(
+      ctx,
+      this.component(component),
+    );
 
-    const component = slide.components[componentNum];
+    if (!answer.message) {
+      throw new Error("No message returned");
+    }
 
-    result.markdown += `${this.component(component).markdown}`;
+    return answer.message;
+  }
 
-    return result;
+  /**
+   * Render a callout response slide and each slide component in Markdown
+   */
+  public async slideAndWaitForMessage(
+    ctx: Context,
+    slide: CalloutSlideSchema,
+  ) {
+    const answerMessages: Message[] = [];
+
+    for (const component of slide.components) {
+      const componentAnswerMessage = await this.componentAndWaitForMessage(
+        ctx,
+        component,
+      );
+      answerMessages.push(componentAnswerMessage);
+    }
+
+    return answerMessages;
   }
 
   /**
@@ -198,20 +228,20 @@ export class CalloutResponseRenderer {
    * @param slideNum The slide number to render
    * @returns
    */
-  public response(callout: GetCalloutDataWithExt<"form">, slideNum: number) {
-    const result: RenderResult = {
-      type: RenderResultType.MARKDOWN,
-      markdown: "",
-    };
-
-    // TODO: Render form / slide
+  public async responseAndWaitForMessage(
+    ctx: Context,
+    callout: GetCalloutDataWithExt<"form">,
+  ) {
     const form = callout.formSchema;
-    const slide = form.slides[slideNum];
 
-    result.markdown = this.slide(slide).markdown;
+    const slidesAnswerMessages: Message[] = [];
 
-    console.debug("Rendering slide", slide);
+    for (const slide of form.slides) {
+      console.debug("Rendering slide", slide);
+      const answerMessages = await this.slideAndWaitForMessage(ctx, slide);
+      slidesAnswerMessages.push(...answerMessages);
+    }
 
-    return result;
+    return slidesAnswerMessages;
   }
 }

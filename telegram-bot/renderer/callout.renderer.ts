@@ -8,7 +8,12 @@ import {
   BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
 } from "../constants.ts";
 
-import type { CalloutDataExt, RenderResult } from "../types/index.ts";
+import type {
+  CalloutDataExt,
+  GetCalloutDataExt,
+  Paginated,
+  RenderResult,
+} from "../types/index.ts";
 
 /**
  * Render callouts for Telegram in Markdown
@@ -65,24 +70,38 @@ export class CalloutRenderer {
    * @param callouts
    * @returns
    */
-  public listItems(callouts: CalloutDataExt[]) {
-    const result: RenderResult = {
+  public listItems(callouts: Paginated<GetCalloutDataExt>) {
+    const listResult: RenderResult = {
       type: RenderResultType.MARKDOWN,
       markdown: "",
     };
-    if (callouts.length === 0) {
-      result.markdown = escapeMd("There are currently no active callouts");
-      return result;
+
+    if (callouts.items.length === 0) {
+      listResult.markdown = escapeMd("There are currently no active callouts");
+      return listResult;
     }
 
-    result.markdown = `*${escapeMd("List of active callouts")}*\n\n`;
+    listResult.markdown = `*${escapeMd("List of active callouts")}*\n\n`;
     let p = 1;
-    for (const callout of callouts) {
-      result.markdown += `${this.listItem(callout, `${p}.`).markdown}`;
+    for (const callout of callouts.items) {
+      listResult.markdown += `${this.listItem(callout, `${p}.`).markdown}`;
       p++;
     }
 
-    return result;
+    const keyboard = this.keyboard.calloutSelection(callouts.items);
+    const keyboardMessageMd = `_${
+      escapeMd(
+        "Which callout would you like to get more information displayed about? Choose a number",
+      )
+    }_`;
+
+    const keyboardResult: RenderResult = {
+      type: RenderResultType.MARKDOWN,
+      markdown: keyboardMessageMd,
+      keyboard,
+    };
+
+    return [listResult, keyboardResult];
   }
 
   /**

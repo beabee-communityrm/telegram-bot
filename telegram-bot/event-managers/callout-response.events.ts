@@ -65,13 +65,13 @@ export class CalloutResponseEventManager extends EventManager {
       startResponse,
     );
 
-    // Start intro
+    // Start callout response for first slide
     const calloutWithForm = await this.callout.get(slug, ["form"]);
     console.debug("Got callout with form", calloutWithForm);
 
-    const res = this.calloutResponseRenderer.response(calloutWithForm, 0);
-    const answerCtx = await this.render.replayAndWaitForMessage(ctx, res);
-    console.debug("Got answer", answerCtx[0]?.message?.text);
+    const answerMessages = await this.calloutResponseRenderer
+      .responseAndWaitForMessage(ctx, calloutWithForm);
+    console.debug("Got answer", answerMessages.map((m) => m.text));
   }
 
   /**

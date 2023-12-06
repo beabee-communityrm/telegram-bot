@@ -17,7 +17,7 @@ export class RenderService {
   }
 
   /**
-   * Reply to a Telegram message or action with a render result
+   * Reply to a Telegram message or action with a single render result
    * @param ctx
    * @param res
    */
@@ -47,7 +47,7 @@ export class RenderService {
   }
 
   /**
-   * Reply to a Telegram message or action with a render result
+   * Reply to a Telegram message or action with a a single or multiple render results
    * @param ctx
    * @param res
    */
@@ -63,23 +63,19 @@ export class RenderService {
     }
   }
 
+  /**
+   * Reply to a Telegram message or action with a render result and wait for a user message
+   */
   public async replayAndWaitForMessage(
     ctx: Context,
-    renderResults: RenderResult | RenderResult[],
+    renderResult: RenderResult,
   ) {
-    if (!Array.isArray(renderResults)) {
-      renderResults = [renderResults];
+    await this.reply(ctx, renderResult);
+    let event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
+    while (!event.detail.message?.text) {
+      await this.reply(ctx, this.messageRenderer.notATextMessage());
+      event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
     }
-    const resultContexts: Context[] = [];
-    for (const renderResult of renderResults) {
-      await this.reply(ctx, renderResult);
-      let event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
-      while (!event.detail.message?.text) {
-        await this.reply(ctx, this.messageRenderer.notATextMessage());
-        event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
-      }
-      resultContexts.push(event.detail);
-    }
-    return resultContexts;
+    return event.detail;
   }
 }

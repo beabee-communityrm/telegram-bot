@@ -1,2 +1,2 @@
-export * from "./command.ts";
-export * from "./event-manager.ts";
+export * from './command.ts';
+export * from './event-manager.ts';
