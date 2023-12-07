@@ -1,4 +1,5 @@
 import type {
+  RenderResultEmpty,
   RenderResultHtml,
   RenderResultMarkdown,
   RenderResultPhoto,
@@ -6,6 +7,7 @@ import type {
 } from "./index.ts";
 
 export type RenderResult =
+  | RenderResultEmpty
   | RenderResultMarkdown
   | RenderResultPhoto
   | RenderResultHtml

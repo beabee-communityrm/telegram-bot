@@ -1,4 +1,5 @@
 export type {
+  BaseCalloutComponentSchema,
   CalloutComponentSchema,
   CalloutSlideSchema,
   InputCalloutComponentSchema,

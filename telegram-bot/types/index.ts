@@ -8,6 +8,7 @@ export * from "./grammy.ts";
 export * from "./nullable-properties.ts";
 export * from "./props-from.ts";
 export * from "./render-result-base.ts";
+export * from "./render-result-empty.ts";
 export * from "./render-result-html.ts";
 export * from "./render-result-markdown.ts";
 export * from "./render-result-photo.ts";

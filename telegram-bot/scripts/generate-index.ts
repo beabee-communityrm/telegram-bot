@@ -28,7 +28,7 @@ const generateIndex = (paths: string[]) => {
         (file.name.endsWith(".ts") || file.name.endsWith(".tsx")) &&
         file.name !== "index.ts"
       ) {
-        indexContent += `export * from './${file.name}';\n`;
+        indexContent += `export * from "./${file.name}";\n`;
       }
     }
 

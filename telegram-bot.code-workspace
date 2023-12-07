@@ -17,7 +17,8 @@
       "Beabee",
       "callouts",
       "Deno",
-      "denodb"
+      "denodb",
+      "selectboxes"
     ],
     "deno.enable": true,
     "deno.lint": true,
