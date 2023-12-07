@@ -3,10 +3,7 @@ import { downloadImage, escapeMd } from "../utils/index.ts";
 import { InputFile, InputMediaBuilder } from "grammy/mod.ts";
 import { RenderResultType } from "../enums/index.ts";
 import { KeyboardService } from "../services/index.ts";
-import {
-  BUTTON_CALLBACK_CALLOUT_INTRO,
-  BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
-} from "../constants.ts";
+import { BUTTON_CALLBACK_CALLOUT_INTRO } from "../constants/index.ts";
 
 import type {
   CalloutDataExt,
@@ -129,8 +126,6 @@ export class CalloutRenderer {
 
   /**
    * Render a callout as a photo.
-   *
-   * @fires `callback_query:data:${BUTTON_CALLBACK_CALLOUT_INTRO}`
    *
    * @param callout
    * @returns

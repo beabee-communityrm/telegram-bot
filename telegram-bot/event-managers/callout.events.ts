@@ -3,7 +3,7 @@ import { CalloutService } from "../services/callout.service.ts";
 import { RenderService } from "../services/render.service.ts";
 import { CalloutRenderer } from "../renderer/index.ts";
 import { EventService } from "../services/event.service.ts";
-import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants.ts";
+import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants/index.ts";
 import { EventManager } from "../core/event-manager.ts";
 
 import type { Context } from "../types/index.ts";

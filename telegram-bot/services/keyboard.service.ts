@@ -1,6 +1,6 @@
 import { Singleton } from "alosaur/mod.ts";
 import { InlineKeyboard } from "grammy/mod.ts";
-import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants.ts";
+import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants/index.ts";
 
 import type { CalloutDataExt } from "../types/index.ts";
 

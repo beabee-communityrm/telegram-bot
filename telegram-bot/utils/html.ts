@@ -10,6 +10,8 @@ export const sanitizeHtml = (htmlContent: string): string => {
   // Replace specific tags with corresponding replacements
   const tagsToReplace: { [key: string]: string } = {
     "<p>": "\n",
+    "<br>": "\n",
+    "<br/>": "\n",
     // Additional specific replacements can be added here
   };
 
@@ -31,30 +33,56 @@ export const sanitizeHtml = (htmlContent: string): string => {
 };
 
 /**
- * Removes all HTML tags that are not allowed.
+ * Removes all HTML tags that are not allowed in Telegram.
  *
  * @param content The content from which to remove tags.
  * @returns The content with disallowed tags removed.
  */
-export const removeDisallowedTags = (content: string): string => {
-  const allowedTags =
-    /<\/?(b|strong|i|em|u|ins|s|strike|del|span|tg-spoiler|a|tg-emoji|code|pre)[^>]*>/gi;
-  return content.replace(
-    /<\/?[^>]+(>|$)/gi,
-    (tag) => allowedTags.test(tag) ? tag : "",
+export const removeDisallowedTags = (html: string): string => {
+  const allowedTags = [
+    "b",
+    "strong",
+    "i",
+    "em",
+    "u",
+    "ins",
+    "s",
+    "strike",
+    "del",
+    "span",
+    "tg-spoiler",
+    "a",
+    "tg-emoji",
+    "code",
+    "pre",
+  ];
+  const regex = new RegExp(
+    `<(?!\/?(?:${allowedTags.join("|")})\\b)[^>]*>`,
+    "gi",
   );
+
+  return html.replace(regex, "");
 };
 
 /**
  * Escapes HTML entities to prevent potential security risks.
+ * Specifically replaces only those angle brackets which do not form part of a valid HTML tag.
  *
  * @param content The content in which to escape HTML entities.
  * @returns The content with HTML entities escaped.
  */
 export const escapeHtmlEntities = (content: string): string => {
-  return content
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+  // First replace & characters, except if they are part of an existing entity
+  content = content.replace(/&(?!amp;|lt;|gt;|quot;|#39;)/g, "&amp;");
+
+  // Then replace < and > if they are not part of a tag
+  content = content.replace(/<([^a-zA-Z\/!]|$)/g, "&lt;$1").replace(
+    /([^a-zA-Z\/])>/g,
+    "$1&gt;",
+  );
+
+  // Replace " and '
+  content = content.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
+  return content;
 };

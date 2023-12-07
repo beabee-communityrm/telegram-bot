@@ -6,7 +6,7 @@ import { CalloutResponseRenderer, MessageRenderer } from "../renderer/index.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_INTRO,
   BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
-} from "../constants.ts";
+} from "../constants/index.ts";
 import { EventManager } from "../core/event-manager.ts";
 
 import type { Context } from "../types/index.ts";
@@ -70,8 +70,8 @@ export class CalloutResponseEventManager extends EventManager {
     console.debug("Got callout with form", calloutWithForm);
 
     const answerMessages = await this.calloutResponseRenderer
-      .responseAndWaitForMessage(ctx, calloutWithForm);
-    console.debug("Got answer", answerMessages.map((m) => m.text));
+      .fullResponseAndWaitForMessage(ctx, calloutWithForm);
+    console.debug("Got answer", answerMessages.map((ctx) => ctx.message?.text));
   }
 
   /**

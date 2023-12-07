@@ -3,6 +3,7 @@ const paths = [
   "./areas",
   "./commands",
   "./controllers",
+  "./constants",
   "./core",
   "./enums",
   "./event-managers",

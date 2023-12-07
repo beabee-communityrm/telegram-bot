@@ -3,8 +3,13 @@ import { RenderResultType } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
 import { getIdentifier } from "../utils/index.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
+import { DONE_MESSAGE } from "../constants/index.ts";
 
-import type { RenderResult } from "../types/index.ts";
+import type {
+  Message,
+  RenderResult,
+  TelegramBotEvent,
+} from "../types/index.ts";
 import type { Context } from "grammy/context.ts";
 
 @Singleton()
@@ -64,7 +69,7 @@ export class RenderService {
   }
 
   /**
-   * Reply to a Telegram message or action with a render result and wait for a user message
+   * Reply to a Telegram message or action with a render result and wait for a message response
    */
   public async replayAndWaitForMessage(
     ctx: Context,
@@ -77,5 +82,34 @@ export class RenderService {
       event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
     }
     return event.detail;
+  }
+
+  /**
+   * Reply to a Telegram message or action with a render result and wait for a message response
+   */
+  public async replayAndWaitForDoneMessage(
+    ctx: Context,
+    renderResult: RenderResult,
+  ) {
+    await this.reply(ctx, renderResult);
+    let text: string | undefined;
+    let event: TelegramBotEvent;
+    let context: Context;
+    let message: Message | undefined;
+    const answerMessages: Context[] = [];
+    do {
+      event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
+      context = event.detail;
+      message = context.message;
+      text = message?.text?.toLowerCase().trim();
+
+      if (!text) {
+        await this.reply(ctx, this.messageRenderer.notATextMessage());
+        continue;
+      }
+      answerMessages.push(context);
+    } while (!message || text !== DONE_MESSAGE);
+
+    return answerMessages;
   }
 }

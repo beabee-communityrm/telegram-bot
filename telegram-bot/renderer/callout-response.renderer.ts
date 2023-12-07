@@ -6,7 +6,10 @@ import {
   KeyboardService,
   RenderService,
 } from "../services/index.ts";
-import { BUTTON_CALLBACK_CALLOUT_PARTICIPATE } from "../constants.ts";
+import {
+  BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
+  DONE_MESSAGE,
+} from "../constants/index.ts";
 
 import type {
   BaseCalloutComponentSchema,
@@ -15,7 +18,6 @@ import type {
   Context,
   GetCalloutDataWithExt,
   InputCalloutComponentSchema,
-  Message,
   RadioCalloutComponentSchema,
   RenderResult,
   RenderResultEmpty,
@@ -37,24 +39,6 @@ export class CalloutResponseRenderer {
     protected readonly render: RenderService,
   ) {
     console.debug(`${CalloutResponseRenderer.name} created`);
-  }
-
-  /**
-   * Render a callout intro in HTML
-   */
-  public intro(callout: GetCalloutDataWithExt<"form">) {
-    const result: RenderResult = {
-      type: RenderResultType.HTML,
-      html: "",
-    };
-    result.html = `${sanitizeHtml(callout.intro)}`;
-
-    const continueKeyboard = this.keyboard.continueCancel(
-      `${BUTTON_CALLBACK_CALLOUT_PARTICIPATE}:${callout.slug}`,
-    );
-    result.keyboard = continueKeyboard;
-
-    return result;
   }
 
   /**
@@ -115,13 +99,13 @@ export class CalloutResponseRenderer {
     if (component.multiple) {
       result.markdown += `_${
         escapeMd(
-          `You can enter multiple values by sending each value separately. If you are finished with your response, write "done".`,
+          `You can enter multiple values by sending each value separately. If you are finished with your response, write "${DONE_MESSAGE}".`,
         )
       }_`;
     } else {
       result.markdown += `_${
         escapeMd(
-          `You can only enter one value. If you are finished with your response, write "done".`,
+          `You can only enter one value. If you are finished with your response, write "${DONE_MESSAGE}".`,
         )
       }_`;
     }
@@ -363,6 +347,9 @@ export class CalloutResponseRenderer {
     return result;
   }
 
+  /**
+   * Render a callout component in Markdown and wait for a message response
+   */
   public async componentAndWaitForMessage(
     ctx: Context,
     component: CalloutComponentSchema,
@@ -376,7 +363,22 @@ export class CalloutResponseRenderer {
       throw new Error("No message returned");
     }
 
-    return answer.message;
+    return answer;
+  }
+
+  /**
+   * Render a callout component in Markdown and wait for a message response
+   */
+  public async componentAndWaitForDoneMessage(
+    ctx: Context,
+    component: CalloutComponentSchema,
+  ) {
+    const answers = await this.render.replayAndWaitForDoneMessage(
+      ctx,
+      this.component(component),
+    );
+
+    return answers;
   }
 
   /**
@@ -386,11 +388,21 @@ export class CalloutResponseRenderer {
     ctx: Context,
     slide: CalloutSlideSchema,
   ) {
-    const answerMessages: Message[] = [];
+    const answerMessages: Context[] = [];
 
     console.debug("Rendering slide", slide);
 
     for (const component of slide.components) {
+      if (component.multiple) {
+        const componentAnswerMessages = await this
+          .componentAndWaitForDoneMessage(
+            ctx,
+            component,
+          );
+        answerMessages.push(...componentAnswerMessages);
+        continue;
+      }
+
       const componentAnswerMessage = await this.componentAndWaitForMessage(
         ctx,
         component,
@@ -402,23 +414,66 @@ export class CalloutResponseRenderer {
   }
 
   /**
-   * Render a full callout response in Markdown
+   * Render a callout response intro in HTML
+   */
+  public intro(callout: GetCalloutDataWithExt<"form">) {
+    const result: RenderResult = {
+      type: RenderResultType.HTML,
+      html: "",
+    };
+    result.html = `${sanitizeHtml(callout.intro)}`;
+
+    const continueKeyboard = this.keyboard.continueCancel(
+      `${BUTTON_CALLBACK_CALLOUT_PARTICIPATE}:${callout.slug}`,
+    );
+    result.keyboard = continueKeyboard;
+
+    return result;
+  }
+
+  /**
+   * Render the callout response thank you
+   */
+  public thankYou(callout: GetCalloutDataWithExt<"form">) {
+    const result: RenderResult = {
+      type: RenderResultType.HTML,
+      html: ``,
+    };
+
+    if (callout.thanksTitle) {
+      result.html += sanitizeHtml(`<strong>${callout.thanksTitle}</strong>\n`);
+    }
+
+    if (callout.thanksText) {
+      result.html += sanitizeHtml(`${callout.thanksText}\n`);
+    }
+
+    console.debug("Rendering thank you", result.html);
+
+    return result;
+  }
+
+  /**
+   * Render a full callout response in Markdown and wait for a message responses
    * @param callout The callout to render
    * @param slideNum The slide number to render
    * @returns
    */
-  public async responseAndWaitForMessage(
+  public async fullResponseAndWaitForMessage(
     ctx: Context,
     callout: GetCalloutDataWithExt<"form">,
   ) {
     const form = callout.formSchema;
 
-    const slidesAnswerMessages: Message[] = [];
+    const slidesAnswerMessages: Context[] = [];
 
     for (const slide of form.slides) {
       const answerMessages = await this.slideAndWaitForMessage(ctx, slide);
       slidesAnswerMessages.push(...answerMessages);
     }
+
+    const thankYou = this.thankYou(callout);
+    this.render.reply(ctx, thankYou);
 
     return slidesAnswerMessages;
   }
