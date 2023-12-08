@@ -40,9 +40,25 @@ export class KeyboardService {
       throw new Error("endIndex is larger than callouts.length");
     }
     for (let i = startIndex; i <= endIndex; i++) {
+      const shortSlug = callouts[i - 1].shortSlug;
+      if (!shortSlug) {
+        console.error(
+          `Callout ${i} has no slug.\nSkipping...`,
+        );
+        continue;
+      }
+      const callbackData = `${BUTTON_CALLBACK_SHOW_CALLOUT}:${shortSlug}`;
+
+      if (callbackData.length > 64) {
+        console.error(
+          `Error: Callout ${i} has a slug that is too long: "${callbackData}".\nSkipping...`,
+        );
+        continue;
+      }
+
       inlineKeyboard.text(
         `${i}`,
-        `${BUTTON_CALLBACK_SHOW_CALLOUT}:${callouts[i - 1].slug}`,
+        callbackData,
       );
     }
     return inlineKeyboard;

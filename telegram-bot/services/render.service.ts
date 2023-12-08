@@ -64,7 +64,11 @@ export class RenderService {
       renderResults = [renderResults];
     }
     for (const renderResult of renderResults) {
-      await this._reply(ctx, renderResult);
+      try {
+        await this._reply(ctx, renderResult);
+      } catch (error) {
+        console.error("Error sending render result", error);
+      }
     }
   }
 

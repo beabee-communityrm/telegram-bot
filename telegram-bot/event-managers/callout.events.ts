@@ -21,7 +21,7 @@ export class CalloutEventManager extends EventManager {
   }
 
   public init() {
-    // Listen for the callback query data event with the `show-callout-slug` data
+    // Listen for the callback query data event with the `BUTTON_CALLBACK_SHOW_CALLOUT` data
     this.event.on(
       `callback_query:data:${BUTTON_CALLBACK_SHOW_CALLOUT}`,
       (event) => {
@@ -31,7 +31,14 @@ export class CalloutEventManager extends EventManager {
   }
 
   protected async onCalloutSelectionKeyboardPressed(ctx: Context) {
-    const slug = ctx.callbackQuery?.data?.split(":")[1];
+    const shortSlug = ctx.callbackQuery?.data?.split(":")[1];
+
+    if (!shortSlug) {
+      await ctx.reply("This button has not a callout slug associated with it");
+      return;
+    }
+
+    const slug = this.callout.getSlug(shortSlug);
 
     if (!slug) {
       await ctx.reply("This button has not a callout slug associated with it");

@@ -81,10 +81,17 @@ export class CalloutResponseEventManager extends EventManager {
    */
   protected async onCalloutIntroKeyboardPressed(ctx: Context) {
     const data = ctx.callbackQuery?.data?.split(":");
-    const slug = data?.[1];
+    const shortSlug = data?.[1];
     const startIntro = data?.[2] as "yes" | "no" === "yes";
 
     await ctx.answerCallbackQuery(); // remove loading animation
+
+    if (!shortSlug) {
+      await this.render.reply(ctx, this.messageRenderer.calloutNotFound());
+      return;
+    }
+
+    const slug = this.callout.getSlug(shortSlug);
 
     if (!slug) {
       await this.render.reply(ctx, this.messageRenderer.calloutNotFound());

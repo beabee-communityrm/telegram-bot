@@ -1,6 +1,7 @@
 import { CalloutClient } from "@beabee/client";
 import { ItemStatus } from "@beabee/beabee-common";
 import { Singleton } from "alosaur/mod.ts";
+import { truncateSlug } from "../utils/index.ts";
 
 import type {
   CalloutData,
@@ -28,6 +29,11 @@ const CALLOUTS_ACTIVE_QUERY: GetCalloutsQuery = {
 
 @Singleton()
 export class CalloutService {
+  /**
+   * A map of short slugs to slugs for callouts as a WORKAROUND for too long callback data.
+   */
+  protected readonly shortSlugs = new Map<string, string>();
+
   public readonly client: CalloutClient;
 
   public readonly baseUrl: URL;
@@ -58,10 +64,19 @@ export class CalloutService {
   ): GetCalloutDataWithExt<With>;
   protected extend(callout: GetCalloutData): GetCalloutDataExt;
   protected extend(callout: CalloutData): CalloutDataExt {
+    const shortSlug = callout.slug ? truncateSlug(callout.slug) : "";
+    if (callout.slug && shortSlug) {
+      this.shortSlugs.set(shortSlug, callout.slug);
+    }
     return {
       ...callout,
       url: callout.slug ? this.getUrl(callout.slug).toString() : null,
+      shortSlug,
     };
+  }
+
+  public getSlug(shortSlug: string) {
+    return this.shortSlugs.get(shortSlug);
   }
 
   /**

@@ -23,7 +23,9 @@ export const downloadImage = async (url: string | URL, path?: string) => {
 
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`Es gab einen Fehler: ${response.statusText}`);
+    throw new Error(
+      `There was an error downloading the image: ${response.statusText}`,
+    );
   }
 
   const blob = await response.blob();

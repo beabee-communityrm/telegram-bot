@@ -83,6 +83,9 @@ feedback and suggestions are valuable in guiding the development process.
 
 ## License
 
-This project is licensed under the Apache License 2.0. This license is a permissive open-source license, allowing the use, modification, and distribution of the software for any purpose, without concern about copyright infringement. It also provides an express grant of patent rights from contributors to users.
+This project is licensed under the Apache License 2.0. This license is a
+permissive open-source license, allowing the use, modification, and distribution
+of the software for any purpose, without concern about copyright infringement.
+It also provides an express grant of patent rights from contributors to users.
 
 For more details, see https://www.apache.org/licenses/LICENSE-2.0.html.

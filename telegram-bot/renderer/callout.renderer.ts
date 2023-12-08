@@ -34,7 +34,7 @@ export class CalloutRenderer {
       escapeMd("Would you like to respond to the callout?")
     }_`;
     const yesNoKeyboard = this.keyboard.yesNo(
-      `${BUTTON_CALLBACK_CALLOUT_INTRO}:${callout.slug}`,
+      `${BUTTON_CALLBACK_CALLOUT_INTRO}:${callout.shortSlug}`,
     );
 
     const result: RenderResult = {
