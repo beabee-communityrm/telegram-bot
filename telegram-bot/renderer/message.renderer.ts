@@ -1,7 +1,7 @@
 import { Singleton } from "alosaur/mod.ts";
 import { RenderResultType } from "../enums/index.ts";
 
-import type { RenderResult } from "../types/index.ts";
+import type { RenderResult, RenderResultText } from "../types/index.ts";
 
 /**
  * Render info messages for Telegram in Markdown
@@ -34,6 +34,13 @@ export class MessageRenderer {
     return {
       type: RenderResultType.TEXT,
       text: "Please send a text message",
-    } as RenderResult;
+    } as RenderResultText;
+  }
+
+  public notAFileMessage() {
+    return {
+      type: RenderResultType.TEXT,
+      text: "Please send a file",
+    } as RenderResultText;
   }
 }

@@ -1,4 +1,4 @@
-import type { Command } from "./index.ts";
+import type { Command } from "../core/command.ts";
 
 /**
  * A command class is a class that implements the Command interface.

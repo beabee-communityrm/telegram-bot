@@ -71,7 +71,15 @@ export class CalloutResponseEventManager extends EventManager {
 
     const answerMessages = await this.calloutResponseRenderer
       .fullResponseAndWaitForMessage(ctx, calloutWithForm);
-    console.debug("Got answer", answerMessages.map((ctx) => ctx.message?.text));
+    console.debug(
+      "Got answer",
+      answerMessages.map((ctx) => {
+        if (Array.isArray(ctx)) {
+          return ctx.map((ctx) => (ctx as Context).message?.text);
+        }
+        return (ctx as Context).message?.text;
+      }),
+    );
   }
 
   /**

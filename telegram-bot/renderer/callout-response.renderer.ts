@@ -1,5 +1,9 @@
 import { Singleton } from "alosaur/mod.ts";
-import { escapeMd, sanitizeHtml } from "../utils/index.ts";
+import {
+  escapeMd,
+  filterMimeTypesByPatterns,
+  sanitizeHtml,
+} from "../utils/index.ts";
 import { RenderResultType } from "../enums/index.ts";
 import {
   EventService,
@@ -21,6 +25,7 @@ import type {
   RadioCalloutComponentSchema,
   RenderResult,
   RenderResultEmpty,
+  Replay,
 } from "../types/index.ts";
 
 const empty: RenderResultEmpty = {
@@ -141,6 +146,17 @@ export class CalloutResponseRenderer {
       markdown: ``,
     };
 
+    if (base.multiple) {
+      result.waitFor = {
+        type: "message",
+        message: DONE_MESSAGE,
+      };
+    } else {
+      result.waitFor = {
+        type: "message",
+      };
+    }
+
     // Label
     const label = this.label(base);
     if (
@@ -160,11 +176,37 @@ export class CalloutResponseRenderer {
 
     return result;
   }
+
+  protected inputFileComponent(file: InputCalloutComponentSchema) {
+    const result = this.baseComponent(file);
+    result.markdown += `\n\n`;
+
+    result.markdown += `_${
+      escapeMd(
+        file.multiple
+          ? "Please upload the files here."
+          : "Please upload the file here.",
+      )
+    }_`;
+
+    result.waitFor = {
+      type: "file",
+    };
+
+    console.debug("TODO get file type: ", file);
+    const filePattern = file.filePattern as string || "";
+    if (filePattern) {
+      result.waitFor.mimeTypes = filterMimeTypesByPatterns(filePattern);
+    }
+
+    return result;
+  }
+
   /**
    * Render an input component in Markdown
    */
   protected inputComponent(input: InputCalloutComponentSchema) {
-    const result = this.baseComponent(input);
+    let result = this.baseComponent(input);
     result.markdown += `\n\n`;
 
     switch (input.type) {
@@ -201,13 +243,8 @@ export class CalloutResponseRenderer {
         break;
       }
       case "file": {
-        result.markdown += `_${
-          escapeMd(
-            input.multiple
-              ? "Please upload the file here."
-              : "Please upload the files here.",
-          )
-        }_`;
+        result = this.inputFileComponent(input);
+
         break;
       }
       case "number": {
@@ -293,7 +330,7 @@ export class CalloutResponseRenderer {
 
   public component(component: CalloutComponentSchema) {
     console.debug("Rendering component", component);
-    const result: RenderResult = {
+    let result: RenderResult = {
       type: RenderResultType.MARKDOWN,
       markdown: ``,
     };
@@ -309,14 +346,14 @@ export class CalloutResponseRenderer {
       case "password":
       case "textfield":
       case "textarea": {
-        result.markdown = this.inputComponent(component).markdown;
+        result = this.inputComponent(component);
         break;
       }
 
       // Radio components
       case "radio":
       case "selectboxes": {
-        result.markdown = this.radioComponent(component).markdown;
+        result = this.radioComponent(component);
         break;
       }
 
@@ -354,7 +391,7 @@ export class CalloutResponseRenderer {
     ctx: Context,
     component: CalloutComponentSchema,
   ) {
-    const answer = await this.render.replayAndWaitForMessage(
+    const answer = await this.render.replayAndWaitForAnyTextMessage(
       ctx,
       this.component(component),
     );
@@ -388,18 +425,18 @@ export class CalloutResponseRenderer {
     ctx: Context,
     slide: CalloutSlideSchema,
   ) {
-    const answerMessages: Context[] = [];
+    const replayMessages: Replay = [];
 
     console.debug("Rendering slide", slide);
 
     for (const component of slide.components) {
       if (component.multiple) {
-        const componentAnswerMessages = await this
+        const componentReplayMessages = await this
           .componentAndWaitForDoneMessage(
             ctx,
             component,
           );
-        answerMessages.push(...componentAnswerMessages);
+        replayMessages.push(componentReplayMessages);
         continue;
       }
 
@@ -407,10 +444,10 @@ export class CalloutResponseRenderer {
         ctx,
         component,
       );
-      answerMessages.push(componentAnswerMessage);
+      replayMessages.push(componentAnswerMessage);
     }
 
-    return answerMessages;
+    return replayMessages;
   }
 
   /**
@@ -465,16 +502,16 @@ export class CalloutResponseRenderer {
   ) {
     const form = callout.formSchema;
 
-    const slidesAnswerMessages: Context[] = [];
+    const slidesReplays: Replay = [];
 
     for (const slide of form.slides) {
-      const answerMessages = await this.slideAndWaitForMessage(ctx, slide);
-      slidesAnswerMessages.push(...answerMessages);
+      const replays = await this.slideAndWaitForMessage(ctx, slide);
+      slidesReplays.push(...replays);
     }
 
     const thankYou = this.thankYou(callout);
     this.render.reply(ctx, thankYou);
 
-    return slidesAnswerMessages;
+    return slidesReplays;
   }
 }

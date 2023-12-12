@@ -8,7 +8,9 @@ import { DONE_MESSAGE } from "../constants/index.ts";
 import type {
   Message,
   RenderResult,
-  TelegramBotEvent,
+  ReplayWaitFor,
+  ReplayWaitForFile,
+  ReplayWaitForMessage,
 } from "../types/index.ts";
 import type { Context } from "grammy/context.ts";
 
@@ -72,48 +74,155 @@ export class RenderService {
     }
   }
 
-  /**
-   * Reply to a Telegram message or action with a render result and wait for a message response
-   */
-  public async replayAndWaitForMessage(
-    ctx: Context,
-    renderResult: RenderResult,
-  ) {
-    await this.reply(ctx, renderResult);
-    let event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
-    while (!event.detail.message?.text) {
-      await this.reply(ctx, this.messageRenderer.notATextMessage());
-      event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
-    }
+  public async waitForReplayMessage(ctx: Context) {
+    const event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
     return event.detail;
   }
 
   /**
+   * Wait for a specific file to be received
+   * @param ctx
+   * @param waitFor
+   * @returns
+   */
+  public async waitForSpecificReplayFileMessage(
+    ctx: Context,
+    waitFor: ReplayWaitForFile,
+  ) {
+    let compareMimeType: string | undefined;
+    let context: Context;
+    let message: Message | undefined;
+    const replayFiles: Context[] = [];
+    let wait = false;
+    do {
+      context = await this.waitForReplayMessage(ctx);
+      message = context.message;
+      compareMimeType = message?.document?.mime_type;
+
+      if (
+        !message || !message.document || !compareMimeType ||
+        !message.document.file_id
+      ) {
+        await this.reply(ctx, this.messageRenderer.notAFileMessage());
+        continue;
+      }
+      replayFiles.push(context);
+
+      if (waitFor.mimeTypes && waitFor.mimeTypes.length > 0) {
+        for (const mimeType of waitFor.mimeTypes) {
+          if (mimeType === compareMimeType) {
+            wait = false;
+            break;
+          }
+          wait = true;
+        }
+      }
+    } while (wait);
+
+    return replayFiles;
+  }
+
+  /**
+   * Wait for a specific message to be received
+   * @param ctx
+   * @param waitFor
+   * @returns
+   */
+  public async waitForSpecificReplayTextMessage(
+    ctx: Context,
+    waitFor: ReplayWaitForMessage,
+  ) {
+    let compareText: string | undefined;
+    let context: Context;
+    let message: Message | undefined;
+    const replayMessages: Context[] = [];
+    let wait = false;
+    do {
+      context = await this.waitForReplayMessage(ctx);
+      message = context.message;
+      compareText = message?.text?.toLowerCase().trim();
+
+      if (!compareText) {
+        await this.reply(ctx, this.messageRenderer.notATextMessage());
+        continue;
+      }
+      replayMessages.push(context);
+
+      const waitForMessage = waitFor.message?.toLowerCase().trim();
+
+      if (waitForMessage) {
+        // Wait for a specific message
+        wait = !message || !compareText || compareText !== waitForMessage;
+      } else {
+        // Wait for any message
+        wait = !message || !compareText;
+      }
+    } while (wait);
+
+    return replayMessages;
+  }
+
+  /**
+   * Wait for a specific message or file to be received
+   * @param ctx
+   * @param waitFor
+   * @returns
+   */
+  public async waitForSpecificReplay(
+    ctx: Context,
+    waitFor: ReplayWaitFor,
+  ) {
+    if (waitFor.type === "file") {
+      return await this.waitForSpecificReplayFileMessage(ctx, waitFor);
+    }
+
+    if (waitFor.type === "message") {
+      return await this.waitForSpecificReplayTextMessage(ctx, waitFor);
+    }
+
+    throw new Error("Unknown replay wait for type");
+  }
+
+  /**
+   * Wait for a `waitForMessage` message to be received
+   * @param ctx
+   * @param waitForMessage
+   * @returns
+   */
+  public async waitForDoneReplayTextMessage(
+    ctx: Context,
+    waitForMessage?: string,
+  ) {
+    return await this.waitForSpecificReplayTextMessage(ctx, {
+      type: "message",
+      message: waitForMessage,
+    });
+  }
+
+  /**
    * Reply to a Telegram message or action with a render result and wait for a message response
+   */
+  public async replayAndWaitForAnyTextMessage(
+    ctx: Context,
+    renderResult: RenderResult,
+  ) {
+    await this.reply(ctx, renderResult);
+    const replay = await this.waitForDoneReplayTextMessage(ctx);
+    return replay[0];
+  }
+
+  /**
+   * Reply to a Telegram message or action with a render result and wait for a message response until a specific message is received
    */
   public async replayAndWaitForDoneMessage(
     ctx: Context,
     renderResult: RenderResult,
   ) {
     await this.reply(ctx, renderResult);
-    let text: string | undefined;
-    let event: TelegramBotEvent;
-    let context: Context;
-    let message: Message | undefined;
-    const answerMessages: Context[] = [];
-    do {
-      event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
-      context = event.detail;
-      message = context.message;
-      text = message?.text?.toLowerCase().trim();
-
-      if (!text) {
-        await this.reply(ctx, this.messageRenderer.notATextMessage());
-        continue;
-      }
-      answerMessages.push(context);
-    } while (!message || text !== DONE_MESSAGE);
-
-    return answerMessages;
+    const replayMessages = await this.waitForDoneReplayTextMessage(
+      ctx,
+      DONE_MESSAGE,
+    );
+    return replayMessages;
   }
 }
