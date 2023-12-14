@@ -21,7 +21,7 @@ export * from "./replay-accepted-text.ts";
 export * from "./replay-accepted.ts";
 export * from "./replay-condition-base.ts";
 export * from "./replay-condition-file.ts";
-export * from "./replay-condition-message.ts";
+export * from "./replay-condition-text.ts";
 export * from "./replay-condition.ts";
 export * from "./replay-type.ts";
 export * from "./replay.ts";
