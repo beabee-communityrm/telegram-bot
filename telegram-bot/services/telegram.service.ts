@@ -5,6 +5,12 @@ import { Command } from "../core/index.ts";
 import type { CommandClass, EventManagerClass } from "../types/index.ts";
 import type { BotCommand } from "grammy_types/mod.ts";
 
+/**
+ * TelegramService is a Singleton service that handles the Telegram bot.
+ * - Initialize the bot
+ * - Add commands
+ * - Add event listeners using the EventManagers
+ */
 @Singleton()
 export class TelegramService {
   bot: Bot;

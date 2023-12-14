@@ -1,3 +1,4 @@
+export * from "./file.test.ts";
 export * from "./file.ts";
 export * from "./html.test.ts";
 export * from "./html.ts";

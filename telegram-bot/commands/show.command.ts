@@ -1,9 +1,9 @@
 import { Singleton } from "alosaur/mod.ts";
 import {
   CalloutService,
+  CommunicationService,
   EventService,
   KeyboardService,
-  RenderService,
 } from "../services/index.ts";
 import {
   CalloutRenderer,
@@ -22,7 +22,7 @@ export class ShowCommand extends Command {
 
   constructor(
     protected readonly callout: CalloutService,
-    protected readonly render: RenderService,
+    protected readonly communication: CommunicationService,
     protected readonly keyboard: KeyboardService,
     protected readonly event: EventService,
     protected readonly messageRenderer: MessageRenderer,
@@ -50,7 +50,7 @@ export class ShowCommand extends Command {
       console.debug("Got callout", callout);
 
       const res = await this.calloutRenderer.callout(callout);
-      await this.render.reply(ctx, res);
+      await this.communication.reply(ctx, res);
     } catch (error) {
       console.error("Error sending callout", error);
       if (error instanceof ApiError && error.httpCode === 404) {

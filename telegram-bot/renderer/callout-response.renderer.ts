@@ -1,18 +1,15 @@
 import { Singleton } from "alosaur/mod.ts";
-import {
-  escapeMd,
-  filterMimeTypesByPatterns,
-  sanitizeHtml,
-} from "../utils/index.ts";
+import { escapeMd, sanitizeHtml } from "../utils/index.ts";
 import { RenderResultType } from "../enums/index.ts";
 import {
+  CommunicationService,
   EventService,
   KeyboardService,
-  RenderService,
 } from "../services/index.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
   DONE_MESSAGE,
+  EMPTY_RENDER_RESULT,
 } from "../constants/index.ts";
 
 import type {
@@ -24,14 +21,8 @@ import type {
   InputCalloutComponentSchema,
   RadioCalloutComponentSchema,
   RenderResult,
-  RenderResultEmpty,
   Replay,
 } from "../types/index.ts";
-
-const empty: RenderResultEmpty = {
-  type: RenderResultType.EMPTY,
-  keyboard: undefined,
-};
 
 /**
  * Render callout responses for Telegram in Markdown
@@ -41,7 +32,7 @@ export class CalloutResponseRenderer {
   constructor(
     protected readonly keyboard: KeyboardService,
     protected readonly event: EventService,
-    protected readonly render: RenderService,
+    protected readonly communication: CommunicationService,
   ) {
     console.debug(`${CalloutResponseRenderer.name} created`);
   }
@@ -51,7 +42,7 @@ export class CalloutResponseRenderer {
    */
   protected label(component: BaseCalloutComponentSchema) {
     if (!component.label) {
-      return empty;
+      return EMPTY_RENDER_RESULT;
     }
     const result: RenderResult = {
       type: RenderResultType.MARKDOWN,
@@ -66,7 +57,7 @@ export class CalloutResponseRenderer {
    */
   protected description(component: BaseCalloutComponentSchema) {
     if (typeof component.description !== "string" || !component.description) {
-      return empty;
+      return EMPTY_RENDER_RESULT;
     }
 
     const result: RenderResult = {
@@ -146,16 +137,10 @@ export class CalloutResponseRenderer {
       markdown: ``,
     };
 
-    if (base.multiple) {
-      result.waitFor = {
-        type: "message",
-        message: DONE_MESSAGE,
-      };
-    } else {
-      result.waitFor = {
-        type: "message",
-      };
-    }
+    // Wait for replay(s)
+    result.acceptedUntil = this.communication.acceptedUntilMessage(
+      base.multiple ? DONE_MESSAGE : undefined,
+    );
 
     // Label
     const label = this.label(base);
@@ -189,14 +174,22 @@ export class CalloutResponseRenderer {
       )
     }_`;
 
-    result.waitFor = {
-      type: "file",
-    };
+    if (file.multiple) {
+      result.acceptedUntil = this.communication.acceptedUntilMessage(
+        DONE_MESSAGE,
+      );
+    } else {
+      result.acceptedUntil = this.communication.acceptedUntilFilePattern(
+        file.filePattern as string || "",
+      );
+    }
 
-    console.debug("TODO get file type: ", file);
-    const filePattern = file.filePattern as string || "";
-    if (filePattern) {
-      result.waitFor.mimeTypes = filterMimeTypesByPatterns(filePattern);
+    if (file.placeholder) {
+      result.markdown += `\n\n${this.placeholder(file).markdown}`;
+    }
+
+    if (file.multiple) {
+      result.markdown += `\n\n${this.multiple(file).markdown}`;
     }
 
     return result;
@@ -206,7 +199,7 @@ export class CalloutResponseRenderer {
    * Render an input component in Markdown
    */
   protected inputComponent(input: InputCalloutComponentSchema) {
-    let result = this.baseComponent(input);
+    const result = this.baseComponent(input);
     result.markdown += `\n\n`;
 
     switch (input.type) {
@@ -240,11 +233,6 @@ export class CalloutResponseRenderer {
               : "Please enter an email.",
           )
         }_`;
-        break;
-      }
-      case "file": {
-        result = this.inputFileComponent(input);
-
         break;
       }
       case "number": {
@@ -318,9 +306,12 @@ export class CalloutResponseRenderer {
       case "selectboxes": {
         result.markdown += `_${
           escapeMd(
-            "Please make your selection by typing the numbers of your multiple choices, separated by a comma, or by pressing the buttons of your choice. Multiple selections are allowed.",
+            "Please make your selection by typing the number choices. Multiple selections are allowed, please send a separate message for each of your selection.",
           )
         }_`;
+        result.acceptedUntil = this.communication.acceptedUntilMessage(
+          DONE_MESSAGE,
+        );
         break;
       }
     }
@@ -341,12 +332,16 @@ export class CalloutResponseRenderer {
       case "button":
       case "checkbox":
       case "email":
-      case "file":
       case "number":
       case "password":
       case "textfield":
       case "textarea": {
         result = this.inputComponent(component);
+        break;
+      }
+
+      case "file": {
+        result = this.inputFileComponent(component);
         break;
       }
 
@@ -357,14 +352,17 @@ export class CalloutResponseRenderer {
         break;
       }
 
-      case "panel": {
-        result.markdown = `panel component not implemented`;
-        break;
-      }
+      // TODO: next
       case "select": {
         result.markdown = `select component not implemented`;
         break;
       }
+      case "panel": {
+        result.markdown = `panel component not implemented`;
+        break;
+      }
+
+      // Later
       case "tabs": {
         result.markdown = `tabs component not implemented`;
         break;
@@ -391,7 +389,7 @@ export class CalloutResponseRenderer {
     ctx: Context,
     component: CalloutComponentSchema,
   ) {
-    const answer = await this.render.replayAndWaitForAnyTextMessage(
+    const answer = await this.communication.replayAndWaitForAnyTextMessage(
       ctx,
       this.component(component),
     );
@@ -410,7 +408,7 @@ export class CalloutResponseRenderer {
     ctx: Context,
     component: CalloutComponentSchema,
   ) {
-    const answers = await this.render.replayAndWaitForDoneMessage(
+    const answers = await this.communication.replayAndWaitForDoneMessage(
       ctx,
       this.component(component),
     );
@@ -510,7 +508,7 @@ export class CalloutResponseRenderer {
     }
 
     const thankYou = this.thankYou(callout);
-    this.render.reply(ctx, thankYou);
+    this.communication.reply(ctx, thankYou);
 
     return slidesReplays;
   }

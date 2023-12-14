@@ -1,6 +1,6 @@
 import { Singleton } from "alosaur/mod.ts";
 import { CalloutService } from "../services/callout.service.ts";
-import { RenderService } from "../services/render.service.ts";
+import { CommunicationService } from "../services/communication.service.ts";
 import { CalloutRenderer } from "../renderer/index.ts";
 import { EventService } from "../services/event.service.ts";
 import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants/index.ts";
@@ -13,7 +13,7 @@ export class CalloutEventManager extends EventManager {
   constructor(
     protected readonly event: EventService,
     protected readonly callout: CalloutService,
-    protected readonly render: RenderService,
+    protected readonly communication: CommunicationService,
     protected readonly calloutRenderer: CalloutRenderer,
   ) {
     super();
@@ -50,7 +50,7 @@ export class CalloutEventManager extends EventManager {
       console.debug("Got callout", callout);
 
       const res = await this.calloutRenderer.callout(callout);
-      await this.render.reply(ctx, res);
+      await this.communication.reply(ctx, res);
     } catch (error) {
       console.error("Error sending callout", error);
       await ctx.reply("Error sending callout");

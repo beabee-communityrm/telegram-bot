@@ -1,6 +1,6 @@
 import { Singleton } from "alosaur/mod.ts";
 import { CalloutService } from "../services/callout.service.ts";
-import { RenderService } from "../services/render.service.ts";
+import { CommunicationService } from "../services/communication.service.ts";
 import { EventService } from "../services/event.service.ts";
 import { CalloutResponseRenderer, MessageRenderer } from "../renderer/index.ts";
 import {
@@ -16,7 +16,7 @@ export class CalloutResponseEventManager extends EventManager {
   constructor(
     protected readonly event: EventService,
     protected readonly callout: CalloutService,
-    protected readonly render: RenderService,
+    protected readonly communication: CommunicationService,
     protected readonly messageRenderer: MessageRenderer,
     protected readonly calloutResponseRenderer: CalloutResponseRenderer,
   ) {
@@ -49,12 +49,15 @@ export class CalloutResponseEventManager extends EventManager {
     await ctx.answerCallbackQuery(); // remove loading animation
 
     if (!startResponse) {
-      await this.render.reply(ctx, this.messageRenderer.stop());
+      await this.communication.reply(ctx, this.messageRenderer.stop());
       return;
     }
 
     if (!slug) {
-      await this.render.reply(ctx, this.messageRenderer.calloutNotFound());
+      await this.communication.reply(
+        ctx,
+        this.messageRenderer.calloutNotFound(),
+      );
       return;
     }
 
@@ -95,19 +98,25 @@ export class CalloutResponseEventManager extends EventManager {
     await ctx.answerCallbackQuery(); // remove loading animation
 
     if (!shortSlug) {
-      await this.render.reply(ctx, this.messageRenderer.calloutNotFound());
+      await this.communication.reply(
+        ctx,
+        this.messageRenderer.calloutNotFound(),
+      );
       return;
     }
 
     const slug = this.callout.getSlug(shortSlug);
 
     if (!slug) {
-      await this.render.reply(ctx, this.messageRenderer.calloutNotFound());
+      await this.communication.reply(
+        ctx,
+        this.messageRenderer.calloutNotFound(),
+      );
       return;
     }
 
     if (!startIntro) {
-      await this.render.reply(ctx, this.messageRenderer.stop());
+      await this.communication.reply(ctx, this.messageRenderer.stop());
       return;
     }
 
@@ -116,6 +125,6 @@ export class CalloutResponseEventManager extends EventManager {
     console.debug("Got callout with form", calloutWithForm);
 
     const res = this.calloutResponseRenderer.intro(calloutWithForm);
-    await this.render.reply(ctx, res);
+    await this.communication.reply(ctx, res);
   }
 }

@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import { Database as _Database } from "sqlite3";
 import { Statement } from "./statement.ts";
 
@@ -74,7 +75,7 @@ export class Database extends _Database {
   run(sql: string, ...params: RestBindParameters): Database;
   run(sql: string, ...params: RestBindParameters): Database | number {
     const statement = new Statement(this, sql);
-    let { callback } = this.getCallback(statement, params);
+    const { callback } = this.getCallback(statement, params);
     let result = 0;
 
     try {
@@ -99,7 +100,7 @@ export class Database extends _Database {
   ): this;
   get(sql: string, ...params: any[]): this {
     const statement = new Statement(this, sql);
-    let { callback } = this.getCallback(statement, params);
+    const { callback } = this.getCallback(statement, params);
     let result: Record<string, any> | undefined;
 
     try {
@@ -125,7 +126,7 @@ export class Database extends _Database {
   ): this;
   all(sql: string, ...params: any[]): this {
     const statement = new Statement(this, sql);
-    let { callback } = this.getCallback(statement, params);
+    const { callback } = this.getCallback(statement, params);
     let result: Record<string, any>[] = [];
 
     try {
@@ -153,7 +154,7 @@ export class Database extends _Database {
   ): this;
   each(sql: string, ...params: any[]): this {
     const statement = new Statement(this, sql);
-    let { callback } = this.getCallback(statement, params);
+    const { callback } = this.getCallback(statement, params);
 
     for (const row of statement) {
       try {
@@ -174,7 +175,7 @@ export class Database extends _Database {
   exec(sql: string, callback?: any): Database;
   exec(sql: string, ...params: RestBindParameters): Database | number {
     const statement = new Statement(this, sql);
-    let { callback } = this.getCallback(statement, params);
+    const { callback } = this.getCallback(statement, params);
     let result = 0;
 
     try {
@@ -208,7 +209,7 @@ export class Database extends _Database {
       error = err;
     }
 
-    let { callback } = this.getCallback(statement, params);
+    const { callback } = this.getCallback(statement, params);
 
     if (error) {
       console.error(error);
@@ -231,7 +232,8 @@ export class Database extends _Database {
   configure(option: "busyTimeout", value: number): void;
   configure(option: "limit", id: number, value: number): void;
   configure(option: "limit" | "busyTimeout", id: number, value?: number): void {
-    // TODO implement
+    // TODO: implement
+    console.debug("[Database] TODO implement configure", option, id, value);
   }
 
   loadExtension(file: string, entryPoint?: string): void;

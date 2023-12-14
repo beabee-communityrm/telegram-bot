@@ -58,6 +58,9 @@ export const filterMimeTypesByPattern = (
  */
 export const filterMimeTypesByPatterns = (filePattern: string) => {
   const mimeTypes: string[] = [];
+  if (!filePattern) {
+    return mimeTypes;
+  }
   const filePatterns = filePattern.split(",");
   for (let filePattern of filePatterns) {
     filePattern = filePattern.trim(); // .replaceAll("/*", "");

@@ -1,5 +1,4 @@
-import { container, Singleton } from "alosaur/mod.ts";
-import { TelegramService } from "./index.ts";
+import { Singleton } from "alosaur/mod.ts";
 
 import type {
   TelegramBotEvent,

@@ -3,24 +3,28 @@ import { RenderResultType } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
 import { getIdentifier } from "../utils/index.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
+import { filterMimeTypesByPatterns } from "../utils/index.ts";
 import { DONE_MESSAGE } from "../constants/index.ts";
 
 import type {
   Message,
   RenderResult,
-  ReplayWaitFor,
-  ReplayWaitForFile,
-  ReplayWaitForMessage,
+  ReplayAccepted,
+  ReplayAcceptedFile,
+  ReplayAcceptedMessage,
 } from "../types/index.ts";
 import type { Context } from "grammy/context.ts";
 
+/**
+ * Service to handle the communication with the telegram bot and the telegram user.
+ */
 @Singleton()
-export class RenderService {
+export class CommunicationService {
   constructor(
     protected readonly event: EventService,
     protected readonly messageRenderer: MessageRenderer,
   ) {
-    console.debug(`${RenderService.name} created`);
+    console.debug(`${CommunicationService.name} created`);
   }
 
   /**
@@ -51,6 +55,36 @@ export class RenderService {
         reply_markup: res.keyboard,
       });
     }
+  }
+
+  // TODO: Move to better place
+  acceptedUntilMessage(message?: string): ReplayAcceptedMessage {
+    const result: ReplayAcceptedMessage = {
+      type: "message",
+    };
+    if (message) {
+      result.messages = message ? [message] : undefined;
+    }
+    return result;
+  }
+
+  // TODO: Move to better place
+  public acceptedUntilFile(mimeTypes?: string[]): ReplayAcceptedFile {
+    const result: ReplayAcceptedFile = {
+      type: "file",
+    };
+    if (mimeTypes) {
+      result.mimeTypes = mimeTypes;
+    }
+    return result;
+  }
+
+  // TODO: Move to better place
+  public acceptedUntilFilePattern(
+    filePattern: string,
+  ): ReplayAcceptedFile {
+    const mimeTypes = filterMimeTypesByPatterns(filePattern);
+    return this.acceptedUntilFile(mimeTypes);
   }
 
   /**
@@ -87,7 +121,7 @@ export class RenderService {
    */
   public async waitForSpecificReplayFileMessage(
     ctx: Context,
-    waitFor: ReplayWaitForFile,
+    waitFor: ReplayAcceptedFile,
   ) {
     let compareMimeType: string | undefined;
     let context: Context;
@@ -130,7 +164,7 @@ export class RenderService {
    */
   public async waitForSpecificReplayTextMessage(
     ctx: Context,
-    waitFor: ReplayWaitForMessage,
+    waitFor: ReplayAcceptedMessage,
   ) {
     let compareText: string | undefined;
     let context: Context;
@@ -148,11 +182,18 @@ export class RenderService {
       }
       replayMessages.push(context);
 
-      const waitForMessage = waitFor.message?.toLowerCase().trim();
+      const waitForMessages = waitFor.messages?.map((m) =>
+        m.toLowerCase().trim()
+      );
 
-      if (waitForMessage) {
-        // Wait for a specific message
-        wait = !message || !compareText || compareText !== waitForMessage;
+      if (waitForMessages) {
+        for (const waitForMessage of waitForMessages) {
+          if (waitForMessage === compareText) {
+            wait = false;
+            break;
+          }
+          wait = true;
+        }
       } else {
         // Wait for any message
         wait = !message || !compareText;
@@ -170,7 +211,7 @@ export class RenderService {
    */
   public async waitForSpecificReplay(
     ctx: Context,
-    waitFor: ReplayWaitFor,
+    waitFor: ReplayAccepted,
   ) {
     if (waitFor.type === "file") {
       return await this.waitForSpecificReplayFileMessage(ctx, waitFor);
@@ -195,7 +236,7 @@ export class RenderService {
   ) {
     return await this.waitForSpecificReplayTextMessage(ctx, {
       type: "message",
-      message: waitForMessage,
+      messages: waitForMessage ? [waitForMessage] : undefined,
     });
   }
 
