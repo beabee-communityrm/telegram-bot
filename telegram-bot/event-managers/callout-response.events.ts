@@ -49,12 +49,12 @@ export class CalloutResponseEventManager extends EventManager {
     await ctx.answerCallbackQuery(); // remove loading animation
 
     if (!startResponse) {
-      await this.communication.reply(ctx, this.messageRenderer.stop());
+      await this.communication.send(ctx, this.messageRenderer.stop());
       return;
     }
 
     if (!slug) {
-      await this.communication.reply(
+      await this.communication.send(
         ctx,
         this.messageRenderer.calloutNotFound(),
       );
@@ -68,20 +68,21 @@ export class CalloutResponseEventManager extends EventManager {
       startResponse,
     );
 
-    // Start callout response for first slide
     const calloutWithForm = await this.callout.get(slug, ["form"]);
     console.debug("Got callout with form", calloutWithForm);
 
-    const answerMessages = await this.calloutResponseRenderer
-      .fullResponseAndWaitForMessage(ctx, calloutWithForm);
+    // Render the callout with the form
+    const questions = this.calloutResponseRenderer
+      .full(calloutWithForm);
     console.debug(
-      "Got answer",
-      answerMessages.map((ctx) => {
-        if (Array.isArray(ctx)) {
-          return ctx.map((ctx) => (ctx as Context).message?.text);
-        }
-        return (ctx as Context).message?.text;
-      }),
+      "Got questions",
+      questions,
+    );
+
+    const answers = await this.communication.sendAndReceiveAll(ctx, questions);
+    console.debug(
+      "Got answers",
+      answers,
     );
   }
 
@@ -98,7 +99,7 @@ export class CalloutResponseEventManager extends EventManager {
     await ctx.answerCallbackQuery(); // remove loading animation
 
     if (!shortSlug) {
-      await this.communication.reply(
+      await this.communication.send(
         ctx,
         this.messageRenderer.calloutNotFound(),
       );
@@ -108,7 +109,7 @@ export class CalloutResponseEventManager extends EventManager {
     const slug = this.callout.getSlug(shortSlug);
 
     if (!slug) {
-      await this.communication.reply(
+      await this.communication.send(
         ctx,
         this.messageRenderer.calloutNotFound(),
       );
@@ -116,7 +117,7 @@ export class CalloutResponseEventManager extends EventManager {
     }
 
     if (!startIntro) {
-      await this.communication.reply(ctx, this.messageRenderer.stop());
+      await this.communication.send(ctx, this.messageRenderer.stop());
       return;
     }
 
@@ -125,6 +126,6 @@ export class CalloutResponseEventManager extends EventManager {
     console.debug("Got callout with form", calloutWithForm);
 
     const res = this.calloutResponseRenderer.intro(calloutWithForm);
-    await this.communication.reply(ctx, res);
+    await this.communication.send(ctx, res);
   }
 }

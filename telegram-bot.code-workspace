@@ -31,6 +31,8 @@
     ],
     "editor.formatOnSave": true,
     "typescript.format.enable": true,
-    "[typescript]": { "editor.defaultFormatter": "denoland.vscode-deno" }
+    "[typescript]": {
+      "editor.defaultFormatter": "denoland.vscode-deno"
+    }
   }
 }

@@ -6,6 +6,7 @@ import {
   EventService,
   KeyboardService,
 } from "../services/index.ts";
+import { MessageRenderer } from "./message.renderer.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
   DONE_MESSAGE,
@@ -16,12 +17,10 @@ import type {
   BaseCalloutComponentSchema,
   CalloutComponentSchema,
   CalloutSlideSchema,
-  Context,
   GetCalloutDataWithExt,
   InputCalloutComponentSchema,
   RadioCalloutComponentSchema,
   RenderResult,
-  Replay,
 } from "../types/index.ts";
 
 /**
@@ -33,6 +32,7 @@ export class CalloutResponseRenderer {
     protected readonly keyboard: KeyboardService,
     protected readonly event: EventService,
     protected readonly communication: CommunicationService,
+    protected readonly messageRenderer: MessageRenderer,
   ) {
     console.debug(`${CalloutResponseRenderer.name} created`);
   }
@@ -95,13 +95,17 @@ export class CalloutResponseRenderer {
     if (component.multiple) {
       result.markdown += `_${
         escapeMd(
-          `You can enter multiple values by sending each value separately. If you are finished with your response, write "${DONE_MESSAGE}".`,
+          `You can enter multiple values by sending each value separately. ${
+            this.messageRenderer.writeDoneMessage(DONE_MESSAGE).text
+          }`,
         )
       }_`;
     } else {
       result.markdown += `_${
         escapeMd(
-          `You can only enter one value. If you are finished with your response, write "${DONE_MESSAGE}".`,
+          `You can only enter one value. ${
+            this.messageRenderer.writeDoneMessage(DONE_MESSAGE).text
+          }`,
         )
       }_`;
     }
@@ -135,10 +139,11 @@ export class CalloutResponseRenderer {
     const result: RenderResult = {
       type: RenderResultType.MARKDOWN,
       markdown: ``,
+      acceptedBefore: this.communication.replayConditionText(),
     };
 
     // Wait for replay(s)
-    result.acceptedUntil = this.communication.acceptedUntilMessage(
+    result.acceptedUntil = this.communication.replayConditionText(
       base.multiple ? DONE_MESSAGE : undefined,
     );
 
@@ -174,12 +179,16 @@ export class CalloutResponseRenderer {
       )
     }_`;
 
+    result.acceptedBefore = this.communication.replayConditionFilePattern(
+      file.filePattern as string || "",
+    );
+
     if (file.multiple) {
-      result.acceptedUntil = this.communication.acceptedUntilMessage(
+      result.acceptedUntil = this.communication.replayConditionText(
         DONE_MESSAGE,
       );
     } else {
-      result.acceptedUntil = this.communication.acceptedUntilFilePattern(
+      result.acceptedUntil = this.communication.replayConditionFilePattern(
         file.filePattern as string || "",
       );
     }
@@ -306,10 +315,12 @@ export class CalloutResponseRenderer {
       case "selectboxes": {
         result.markdown += `_${
           escapeMd(
-            "Please make your selection by typing the number choices. Multiple selections are allowed, please send a separate message for each of your selection.",
+            "Please make your selection by typing the number choices. " +
+              "Multiple selections are allowed, please send a separate message for each of your selection. " +
+              this.messageRenderer.writeDoneMessage(DONE_MESSAGE).text,
           )
         }_`;
-        result.acceptedUntil = this.communication.acceptedUntilMessage(
+        result.acceptedUntil = this.communication.replayConditionText(
           DONE_MESSAGE,
         );
         break;
@@ -383,69 +394,21 @@ export class CalloutResponseRenderer {
   }
 
   /**
-   * Render a callout component in Markdown and wait for a message response
-   */
-  public async componentAndWaitForMessage(
-    ctx: Context,
-    component: CalloutComponentSchema,
-  ) {
-    const answer = await this.communication.replayAndWaitForAnyTextMessage(
-      ctx,
-      this.component(component),
-    );
-
-    if (!answer.message) {
-      throw new Error("No message returned");
-    }
-
-    return answer;
-  }
-
-  /**
-   * Render a callout component in Markdown and wait for a message response
-   */
-  public async componentAndWaitForDoneMessage(
-    ctx: Context,
-    component: CalloutComponentSchema,
-  ) {
-    const answers = await this.communication.replayAndWaitForDoneMessage(
-      ctx,
-      this.component(component),
-    );
-
-    return answers;
-  }
-
-  /**
    * Render a callout response slide and each slide component in Markdown
    */
-  public async slideAndWaitForMessage(
-    ctx: Context,
+  public slidePage(
     slide: CalloutSlideSchema,
   ) {
-    const replayMessages: Replay = [];
+    const slideRenderResults: RenderResult[] = [];
 
     console.debug("Rendering slide", slide);
 
     for (const component of slide.components) {
-      if (component.multiple) {
-        const componentReplayMessages = await this
-          .componentAndWaitForDoneMessage(
-            ctx,
-            component,
-          );
-        replayMessages.push(componentReplayMessages);
-        continue;
-      }
-
-      const componentAnswerMessage = await this.componentAndWaitForMessage(
-        ctx,
-        component,
-      );
-      replayMessages.push(componentAnswerMessage);
+      const componentRenderResults = this.component(component);
+      slideRenderResults.push(componentRenderResults);
     }
 
-    return replayMessages;
+    return slideRenderResults;
   }
 
   /**
@@ -469,7 +432,7 @@ export class CalloutResponseRenderer {
   /**
    * Render the callout response thank you
    */
-  public thankYou(callout: GetCalloutDataWithExt<"form">) {
+  public thankYouPage(callout: GetCalloutDataWithExt<"form">) {
     const result: RenderResult = {
       type: RenderResultType.HTML,
       html: ``,
@@ -491,25 +454,22 @@ export class CalloutResponseRenderer {
   /**
    * Render a full callout response in Markdown and wait for a message responses
    * @param callout The callout to render
-   * @param slideNum The slide number to render
    * @returns
    */
-  public async fullResponseAndWaitForMessage(
-    ctx: Context,
+  public full(
     callout: GetCalloutDataWithExt<"form">,
   ) {
     const form = callout.formSchema;
 
-    const slidesReplays: Replay = [];
+    const slidesRenderResults: RenderResult[] = [];
 
     for (const slide of form.slides) {
-      const replays = await this.slideAndWaitForMessage(ctx, slide);
-      slidesReplays.push(...replays);
+      const replays = this.slidePage(slide);
+      slidesRenderResults.push(...replays);
     }
 
-    const thankYou = this.thankYou(callout);
-    this.communication.reply(ctx, thankYou);
+    const thankYou = this.thankYouPage(callout);
 
-    return slidesReplays;
+    return [...slidesRenderResults, thankYou];
   }
 }

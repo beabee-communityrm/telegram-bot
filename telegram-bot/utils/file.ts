@@ -74,3 +74,28 @@ export const filterMimeTypesByPatterns = (filePattern: string) => {
 
   return mimeTypes;
 };
+
+/**
+ * Get the simple mime type from a mime type.
+ * E.g. "image/gif" => "image"
+ * @param mimeType
+ * @returns
+ */
+export const getSimpleMimeType = (mimeType: string) => {
+  return mimeType.split("/")[0];
+};
+
+/**
+ * Get the simple mime types from a list of mime types.
+ * E.g. ["image/gif", "image/png"] => ["image"]
+ * E.g. ["image/gif", "video/mp4"] => ["image", "video"]
+ * @param mimeTypes
+ * @returns
+ */
+export const getSimpleMimeTypes = (mimeTypes: string[]) => {
+  const map: { [key: string]: true } = {};
+  for (const mimeType of mimeTypes) {
+    map[getSimpleMimeType(mimeType)] = true;
+  }
+  return Object.keys(map);
+};

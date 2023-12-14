@@ -1,5 +1,5 @@
 import type { RenderResultType } from "../enums/index.ts";
-import type { InlineKeyboard, Keyboard, ReplayAccepted } from "./index.ts";
+import type { InlineKeyboard, Keyboard, ReplayCondition } from "./index.ts";
 
 export interface RenderResultBase {
   /**
@@ -13,13 +13,15 @@ export interface RenderResultBase {
   keyboard?: InlineKeyboard | Keyboard;
   /**
    * If you want to wait for a special replay, you can define it here.
-   * As soon as the user sends the replay of this type, the logic will mark the question as answered.
+   * - As soon as the user sends the replay of this type, the logic will mark the question as answered.
+   * - Leave this undefined to not wait for a replay.
    */
-  acceptedUntil?: ReplayAccepted;
+  acceptedUntil?: ReplayCondition;
 
   /**
    * Define the types of the replay you are accepting until the logic marks the question as answered.
-   * TODO: Add properties for validation as well.
+   *
+   * TODO: This is unused at the moment but we should use something like that to implement validation.
    */
-  acceptedBefore?: ReplayAccepted;
+  acceptedBefore?: ReplayCondition;
 }

@@ -50,7 +50,7 @@ export class ShowCommand extends Command {
       console.debug("Got callout", callout);
 
       const res = await this.calloutRenderer.callout(callout);
-      await this.communication.reply(ctx, res);
+      await this.communication.sendAndReceiveAll(ctx, res);
     } catch (error) {
       console.error("Error sending callout", error);
       if (error instanceof ApiError && error.httpCode === 404) {

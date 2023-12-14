@@ -30,6 +30,6 @@ export class ListCommand extends Command {
   public async action(ctx: Context) {
     const callouts = await this.callout.list();
     const res = this.calloutRenderer.listItems(callouts);
-    await this.communication.reply(ctx, res);
+    await this.communication.sendAndReceiveAll(ctx, res);
   }
 }

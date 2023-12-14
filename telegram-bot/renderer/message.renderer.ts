@@ -1,7 +1,13 @@
 import { Singleton } from "alosaur/mod.ts";
 import { RenderResultType } from "../enums/index.ts";
+import { getSimpleMimeTypes } from "../utils/index.ts";
+import { DONE_MESSAGE } from "../constants/index.ts";
 
-import type { RenderResult, RenderResultText } from "../types/index.ts";
+import type {
+  RenderResult,
+  RenderResultText,
+  ReplayAccepted,
+} from "../types/index.ts";
 
 /**
  * Render info messages for Telegram in Markdown
@@ -41,6 +47,41 @@ export class MessageRenderer {
     return {
       type: RenderResultType.TEXT,
       text: "Please send a file",
+    } as RenderResultText;
+  }
+
+  public notTheRightFileType(mimeTypes: string[]) {
+    // TODO: Translate `or`
+    const mimeTypesStr = getSimpleMimeTypes(mimeTypes).join(", ").replace(
+      /, ([^,]*)$/,
+      " or $1",
+    );
+    return {
+      type: RenderResultType.TEXT,
+      text: "Please send a file of type " + mimeTypesStr,
+    } as RenderResultText;
+  }
+
+  public notAcceptedMessage(accepted: ReplayAccepted, mimeTypes?: string[]) {
+    if (accepted.accepted) {
+      throw new Error("This message was accepted");
+    }
+    if (accepted.type === "message") {
+      return this.notATextMessage();
+    }
+    if (accepted.type === "file") {
+      if (mimeTypes) {
+        return this.notTheRightFileType(mimeTypes);
+      }
+      return this.notAFileMessage();
+    }
+    throw new Error("Unknown accepted type");
+  }
+
+  public writeDoneMessage(doneText: string) {
+    return {
+      type: RenderResultType.TEXT,
+      text: `If you are finished with your response, write "${doneText}".`,
     } as RenderResultText;
   }
 }

@@ -1,17 +1,23 @@
 import { Singleton } from "alosaur/mod.ts";
-import { RenderResultType } from "../enums/index.ts";
+import { RelayAcceptedFileType, RenderResultType } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
 import { getIdentifier } from "../utils/index.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
-import { filterMimeTypesByPatterns } from "../utils/index.ts";
-import { DONE_MESSAGE } from "../constants/index.ts";
+import {
+  filterMimeTypesByPatterns,
+  getSimpleMimeTypes,
+} from "../utils/index.ts";
 
 import type {
   Message,
   RenderResult,
+  Replay,
   ReplayAccepted,
   ReplayAcceptedFile,
-  ReplayAcceptedMessage,
+  ReplayAcceptedText,
+  ReplayCondition,
+  ReplayConditionFile,
+  ReplayConditionText,
 } from "../types/index.ts";
 import type { Context } from "grammy/context.ts";
 
@@ -32,7 +38,7 @@ export class CommunicationService {
    * @param ctx
    * @param res
    */
-  protected async _reply(ctx: Context, res: RenderResult) {
+  public async send(ctx: Context, res: RenderResult) {
     if (res.type === RenderResultType.PHOTO) {
       await ctx.replyWithMediaGroup([res.photo]);
       if (res.keyboard) {
@@ -57,20 +63,30 @@ export class CommunicationService {
     }
   }
 
-  // TODO: Move to better place
-  acceptedUntilMessage(message?: string): ReplayAcceptedMessage {
-    const result: ReplayAcceptedMessage = {
+  /**
+   * Define a specific or any message that is accepted to mark an answer as done
+   * Define a specific or any message to accepted messages before the done message is received
+   * @param message
+   * @returns
+   */
+  public replayConditionText(text?: string): ReplayConditionText {
+    const result: ReplayConditionText = {
       type: "message",
     };
-    if (message) {
-      result.messages = message ? [message] : undefined;
+    if (text) {
+      result.messages = text ? [text] : undefined;
     }
     return result;
   }
 
-  // TODO: Move to better place
-  public acceptedUntilFile(mimeTypes?: string[]): ReplayAcceptedFile {
-    const result: ReplayAcceptedFile = {
+  /**
+   * - Define a specific or any file that is accepted to mark an answer as done
+   * - Define a specific or any file to accepted files before the done file is received
+   * @param mimeTypes
+   * @returns
+   */
+  public replayConditionFile(mimeTypes?: string[]): ReplayConditionFile {
+    const result: ReplayConditionFile = {
       type: "file",
     };
     if (mimeTypes) {
@@ -79,191 +95,282 @@ export class CommunicationService {
     return result;
   }
 
-  // TODO: Move to better place
-  public acceptedUntilFilePattern(
-    filePattern: string,
-  ): ReplayAcceptedFile {
-    const mimeTypes = filterMimeTypesByPatterns(filePattern);
-    return this.acceptedUntilFile(mimeTypes);
-  }
-
   /**
-   * Reply to a Telegram message or action with a a single or multiple render results
-   * @param ctx
-   * @param res
+   * - Define a specific or any file that is accepted to mark an answer as done by a file pattern
+   * - Define a specific or any file to accepted files before the done file is received by a file pattern
+   * @param filePattern
+   * @returns
    */
-  public async reply(
-    ctx: Context,
-    renderResults: RenderResult | RenderResult[],
-  ) {
-    if (!Array.isArray(renderResults)) {
-      renderResults = [renderResults];
-    }
-    for (const renderResult of renderResults) {
-      try {
-        await this._reply(ctx, renderResult);
-      } catch (error) {
-        console.error("Error sending render result", error);
-      }
-    }
+  public replayConditionFilePattern(
+    filePattern: string,
+  ): ReplayConditionFile {
+    const mimeTypes = filterMimeTypesByPatterns(filePattern);
+    return this.replayConditionFile(mimeTypes);
   }
 
-  public async waitForReplayMessage(ctx: Context) {
+  public async receiveMessage(ctx: Context) {
     const event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
     return event.detail;
   }
 
-  /**
-   * Wait for a specific file to be received
-   * @param ctx
-   * @param waitFor
-   * @returns
-   */
-  public async waitForSpecificReplayFileMessage(
-    ctx: Context,
-    waitFor: ReplayAcceptedFile,
-  ) {
-    let compareMimeType: string | undefined;
-    let context: Context;
-    let message: Message | undefined;
-    const replayFiles: Context[] = [];
-    let wait = false;
-    do {
-      context = await this.waitForReplayMessage(ctx);
-      message = context.message;
-      compareMimeType = message?.document?.mime_type;
-
-      if (
-        !message || !message.document || !compareMimeType ||
-        !message.document.file_id
-      ) {
-        await this.reply(ctx, this.messageRenderer.notAFileMessage());
-        continue;
-      }
-      replayFiles.push(context);
-
-      if (waitFor.mimeTypes && waitFor.mimeTypes.length > 0) {
-        for (const mimeType of waitFor.mimeTypes) {
-          if (mimeType === compareMimeType) {
-            wait = false;
-            break;
-          }
-          wait = true;
-        }
-      }
-    } while (wait);
-
-    return replayFiles;
+  protected messageIsAudioFile(message: Message) {
+    return !!message.audio?.file_id || !!message.voice?.file_id ||
+      message.document?.mime_type?.startsWith("audio");
   }
 
-  /**
-   * Wait for a specific message to be received
-   * @param ctx
-   * @param waitFor
-   * @returns
-   */
-  public async waitForSpecificReplayTextMessage(
-    ctx: Context,
-    waitFor: ReplayAcceptedMessage,
-  ) {
-    let compareText: string | undefined;
-    let context: Context;
-    let message: Message | undefined;
-    const replayMessages: Context[] = [];
-    let wait = false;
-    do {
-      context = await this.waitForReplayMessage(ctx);
-      message = context.message;
-      compareText = message?.text?.toLowerCase().trim();
-
-      if (!compareText) {
-        await this.reply(ctx, this.messageRenderer.notATextMessage());
-        continue;
-      }
-      replayMessages.push(context);
-
-      const waitForMessages = waitFor.messages?.map((m) =>
-        m.toLowerCase().trim()
-      );
-
-      if (waitForMessages) {
-        for (const waitForMessage of waitForMessages) {
-          if (waitForMessage === compareText) {
-            wait = false;
-            break;
-          }
-          wait = true;
-        }
-      } else {
-        // Wait for any message
-        wait = !message || !compareText;
-      }
-    } while (wait);
-
-    return replayMessages;
+  protected messageIsPhotoFile(message: Message) {
+    return !!message.photo?.length ||
+      message.document?.mime_type?.startsWith("image");
   }
 
-  /**
-   * Wait for a specific message or file to be received
-   * @param ctx
-   * @param waitFor
-   * @returns
-   */
-  public async waitForSpecificReplay(
-    ctx: Context,
-    waitFor: ReplayAccepted,
-  ) {
-    if (waitFor.type === "file") {
-      return await this.waitForSpecificReplayFileMessage(ctx, waitFor);
+  protected messageIsVideoFile(message: Message) {
+    return !!message.video?.file_id || !!message.animation?.file_id ||
+      message.document?.mime_type?.startsWith("video");
+  }
+
+  protected messageIsDocumentFile(message: Message) {
+    return !!message.document?.file_id;
+  }
+
+  protected messageIsContact(message: Message) {
+    return !!message.contact;
+  }
+
+  protected messageIsLocation(message: Message) {
+    return !!message.venue?.location || !!message.location;
+  }
+
+  protected messageIsAddress(message: Message) {
+    return !!message.venue?.address; // + message.venue?.title
+  }
+
+  protected messageIsFile(
+    message?: Message,
+    mimeTypes?: string[],
+  ): ReplayAcceptedFile {
+    let fileType: RelayAcceptedFileType = RelayAcceptedFileType.ANY;
+    // Is not a file message
+    if (!message) {
+      return {
+        type: "file",
+        accepted: false,
+        fileType,
+      };
+    }
+    // Is a file message and all mime types are accepted
+    if (!mimeTypes) {
+      return {
+        type: "file",
+        accepted: true,
+      };
+    }
+    const simpleTypes = getSimpleMimeTypes(mimeTypes);
+    const photoAccepted = simpleTypes.some((m) => m === "image");
+    const documentAccepted = simpleTypes.some((m) => m === "document");
+    const videoAccepted = simpleTypes.some((m) => m === "video");
+    const audioAccepted = simpleTypes.some((m) => m === "audio");
+    const locationAccepted = simpleTypes.some((m) => m === "location"); // TODO: Can we do this this way?
+    const contactAccepted = simpleTypes.some((m) => m === "contact"); // TODO: What is the mime type for contact?
+    const addressAccepted = simpleTypes.some((m) => m === "address"); // TODO: Can we do this this way?
+
+    if (photoAccepted && this.messageIsPhotoFile(message)) {
+      fileType = RelayAcceptedFileType.PHOTO;
+    }
+    if (documentAccepted && this.messageIsDocumentFile(message)) {
+      fileType = RelayAcceptedFileType.DOCUMENT;
+    }
+    if (videoAccepted && this.messageIsVideoFile(message)) {
+      fileType = RelayAcceptedFileType.VIDEO; // or animation or document with mime type video
+    }
+    if (audioAccepted && this.messageIsAudioFile(message)) {
+      fileType = RelayAcceptedFileType.AUDIO; // or voice or document with mime type audio
+    }
+    if (locationAccepted && this.messageIsLocation(message)) {
+      fileType = RelayAcceptedFileType.LOCATION;
+    }
+    if (contactAccepted && this.messageIsContact(message)) {
+      fileType = RelayAcceptedFileType.CONTACT;
+    }
+    if (addressAccepted && this.messageIsAddress(message)) {
+      fileType = RelayAcceptedFileType.ADDRESS;
+    }
+    // Is a file message with accepted mime type
+    return {
+      type: "file",
+      accepted: fileType !== RelayAcceptedFileType.ANY,
+      fileType,
+    };
+  }
+
+  protected messageIsText(
+    message?: Message,
+    text?: string[],
+  ): ReplayAcceptedText {
+    text = text?.map((t) => t.toLowerCase().trim());
+    if (message?.text) {
+      message.text = message.text.toLowerCase().trim();
     }
 
-    if (waitFor.type === "message") {
-      return await this.waitForSpecificReplayTextMessage(ctx, waitFor);
+    // Is not a text message
+    if (!message || !message.text) {
+      return {
+        type: "message",
+        accepted: false,
+      };
     }
-
-    throw new Error("Unknown replay wait for type");
-  }
-
-  /**
-   * Wait for a `waitForMessage` message to be received
-   * @param ctx
-   * @param waitForMessage
-   * @returns
-   */
-  public async waitForDoneReplayTextMessage(
-    ctx: Context,
-    waitForMessage?: string,
-  ) {
-    return await this.waitForSpecificReplayTextMessage(ctx, {
+    // Is a text message and all texts are accepted
+    if (!text) {
+      return {
+        type: "message",
+        accepted: true,
+      };
+    }
+    // Is a text message and one of the texts is accepted
+    return {
       type: "message",
-      messages: waitForMessage ? [waitForMessage] : undefined,
-    });
+      accepted: text.some((t) => t === message.text),
+    };
   }
 
   /**
-   * Reply to a Telegram message or action with a render result and wait for a message response
+   * Wait for a specific message to be received and collect all messages of type `acceptedBefore` until the specific message is received
+   * @param ctx
+   * @param acceptedUntil
+   * @param acceptedBefore
+   * @returns
    */
-  public async replayAndWaitForAnyTextMessage(
+  protected async acceptedUntilSpecificMessage(
     ctx: Context,
-    renderResult: RenderResult,
+    acceptedUntil: ReplayCondition,
+    acceptedBefore?: ReplayCondition,
   ) {
-    await this.reply(ctx, renderResult);
-    const replay = await this.waitForDoneReplayTextMessage(ctx);
-    return replay[0];
+    let context: Context;
+    let message: Message | undefined;
+    const replayTexts: Context[] = [];
+
+    let isDone = false;
+
+    do {
+      context = await this.receiveMessage(ctx);
+      message = context.message;
+
+      if (acceptedUntil.type === "file") {
+        isDone = this.messageIsFile(message, acceptedUntil.mimeTypes).accepted;
+      }
+
+      if (acceptedUntil.type === "message") {
+        isDone = this.messageIsText(message, acceptedUntil.messages).accepted;
+      }
+
+      if (isDone) {
+        break;
+      }
+
+      const isAccepted = this.messageIsAccepted(message, acceptedBefore);
+
+      if (!isAccepted.accepted) {
+        await this.send(
+          ctx,
+          this.messageRenderer.notAcceptedMessage(
+            isAccepted,
+            (acceptedBefore as ReplayConditionFile).mimeTypes,
+          ),
+        );
+        continue;
+      }
+
+      // Message is accepted
+      replayTexts.push(context);
+    } while (!isDone);
+
+    return replayTexts;
+  }
+
+  protected messageIsAccepted(
+    message?: Message,
+    accepted?: ReplayCondition,
+  ): ReplayAccepted {
+    if (!accepted) {
+      return {
+        type: "any",
+        accepted: true,
+      };
+    }
+
+    if (accepted.type === "file") {
+      const isFile = this.messageIsFile(message, accepted.mimeTypes);
+      return isFile;
+    }
+
+    if (accepted.type === "message") {
+      const isText = this.messageIsText(message, accepted.messages);
+      return isText;
+    }
+
+    throw new Error("Unknown replay accepted type");
   }
 
   /**
-   * Reply to a Telegram message or action with a render result and wait for a message response until a specific message is received
+   * Wait for a specific message or file to be received and collect all messages of type `acceptedBefore` until the specific message is received
+   * @param ctx
+   * @param acceptedUntil
+   * @returns
    */
-  public async replayAndWaitForDoneMessage(
+  public async receive(
     ctx: Context,
-    renderResult: RenderResult,
+    acceptedUntil?: ReplayCondition,
+    acceptedBefore?: ReplayCondition,
   ) {
-    await this.reply(ctx, renderResult);
-    const replayMessages = await this.waitForDoneReplayTextMessage(
+    // Wait for any message
+    if (!acceptedUntil) {
+      return [await this.receiveMessage(ctx)];
+    }
+
+    // Wait for message
+    return await this.acceptedUntilSpecificMessage(
       ctx,
-      DONE_MESSAGE,
+      acceptedUntil,
+      acceptedBefore,
     );
-    return replayMessages;
+
+    // throw new Error("Unknown replay wait for type");
+  }
+
+  /**
+   * Send a render result and wait for a message response until a specific message or file is received if `acceptedUntil` is defined.
+   * @param ctx
+   * @param rendererResult
+   * @returns
+   */
+  public async sendAndReceive(ctx: Context, rendererResult: RenderResult) {
+    await this.send(ctx, rendererResult);
+    if (rendererResult.acceptedUntil) {
+      const replay = await this.receive(
+        ctx,
+        rendererResult.acceptedUntil,
+        rendererResult.acceptedBefore,
+      );
+      return replay;
+    }
+
+    return null;
+  }
+
+  /**
+   * Send multiple render results and wait for a message response until a specific message or file is received if `acceptedUntil` is defined.
+   * @param ctx
+   * @param rendererResults
+   */
+  public async sendAndReceiveAll(
+    ctx: Context,
+    rendererResults: RenderResult[],
+  ) {
+    const replays: Replay = [];
+    for (const rendererResult of rendererResults) {
+      const replay = await this.sendAndReceive(ctx, rendererResult);
+      if (replay) {
+        replays.push(replay);
+      }
+    }
   }
 }

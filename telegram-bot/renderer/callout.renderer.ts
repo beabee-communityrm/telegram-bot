@@ -75,7 +75,7 @@ export class CalloutRenderer {
 
     if (callouts.items.length === 0) {
       listResult.markdown = escapeMd("There are currently no active callouts");
-      return listResult;
+      return [listResult];
     }
 
     listResult.markdown = `*${escapeMd("List of active callouts")}*\n\n`;

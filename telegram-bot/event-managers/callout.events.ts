@@ -49,8 +49,10 @@ export class CalloutEventManager extends EventManager {
       const callout = await this.callout.get(slug);
       console.debug("Got callout", callout);
 
-      const res = await this.calloutRenderer.callout(callout);
-      await this.communication.reply(ctx, res);
+      const calloutFormRenderResult = await this.calloutRenderer.callout(
+        callout,
+      );
+      await this.communication.sendAndReceiveAll(ctx, calloutFormRenderResult);
     } catch (error) {
       console.error("Error sending callout", error);
       await ctx.reply("Error sending callout");

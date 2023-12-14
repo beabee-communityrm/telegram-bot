@@ -1,6 +1,10 @@
-import { ReplayAcceptedFile, ReplayAcceptedMessage } from "./index.ts";
+import type {
+  ReplayAcceptedAny,
+  ReplayAcceptedFile,
+  ReplayAcceptedText,
+} from "./index.ts";
 
-/**
- * Type to define a replay type you are waiting for. E.g. a message or a file
- */
-export type ReplayAccepted = ReplayAcceptedMessage | ReplayAcceptedFile;
+export type ReplayAccepted =
+  | ReplayAcceptedFile
+  | ReplayAcceptedText
+  | ReplayAcceptedAny;
