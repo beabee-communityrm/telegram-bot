@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-fallthrough
 import { Singleton } from "alosaur/mod.ts";
 import { escapeMd, sanitizeHtml } from "../utils/index.ts";
 import { RenderResultType } from "../enums/index.ts";
@@ -19,8 +20,10 @@ import type {
   CalloutSlideSchema,
   GetCalloutDataWithExt,
   InputCalloutComponentSchema,
+  NestableCalloutComponentSchema,
   RadioCalloutComponentSchema,
   RenderResult,
+  SelectCalloutComponentSchema,
 } from "../types/index.ts";
 
 /**
@@ -114,7 +117,7 @@ export class CalloutResponseRenderer {
   }
 
   /**
-   * Render radio or select values in Markdown
+   * Render radio or selectboxes values in Markdown
    * @param radio The radio component to render
    */
   protected radioValues(radio: RadioCalloutComponentSchema) {
@@ -126,6 +129,21 @@ export class CalloutResponseRenderer {
     let n = 1;
     for (const radioValue of radio.values) {
       result.markdown += `*${escapeMd(`${n}. ${radioValue.label}`)}*\n`;
+      n++;
+    }
+
+    return result;
+  }
+
+  protected selectValues(select: SelectCalloutComponentSchema) {
+    const result: RenderResult = {
+      type: RenderResultType.MARKDOWN,
+      markdown: ``,
+    };
+
+    let n = 1;
+    for (const selectValue of select.data.values) {
+      result.markdown += `*${escapeMd(`${n}. ${selectValue.label}`)}*\n`;
       n++;
     }
 
@@ -179,9 +197,18 @@ export class CalloutResponseRenderer {
       )
     }_`;
 
-    result.acceptedBefore = this.communication.replayConditionFilePattern(
-      file.filePattern as string || "",
-    );
+    // TODO: Missing in common types
+    if (file.type as unknown === "signature") {
+      result.acceptedBefore = this.communication.replayConditionFilePattern(
+        "image/*",
+      );
+    } else {
+      result.acceptedBefore = this.communication.replayConditionFilePattern(
+        file.filePattern as string || file.type as unknown === "signature"
+          ? "image/*"
+          : "",
+      );
+    }
 
     if (file.multiple) {
       result.acceptedUntil = this.communication.replayConditionText(
@@ -278,6 +305,61 @@ export class CalloutResponseRenderer {
         }_`;
         break;
       }
+      // TODO: Missing in common types
+      case "content" as unknown: {
+        result.markdown += `_${
+          escapeMd(
+            "You may answer in multiple lines, but please only send the response when you have finished writing. You can also use Markdown formatting.",
+          )
+        }_`;
+        break;
+      }
+      // TODO: Missing in common types
+      case "phoneNumber" as unknown: {
+        result.markdown += `_${
+          escapeMd(
+            "Please enter a telephone number.",
+          )
+        }_`;
+        break;
+      }
+      // TODO: Missing in common types
+      case "currency" as unknown: {
+        result.markdown += `_${
+          escapeMd(
+            "Please enter an amount of money.",
+          )
+        }_`;
+        break;
+      }
+      // TODO: Missing in common types
+      case "datetime" as unknown: {
+        result.markdown += `_${
+          escapeMd(
+            "Please enter a date.",
+          )
+        }_`;
+        break;
+      }
+      // TODO: Missing in common types
+      case "time" as unknown: {
+        result.markdown += `_${
+          escapeMd(
+            "Please enter a time.",
+          )
+        }_`;
+        break;
+      }
+      // TODO: Missing in common types
+      case "url" as unknown: {
+        result.markdown += `_${
+          escapeMd(
+            "Please enter a URL.",
+          )
+        }_`;
+        break;
+      }
+
       default: {
         result.markdown += `Unknown input component type ${
           (input as InputCalloutComponentSchema).type || "undefined"
@@ -330,6 +412,53 @@ export class CalloutResponseRenderer {
     return result;
   }
 
+  /**
+   * Render a select component in Markdown.
+   * Note: A select component is a dropdown menu in the frontend.
+   */
+  protected selectComponent(select: SelectCalloutComponentSchema) {
+    const result = this.baseComponent(select);
+    result.markdown += `\n${this.selectValues(select).markdown}`;
+
+    result.markdown += `\n\n`;
+
+    result.markdown += `_${
+      escapeMd(
+        "Please make your selection by typing the number of your choice or pressing the button of your choice. Only one selection is allowed.",
+      )
+    }_`;
+    return result;
+  }
+
+  public nestableComponent(nestable: NestableCalloutComponentSchema) {
+    // const result = this.baseComponent(input);
+    // result.markdown += `\n\n`;
+
+    const result: RenderResult = {
+      type: RenderResultType.MARKDOWN,
+      markdown: ``,
+    };
+
+    switch (nestable.type) {
+      case "panel": {
+        result.markdown = `panel component not implemented`;
+        break;
+      }
+
+      // Later
+      case "tabs": {
+        result.markdown = `tabs component not implemented`;
+        break;
+      }
+      case "well": {
+        result.markdown = `well component not implemented`;
+        break;
+      }
+    }
+
+    return result;
+  }
+
   public component(component: CalloutComponentSchema) {
     console.debug("Rendering component", component);
     let result: RenderResult = {
@@ -346,13 +475,24 @@ export class CalloutResponseRenderer {
       case "number":
       case "password":
       case "textfield":
-      case "textarea": {
-        result = this.inputComponent(component);
+      case "textarea":
+      // TODO: missing in common types
+      case "content" as unknown:
+      case "phoneNumber" as unknown:
+      case "currency" as unknown:
+      case "datetime" as unknown:
+      case "time" as unknown:
+      case "url" as unknown: {
+        result = this.inputComponent(component as InputCalloutComponentSchema);
         break;
       }
 
-      case "file": {
-        result = this.inputFileComponent(component);
+      case "file":
+        // TODO: missing in common types
+      case "signature" as unknown: {
+        result = this.inputFileComponent(
+          component as InputCalloutComponentSchema,
+        );
         break;
       }
 
@@ -365,24 +505,19 @@ export class CalloutResponseRenderer {
 
       // TODO: next
       case "select": {
-        result.markdown = `select component not implemented`;
-        break;
-      }
-      case "panel": {
-        result.markdown = `panel component not implemented`;
+        result = this.selectComponent(component);
         break;
       }
 
-      // Later
-      case "tabs": {
-        result.markdown = `tabs component not implemented`;
-        break;
-      }
+      case "panel":
+      case "tabs":
       case "well": {
-        result.markdown = `well component not implemented`;
+        result = this.nestableComponent(component);
         break;
       }
+
       default: {
+        console.warn("Rendering unknown component", component);
         result.markdown = `Unknown component type ${
           (component as CalloutComponentSchema).type || "undefined"
         }`;
@@ -452,7 +587,7 @@ export class CalloutResponseRenderer {
   }
 
   /**
-   * Render a full callout response in Markdown and wait for a message responses
+   * Render a full callout response with all it's forms / components in Markdown and wait for a message responses
    * @param callout The callout to render
    * @returns
    */

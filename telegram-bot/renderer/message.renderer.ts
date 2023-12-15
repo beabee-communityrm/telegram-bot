@@ -1,7 +1,6 @@
 import { Singleton } from "alosaur/mod.ts";
 import { RenderResultType } from "../enums/index.ts";
 import { getSimpleMimeTypes } from "../utils/index.ts";
-import { DONE_MESSAGE } from "../constants/index.ts";
 
 import type {
   RenderResult,
@@ -66,11 +65,11 @@ export class MessageRenderer {
     if (accepted.accepted) {
       throw new Error("This message was accepted");
     }
-    if (accepted.type === "message") {
+    if (accepted.type === "text") {
       return this.notATextMessage();
     }
     if (accepted.type === "file") {
-      if (mimeTypes) {
+      if (mimeTypes?.length) {
         return this.notTheRightFileType(mimeTypes);
       }
       return this.notAFileMessage();

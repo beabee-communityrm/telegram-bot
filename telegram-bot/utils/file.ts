@@ -38,6 +38,9 @@ export const downloadImage = async (url: string | URL, path?: string) => {
 export const filterMimeTypesByPattern = (
   pattern: string,
 ): string[] => {
+  if (pattern === "*" || pattern === "*/*") {
+    return []; // Allow any MIME type
+  }
   // Check for wildcard pattern
   if (pattern.endsWith("/*")) {
     // Extract the main type from the pattern (e.g., "image" from "image/*")
@@ -63,7 +66,7 @@ export const filterMimeTypesByPatterns = (filePattern: string) => {
   }
   const filePatterns = filePattern.split(",");
   for (let filePattern of filePatterns) {
-    filePattern = filePattern.trim(); // .replaceAll("/*", "");
+    filePattern = filePattern.trim();
     if (!filePattern) {
       continue;
     }

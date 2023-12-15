@@ -1,6 +1,13 @@
-import { ReplayConditionFile, ReplayConditionText } from "./index.ts";
+import {
+  ReplayConditionAny,
+  ReplayConditionFile,
+  ReplayConditionText,
+} from "./index.ts";
 
 /**
  * Type to define a replay type you are waiting for. E.g. a message or a file
  */
-export type ReplayCondition = ReplayConditionText | ReplayConditionFile;
+export type ReplayCondition =
+  | ReplayConditionText
+  | ReplayConditionFile
+  | ReplayConditionAny;

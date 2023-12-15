@@ -64,24 +64,24 @@ export class CommunicationService {
   }
 
   /**
-   * Define a specific or any message that is accepted to mark an answer as done
-   * Define a specific or any message to accepted messages before the done message is received
+   * - Define a specific message that is accepted to mark an answer as done
+   * - Define a specific message to accepted messages before the message is marked as done
    * @param message
    * @returns
    */
   public replayConditionText(text?: string): ReplayConditionText {
     const result: ReplayConditionText = {
-      type: "message",
+      type: "text",
     };
     if (text) {
-      result.messages = text ? [text] : undefined;
+      result.texts = text ? [text] : undefined;
     }
     return result;
   }
 
   /**
-   * - Define a specific or any file that is accepted to mark an answer as done
-   * - Define a specific or any file to accepted files before the done file is received
+   * - Define a specific file that is accepted to mark an answer as done
+   * - Define a specific file to accepted files before before the message is marked as done
    * @param mimeTypes
    * @returns
    */
@@ -144,6 +144,17 @@ export class CommunicationService {
     return !!message.venue?.address; // + message.venue?.title
   }
 
+  protected messageIsAnyFile(message: Message) {
+    return this.messageIsPhotoFile(message) ||
+      this.messageIsDocumentFile(message) ||
+      this.messageIsVideoFile(message) ||
+      this.messageIsAudioFile(message) || false;
+    // TODO:
+    // this.messageIsLocation(message) ||
+    // this.messageIsContact(message) ||
+    // this.messageIsAddress(message);
+  }
+
   protected messageIsFile(
     message?: Message,
     mimeTypes?: string[],
@@ -151,6 +162,7 @@ export class CommunicationService {
     let fileType: RelayAcceptedFileType = RelayAcceptedFileType.ANY;
     // Is not a file message
     if (!message) {
+      console.warn("Message is undefined");
       return {
         type: "file",
         accepted: false,
@@ -158,10 +170,10 @@ export class CommunicationService {
       };
     }
     // Is a file message and all mime types are accepted
-    if (!mimeTypes) {
+    if (!mimeTypes || !mimeTypes.length) {
       return {
         type: "file",
-        accepted: true,
+        accepted: this.messageIsAnyFile(message),
       };
     }
     const simpleTypes = getSimpleMimeTypes(mimeTypes);
@@ -185,6 +197,8 @@ export class CommunicationService {
     if (audioAccepted && this.messageIsAudioFile(message)) {
       fileType = RelayAcceptedFileType.AUDIO; // or voice or document with mime type audio
     }
+
+    // TODO: This are not file types...
     if (locationAccepted && this.messageIsLocation(message)) {
       fileType = RelayAcceptedFileType.LOCATION;
     }
@@ -194,7 +208,7 @@ export class CommunicationService {
     if (addressAccepted && this.messageIsAddress(message)) {
       fileType = RelayAcceptedFileType.ADDRESS;
     }
-    // Is a file message with accepted mime type
+    // A file message with accepted mime type
     return {
       type: "file",
       accepted: fileType !== RelayAcceptedFileType.ANY,
@@ -214,20 +228,20 @@ export class CommunicationService {
     // Is not a text message
     if (!message || !message.text) {
       return {
-        type: "message",
+        type: "text",
         accepted: false,
       };
     }
     // Is a text message and all texts are accepted
     if (!text) {
       return {
-        type: "message",
+        type: "text",
         accepted: true,
       };
     }
     // Is a text message and one of the texts is accepted
     return {
-      type: "message",
+      type: "text",
       accepted: text.some((t) => t === message.text),
     };
   }
@@ -256,10 +270,12 @@ export class CommunicationService {
 
       if (acceptedUntil.type === "file") {
         isDone = this.messageIsFile(message, acceptedUntil.mimeTypes).accepted;
-      }
-
-      if (acceptedUntil.type === "message") {
-        isDone = this.messageIsText(message, acceptedUntil.messages).accepted;
+      } else if (acceptedUntil.type === "text") {
+        isDone = this.messageIsText(message, acceptedUntil.texts).accepted;
+      } else if (acceptedUntil.type === "any") {
+        isDone = !!message;
+      } else {
+        throw new Error("Unknown replay until type");
       }
 
       if (isDone) {
@@ -269,6 +285,7 @@ export class CommunicationService {
       const isAccepted = this.messageIsAccepted(message, acceptedBefore);
 
       if (!isAccepted.accepted) {
+        console.debug("Message is not accepted", isAccepted, acceptedBefore);
         await this.send(
           ctx,
           this.messageRenderer.notAcceptedMessage(
@@ -290,7 +307,7 @@ export class CommunicationService {
     message?: Message,
     accepted?: ReplayCondition,
   ): ReplayAccepted {
-    if (!accepted) {
+    if (!accepted || accepted.type === "any") {
       return {
         type: "any",
         accepted: true,
@@ -302,8 +319,8 @@ export class CommunicationService {
       return isFile;
     }
 
-    if (accepted.type === "message") {
-      const isText = this.messageIsText(message, accepted.messages);
+    if (accepted.type === "text") {
+      const isText = this.messageIsText(message, accepted.texts);
       return isText;
     }
 
@@ -321,19 +338,17 @@ export class CommunicationService {
     acceptedUntil?: ReplayCondition,
     acceptedBefore?: ReplayCondition,
   ) {
-    // Wait for any message
-    if (!acceptedUntil) {
+    // Receive the first message of any type if no specific message is defined
+    if (!acceptedUntil || acceptedUntil.type === "any") {
       return [await this.receiveMessage(ctx)];
     }
 
-    // Wait for message
+    // Receive all messages of specific type until a message of specific type is received
     return await this.acceptedUntilSpecificMessage(
       ctx,
       acceptedUntil,
       acceptedBefore,
     );
-
-    // throw new Error("Unknown replay wait for type");
   }
 
   /**

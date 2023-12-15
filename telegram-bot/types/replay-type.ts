@@ -1,1 +1,1 @@
-export type ReplayType = "message" | "file" | "any"; // TODO: Rename "message" to "text"
+export type ReplayType = "text" | "file" | "any";

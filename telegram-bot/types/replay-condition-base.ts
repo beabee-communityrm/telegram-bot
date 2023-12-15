@@ -2,7 +2,7 @@ import { ReplayType } from "./index.ts";
 
 export interface ReplayConditionBase {
   /**
-   * Define the type of the replay you are waiting for to mark the question as answered.
+   * Define the type you are waiting for to mark the question as answered or to accept the answer.
    */
   type: ReplayType;
 }
