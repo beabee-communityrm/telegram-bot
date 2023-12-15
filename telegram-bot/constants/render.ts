@@ -1,8 +1,9 @@
-import { RenderResultType } from "../enums/index.ts";
+import { RenderType } from "../enums/index.ts";
 
-import type { RenderResultEmpty } from "../types/index.ts";
+import type { RenderEmpty } from "../types/index.ts";
 
-export const EMPTY_RENDER_RESULT: RenderResultEmpty = {
-  type: RenderResultType.EMPTY,
+export const EMPTY_RENDER: RenderEmpty = {
+  key: "",
+  type: RenderType.EMPTY,
   keyboard: undefined,
 };

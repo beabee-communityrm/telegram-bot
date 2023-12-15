@@ -1,5 +1,5 @@
 import { Singleton } from "alosaur/mod.ts";
-import { RelayAcceptedFileType, RenderResultType } from "../enums/index.ts";
+import { RelayAcceptedFileType, RenderType } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
 import { getIdentifier } from "../utils/index.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
@@ -10,8 +10,8 @@ import {
 
 import type {
   Message,
-  RenderResult,
-  Replay,
+  Render,
+  RenderResponse,
   ReplayAccepted,
   ReplayAcceptedFile,
   ReplayAcceptedText,
@@ -38,25 +38,25 @@ export class CommunicationService {
    * @param ctx
    * @param res
    */
-  public async send(ctx: Context, res: RenderResult) {
-    if (res.type === RenderResultType.PHOTO) {
+  public async send(ctx: Context, res: Render) {
+    if (res.type === RenderType.PHOTO) {
       await ctx.replyWithMediaGroup([res.photo]);
       if (res.keyboard) {
         await ctx.reply("Please select an option", {
           reply_markup: res.keyboard,
         });
       }
-    } else if (res.type === RenderResultType.MARKDOWN) {
+    } else if (res.type === RenderType.MARKDOWN) {
       await ctx.reply(res.markdown, {
         parse_mode: "MarkdownV2",
         reply_markup: res.keyboard,
       });
-    } else if (res.type === RenderResultType.HTML) {
+    } else if (res.type === RenderType.HTML) {
       await ctx.reply(res.html, {
         parse_mode: "HTML",
         reply_markup: res.keyboard,
       });
-    } else if (res.type === RenderResultType.TEXT) {
+    } else if (res.type === RenderType.TEXT) {
       await ctx.reply(res.text, {
         reply_markup: res.keyboard,
       });
@@ -328,6 +328,26 @@ export class CommunicationService {
   }
 
   /**
+   * Extract the text from a message
+   */
+  public extractText(message?: Message) {
+    return message?.text?.trim();
+  }
+
+  /**
+   * Extract the file id from a message
+   */
+  public extractFileId(message?: Message) {
+    return message?.document?.file_id ||
+      // TODO: You can download photos in different sizes
+      message?.photo?.[message.photo.length - 1]?.file_id ||
+      message?.audio?.file_id ||
+      message?.voice?.file_id ||
+      message?.video?.file_id ||
+      message?.animation?.file_id;
+  }
+
+  /**
    * Wait for a specific message or file to be received and collect all messages of type `acceptedBefore` until the specific message is received
    * @param ctx
    * @param acceptedUntil
@@ -354,38 +374,40 @@ export class CommunicationService {
   /**
    * Send a render result and wait for a message response until a specific message or file is received if `acceptedUntil` is defined.
    * @param ctx
-   * @param rendererResult
+   * @param render
    * @returns
    */
-  public async sendAndReceive(ctx: Context, rendererResult: RenderResult) {
-    await this.send(ctx, rendererResult);
-    if (rendererResult.acceptedUntil) {
-      const replay = await this.receive(
-        ctx,
-        rendererResult.acceptedUntil,
-        rendererResult.acceptedBefore,
-      );
-      return replay;
-    }
+  public async sendAndReceive(ctx: Context, render: Render) {
+    await this.send(ctx, render);
 
-    return null;
+    const responses = await this.receive(
+      ctx,
+      render.acceptedUntil,
+      render.acceptedBefore,
+    );
+    const response: RenderResponse = {
+      render,
+      responses,
+    };
+    return response;
   }
 
   /**
    * Send multiple render results and wait for a message response until a specific message or file is received if `acceptedUntil` is defined.
    * @param ctx
-   * @param rendererResults
+   * @param renders
    */
   public async sendAndReceiveAll(
     ctx: Context,
-    rendererResults: RenderResult[],
+    renders: Render[],
   ) {
-    const replays: Replay = [];
-    for (const rendererResult of rendererResults) {
-      const replay = await this.sendAndReceive(ctx, rendererResult);
-      if (replay) {
-        replays.push(replay);
+    const responses: RenderResponse[] = [];
+    for (const render of renders) {
+      const response = await this.sendAndReceive(ctx, render);
+      if (response) {
+        responses.push(response);
       }
     }
+    return responses;
   }
 }

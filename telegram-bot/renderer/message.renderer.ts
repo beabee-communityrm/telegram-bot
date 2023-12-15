@@ -1,12 +1,8 @@
 import { Singleton } from "alosaur/mod.ts";
-import { RenderResultType } from "../enums/index.ts";
+import { RenderType } from "../enums/index.ts";
 import { getSimpleMimeTypes } from "../utils/index.ts";
 
-import type {
-  RenderResult,
-  RenderResultText,
-  ReplayAccepted,
-} from "../types/index.ts";
+import type { Render, RenderText, ReplayAccepted } from "../types/index.ts";
 
 /**
  * Render info messages for Telegram in Markdown
@@ -18,8 +14,8 @@ export class MessageRenderer {
   }
 
   public stop() {
-    const result: RenderResult = {
-      type: RenderResultType.TEXT,
+    const result: Render = {
+      type: RenderType.TEXT,
       text: "Ok, no problem",
     };
 
@@ -27,8 +23,8 @@ export class MessageRenderer {
   }
 
   public calloutNotFound() {
-    const result: RenderResult = {
-      type: RenderResultType.TEXT,
+    const result: Render = {
+      type: RenderType.TEXT,
       text: "Callout not found",
     };
 
@@ -37,16 +33,16 @@ export class MessageRenderer {
 
   public notATextMessage() {
     return {
-      type: RenderResultType.TEXT,
+      type: RenderType.TEXT,
       text: "Please send a text message",
-    } as RenderResultText;
+    } as RenderText;
   }
 
   public notAFileMessage() {
     return {
-      type: RenderResultType.TEXT,
+      type: RenderType.TEXT,
       text: "Please send a file",
-    } as RenderResultText;
+    } as RenderText;
   }
 
   public notTheRightFileType(mimeTypes: string[]) {
@@ -56,9 +52,9 @@ export class MessageRenderer {
       " or $1",
     );
     return {
-      type: RenderResultType.TEXT,
+      type: RenderType.TEXT,
       text: "Please send a file of type " + mimeTypesStr,
-    } as RenderResultText;
+    } as RenderText;
   }
 
   public notAcceptedMessage(accepted: ReplayAccepted, mimeTypes?: string[]) {
@@ -79,8 +75,8 @@ export class MessageRenderer {
 
   public writeDoneMessage(doneText: string) {
     return {
-      type: RenderResultType.TEXT,
+      type: RenderType.TEXT,
       text: `If you are finished with your response, write "${doneText}".`,
-    } as RenderResultText;
+    } as RenderText;
   }
 }

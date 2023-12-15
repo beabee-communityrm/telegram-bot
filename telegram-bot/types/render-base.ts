@@ -1,12 +1,20 @@
-import type { RenderResultType } from "../enums/index.ts";
+import type { RenderType } from "../enums/index.ts";
 import type { InlineKeyboard, Keyboard, ReplayCondition } from "./index.ts";
 
-export interface RenderResultBase {
+export interface RenderBase {
+  /**
+   * Define a unique key for this render result.
+   * You can use this to:
+   * - identify the render result in the logic.
+   * - update the render result later on.
+   * - assign a answer to a question.
+   */
+  key: string;
   /**
    * Define the type of the render result, e.g. a message or a file.
    * This can be a for example message or image sent to the user.
    */
-  type: RenderResultType;
+  type: RenderType;
   /**
    * Define this to show a keyboard to the user
    */

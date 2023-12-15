@@ -1,6 +1,7 @@
 import { CalloutClient } from "@beabee/client";
 import { ItemStatus } from "@beabee/beabee-common";
 import { Singleton } from "alosaur/mod.ts";
+import { CommunicationService } from "./communication.service.ts";
 import { truncateSlug } from "../utils/index.ts";
 
 import type {
@@ -12,8 +13,10 @@ import type {
 } from "@beabee/client";
 import type {
   CalloutDataExt,
+  // CalloutResponseAnswers,
   GetCalloutDataExt,
   GetCalloutDataWithExt,
+  // RenderResponse,
 } from "../types/index.ts";
 import type { Paginated } from "@beabee/beabee-common";
 
@@ -38,7 +41,7 @@ export class CalloutService {
 
   public readonly baseUrl: URL;
 
-  constructor() {
+  constructor(protected readonly communication: CommunicationService) {
     const host = Deno.env.get("BEABEE_API_BASE_HOST") ||
       "http://localhost:3001";
     const path = Deno.env.get("BEABEE_API_BASE_PATH") || "/api/1.0/";
@@ -106,4 +109,25 @@ export class CalloutService {
 
     return callouts;
   }
+
+  // public responsesToAnswers(responses: RenderResponse[]) {
+  //   const answers: CalloutResponseAnswers = {};
+
+  //   for (const response of responses) {
+  //     const key = response.render.key;
+  //     const slideAnswers: Record<string, CalloutResponseAnswers[string]> = {};
+  //     for (const answer of response.responses) {
+  //       slideAnswers[key] = answer.value;
+  //     }
+  //     answers[slideId] = slideAnswers;
+  //   }
+
+  //   return responses.map((response) => ({
+  //     question: response.render.key,
+  //     answers: response.responses.map((answer) => ({
+  //       ...answer,
+  //       value: answer.value,
+  //     })),
+  //   }));
+  // }
 }

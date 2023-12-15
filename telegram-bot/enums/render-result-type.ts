@@ -1,4 +1,4 @@
-export enum RenderResultType {
+export enum RenderType {
   EMPTY = "empty",
   MARKDOWN = "markdown",
   HTML = "html",

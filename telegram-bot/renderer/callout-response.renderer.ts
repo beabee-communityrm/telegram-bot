@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-fallthrough
 import { Singleton } from "alosaur/mod.ts";
 import { escapeMd, sanitizeHtml } from "../utils/index.ts";
-import { RenderResultType } from "../enums/index.ts";
+import { RenderType } from "../enums/index.ts";
 import {
   CommunicationService,
   EventService,
@@ -11,7 +11,7 @@ import { MessageRenderer } from "./message.renderer.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
   DONE_MESSAGE,
-  EMPTY_RENDER_RESULT,
+  EMPTY_RENDER,
 } from "../constants/index.ts";
 
 import type {
@@ -22,7 +22,7 @@ import type {
   InputCalloutComponentSchema,
   NestableCalloutComponentSchema,
   RadioCalloutComponentSchema,
-  RenderResult,
+  Render,
   SelectCalloutComponentSchema,
 } from "../types/index.ts";
 
@@ -45,10 +45,11 @@ export class CalloutResponseRenderer {
    */
   protected label(component: BaseCalloutComponentSchema) {
     if (!component.label) {
-      return EMPTY_RENDER_RESULT;
+      return EMPTY_RENDER;
     }
-    const result: RenderResult = {
-      type: RenderResultType.MARKDOWN,
+    const result: Render = {
+      key: component.key,
+      type: RenderType.MARKDOWN,
       markdown: `*${escapeMd(component.label)}*`,
     };
 
@@ -60,11 +61,12 @@ export class CalloutResponseRenderer {
    */
   protected description(component: BaseCalloutComponentSchema) {
     if (typeof component.description !== "string" || !component.description) {
-      return EMPTY_RENDER_RESULT;
+      return EMPTY_RENDER;
     }
 
-    const result: RenderResult = {
-      type: RenderResultType.MARKDOWN,
+    const result: Render = {
+      key: component.key,
+      type: RenderType.MARKDOWN,
       markdown: `${escapeMd(component.description)}`,
     };
 
@@ -76,8 +78,9 @@ export class CalloutResponseRenderer {
    * @param input The input component to render
    */
   protected placeholder(input: InputCalloutComponentSchema) {
-    const result: RenderResult = {
-      type: RenderResultType.MARKDOWN,
+    const result: Render = {
+      key: input.key,
+      type: RenderType.MARKDOWN,
       markdown: ``,
     };
 
@@ -91,8 +94,9 @@ export class CalloutResponseRenderer {
   }
 
   protected multiple(component: BaseCalloutComponentSchema) {
-    const result: RenderResult = {
-      type: RenderResultType.MARKDOWN,
+    const result: Render = {
+      key: component.key,
+      type: RenderType.MARKDOWN,
       markdown: ``,
     };
     if (component.multiple) {
@@ -121,8 +125,9 @@ export class CalloutResponseRenderer {
    * @param radio The radio component to render
    */
   protected radioValues(radio: RadioCalloutComponentSchema) {
-    const result: RenderResult = {
-      type: RenderResultType.MARKDOWN,
+    const result: Render = {
+      key: radio.key,
+      type: RenderType.MARKDOWN,
       markdown: ``,
     };
 
@@ -136,8 +141,9 @@ export class CalloutResponseRenderer {
   }
 
   protected selectValues(select: SelectCalloutComponentSchema) {
-    const result: RenderResult = {
-      type: RenderResultType.MARKDOWN,
+    const result: Render = {
+      key: select.key,
+      type: RenderType.MARKDOWN,
       markdown: ``,
     };
 
@@ -154,8 +160,9 @@ export class CalloutResponseRenderer {
    * Render the basics of a component in Markdown
    */
   protected baseComponent(base: BaseCalloutComponentSchema) {
-    const result: RenderResult = {
-      type: RenderResultType.MARKDOWN,
+    const result: Render = {
+      key: base.key,
+      type: RenderType.MARKDOWN,
       markdown: ``,
       acceptedBefore: this.communication.replayConditionText(),
     };
@@ -168,7 +175,7 @@ export class CalloutResponseRenderer {
     // Label
     const label = this.label(base);
     if (
-      label.type === RenderResultType.MARKDOWN && label.markdown
+      label.type === RenderType.MARKDOWN && label.markdown
     ) {
       result.markdown += `${label.markdown}\n`;
     }
@@ -176,7 +183,7 @@ export class CalloutResponseRenderer {
     // Description
     const desc = this.description(base);
     if (
-      desc.type === RenderResultType.MARKDOWN &&
+      desc.type === RenderType.MARKDOWN &&
       desc.markdown
     ) {
       result.markdown += `${desc.markdown}\n`;
@@ -436,11 +443,11 @@ export class CalloutResponseRenderer {
   public nestableComponent(
     nestable: NestableCalloutComponentSchema | CalloutSlideSchema,
   ) {
-    const nestableResults: RenderResult[] = [];
+    const nestableResults: Render[] = [];
 
     for (const component of nestable.components) {
-      const componentRenderResults = this.component(component);
-      nestableResults.push(...componentRenderResults);
+      const componentRenders = this.component(component);
+      nestableResults.push(...componentRenders);
     }
 
     return nestableResults;
@@ -448,7 +455,7 @@ export class CalloutResponseRenderer {
 
   public component(component: CalloutComponentSchema) {
     console.debug("Rendering component", component);
-    const results: RenderResult[] = [];
+    const results: Render[] = [];
 
     switch (component.type) {
       // Input components
@@ -504,8 +511,9 @@ export class CalloutResponseRenderer {
 
       default: {
         console.warn("Rendering unknown component", component);
-        const unknown: RenderResult = {
-          type: RenderResultType.MARKDOWN,
+        const unknown: Render = {
+          key: (component as CalloutComponentSchema).key,
+          type: RenderType.MARKDOWN,
           markdown: `Unknown component type ${
             (component as CalloutComponentSchema).type || "undefined"
           }`,
@@ -522,8 +530,9 @@ export class CalloutResponseRenderer {
    * Render a callout response intro in HTML
    */
   public intro(callout: GetCalloutDataWithExt<"form">) {
-    const result: RenderResult = {
-      type: RenderResultType.HTML,
+    const result: Render = {
+      key: callout.slug,
+      type: RenderType.HTML,
       html: "",
     };
     result.html = `${sanitizeHtml(callout.intro)}`;
@@ -540,8 +549,9 @@ export class CalloutResponseRenderer {
    * Render the callout response thank you
    */
   public thankYouPage(callout: GetCalloutDataWithExt<"form">) {
-    const result: RenderResult = {
-      type: RenderResultType.HTML,
+    const result: Render = {
+      key: callout.slug,
+      type: RenderType.HTML,
       html: ``,
     };
 
@@ -568,15 +578,15 @@ export class CalloutResponseRenderer {
   ) {
     const form = callout.formSchema;
 
-    const slidesRenderResults: RenderResult[] = [];
+    const slidesRenders: Render[] = [];
 
     for (const slide of form.slides) {
       const replays = this.nestableComponent(slide);
-      slidesRenderResults.push(...replays);
+      slidesRenders.push(...replays);
     }
 
     const thankYou = this.thankYouPage(callout);
 
-    return [...slidesRenderResults, thankYou];
+    return [...slidesRenders, thankYou];
   }
 }

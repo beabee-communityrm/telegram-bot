@@ -1,7 +1,7 @@
 import { Singleton } from "alosaur/mod.ts";
 import { downloadImage, escapeMd } from "../utils/index.ts";
 import { InputFile, InputMediaBuilder } from "grammy/mod.ts";
-import { RenderResultType } from "../enums/index.ts";
+import { RenderType } from "../enums/index.ts";
 import { KeyboardService } from "../services/index.ts";
 import { BUTTON_CALLBACK_CALLOUT_INTRO } from "../constants/index.ts";
 
@@ -9,7 +9,7 @@ import type {
   CalloutDataExt,
   GetCalloutDataExt,
   Paginated,
-  RenderResult,
+  Render,
 } from "../types/index.ts";
 
 /**
@@ -37,8 +37,8 @@ export class CalloutRenderer {
       `${BUTTON_CALLBACK_CALLOUT_INTRO}:${callout.shortSlug}`,
     );
 
-    const result: RenderResult = {
-      type: RenderResultType.MARKDOWN,
+    const result: Render = {
+      type: RenderType.MARKDOWN,
       markdown: keyboardMessageMd,
       keyboard: yesNoKeyboard,
     };
@@ -54,8 +54,8 @@ export class CalloutRenderer {
   public listItem(callout: CalloutDataExt, listChar = "\\-") {
     listChar = escapeMd(listChar);
 
-    const result: RenderResult = {
-      type: RenderResultType.MARKDOWN,
+    const result: Render = {
+      type: RenderType.MARKDOWN,
       markdown: `${listChar} ${this.title(callout).markdown}\n`,
     };
 
@@ -68,8 +68,8 @@ export class CalloutRenderer {
    * @returns
    */
   public listItems(callouts: Paginated<GetCalloutDataExt>) {
-    const listResult: RenderResult = {
-      type: RenderResultType.MARKDOWN,
+    const listResult: Render = {
+      type: RenderType.MARKDOWN,
       markdown: "",
     };
 
@@ -92,8 +92,8 @@ export class CalloutRenderer {
       )
     }_`;
 
-    const keyboardResult: RenderResult = {
-      type: RenderResultType.MARKDOWN,
+    const keyboardResult: Render = {
+      type: RenderType.MARKDOWN,
       markdown: keyboardMessageMd,
       keyboard,
     };
@@ -108,8 +108,8 @@ export class CalloutRenderer {
    * @returns
    */
   public title(callout: CalloutDataExt, withUrl = true) {
-    const result: RenderResult = {
-      type: RenderResultType.MARKDOWN,
+    const result: Render = {
+      type: RenderType.MARKDOWN,
       markdown: "",
     };
 
@@ -142,8 +142,8 @@ export class CalloutRenderer {
       parse_mode: "MarkdownV2",
     });
 
-    const calloutResult: RenderResult = {
-      type: RenderResultType.PHOTO,
+    const calloutResult: Render = {
+      type: RenderType.PHOTO,
       photo: calloutImage,
     };
 
