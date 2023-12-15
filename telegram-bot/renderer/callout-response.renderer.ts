@@ -430,41 +430,25 @@ export class CalloutResponseRenderer {
     return result;
   }
 
-  public nestableComponent(nestable: NestableCalloutComponentSchema) {
-    // const result = this.baseComponent(input);
-    // result.markdown += `\n\n`;
+  /**
+   * Render a callout response slide or nestable component and each nested component in Markdown
+   */
+  public nestableComponent(
+    nestable: NestableCalloutComponentSchema | CalloutSlideSchema,
+  ) {
+    const nestableResults: RenderResult[] = [];
 
-    const result: RenderResult = {
-      type: RenderResultType.MARKDOWN,
-      markdown: ``,
-    };
-
-    switch (nestable.type) {
-      case "panel": {
-        result.markdown = `panel component not implemented`;
-        break;
-      }
-
-      // Later
-      case "tabs": {
-        result.markdown = `tabs component not implemented`;
-        break;
-      }
-      case "well": {
-        result.markdown = `well component not implemented`;
-        break;
-      }
+    for (const component of nestable.components) {
+      const componentRenderResults = this.component(component);
+      nestableResults.push(...componentRenderResults);
     }
 
-    return result;
+    return nestableResults;
   }
 
   public component(component: CalloutComponentSchema) {
     console.debug("Rendering component", component);
-    let result: RenderResult = {
-      type: RenderResultType.MARKDOWN,
-      markdown: ``,
-    };
+    const results: RenderResult[] = [];
 
     switch (component.type) {
       // Input components
@@ -483,67 +467,55 @@ export class CalloutResponseRenderer {
       case "datetime" as unknown:
       case "time" as unknown:
       case "url" as unknown: {
-        result = this.inputComponent(component as InputCalloutComponentSchema);
+        results.push(
+          this.inputComponent(component as InputCalloutComponentSchema),
+        );
         break;
       }
 
       case "file":
         // TODO: missing in common types
       case "signature" as unknown: {
-        result = this.inputFileComponent(
+        results.push(this.inputFileComponent(
           component as InputCalloutComponentSchema,
-        );
+        ));
         break;
       }
 
       // Radio components
       case "radio":
       case "selectboxes": {
-        result = this.radioComponent(component);
+        results.push(this.radioComponent(component));
         break;
       }
 
       // TODO: next
       case "select": {
-        result = this.selectComponent(component);
+        results.push(this.selectComponent(component));
         break;
       }
 
       case "panel":
       case "tabs":
       case "well": {
-        result = this.nestableComponent(component);
+        results.push(...this.nestableComponent(component));
         break;
       }
 
       default: {
         console.warn("Rendering unknown component", component);
-        result.markdown = `Unknown component type ${
-          (component as CalloutComponentSchema).type || "undefined"
-        }`;
+        const unknown: RenderResult = {
+          type: RenderResultType.MARKDOWN,
+          markdown: `Unknown component type ${
+            (component as CalloutComponentSchema).type || "undefined"
+          }`,
+        };
+        results.push(unknown);
         break;
       }
     }
 
-    return result;
-  }
-
-  /**
-   * Render a callout response slide and each slide component in Markdown
-   */
-  public slidePage(
-    slide: CalloutSlideSchema,
-  ) {
-    const slideRenderResults: RenderResult[] = [];
-
-    console.debug("Rendering slide", slide);
-
-    for (const component of slide.components) {
-      const componentRenderResults = this.component(component);
-      slideRenderResults.push(componentRenderResults);
-    }
-
-    return slideRenderResults;
+    return results;
   }
 
   /**
@@ -599,7 +571,7 @@ export class CalloutResponseRenderer {
     const slidesRenderResults: RenderResult[] = [];
 
     for (const slide of form.slides) {
-      const replays = this.slidePage(slide);
+      const replays = this.nestableComponent(slide);
       slidesRenderResults.push(...replays);
     }
 
