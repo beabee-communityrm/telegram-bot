@@ -7,3 +7,5 @@ export const EMPTY_RENDER: RenderEmpty = {
   type: RenderType.EMPTY,
   keyboard: undefined,
 };
+
+export const CALLOUT_RESPONSE_GROUP_KEY_SEPARATOR = "-slide:";

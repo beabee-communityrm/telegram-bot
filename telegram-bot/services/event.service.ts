@@ -8,6 +8,8 @@ import type { Context } from "grammy/mod.ts";
 
 /**
  * Handle Telegram bot events
+ * TODO: We need a way to subscribe all event listeners when the bot is stopped.
+ * TODO: We need also a way to unsubscribe all callout response related event listeners when a user stops a callout response and for other cases.
  */
 @Singleton()
 export class EventService {

@@ -1,5 +1,9 @@
 import { Singleton } from "alosaur/mod.ts";
-import { RelayAcceptedFileType, RenderType } from "../enums/index.ts";
+import {
+  RelayAcceptedFileType,
+  RenderType,
+  ReplayType,
+} from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
 import { getIdentifier } from "../utils/index.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
@@ -39,6 +43,7 @@ export class CommunicationService {
    * @param res
    */
   public async send(ctx: Context, res: Render) {
+    console.debug("Send", res);
     if (res.type === RenderType.PHOTO) {
       await ctx.replyWithMediaGroup([res.photo]);
       if (res.keyboard) {
@@ -60,6 +65,10 @@ export class CommunicationService {
       await ctx.reply(res.text, {
         reply_markup: res.keyboard,
       });
+    } else if (res.type === RenderType.EMPTY) {
+      // Do nothing
+    } else {
+      throw new Error("Unknown render type: " + (res as Render).type);
     }
   }
 
@@ -71,7 +80,7 @@ export class CommunicationService {
    */
   public replayConditionText(text?: string): ReplayConditionText {
     const result: ReplayConditionText = {
-      type: "text",
+      type: ReplayType.TEXT,
     };
     if (text) {
       result.texts = text ? [text] : undefined;
@@ -87,7 +96,7 @@ export class CommunicationService {
    */
   public replayConditionFile(mimeTypes?: string[]): ReplayConditionFile {
     const result: ReplayConditionFile = {
-      type: "file",
+      type: ReplayType.FILE,
     };
     if (mimeTypes) {
       result.mimeTypes = mimeTypes;
@@ -108,10 +117,42 @@ export class CommunicationService {
     return this.replayConditionFile(mimeTypes);
   }
 
+  /**
+   * Wait for any message to be received
+   * @param ctx
+   * @returns
+   */
   public async receiveMessage(ctx: Context) {
     const event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
     return event.detail;
   }
+
+  /**
+   * Wait for a specific message to be received
+   * @param ctx
+   * @param accepted
+   * @returns
+   */
+  // public async receiveSpecificMessage(ctx: Context, accepted: ReplayCondition) {
+  //   let lastAcceptedContext: ReplayAccepted;
+  //   do {
+  //     const context = await this.receiveMessage(ctx);
+  //     const isAccepted = this.messageIsAccepted(context.message, accepted);
+  //     if (!isAccepted.accepted) {
+  //       console.debug("Message is not accepted", isAccepted, accepted);
+  //       await this.send(
+  //         ctx,
+  //         this.messageRenderer.notAcceptedMessage(
+  //           isAccepted,
+  //           (accepted as ReplayConditionFile).mimeTypes,
+  //         ),
+  //       );
+  //       continue;
+  //     }
+  //     return event.detail;
+  //   }
+  //   return lastAccepted;
+  // }
 
   protected messageIsAudioFile(message: Message) {
     return !!message.audio?.file_id || !!message.voice?.file_id ||
@@ -155,6 +196,12 @@ export class CommunicationService {
     // this.messageIsAddress(message);
   }
 
+  /**
+   * Check if a message is a file message and if the mime type is accepted
+   * @param message
+   * @param mimeTypes
+   * @returns
+   */
   protected messageIsFile(
     message?: Message,
     mimeTypes?: string[],
@@ -164,7 +211,7 @@ export class CommunicationService {
     if (!message) {
       console.warn("Message is undefined");
       return {
-        type: "file",
+        type: ReplayType.FILE,
         accepted: false,
         fileType,
       };
@@ -172,7 +219,7 @@ export class CommunicationService {
     // Is a file message and all mime types are accepted
     if (!mimeTypes || !mimeTypes.length) {
       return {
-        type: "file",
+        type: ReplayType.FILE,
         accepted: this.messageIsAnyFile(message),
       };
     }
@@ -210,17 +257,23 @@ export class CommunicationService {
     }
     // A file message with accepted mime type
     return {
-      type: "file",
+      type: ReplayType.FILE,
       accepted: fileType !== RelayAcceptedFileType.ANY,
       fileType,
     };
   }
 
+  /**
+   * Check if a message is a text message and if the text is accepted
+   * @param message
+   * @param text
+   * @returns
+   */
   protected messageIsText(
     message?: Message,
-    text?: string[],
+    texts?: string[],
   ): ReplayAcceptedText {
-    text = text?.map((t) => t.toLowerCase().trim());
+    texts = texts?.map((t) => t.toLowerCase().trim());
     if (message?.text) {
       message.text = message.text.toLowerCase().trim();
     }
@@ -228,26 +281,26 @@ export class CommunicationService {
     // Is not a text message
     if (!message || !message.text) {
       return {
-        type: "text",
+        type: ReplayType.TEXT,
         accepted: false,
       };
     }
     // Is a text message and all texts are accepted
-    if (!text) {
+    if (!texts) {
       return {
-        type: "text",
+        type: ReplayType.TEXT,
         accepted: true,
       };
     }
     // Is a text message and one of the texts is accepted
     return {
-      type: "text",
-      accepted: text.some((t) => t === message.text),
+      type: ReplayType.TEXT,
+      accepted: texts.some((t) => t === message.text),
     };
   }
 
   /**
-   * Wait for a specific message to be received and collect all messages of type `acceptedBefore` until the specific message is received
+   * Wait for a specific message to be received and collect all messages of type `acceptedBefore` until the specific message is received.
    * @param ctx
    * @param acceptedUntil
    * @param acceptedBefore
@@ -278,11 +331,10 @@ export class CommunicationService {
         throw new Error("Unknown replay until type");
       }
 
-      if (isDone) {
-        break;
-      }
-
-      const isAccepted = this.messageIsAccepted(message, acceptedBefore);
+      const isAccepted = this.messageIsAccepted(
+        message,
+        acceptedBefore || acceptedUntil,
+      );
 
       if (!isAccepted.accepted) {
         console.debug("Message is not accepted", isAccepted, acceptedBefore);
@@ -307,44 +359,24 @@ export class CommunicationService {
     message?: Message,
     accepted?: ReplayCondition,
   ): ReplayAccepted {
-    if (!accepted || accepted.type === "any") {
+    if (!accepted || accepted.type === ReplayType.ANY) {
       return {
-        type: "any",
+        type: ReplayType.ANY,
         accepted: true,
       };
     }
 
-    if (accepted.type === "file") {
+    if (accepted.type === ReplayType.FILE) {
       const isFile = this.messageIsFile(message, accepted.mimeTypes);
       return isFile;
     }
 
-    if (accepted.type === "text") {
+    if (accepted.type === ReplayType.TEXT) {
       const isText = this.messageIsText(message, accepted.texts);
       return isText;
     }
 
     throw new Error("Unknown replay accepted type");
-  }
-
-  /**
-   * Extract the text from a message
-   */
-  public extractText(message?: Message) {
-    return message?.text?.trim();
-  }
-
-  /**
-   * Extract the file id from a message
-   */
-  public extractFileId(message?: Message) {
-    return message?.document?.file_id ||
-      // TODO: You can download photos in different sizes
-      message?.photo?.[message.photo.length - 1]?.file_id ||
-      message?.audio?.file_id ||
-      message?.voice?.file_id ||
-      message?.video?.file_id ||
-      message?.animation?.file_id;
   }
 
   /**
@@ -358,8 +390,13 @@ export class CommunicationService {
     acceptedUntil?: ReplayCondition,
     acceptedBefore?: ReplayCondition,
   ) {
-    // Receive the first message of any type if no specific message is defined
-    if (!acceptedUntil || acceptedUntil.type === "any") {
+    // Do not wait for a specific message
+    if (!acceptedUntil || acceptedUntil.type === ReplayType.NONE) {
+      return [];
+    }
+
+    // Receive the first message of any type
+    if (acceptedUntil.type === ReplayType.ANY) {
       return [await this.receiveMessage(ctx)];
     }
 

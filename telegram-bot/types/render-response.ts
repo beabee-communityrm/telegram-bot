@@ -5,5 +5,5 @@ import type { Context, Render } from "./index.ts";
  */
 export interface RenderResponse {
   render: Render;
-  responses: Array<Context | Array<Context>>;
+  responses: Array<Context>;
 }

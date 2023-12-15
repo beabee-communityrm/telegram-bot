@@ -38,6 +38,7 @@ export class CalloutRenderer {
     );
 
     const result: Render = {
+      key: `callout:start-response:${callout.shortSlug}`,
       type: RenderType.MARKDOWN,
       markdown: keyboardMessageMd,
       keyboard: yesNoKeyboard,
@@ -55,6 +56,7 @@ export class CalloutRenderer {
     listChar = escapeMd(listChar);
 
     const result: Render = {
+      key: `callout:list:${callout.shortSlug}`,
       type: RenderType.MARKDOWN,
       markdown: `${listChar} ${this.title(callout).markdown}\n`,
     };
@@ -69,6 +71,7 @@ export class CalloutRenderer {
    */
   public listItems(callouts: Paginated<GetCalloutDataExt>) {
     const listResult: Render = {
+      key: "callout:list",
       type: RenderType.MARKDOWN,
       markdown: "",
     };
@@ -93,6 +96,7 @@ export class CalloutRenderer {
     }_`;
 
     const keyboardResult: Render = {
+      key: "callout:list:keyboard",
       type: RenderType.MARKDOWN,
       markdown: keyboardMessageMd,
       keyboard,
@@ -109,6 +113,7 @@ export class CalloutRenderer {
    */
   public title(callout: CalloutDataExt, withUrl = true) {
     const result: Render = {
+      key: `callout:title:${callout.shortSlug}`,
       type: RenderType.MARKDOWN,
       markdown: "",
     };
@@ -143,6 +148,7 @@ export class CalloutRenderer {
     });
 
     const calloutResult: Render = {
+      key: `callout:photo:${callout.shortSlug}`,
       type: RenderType.PHOTO,
       photo: calloutImage,
     };

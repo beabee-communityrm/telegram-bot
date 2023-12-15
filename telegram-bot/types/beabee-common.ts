@@ -1,6 +1,7 @@
 export type {
   BaseCalloutComponentSchema,
   CalloutComponentSchema,
+  CalloutResponseAnswer,
   CalloutResponseAnswerAddress,
   CalloutResponseAnswerFileUpload,
   CalloutResponseAnswers,

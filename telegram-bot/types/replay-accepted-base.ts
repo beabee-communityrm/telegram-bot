@@ -1,4 +1,4 @@
-import type { ReplayType } from "./index.ts";
+import type { ReplayType } from "../enums/index.ts";
 
 export interface ReplayAcceptedBase {
   type: ReplayType;

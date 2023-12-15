@@ -1,6 +1,7 @@
 import {
   ReplayConditionAny,
   ReplayConditionFile,
+  ReplayConditionNone,
   ReplayConditionText,
 } from "./index.ts";
 
@@ -10,4 +11,5 @@ import {
 export type ReplayCondition =
   | ReplayConditionText
   | ReplayConditionFile
-  | ReplayConditionAny;
+  | ReplayConditionAny
+  | ReplayConditionNone;

@@ -1,7 +1,11 @@
-// deno-lint-ignore-file no-fallthrough
 import { Singleton } from "alosaur/mod.ts";
-import { escapeMd, sanitizeHtml } from "../utils/index.ts";
-import { RenderType } from "../enums/index.ts";
+import {
+  createCalloutGroupKey,
+  escapeMd,
+  getComponentMainType,
+  sanitizeHtml,
+} from "../utils/index.ts";
+import { CalloutComponentMainType, RenderType } from "../enums/index.ts";
 import {
   CommunicationService,
   EventService,
@@ -42,13 +46,15 @@ export class CalloutResponseRenderer {
 
   /**
    * Render a component label in Markdown
+   * @param component The component to render
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
-  protected label(component: BaseCalloutComponentSchema) {
+  protected label(component: BaseCalloutComponentSchema, prefix: string) {
     if (!component.label) {
       return EMPTY_RENDER;
     }
     const result: Render = {
-      key: component.key,
+      key: createCalloutGroupKey(component.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: `*${escapeMd(component.label)}*`,
     };
@@ -59,13 +65,13 @@ export class CalloutResponseRenderer {
   /**
    * Render a component description in Markdown
    */
-  protected description(component: BaseCalloutComponentSchema) {
+  protected description(component: BaseCalloutComponentSchema, prefix: string) {
     if (typeof component.description !== "string" || !component.description) {
       return EMPTY_RENDER;
     }
 
     const result: Render = {
-      key: component.key,
+      key: createCalloutGroupKey(component.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: `${escapeMd(component.description)}`,
     };
@@ -77,9 +83,9 @@ export class CalloutResponseRenderer {
    * Render an input component placeholder in Markdown
    * @param input The input component to render
    */
-  protected placeholder(input: InputCalloutComponentSchema) {
+  protected placeholder(input: InputCalloutComponentSchema, prefix: string) {
     const result: Render = {
-      key: input.key,
+      key: createCalloutGroupKey(input.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
     };
@@ -93,9 +99,9 @@ export class CalloutResponseRenderer {
     return result;
   }
 
-  protected multiple(component: BaseCalloutComponentSchema) {
+  protected multiple(component: BaseCalloutComponentSchema, prefix: string) {
     const result: Render = {
-      key: component.key,
+      key: createCalloutGroupKey(component.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
     };
@@ -124,9 +130,9 @@ export class CalloutResponseRenderer {
    * Render radio or selectboxes values in Markdown
    * @param radio The radio component to render
    */
-  protected radioValues(radio: RadioCalloutComponentSchema) {
+  protected radioValues(radio: RadioCalloutComponentSchema, prefix: string) {
     const result: Render = {
-      key: radio.key,
+      key: createCalloutGroupKey(radio.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
     };
@@ -140,9 +146,9 @@ export class CalloutResponseRenderer {
     return result;
   }
 
-  protected selectValues(select: SelectCalloutComponentSchema) {
+  protected selectValues(select: SelectCalloutComponentSchema, prefix: string) {
     const result: Render = {
-      key: select.key,
+      key: createCalloutGroupKey(select.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
     };
@@ -158,10 +164,12 @@ export class CalloutResponseRenderer {
 
   /**
    * Render the basics of a component in Markdown
+   * @param base The base component to render
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
-  protected baseComponent(base: BaseCalloutComponentSchema) {
+  protected baseComponent(base: BaseCalloutComponentSchema, prefix: string) {
     const result: Render = {
-      key: base.key,
+      key: createCalloutGroupKey(base.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
       acceptedBefore: this.communication.replayConditionText(),
@@ -173,7 +181,7 @@ export class CalloutResponseRenderer {
     );
 
     // Label
-    const label = this.label(base);
+    const label = this.label(base, prefix);
     if (
       label.type === RenderType.MARKDOWN && label.markdown
     ) {
@@ -181,7 +189,7 @@ export class CalloutResponseRenderer {
     }
 
     // Description
-    const desc = this.description(base);
+    const desc = this.description(base, prefix);
     if (
       desc.type === RenderType.MARKDOWN &&
       desc.markdown
@@ -192,8 +200,16 @@ export class CalloutResponseRenderer {
     return result;
   }
 
-  protected inputFileComponent(file: InputCalloutComponentSchema) {
-    const result = this.baseComponent(file);
+  /**
+   * Render an input file component in Markdown
+   * @param file The input file component to render
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
+   */
+  protected inputFileComponent(
+    file: InputCalloutComponentSchema,
+    prefix: string,
+  ) {
+    const result = this.baseComponent(file, prefix);
     result.markdown += `\n\n`;
 
     result.markdown += `_${
@@ -228,11 +244,11 @@ export class CalloutResponseRenderer {
     }
 
     if (file.placeholder) {
-      result.markdown += `\n\n${this.placeholder(file).markdown}`;
+      result.markdown += `\n\n${this.placeholder(file, prefix).markdown}`;
     }
 
     if (file.multiple) {
-      result.markdown += `\n\n${this.multiple(file).markdown}`;
+      result.markdown += `\n\n${this.multiple(file, prefix).markdown}`;
     }
 
     return result;
@@ -240,9 +256,11 @@ export class CalloutResponseRenderer {
 
   /**
    * Render an input component in Markdown
+   * @param input The input component to render
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
-  protected inputComponent(input: InputCalloutComponentSchema) {
-    const result = this.baseComponent(input);
+  protected inputComponent(input: InputCalloutComponentSchema, prefix: string) {
+    const result = this.baseComponent(input, prefix);
     result.markdown += `\n\n`;
 
     switch (input.type) {
@@ -376,19 +394,24 @@ export class CalloutResponseRenderer {
     }
 
     if (input.placeholder) {
-      result.markdown += `\n\n${this.placeholder(input).markdown}`;
+      result.markdown += `\n\n${this.placeholder(input, prefix).markdown}`;
     }
 
     if (input.multiple) {
-      result.markdown += `\n\n${this.multiple(input).markdown}`;
+      result.markdown += `\n\n${this.multiple(input, prefix).markdown}`;
     }
 
     return result;
   }
 
-  protected radioComponent(radio: RadioCalloutComponentSchema) {
-    const result = this.baseComponent(radio);
-    result.markdown += `\n${this.radioValues(radio).markdown}`;
+  /**
+   * Render a radio component in Markdown
+   * @param radio The radio component to render
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
+   */
+  protected radioComponent(radio: RadioCalloutComponentSchema, prefix: string) {
+    const result = this.baseComponent(radio, prefix);
+    result.markdown += `\n${this.radioValues(radio, prefix).markdown}`;
 
     result.markdown += `\n\n`;
 
@@ -422,10 +445,15 @@ export class CalloutResponseRenderer {
   /**
    * Render a select component in Markdown.
    * Note: A select component is a dropdown menu in the frontend.
+   * @param select The select component to render
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
-  protected selectComponent(select: SelectCalloutComponentSchema) {
-    const result = this.baseComponent(select);
-    result.markdown += `\n${this.selectValues(select).markdown}`;
+  protected selectComponent(
+    select: SelectCalloutComponentSchema,
+    prefix: string,
+  ) {
+    const result = this.baseComponent(select, prefix);
+    result.markdown += `\n${this.selectValues(select, prefix).markdown}`;
 
     result.markdown += `\n\n`;
 
@@ -437,82 +465,60 @@ export class CalloutResponseRenderer {
     return result;
   }
 
-  /**
-   * Render a callout response slide or nestable component and each nested component in Markdown
-   */
-  public nestableComponent(
-    nestable: NestableCalloutComponentSchema | CalloutSlideSchema,
-  ) {
-    const nestableResults: Render[] = [];
-
-    for (const component of nestable.components) {
-      const componentRenders = this.component(component);
-      nestableResults.push(...componentRenders);
-    }
-
-    return nestableResults;
-  }
-
-  public component(component: CalloutComponentSchema) {
+  public component(component: CalloutComponentSchema, prefix: string) {
     console.debug("Rendering component", component);
     const results: Render[] = [];
 
-    switch (component.type) {
-      // Input components
-      case "address":
-      case "button":
-      case "checkbox":
-      case "email":
-      case "number":
-      case "password":
-      case "textfield":
-      case "textarea":
-      // TODO: missing in common types
-      case "content" as unknown:
-      case "phoneNumber" as unknown:
-      case "currency" as unknown:
-      case "datetime" as unknown:
-      case "time" as unknown:
-      case "url" as unknown: {
+    const mainType = getComponentMainType(component);
+
+    switch (mainType) {
+      case CalloutComponentMainType.INPUT: {
         results.push(
-          this.inputComponent(component as InputCalloutComponentSchema),
+          this.inputComponent(component as InputCalloutComponentSchema, prefix),
         );
         break;
       }
 
-      case "file":
-        // TODO: missing in common types
-      case "signature" as unknown: {
+      case CalloutComponentMainType.FILE: {
         results.push(this.inputFileComponent(
           component as InputCalloutComponentSchema,
+          prefix,
         ));
         break;
       }
 
-      // Radio components
-      case "radio":
-      case "selectboxes": {
-        results.push(this.radioComponent(component));
+      case CalloutComponentMainType.RADIO: {
+        results.push(
+          this.radioComponent(component as RadioCalloutComponentSchema, prefix),
+        );
         break;
       }
 
-      // TODO: next
-      case "select": {
-        results.push(this.selectComponent(component));
+      case CalloutComponentMainType.SELECT: {
+        results.push(
+          this.selectComponent(
+            component as SelectCalloutComponentSchema,
+            prefix,
+          ),
+        );
         break;
       }
 
-      case "panel":
-      case "tabs":
-      case "well": {
-        results.push(...this.nestableComponent(component));
+      case CalloutComponentMainType.NESTED: {
+        results.push(
+          ...this.nestableComponent(
+            component as NestableCalloutComponentSchema,
+            prefix,
+          ),
+        );
         break;
       }
 
+      case CalloutComponentMainType.UNKNOWN:
       default: {
-        console.warn("Rendering unknown component", component);
+        console.warn("Rendering unknown component", component, prefix);
         const unknown: Render = {
-          key: (component as CalloutComponentSchema).key,
+          key: createCalloutGroupKey(component.key, prefix),
           type: RenderType.MARKDOWN,
           markdown: `Unknown component type ${
             (component as CalloutComponentSchema).type || "undefined"
@@ -524,6 +530,25 @@ export class CalloutResponseRenderer {
     }
 
     return results;
+  }
+
+  /**
+   * Render a callout response slide or nestable component and each nested component in Markdown
+   * @param nestable The nestable component or slide to render
+   * @param prefix The prefix, used to group the answers later (only used for slides)
+   */
+  public nestableComponent(
+    nestable: NestableCalloutComponentSchema | CalloutSlideSchema,
+    prefix: string,
+  ) {
+    const nestableResults: Render[] = [];
+
+    for (const component of nestable.components) {
+      const componentRenders = this.component(component, prefix);
+      nestableResults.push(...componentRenders);
+    }
+
+    return nestableResults;
   }
 
   /**
@@ -581,7 +606,7 @@ export class CalloutResponseRenderer {
     const slidesRenders: Render[] = [];
 
     for (const slide of form.slides) {
-      const replays = this.nestableComponent(slide);
+      const replays = this.nestableComponent(slide, slide.id);
       slidesRenders.push(...replays);
     }
 

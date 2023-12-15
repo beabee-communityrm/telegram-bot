@@ -79,7 +79,12 @@ export class CalloutResponseEventManager extends EventManager {
       questions,
     );
 
-    const answers = await this.communication.sendAndReceiveAll(ctx, questions);
+    const responses = await this.communication.sendAndReceiveAll(
+      ctx,
+      questions,
+    );
+    const answers = this.callout.responsesToAnswers(calloutWithForm, responses);
+
     console.debug(
       "Got answers",
       answers,
