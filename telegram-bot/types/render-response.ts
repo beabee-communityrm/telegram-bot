@@ -1,9 +1,9 @@
-import type { Context, Render } from "./index.ts";
+import type { Render, RenderResponseParsed } from "./index.ts";
 
 /**
  * Type to collect responses. A response can be a text or file message.
  */
-export interface RenderResponse {
+export interface RenderResponse<MULTI extends boolean = false> {
   render: Render;
-  responses: Array<Context>;
+  responses: RenderResponseParsed<MULTI>;
 }

@@ -27,3 +27,11 @@ export const getFileIdFromMessage = (message?: Message) => {
     message?.video?.file_id ||
     message?.animation?.file_id;
 };
+
+export const getLocationFromMessage = (message?: Message) => {
+  return {
+    location: message?.location || message?.venue?.location,
+    address: message?.venue?.address,
+    title: message?.venue?.title,
+  };
+};

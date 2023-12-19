@@ -1,10 +1,12 @@
 import { Singleton } from "alosaur/mod.ts";
 import {
+  ParsedResponseType,
   RelayAcceptedFileType,
   RenderType,
   ReplayType,
 } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
+import { TransformService } from "./transform.service.ts";
 import { getIdentifier } from "../utils/index.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
 import {
@@ -16,6 +18,7 @@ import type {
   Message,
   Render,
   RenderResponse,
+  RenderResponseParsed,
   ReplayAccepted,
   ReplayAcceptedFile,
   ReplayAcceptedText,
@@ -33,6 +36,7 @@ export class CommunicationService {
   constructor(
     protected readonly event: EventService,
     protected readonly messageRenderer: MessageRenderer,
+    protected readonly transform: TransformService,
   ) {
     console.debug(`${CommunicationService.name} created`);
   }
@@ -126,33 +130,6 @@ export class CommunicationService {
     const event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
     return event.detail;
   }
-
-  /**
-   * Wait for a specific message to be received
-   * @param ctx
-   * @param accepted
-   * @returns
-   */
-  // public async receiveSpecificMessage(ctx: Context, accepted: ReplayCondition) {
-  //   let lastAcceptedContext: ReplayAccepted;
-  //   do {
-  //     const context = await this.receiveMessage(ctx);
-  //     const isAccepted = this.messageIsAccepted(context.message, accepted);
-  //     if (!isAccepted.accepted) {
-  //       console.debug("Message is not accepted", isAccepted, accepted);
-  //       await this.send(
-  //         ctx,
-  //         this.messageRenderer.notAcceptedMessage(
-  //           isAccepted,
-  //           (accepted as ReplayConditionFile).mimeTypes,
-  //         ),
-  //       );
-  //       continue;
-  //     }
-  //     return event.detail;
-  //   }
-  //   return lastAccepted;
-  // }
 
   protected messageIsAudioFile(message: Message) {
     return !!message.audio?.file_id || !!message.voice?.file_id ||
@@ -302,14 +279,12 @@ export class CommunicationService {
   /**
    * Wait for a specific message to be received and collect all messages of type `acceptedBefore` until the specific message is received.
    * @param ctx
-   * @param acceptedUntil
-   * @param acceptedBefore
+   * @param render
    * @returns
    */
   protected async acceptedUntilSpecificMessage(
     ctx: Context,
-    acceptedUntil: ReplayCondition,
-    acceptedBefore?: ReplayCondition,
+    render: Render,
   ) {
     let context: Context;
     let message: Message | undefined;
@@ -321,28 +296,36 @@ export class CommunicationService {
       context = await this.receiveMessage(ctx);
       message = context.message;
 
-      if (acceptedUntil.type === "file") {
-        isDone = this.messageIsFile(message, acceptedUntil.mimeTypes).accepted;
-      } else if (acceptedUntil.type === "text") {
-        isDone = this.messageIsText(message, acceptedUntil.texts).accepted;
-      } else if (acceptedUntil.type === "any") {
+      if (render.acceptedUntil?.type === "file") {
+        isDone =
+          this.messageIsFile(message, render.acceptedUntil.mimeTypes).accepted;
+      } else if (render.acceptedUntil?.type === "text") {
+        isDone =
+          this.messageIsText(message, render.acceptedUntil.texts).accepted;
+      } else if (render.acceptedUntil?.type === "any") {
         isDone = !!message;
       } else {
-        throw new Error("Unknown replay until type");
+        throw new Error(
+          "Unknown replay until type: " + render.acceptedUntil?.type,
+        );
       }
 
       const isAccepted = this.messageIsAccepted(
         message,
-        acceptedBefore || acceptedUntil,
+        render.acceptedBefore || render.acceptedUntil,
       );
 
       if (!isAccepted.accepted) {
-        console.debug("Message is not accepted", isAccepted, acceptedBefore);
+        console.debug(
+          "Message is not accepted",
+          isAccepted,
+          render.acceptedBefore,
+        );
         await this.send(
           ctx,
           this.messageRenderer.notAcceptedMessage(
             isAccepted,
-            (acceptedBefore as ReplayConditionFile).mimeTypes,
+            (render.acceptedBefore as ReplayConditionFile).mimeTypes,
           ),
         );
         continue;
@@ -387,25 +370,46 @@ export class CommunicationService {
    */
   public async receive(
     ctx: Context,
-    acceptedUntil?: ReplayCondition,
-    acceptedBefore?: ReplayCondition,
-  ) {
+    render: Render,
+  ): Promise<RenderResponseParsed<false> | RenderResponseParsed<true>> {
     // Do not wait for a specific message
-    if (!acceptedUntil || acceptedUntil.type === ReplayType.NONE) {
-      return [];
+    if (
+      !render.acceptedUntil || render.acceptedUntil.type === ReplayType.NONE
+    ) {
+      return {
+        type: ParsedResponseType.NONE,
+        multiple: false,
+        context: ctx,
+        data: null,
+      };
     }
 
     // Receive the first message of any type
-    if (acceptedUntil.type === ReplayType.ANY) {
-      return [await this.receiveMessage(ctx)];
+    if (render.acceptedUntil.type === ReplayType.ANY) {
+      const context = await this.receiveMessage(ctx);
+      const data = this.transform.parseResponse(context, render.parseType);
+      const res: RenderResponseParsed<false> = {
+        type: render.parseType,
+        multiple: false,
+        context,
+        data: Array.isArray(data) ? data[0] : data,
+      } as any; // TODO: Fix this
+      return res;
     }
 
     // Receive all messages of specific type until a message of specific type is received
-    return await this.acceptedUntilSpecificMessage(
+    const contexts = await this.acceptedUntilSpecificMessage(
       ctx,
-      acceptedUntil,
-      acceptedBefore,
+      render,
     );
+    const data = this.transform.parseResponse(contexts, render.parseType);
+    const res: RenderResponseParsed<true> = {
+      type: render.parseType,
+      multiple: true,
+      context: contexts,
+      data,
+    } as any; // TODO: Fix this
+    return res;
   }
 
   /**
@@ -419,9 +423,8 @@ export class CommunicationService {
 
     const responses = await this.receive(
       ctx,
-      render.acceptedUntil,
-      render.acceptedBefore,
-    );
+      render,
+    ) as any; // TODO: Fix this
     const response: RenderResponse = {
       render,
       responses,

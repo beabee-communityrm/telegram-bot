@@ -5,3 +5,4 @@ export * from "./event.service.ts";
 export * from "./keyboard.service.ts";
 export * from "./subscriber.service.ts";
 export * from "./telegram.service.ts";
+export * from "./transform.service.ts";

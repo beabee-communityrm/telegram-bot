@@ -2,6 +2,7 @@ import { Singleton } from "alosaur/mod.ts";
 import { CalloutService } from "../services/callout.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { EventService } from "../services/event.service.ts";
+import { TransformService } from "../services/transform.service.ts";
 import { CalloutResponseRenderer, MessageRenderer } from "../renderer/index.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_INTRO,
@@ -19,6 +20,7 @@ export class CalloutResponseEventManager extends EventManager {
     protected readonly communication: CommunicationService,
     protected readonly messageRenderer: MessageRenderer,
     protected readonly calloutResponseRenderer: CalloutResponseRenderer,
+    protected readonly transform: TransformService,
   ) {
     super();
     console.debug(`${CalloutResponseEventManager.name} created`);
@@ -83,7 +85,7 @@ export class CalloutResponseEventManager extends EventManager {
       ctx,
       questions,
     );
-    const answers = this.callout.responsesToAnswers(calloutWithForm, responses);
+    const answers = this.transform.parseResponses(responses);
 
     console.debug(
       "Got answers",

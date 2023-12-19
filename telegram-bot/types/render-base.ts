@@ -1,4 +1,4 @@
-import type { RenderType } from "../enums/index.ts";
+import type { ParsedResponseType, RenderType } from "../enums/index.ts";
 import type { InlineKeyboard, Keyboard, ReplayCondition } from "./index.ts";
 
 export interface RenderBase {
@@ -23,6 +23,8 @@ export interface RenderBase {
    * If you want to wait for a special replay, you can define it here.
    * - As soon as the user sends the replay of this type, the logic will mark the question as answered.
    * - Leave this undefined to not wait for a replay.
+   *
+   * TODO: Change to `multiple: boolean;`
    */
   acceptedUntil?: ReplayCondition;
 
@@ -30,6 +32,12 @@ export interface RenderBase {
    * Define the types of the replay you are accepting until the logic marks the question as answered.
    *
    * TODO: This is unused at the moment but we should use something like that to implement validation.
+   * TODO: Rename to `accepted` and use as a replacement for `acceptedUntil`.
    */
-  acceptedBefore?: ReplayCondition;
+  acceptedBefore?: ReplayCondition; //
+
+  /**
+   * The type in which the response should be parsed.
+   */
+  parseType: ParsedResponseType;
 }

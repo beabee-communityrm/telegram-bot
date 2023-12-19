@@ -1,11 +1,16 @@
 import { Singleton } from "alosaur/mod.ts";
 import {
+  calloutComponentTypeToMainType,
+  calloutComponentTypeToParsedResponseType,
   createCalloutGroupKey,
   escapeMd,
-  getComponentMainType,
   sanitizeHtml,
 } from "../utils/index.ts";
-import { CalloutComponentMainType, RenderType } from "../enums/index.ts";
+import {
+  CalloutComponentMainType,
+  ParsedResponseType,
+  RenderType,
+} from "../enums/index.ts";
 import {
   CommunicationService,
   EventService,
@@ -57,6 +62,7 @@ export class CalloutResponseRenderer {
       key: createCalloutGroupKey(component.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: `*${escapeMd(component.label)}*`,
+      parseType: calloutComponentTypeToParsedResponseType(component),
     };
 
     return result;
@@ -74,6 +80,7 @@ export class CalloutResponseRenderer {
       key: createCalloutGroupKey(component.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: `${escapeMd(component.description)}`,
+      parseType: calloutComponentTypeToParsedResponseType(component),
     };
 
     return result;
@@ -88,6 +95,7 @@ export class CalloutResponseRenderer {
       key: createCalloutGroupKey(input.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
+      parseType: calloutComponentTypeToParsedResponseType(input),
     };
 
     if (input.placeholder) {
@@ -104,6 +112,7 @@ export class CalloutResponseRenderer {
       key: createCalloutGroupKey(component.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
+      parseType: calloutComponentTypeToParsedResponseType(component),
     };
     if (component.multiple) {
       result.markdown += `_${
@@ -135,6 +144,7 @@ export class CalloutResponseRenderer {
       key: createCalloutGroupKey(radio.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
+      parseType: calloutComponentTypeToParsedResponseType(radio),
     };
 
     let n = 1;
@@ -151,6 +161,7 @@ export class CalloutResponseRenderer {
       key: createCalloutGroupKey(select.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
+      parseType: calloutComponentTypeToParsedResponseType(select),
     };
 
     let n = 1;
@@ -173,6 +184,7 @@ export class CalloutResponseRenderer {
       type: RenderType.MARKDOWN,
       markdown: ``,
       acceptedBefore: this.communication.replayConditionText(),
+      parseType: calloutComponentTypeToParsedResponseType(base),
     };
 
     // Wait for replay(s)
@@ -469,7 +481,7 @@ export class CalloutResponseRenderer {
     console.debug("Rendering component", component);
     const results: Render[] = [];
 
-    const mainType = getComponentMainType(component);
+    const mainType = calloutComponentTypeToMainType(component);
 
     switch (mainType) {
       case CalloutComponentMainType.INPUT: {
@@ -523,6 +535,7 @@ export class CalloutResponseRenderer {
           markdown: `Unknown component type ${
             (component as CalloutComponentSchema).type || "undefined"
           }`,
+          parseType: calloutComponentTypeToParsedResponseType(component),
         };
         results.push(unknown);
         break;
@@ -559,6 +572,7 @@ export class CalloutResponseRenderer {
       key: callout.slug,
       type: RenderType.HTML,
       html: "",
+      parseType: ParsedResponseType.NONE,
     };
     result.html = `${sanitizeHtml(callout.intro)}`;
 
@@ -578,6 +592,7 @@ export class CalloutResponseRenderer {
       key: callout.slug,
       type: RenderType.HTML,
       html: ``,
+      parseType: ParsedResponseType.NONE,
     };
 
     if (callout.thanksTitle) {

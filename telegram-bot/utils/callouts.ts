@@ -1,8 +1,17 @@
 // deno-lint-ignore-file no-fallthrough
 import { CALLOUT_RESPONSE_GROUP_KEY_SEPARATOR } from "../constants/index.ts";
-import { CalloutComponentMainType } from "../enums/index.ts";
+import {
+  CalloutComponentMainType,
+  ParsedResponseType,
+} from "../enums/index.ts";
 
-import type { CalloutComponentSchema } from "../types/index.ts";
+import type {
+  BaseCalloutComponentSchema,
+  CalloutComponentSchema,
+  InputCalloutComponentSchema,
+  RadioCalloutComponentSchema,
+  SelectCalloutComponentSchema,
+} from "../types/index.ts";
 
 export const createCalloutGroupKey = (key: string, prefix: string) => {
   return prefix + CALLOUT_RESPONSE_GROUP_KEY_SEPARATOR + key;
@@ -20,7 +29,9 @@ export const isCalloutGroupKey = (key: string) => {
   return key.includes(CALLOUT_RESPONSE_GROUP_KEY_SEPARATOR);
 };
 
-export const getComponentMainType = (component: CalloutComponentSchema) => {
+export const calloutComponentTypeToMainType = (
+  component: CalloutComponentSchema,
+) => {
   switch (component.type) {
     // Input components
     case "address":
@@ -63,6 +74,69 @@ export const getComponentMainType = (component: CalloutComponentSchema) => {
     }
     default: {
       return CalloutComponentMainType.UNKNOWN;
+    }
+  }
+};
+
+export const calloutComponentTypeToParsedResponseType = (
+  component:
+    | CalloutComponentSchema
+    | BaseCalloutComponentSchema
+    | InputCalloutComponentSchema
+    | RadioCalloutComponentSchema
+    | SelectCalloutComponentSchema
+    | InputCalloutComponentSchema,
+): ParsedResponseType => {
+  switch (component.type) {
+    case "button":
+    case "email":
+    case "password":
+    case "textfield":
+    case "textarea":
+    // TODO: missing in common types
+    case "content" as unknown:
+    case "phoneNumber" as unknown:
+    case "currency" as unknown:
+    case "datetime" as unknown: // TODO: parse date
+    case "time" as unknown: // TODO: parse time
+    case "url" as unknown: {
+      return ParsedResponseType.TEXT;
+    }
+
+    case "checkbox": {
+      return ParsedResponseType.BOOLEAN;
+    }
+
+    case "number": {
+      return ParsedResponseType.NUMBER;
+    }
+
+    case "address": {
+      return ParsedResponseType.ADDRESS;
+    }
+
+    case "file":
+    case "signature" as unknown: {
+      return ParsedResponseType.FILE;
+    }
+
+    case "radio":
+    case "selectboxes":
+    case "select": {
+      return ParsedResponseType.MULTI_SELECT;
+    }
+
+    case "panel":
+    case "tabs":
+    case "well": {
+      return ParsedResponseType.NONE;
+    }
+
+    default: {
+      console.warn(
+        `Unknown component type ${(component as CalloutComponentSchema).type}`,
+      );
+      return ParsedResponseType.NONE;
     }
   }
 };
