@@ -371,7 +371,7 @@ export class CommunicationService {
   public async receive(
     ctx: Context,
     render: Render,
-  ): Promise<RenderResponseParsed<false> | RenderResponseParsed<true>> {
+  ): Promise<RenderResponseParsed<boolean>> {
     // Do not wait for a specific message
     if (
       !render.acceptedUntil || render.acceptedUntil.type === ReplayType.NONE
@@ -387,13 +387,12 @@ export class CommunicationService {
     // Receive the first message of any type
     if (render.acceptedUntil.type === ReplayType.ANY) {
       const context = await this.receiveMessage(ctx);
-      const data = this.transform.parseResponse(context, render.parseType);
       const res: RenderResponseParsed<false> = {
         type: render.parseType,
         multiple: false,
         context,
-        data: Array.isArray(data) ? data[0] : data,
-      } as any; // TODO: Fix this
+        data: this.transform.parseResponse(context, render.parseType),
+      };
       return res;
     }
 
@@ -402,13 +401,12 @@ export class CommunicationService {
       ctx,
       render,
     );
-    const data = this.transform.parseResponse(contexts, render.parseType);
-    const res: RenderResponseParsed<true> = {
+    const res = {
       type: render.parseType,
       multiple: true,
       context: contexts,
-      data,
-    } as any; // TODO: Fix this
+      data: this.transform.parseResponses(contexts, render.parseType),
+    } as RenderResponseParsed<true>;
     return res;
   }
 
@@ -424,7 +422,7 @@ export class CommunicationService {
     const responses = await this.receive(
       ctx,
       render,
-    ) as any; // TODO: Fix this
+    );
     const response: RenderResponse = {
       render,
       responses,

@@ -9,12 +9,12 @@ import type {
   RenderResponseParsedText,
 } from "./index.ts";
 
-export type RenderResponseParsed<MULTI extends boolean> =
+export type RenderResponseParsed<MULTI extends boolean = boolean> =
   | RenderResponseParsedText<MULTI>
   | RenderResponseParsedNumber<MULTI>
   | RenderResponseParsedAddress<MULTI>
   | RenderResponseParsedBoolean<MULTI>
-  | RenderResponseParsedMultiSelect
+  | RenderResponseParsedMultiSelect<MULTI>
   | RenderResponseParsedFile<MULTI>
   | RenderResponseParsedAny<MULTI>
-  | RenderResponseParsedNone;
+  | RenderResponseParsedNone<MULTI>;

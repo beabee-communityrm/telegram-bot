@@ -85,7 +85,7 @@ export class CalloutResponseEventManager extends EventManager {
       ctx,
       questions,
     );
-    const answers = this.transform.parseResponses(responses);
+    const answers = this.transform.parseCalloutFormResponses(responses);
 
     console.debug(
       "Got answers",
