@@ -23,7 +23,9 @@ import type {
   ReplayAcceptedFile,
   ReplayAcceptedText,
   ReplayCondition,
+  ReplayConditionAny,
   ReplayConditionFile,
+  ReplayConditionNone,
   ReplayConditionText,
 } from "../types/index.ts";
 import type { Context } from "grammy/context.ts";
@@ -74,6 +76,18 @@ export class CommunicationService {
     } else {
       throw new Error("Unknown render type: " + (res as Render).type);
     }
+  }
+
+  public replayConditionNone(): ReplayConditionNone {
+    return {
+      type: ReplayType.NONE,
+    };
+  }
+
+  public replayConditionAny(): ReplayConditionAny {
+    return {
+      type: ReplayType.ANY,
+    };
   }
 
   /**
@@ -191,6 +205,7 @@ export class CommunicationService {
         type: ReplayType.FILE,
         accepted: false,
         fileType,
+        isDone: false,
       };
     }
     // Is a file message and all mime types are accepted
@@ -198,6 +213,7 @@ export class CommunicationService {
       return {
         type: ReplayType.FILE,
         accepted: this.messageIsAnyFile(message),
+        isDone: false,
       };
     }
     const simpleTypes = getSimpleMimeTypes(mimeTypes);
@@ -236,6 +252,7 @@ export class CommunicationService {
     return {
       type: ReplayType.FILE,
       accepted: fileType !== RelayAcceptedFileType.ANY,
+      isDone: false,
       fileType,
     };
   }
@@ -260,19 +277,22 @@ export class CommunicationService {
       return {
         type: ReplayType.TEXT,
         accepted: false,
+        isDone: false,
       };
     }
-    // Is a text message and all texts are accepted
-    if (!texts) {
+    // Is a text message and all texts are accepted but not done
+    if (!texts || !texts.length) {
       return {
         type: ReplayType.TEXT,
         accepted: true,
+        isDone: false,
       };
     }
     // Is a text message and one of the texts is accepted
     return {
       type: ReplayType.TEXT,
-      accepted: texts.some((t) => t === message.text),
+      accepted: true,
+      isDone: texts.some((t) => t === message.text),
     };
   }
 
@@ -290,62 +310,71 @@ export class CommunicationService {
     let message: Message | undefined;
     const replayTexts: Context[] = [];
 
-    let isDone = false;
+    if (render.accepted.type === ReplayType.NONE) {
+      return [];
+    }
+
+    let isAccepted: ReplayAccepted;
 
     do {
       context = await this.receiveMessage(ctx);
       message = context.message;
 
-      if (render.acceptedUntil?.type === "file") {
-        isDone =
-          this.messageIsFile(message, render.acceptedUntil.mimeTypes).accepted;
-      } else if (render.acceptedUntil?.type === "text") {
-        isDone =
-          this.messageIsText(message, render.acceptedUntil.texts).accepted;
-      } else if (render.acceptedUntil?.type === "any") {
-        isDone = !!message;
-      } else {
-        throw new Error(
-          "Unknown replay until type: " + render.acceptedUntil?.type,
-        );
-      }
-
-      const isAccepted = this.messageIsAccepted(
+      isAccepted = this.messageIsAccepted(
+        render.accepted,
         message,
-        render.acceptedBefore || render.acceptedUntil,
       );
 
       if (!isAccepted.accepted) {
         console.debug(
-          "Message is not accepted",
-          isAccepted,
-          render.acceptedBefore,
+          `Message is not accepted: ${
+            JSON.stringify(isAccepted, null, 2)
+          }\nrender: ${JSON.stringify(render, null, 2)}`,
         );
         await this.send(
           ctx,
           this.messageRenderer.notAcceptedMessage(
             isAccepted,
-            (render.acceptedBefore as ReplayConditionFile).mimeTypes,
+            render.accepted as ReplayConditionFile,
           ),
         );
         continue;
       }
 
-      // Message is accepted
-      replayTexts.push(context);
-    } while (!isDone);
+      // Message is accepted, so store it but do not store the done message
+      if (!isAccepted.isDone) {
+        replayTexts.push(context);
+        // Stop collecting messages if only one message is accepted
+        if (!render.multiple) {
+          isAccepted.isDone = true;
+        }
+      }
+    } while (!isAccepted.isDone);
 
     return replayTexts;
   }
 
   protected messageIsAccepted(
+    accepted: ReplayCondition,
     message?: Message,
-    accepted?: ReplayCondition,
   ): ReplayAccepted {
-    if (!accepted || accepted.type === ReplayType.ANY) {
+    if (
+      accepted.type === ReplayType.ANY && !accepted.mimeTypes?.length &&
+      !accepted.texts?.length
+    ) {
       return {
         type: ReplayType.ANY,
         accepted: true,
+        isDone: true,
+      };
+    }
+
+    // No response is accepted
+    if (accepted.type === ReplayType.NONE) {
+      return {
+        type: ReplayType.NONE,
+        accepted: false,
+        isDone: true,
       };
     }
 
@@ -359,7 +388,9 @@ export class CommunicationService {
       return isText;
     }
 
-    throw new Error("Unknown replay accepted type");
+    throw new Error(
+      `Unknown replay until type: "${(accepted as ReplayCondition)?.type}"`,
+    );
   }
 
   /**
@@ -374,7 +405,7 @@ export class CommunicationService {
   ): Promise<RenderResponseParsed<boolean>> {
     // Do not wait for a specific message
     if (
-      !render.acceptedUntil || render.acceptedUntil.type === ReplayType.NONE
+      !render.accepted || render.accepted.type === ReplayType.NONE
     ) {
       return {
         type: ParsedResponseType.NONE,
@@ -384,8 +415,8 @@ export class CommunicationService {
       };
     }
 
-    // Receive the first message of any type
-    if (render.acceptedUntil.type === ReplayType.ANY) {
+    // Receive the first message of specific type
+    if (!render.multiple) {
       const context = await this.receiveMessage(ctx);
       const res: RenderResponseParsed<false> = {
         type: render.parseType,
@@ -411,7 +442,7 @@ export class CommunicationService {
   }
 
   /**
-   * Send a render result and wait for a message response until a specific message or file is received if `acceptedUntil` is defined.
+   * Send a render result and wait for a message response until a specific message or file is received.
    * @param ctx
    * @param render
    * @returns
