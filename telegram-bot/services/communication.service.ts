@@ -35,7 +35,6 @@ export class CommunicationService {
    * @param res
    */
   public async send(ctx: Context, res: Render) {
-    console.debug("Send", res);
     if (res.type === RenderType.PHOTO) {
       await ctx.replyWithMediaGroup([res.photo]);
       if (res.keyboard) {
@@ -110,11 +109,6 @@ export class CommunicationService {
       );
 
       if (!replayAccepted.accepted) {
-        console.debug(
-          `Message is not accepted: ${
-            JSON.stringify(replayAccepted, null, 2)
-          }\nrender: ${JSON.stringify(render, null, 2)}`,
-        );
         await this.send(
           ctx,
           this.messageRenderer.notAcceptedMessage(
@@ -136,8 +130,6 @@ export class CommunicationService {
         replayAccepted.isDone = true;
       }
     } while (!replayAccepted?.isDone);
-
-    console.debug("Accepted until specific message", replayAccepted);
 
     return replays;
   }
@@ -183,7 +175,6 @@ export class CommunicationService {
     }
 
     // Parse single message
-    console.debug("Parse single message", render, replays[0]);
     const res: RenderResponseParsed<false> = {
       type: render.parseType,
       multiple: false,

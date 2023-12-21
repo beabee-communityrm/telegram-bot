@@ -87,9 +87,22 @@ export class CalloutResponseEventManager extends EventManager {
     );
     const answers = this.transform.parseCalloutFormResponses(responses);
 
+    // TODO: Show summary of answers here
+
     console.debug(
       "Got answers",
       answers,
+    );
+
+    const response = await this.callout.createResponse(slug, {
+      answers,
+      // guestName: ctx.from?.username,
+      // guestEmail: "test@beabee.io",
+    });
+
+    console.debug(
+      "Created response",
+      response,
     );
   }
 

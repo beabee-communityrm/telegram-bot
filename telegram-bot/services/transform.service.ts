@@ -13,7 +13,6 @@ import {
 import type {
   CalloutResponseAnswer,
   CalloutResponseAnswers,
-  Context,
   Render,
   RenderResponse,
   RenderResponseParsed,
@@ -79,7 +78,14 @@ export class TransformService {
   public parseResponseSelection(
     replay: ReplayAccepted,
     render: Render,
+    otherFalse = true,
   ): RenderResponseParsedSelection<false>["data"] {
+    if (render.accepted.type !== ReplayType.SELECTION) {
+      throw new Error(
+        `Unsupported accepted type for selection: "${render.parseType}"`,
+      );
+    }
+
     const res: RenderResponseParsedSelection<false>["data"] = {};
 
     if (replay.type !== ReplayType.SELECTION || !replay.value) {
@@ -92,6 +98,14 @@ export class TransformService {
     }
 
     res[replay.value] = true;
+
+    // Set all values to false that are not selected
+    if (otherFalse) {
+      for (const value of Object.keys(render.accepted.valueLabel)) {
+        res[value] ||= false;
+      }
+    }
+
     return res;
   }
 
@@ -99,13 +113,24 @@ export class TransformService {
     replays: ReplayAccepted[],
     render: Render,
   ): RenderResponseParsedSelection<true>["data"] {
+    if (render.accepted.type !== ReplayType.SELECTION) {
+      throw new Error(
+        `Unsupported accepted type for selection: "${render.parseType}"`,
+      );
+    }
+
     replays = Array.isArray(replays) ? replays : [replays];
     let res: RenderResponseParsedSelection<true>["data"] = {};
 
     for (
       const ctx of replays.filter((replay) => replay.context.message?.text)
     ) {
-      res = { ...res, ...this.parseResponseSelection(ctx, render) };
+      res = { ...res, ...this.parseResponseSelection(ctx, render, false) };
+    }
+
+    // Set all values to false that are not selected
+    for (const value of Object.keys(render.accepted.valueLabel)) {
+      res[value] ||= false;
     }
 
     return res;

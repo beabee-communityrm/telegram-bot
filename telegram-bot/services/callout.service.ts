@@ -1,4 +1,4 @@
-import { CalloutClient } from "@beabee/client";
+import { CalloutClient, CalloutResponseClient } from "@beabee/client";
 import { ItemStatus } from "@beabee/beabee-common";
 import { Singleton } from "alosaur/mod.ts";
 import {
@@ -9,6 +9,7 @@ import {
 
 import type {
   CalloutData,
+  CreateCalloutResponseData,
   GetCalloutData,
   GetCalloutDataWith,
   GetCalloutsQuery,
@@ -41,6 +42,8 @@ export class CalloutService {
 
   public readonly client: CalloutClient;
 
+  public readonly responseClient: CalloutResponseClient;
+
   public readonly baseUrl: URL;
 
   constructor() {
@@ -56,6 +59,7 @@ export class CalloutService {
     }
 
     this.client = new CalloutClient({ path, host, token });
+    this.responseClient = new CalloutResponseClient({ path, host, token });
     this.baseUrl = new URL(baseUrl);
     console.debug(`${CalloutService.name} created`);
   }
@@ -157,5 +161,16 @@ export class CalloutService {
     }
 
     return component;
+  }
+
+  public async createResponse(
+    slug: string,
+    newData: Pick<
+      CreateCalloutResponseData,
+      "answers" | "guestEmail" | "guestName"
+    >,
+  ) {
+    const response = await this.responseClient.create(slug, newData);
+    return response;
   }
 }
