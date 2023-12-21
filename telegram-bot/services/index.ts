@@ -1,5 +1,6 @@
 export * from "./callout.service.ts";
 export * from "./communication.service.ts";
+export * from "./condition.service.ts";
 export * from "./database.service.ts";
 export * from "./event.service.ts";
 export * from "./keyboard.service.ts";

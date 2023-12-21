@@ -11,4 +11,11 @@ export interface ReplayConditionBase {
    * Or in other words: Set this to `true` if multiple answers are allowed
    */
   multiple: boolean;
+
+  /**
+   * Define this to wait for a done text message.
+   * The property `multiple` must be `true` to use this.
+   * If you do not wait for a done text message, leave this empty.
+   */
+  doneTexts: string[];
 }

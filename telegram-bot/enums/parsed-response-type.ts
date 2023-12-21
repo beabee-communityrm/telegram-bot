@@ -3,7 +3,7 @@ export enum ParsedResponseType {
   FILE = "file",
   NUMBER = "number",
   BOOLEAN = "boolean",
-  MULTI_SELECT = "multi-select",
+  SELECTION = "selection",
   ADDRESS = "address",
 
   // TODO: implement these?

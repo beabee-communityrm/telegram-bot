@@ -123,7 +123,7 @@ export const calloutComponentTypeToParsedResponseType = (
     case "radio":
     case "selectboxes":
     case "select": {
-      return ParsedResponseType.MULTI_SELECT;
+      return ParsedResponseType.SELECTION;
     }
 
     case "panel":

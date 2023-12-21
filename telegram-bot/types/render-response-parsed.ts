@@ -3,9 +3,9 @@ import type {
   RenderResponseParsedAny,
   RenderResponseParsedBoolean,
   RenderResponseParsedFile,
-  RenderResponseParsedMultiSelect,
   RenderResponseParsedNone,
   RenderResponseParsedNumber,
+  RenderResponseParsedSelection,
   RenderResponseParsedText,
 } from "./index.ts";
 
@@ -14,7 +14,7 @@ export type RenderResponseParsed<MULTI extends boolean = boolean> =
   | RenderResponseParsedNumber<MULTI>
   | RenderResponseParsedAddress<MULTI>
   | RenderResponseParsedBoolean<MULTI>
-  | RenderResponseParsedMultiSelect<MULTI>
+  | RenderResponseParsedSelection<MULTI>
   | RenderResponseParsedFile<MULTI>
   | RenderResponseParsedAny<MULTI>
   | RenderResponseParsedNone<MULTI>;

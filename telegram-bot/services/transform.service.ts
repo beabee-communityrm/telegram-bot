@@ -1,6 +1,6 @@
 import { Singleton } from "alosaur/mod.ts";
 
-import { ParsedResponseType } from "../enums/index.ts";
+import { ParsedResponseType, ReplayType } from "../enums/index.ts";
 import {
   extractNumbers,
   getFileIdFromMessage,
@@ -14,16 +14,18 @@ import type {
   CalloutResponseAnswer,
   CalloutResponseAnswers,
   Context,
+  Render,
   RenderResponse,
   RenderResponseParsed,
   RenderResponseParsedAddress,
   RenderResponseParsedAny,
   RenderResponseParsedBoolean,
   RenderResponseParsedFile,
-  RenderResponseParsedMultiSelect,
   RenderResponseParsedNone,
   RenderResponseParsedNumber,
+  RenderResponseParsedSelection,
   RenderResponseParsedText,
+  ReplayAccepted,
 } from "../types/index.ts";
 
 /**
@@ -36,9 +38,9 @@ export class TransformService {
   }
 
   public parseResponseFile(
-    context: Context,
+    replay: ReplayAccepted,
   ): RenderResponseParsedFile<false>["data"] {
-    const fileId = getFileIdFromMessage(context.message);
+    const fileId = getFileIdFromMessage(replay.context.message);
     if (!fileId) {
       throw new Error("No file id found in message");
     }
@@ -49,59 +51,70 @@ export class TransformService {
   }
 
   public parseResponsesFile(
-    contexts: Context[],
+    replays: ReplayAccepted[],
   ): RenderResponseParsedFile<true>["data"] {
-    contexts = Array.isArray(contexts) ? contexts : [contexts];
-    const res = contexts.map(this.parseResponseFile);
+    replays = Array.isArray(replays) ? replays : [replays];
+    const res = replays.map(this.parseResponseFile);
     return res;
   }
 
   public parseResponseText(
-    context: Context,
+    replay: ReplayAccepted,
   ): RenderResponseParsedText<false>["data"] {
-    return getTextFromMessage(context.message);
+    return getTextFromMessage(replay.context.message);
   }
 
   public parseResponsesText(
-    contexts: Context[],
+    replays: ReplayAccepted[],
   ): RenderResponseParsedText<true>["data"] {
-    contexts = Array.isArray(contexts) ? contexts : [contexts];
-    const texts = contexts.filter((ctx) => ctx.message?.text)
+    replays = Array.isArray(replays) ? replays : [replays];
+    const texts = replays.filter((replay) => replay.context.message?.text)
       .map((
-        ctx,
-      ) => getTextFromMessage(ctx.message));
+        replay,
+      ) => getTextFromMessage(replay.context.message));
 
     return texts;
   }
 
-  public parseResponseMultiSelect(
-    context: Context,
-  ): RenderResponseParsedMultiSelect<false>["data"] {
-    const res: RenderResponseParsedMultiSelect<false>["data"] = {};
+  public parseResponseSelection(
+    replay: ReplayAccepted,
+    render: Render,
+  ): RenderResponseParsedSelection<false>["data"] {
+    const res: RenderResponseParsedSelection<false>["data"] = {};
 
-    const value = getTextFromMessage(context.message);
-    res[value] = true;
+    if (replay.type !== ReplayType.SELECTION || !replay.value) {
+      console.warn(
+        `Unsupported replay type for multi selection: "${render.accepted.type}"`,
+      );
+      const value = getTextFromMessage(replay.context.message);
+      res[value] = true;
+      return res;
+    }
 
+    res[replay.value] = true;
     return res;
   }
 
-  public parseResponsesMultiSelect(
-    contexts: Context[],
-  ): RenderResponseParsedMultiSelect<true>["data"] {
-    contexts = Array.isArray(contexts) ? contexts : [contexts];
-    let res: RenderResponseParsedMultiSelect<true>["data"] = {};
+  public parseResponsesSelection(
+    replays: ReplayAccepted[],
+    render: Render,
+  ): RenderResponseParsedSelection<true>["data"] {
+    replays = Array.isArray(replays) ? replays : [replays];
+    let res: RenderResponseParsedSelection<true>["data"] = {};
 
-    for (const ctx of contexts.filter((ctx) => ctx.message?.text)) {
-      res = { ...res, ...this.parseResponseMultiSelect(ctx) };
+    for (
+      const ctx of replays.filter((replay) => replay.context.message?.text)
+    ) {
+      res = { ...res, ...this.parseResponseSelection(ctx, render) };
     }
 
     return res;
   }
 
   public parseResponseBoolean(
-    context: Context,
+    replay: ReplayAccepted,
   ): RenderResponseParsedBoolean<false>["data"] {
-    const boolStr = getTextFromMessage(context.message);
+    const boolStr = getTextFromMessage(replay.context.message);
     let bool = false;
     if (boolStr === "true") {
       bool = true;
@@ -114,28 +127,29 @@ export class TransformService {
   }
 
   public parseResponsesBoolean(
-    contexts: Context[],
+    replays: ReplayAccepted[],
   ): RenderResponseParsedBoolean<true>["data"] {
-    contexts = Array.isArray(contexts) ? contexts : [contexts];
-    const booleans = contexts.filter((ctx) => ctx.message?.text).map(
-      this.parseResponseBoolean,
-    );
+    replays = Array.isArray(replays) ? replays : [replays];
+    const booleans = replays.filter((replay) => replay.context.message?.text)
+      .map(
+        this.parseResponseBoolean,
+      );
 
     return booleans;
   }
 
   public parseResponseNumber(
-    context: Context,
+    replay: ReplayAccepted,
   ): RenderResponseParsedNumber<false>["data"] {
-    const text = getTextFromMessage(context.message);
+    const text = getTextFromMessage(replay.context.message);
     return extractNumbers(text);
   }
 
   public parseResponsesNumber(
-    contexts: Context[],
+    replays: ReplayAccepted[],
   ): RenderResponseParsedNumber<true>["data"] {
-    contexts = Array.isArray(contexts) ? contexts : [contexts];
-    const texts = contexts.filter((ctx) => ctx.message?.text).map(
+    replays = Array.isArray(replays) ? replays : [replays];
+    const texts = replays.filter((replay) => replay.context.message?.text).map(
       this.parseResponseNumber,
     );
 
@@ -143,11 +157,11 @@ export class TransformService {
   }
 
   public parseResponseAddress(
-    context: Context,
+    replay: ReplayAccepted,
   ): RenderResponseParsedAddress<false>["data"] {
-    const location = getLocationFromMessage(context.message);
+    const location = getLocationFromMessage(replay.context.message);
     const address: RenderResponseParsedAddress<false>["data"] = {
-      formatted_address: getTextFromMessage(context.message) ||
+      formatted_address: getTextFromMessage(replay.context.message) ||
         location.address || location.title || "",
       geometry: {
         location: {
@@ -160,26 +174,28 @@ export class TransformService {
   }
 
   public parseResponsesAddress(
-    contexts: Context[],
+    replays: ReplayAccepted[],
   ): RenderResponseParsedAddress<true>["data"] {
-    contexts = Array.isArray(contexts) ? contexts : [contexts];
-    const addresses: RenderResponseParsedAddress<true>["data"] = contexts
-      .filter((ctx) => ctx.message?.text).map(this.parseResponseAddress);
+    replays = Array.isArray(replays) ? replays : [replays];
+    const addresses: RenderResponseParsedAddress<true>["data"] = replays
+      .filter((replay) => replay.context.message?.text).map(
+        this.parseResponseAddress,
+      );
 
     return addresses;
   }
 
   public parseResponseAny(
-    context: Context,
+    context: ReplayAccepted,
   ): RenderResponseParsedAny<false>["data"] {
     return this.parseResponseText(context) || this.parseResponseFile(context);
   }
 
   public parseResponsesAny(
-    contexts: Context[],
+    replays: ReplayAccepted[],
   ): RenderResponseParsedAny<true>["data"] {
-    contexts = Array.isArray(contexts) ? contexts : [contexts];
-    return contexts.filter((ctx) => ctx.message?.text).map(
+    replays = Array.isArray(replays) ? replays : [replays];
+    return replays.filter((replay) => replay.context.message?.text).map(
       this.parseResponseAny,
     );
   }
@@ -197,28 +213,28 @@ export class TransformService {
    * @returns
    */
   public parseResponse(
-    context: Context,
-    type: ParsedResponseType,
+    replay: ReplayAccepted,
+    render: Render,
   ): RenderResponseParsed<false>["data"] {
-    switch (type) {
+    switch (render.parseType) {
       case ParsedResponseType.FILE:
-        return this.parseResponseFile(context);
+        return this.parseResponseFile(replay);
       case ParsedResponseType.TEXT:
-        return this.parseResponseText(context);
-      case ParsedResponseType.MULTI_SELECT:
-        return this.parseResponseMultiSelect(context);
+        return this.parseResponseText(replay);
+      case ParsedResponseType.SELECTION:
+        return this.parseResponseSelection(replay, render);
       case ParsedResponseType.BOOLEAN:
-        return this.parseResponseBoolean(context);
+        return this.parseResponseBoolean(replay);
       case ParsedResponseType.NUMBER:
-        return this.parseResponseNumber(context);
+        return this.parseResponseNumber(replay);
       case ParsedResponseType.ADDRESS:
-        return this.parseResponseAddress(context);
+        return this.parseResponseAddress(replay);
       case ParsedResponseType.ANY:
-        return this.parseResponseAny(context);
+        return this.parseResponseAny(replay);
       case ParsedResponseType.NONE:
         return this.responseNone();
       default:
-        throw new Error(`Unknown parse response type: "${type}"`);
+        throw new Error(`Unknown parse response type: "${render.parseType}"`);
     }
   }
 
@@ -227,28 +243,28 @@ export class TransformService {
    * @returns
    */
   public parseResponses(
-    contexts: Context[],
-    type: ParsedResponseType,
+    replays: ReplayAccepted[],
+    render: Render,
   ): RenderResponseParsed<true>["data"] {
-    switch (type) {
+    switch (render.parseType) {
       case ParsedResponseType.FILE:
-        return this.parseResponsesFile(contexts);
+        return this.parseResponsesFile(replays);
       case ParsedResponseType.TEXT:
-        return this.parseResponsesText(contexts);
-      case ParsedResponseType.MULTI_SELECT:
-        return this.parseResponsesMultiSelect(contexts);
+        return this.parseResponsesText(replays);
+      case ParsedResponseType.SELECTION:
+        return this.parseResponsesSelection(replays, render);
       case ParsedResponseType.BOOLEAN:
-        return this.parseResponsesBoolean(contexts);
+        return this.parseResponsesBoolean(replays);
       case ParsedResponseType.NUMBER:
-        return this.parseResponsesNumber(contexts);
+        return this.parseResponsesNumber(replays);
       case ParsedResponseType.ADDRESS:
-        return this.parseResponsesAddress(contexts);
+        return this.parseResponsesAddress(replays);
       case ParsedResponseType.ANY:
-        return this.parseResponsesAny(contexts);
+        return this.parseResponsesAny(replays);
       case ParsedResponseType.NONE:
         return this.responsesNone();
       default:
-        throw new Error(`Unknown parse response type: "${type}"`);
+        throw new Error(`Unknown parse response type: "${render.parseType}"`);
     }
   }
 

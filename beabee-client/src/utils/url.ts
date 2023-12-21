@@ -10,7 +10,11 @@ export function objToQueryString(obj: Record<string, any>): string {
       value.forEach((item) => {
         params.append(key, item);
       });
-    } else if (typeof value === "object" && value !== null) {
+    } else if (value instanceof Date) {
+      params.append(key, value.toISOString()); // Untested
+    } else if (value === null) {
+      params.append(key, "null"); // Untested
+    } else if (typeof value === "object") {
       params.append(key, JSON.stringify(value));
     } else {
       if (value !== undefined) {

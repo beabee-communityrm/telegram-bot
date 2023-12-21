@@ -11,11 +11,7 @@ import {
   ParsedResponseType,
   RenderType,
 } from "../enums/index.ts";
-import {
-  CommunicationService,
-  EventService,
-  KeyboardService,
-} from "../services/index.ts";
+import { ConditionService, KeyboardService } from "../services/index.ts";
 import { MessageRenderer } from "./message.renderer.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
@@ -43,11 +39,20 @@ import type {
 export class CalloutResponseRenderer {
   constructor(
     protected readonly keyboard: KeyboardService,
-    protected readonly event: EventService,
-    protected readonly communication: CommunicationService,
     protected readonly messageRenderer: MessageRenderer,
+    protected readonly condition: ConditionService,
   ) {
     console.debug(`${CalloutResponseRenderer.name} created`);
+  }
+
+  protected isMultiple(component: BaseCalloutComponentSchema) {
+    if (component.multiple) {
+      return true;
+    }
+    if (component.type === "selectboxes") {
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -55,14 +60,14 @@ export class CalloutResponseRenderer {
    * @param component The component to render
    * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
-  protected label(component: BaseCalloutComponentSchema, prefix: string) {
+  protected labelMd(component: BaseCalloutComponentSchema, prefix: string) {
     if (!component.label) {
       return EMPTY_RENDER;
     }
     const result: Render = {
       key: createCalloutGroupKey(component.key, prefix),
       type: RenderType.MARKDOWN,
-      accepted: this.communication.replayConditionNone(),
+      accepted: this.condition.replayConditionNone(),
       markdown: `*${escapeMd(component.label)}*`,
       parseType: calloutComponentTypeToParsedResponseType(component),
     };
@@ -73,7 +78,10 @@ export class CalloutResponseRenderer {
   /**
    * Render a component description in Markdown
    */
-  protected description(component: BaseCalloutComponentSchema, prefix: string) {
+  protected descriptionMd(
+    component: BaseCalloutComponentSchema,
+    prefix: string,
+  ) {
     if (typeof component.description !== "string" || !component.description) {
       return EMPTY_RENDER;
     }
@@ -81,7 +89,7 @@ export class CalloutResponseRenderer {
     const result: Render = {
       key: createCalloutGroupKey(component.key, prefix),
       type: RenderType.MARKDOWN,
-      accepted: this.communication.replayConditionNone(),
+      accepted: this.condition.replayConditionNone(),
       markdown: `${escapeMd(component.description)}`,
       parseType: calloutComponentTypeToParsedResponseType(component),
     };
@@ -93,11 +101,11 @@ export class CalloutResponseRenderer {
    * Render an input component placeholder in Markdown
    * @param input The input component to render
    */
-  protected placeholder(input: InputCalloutComponentSchema, prefix: string) {
+  protected placeholderMd(input: InputCalloutComponentSchema, prefix: string) {
     const result: Render = {
       key: createCalloutGroupKey(input.key, prefix),
       type: RenderType.MARKDOWN,
-      accepted: this.communication.replayConditionNone(),
+      accepted: this.condition.replayConditionNone(),
       markdown: ``,
       parseType: calloutComponentTypeToParsedResponseType(input),
     };
@@ -111,12 +119,12 @@ export class CalloutResponseRenderer {
     return result;
   }
 
-  protected multiple(component: BaseCalloutComponentSchema, prefix: string) {
-    const multiple = (component.multiple || false) as boolean;
+  protected multipleMd(component: BaseCalloutComponentSchema, prefix: string) {
+    const multiple = this.isMultiple(component);
     const result: Render = {
       key: createCalloutGroupKey(component.key, prefix),
       type: RenderType.MARKDOWN,
-      accepted: this.communication.replayConditionNone(multiple),
+      accepted: this.condition.replayConditionNone(multiple),
       markdown: ``,
       parseType: calloutComponentTypeToParsedResponseType(component),
     };
@@ -147,12 +155,15 @@ export class CalloutResponseRenderer {
    */
   protected radioValues(radio: RadioCalloutComponentSchema, prefix: string) {
     // Selectboxes are always multiple
-    const multiple =
-      (radio.multiple || radio.type === "selectboxes" || false) as boolean;
+    const multiple = this.isMultiple(radio);
     const result: Render = {
       key: createCalloutGroupKey(radio.key, prefix),
       type: RenderType.MARKDOWN,
-      accepted: this.communication.replayConditionText(multiple), // Wait for index which is a text message
+      accepted: this.condition.replayConditionSelection(
+        multiple,
+        this.selectValuesToValueLabelPairs(radio.values),
+        multiple ? [DONE_MESSAGE] : [],
+      ),
       markdown: ``,
       parseType: calloutComponentTypeToParsedResponseType(radio),
     };
@@ -174,12 +185,15 @@ export class CalloutResponseRenderer {
    */
   protected selectValues(select: SelectCalloutComponentSchema, prefix: string) {
     // TODO: Is a dropdown never multiple?
-    const multiple = (select.multiple || false) as boolean;
+    const multiple = this.isMultiple(select);
     const result: Render = {
       key: createCalloutGroupKey(select.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
-      accepted: this.communication.replayConditionText(multiple), // Wait for index which is a text message
+      accepted: this.condition.replayConditionSelection(
+        multiple,
+        this.selectValuesToValueLabelPairs(select.data.values),
+      ), // Wait for index which is a text message
       parseType: calloutComponentTypeToParsedResponseType(select),
     };
 
@@ -198,23 +212,28 @@ export class CalloutResponseRenderer {
    * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
   protected baseComponent(base: BaseCalloutComponentSchema, prefix: string) {
-    const multiple = (base.multiple || false) as boolean;
+    const multiple = this.isMultiple(base);
     const result: Render = {
       key: createCalloutGroupKey(base.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
-      accepted: this.communication.replayConditionText(multiple),
+      accepted: this.condition.replayConditionText(
+        multiple,
+        undefined,
+        multiple ? [DONE_MESSAGE] : [],
+      ),
       parseType: calloutComponentTypeToParsedResponseType(base),
     };
 
     // Wait for replay(s)
-    result.accepted = this.communication.replayConditionText(
+    result.accepted = this.condition.replayConditionText(
       multiple,
-      multiple ? DONE_MESSAGE : undefined,
+      undefined,
+      multiple ? [DONE_MESSAGE] : [],
     );
 
     // Label
-    const label = this.label(base, prefix);
+    const label = this.labelMd(base, prefix);
     if (
       label.type === RenderType.MARKDOWN && label.markdown
     ) {
@@ -222,7 +241,7 @@ export class CalloutResponseRenderer {
     }
 
     // Description
-    const desc = this.description(base, prefix);
+    const desc = this.descriptionMd(base, prefix);
     if (
       desc.type === RenderType.MARKDOWN &&
       desc.markdown
@@ -242,7 +261,7 @@ export class CalloutResponseRenderer {
     file: InputCalloutComponentSchema,
     prefix: string,
   ) {
-    const multiple = (file.multiple || false) as boolean;
+    const multiple = this.isMultiple(file);
     const result = this.baseComponent(file, prefix);
     result.markdown += `\n\n`;
 
@@ -256,12 +275,12 @@ export class CalloutResponseRenderer {
 
     // TODO: Missing in common types
     if (file.type as unknown === "signature") {
-      result.accepted = this.communication.replayConditionFilePattern(
+      result.accepted = this.condition.replayConditionFilePattern(
         multiple,
         "image/*",
       );
     } else {
-      result.accepted = this.communication.replayConditionFilePattern(
+      result.accepted = this.condition.replayConditionFilePattern(
         multiple,
         file.filePattern as string || file.type as unknown === "signature"
           ? "image/*"
@@ -270,23 +289,24 @@ export class CalloutResponseRenderer {
     }
 
     if (result.accepted.multiple) {
-      result.accepted = this.communication.replayConditionText(
+      result.accepted = this.condition.replayConditionText(
         result.accepted.multiple,
-        DONE_MESSAGE,
+        undefined,
+        [DONE_MESSAGE],
       );
     } else {
-      result.accepted = this.communication.replayConditionFilePattern(
+      result.accepted = this.condition.replayConditionFilePattern(
         result.accepted.multiple,
         file.filePattern as string || "",
       );
     }
 
     if (file.placeholder) {
-      result.markdown += `\n\n${this.placeholder(file, prefix).markdown}`;
+      result.markdown += `\n\n${this.placeholderMd(file, prefix).markdown}`;
     }
 
-    if (file.multiple) {
-      result.markdown += `\n\n${this.multiple(file, prefix).markdown}`;
+    if (multiple) {
+      result.markdown += `\n\n${this.multipleMd(file, prefix).markdown}`;
     }
 
     return result;
@@ -305,7 +325,7 @@ export class CalloutResponseRenderer {
       case "address": {
         result.markdown += `_${
           escapeMd(
-            input.multiple
+            result.accepted.multiple
               ? "You can enter one or more addresses."
               : "Please enter an address.",
           )
@@ -327,7 +347,7 @@ export class CalloutResponseRenderer {
       case "email": {
         result.markdown += `_${
           escapeMd(
-            input.multiple
+            result.accepted.multiple
               ? "You can enter one or more emails."
               : "Please enter an email.",
           )
@@ -337,7 +357,7 @@ export class CalloutResponseRenderer {
       case "number": {
         result.markdown += `_${
           escapeMd(
-            input.multiple
+            result.accepted.multiple
               ? "Please enter one or more numbers."
               : "Please enter a number.",
           )
@@ -432,11 +452,11 @@ export class CalloutResponseRenderer {
     }
 
     if (input.placeholder) {
-      result.markdown += `\n\n${this.placeholder(input, prefix).markdown}`;
+      result.markdown += `\n\n${this.placeholderMd(input, prefix).markdown}`;
     }
 
     if (input.multiple) {
-      result.markdown += `\n\n${this.multiple(input, prefix).markdown}`;
+      result.markdown += `\n\n${this.multipleMd(input, prefix).markdown}`;
     }
 
     return result;
@@ -453,11 +473,14 @@ export class CalloutResponseRenderer {
   ): RenderMarkdown {
     const result = this.baseComponent(radio, prefix);
 
+    const multiple = result.accepted.multiple;
+
     result.accepted = {
       ...result.accepted,
-      ...this.communication.replayConditionSelection(
-        result.accepted.multiple,
+      ...this.condition.replayConditionSelection(
+        multiple,
         this.selectValuesToValueLabelPairs(radio.values),
+        multiple ? [DONE_MESSAGE] : [],
       ),
     };
 
@@ -482,14 +505,6 @@ export class CalloutResponseRenderer {
               this.messageRenderer.writeDoneMessage(DONE_MESSAGE).text,
           )
         }_`;
-        result.accepted.multiple = true;
-        result.accepted = {
-          ...result.accepted,
-          ...this.communication.replayConditionText(
-            result.accepted.multiple,
-            DONE_MESSAGE,
-          ),
-        };
         break;
       }
     }
@@ -522,7 +537,7 @@ export class CalloutResponseRenderer {
     const result = this.baseComponent(select, prefix);
     result.accepted = {
       ...result.accepted,
-      ...this.communication.replayConditionSelection(
+      ...this.condition.replayConditionSelection(
         result.accepted.multiple,
         this.selectValuesToValueLabelPairs(select.data.values),
       ),
@@ -591,11 +606,11 @@ export class CalloutResponseRenderer {
       case CalloutComponentMainType.UNKNOWN:
       default: {
         console.warn("Rendering unknown component", component, prefix);
-        const multiple = (component.multiple || false) as boolean;
+        const multiple = this.isMultiple(component);
         const unknown: Render = {
           key: createCalloutGroupKey(component.key, prefix),
           type: RenderType.MARKDOWN,
-          accepted: this.communication.replayConditionAny(multiple),
+          accepted: this.condition.replayConditionAny(multiple),
 
           markdown: `Unknown component type ${
             (component as CalloutComponentSchema).type || "undefined"
@@ -636,7 +651,7 @@ export class CalloutResponseRenderer {
     const result: Render = {
       key: callout.slug,
       type: RenderType.HTML,
-      accepted: this.communication.replayConditionNone(),
+      accepted: this.condition.replayConditionNone(),
       html: "",
       parseType: ParsedResponseType.NONE,
     };
@@ -657,7 +672,7 @@ export class CalloutResponseRenderer {
     const result: Render = {
       key: callout.slug,
       type: RenderType.HTML,
-      accepted: this.communication.replayConditionNone(),
+      accepted: this.condition.replayConditionNone(),
       html: ``,
       parseType: ParsedResponseType.NONE,
     };

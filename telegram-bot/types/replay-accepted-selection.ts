@@ -5,5 +5,5 @@ export interface ReplayAcceptedSelection extends ReplayAcceptedBase {
   type: ReplayType.SELECTION;
   accepted: boolean;
   /** The selected option value */
-  value: string;
+  value?: string;
 }

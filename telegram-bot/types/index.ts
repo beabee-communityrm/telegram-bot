@@ -17,7 +17,7 @@ export * from "./render-response-parsed-any.ts";
 export * from "./render-response-parsed-base.ts";
 export * from "./render-response-parsed-boolean.ts";
 export * from "./render-response-parsed-file.ts";
-export * from "./render-response-parsed-multi-select.ts";
+export * from "./render-response-parsed-selection.ts";
 export * from "./render-response-parsed-none.ts";
 export * from "./render-response-parsed-number.ts";
 export * from "./render-response-parsed-text.ts";
