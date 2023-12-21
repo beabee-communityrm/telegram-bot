@@ -1,8 +1,8 @@
 import { Singleton } from "alosaur/mod.ts";
 import { downloadImage, escapeMd } from "../utils/index.ts";
 import { InputFile, InputMediaBuilder } from "grammy/mod.ts";
-import { RenderType } from "../enums/index.ts";
-import { KeyboardService } from "../services/index.ts";
+import { ParsedResponseType, RenderType } from "../enums/index.ts";
+import { ConditionService, KeyboardService } from "../services/index.ts";
 import { BUTTON_CALLBACK_CALLOUT_INTRO } from "../constants/index.ts";
 
 import type {
@@ -19,6 +19,7 @@ import type {
 export class CalloutRenderer {
   constructor(
     protected readonly keyboard: KeyboardService,
+    protected readonly condition: ConditionService,
   ) {
     console.debug(`${CalloutRenderer.name} created`);
   }
@@ -42,6 +43,8 @@ export class CalloutRenderer {
       type: RenderType.MARKDOWN,
       markdown: keyboardMessageMd,
       keyboard: yesNoKeyboard,
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
     };
     return result;
   }
@@ -59,6 +62,8 @@ export class CalloutRenderer {
       key: `callout:list:${callout.shortSlug}`,
       type: RenderType.MARKDOWN,
       markdown: `${listChar} ${this.title(callout).markdown}\n`,
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
     };
 
     return result;
@@ -74,6 +79,8 @@ export class CalloutRenderer {
       key: "callout:list",
       type: RenderType.MARKDOWN,
       markdown: "",
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
     };
 
     if (callouts.items.length === 0) {
@@ -100,6 +107,8 @@ export class CalloutRenderer {
       type: RenderType.MARKDOWN,
       markdown: keyboardMessageMd,
       keyboard,
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
     };
 
     return [listResult, keyboardResult];
@@ -116,6 +125,8 @@ export class CalloutRenderer {
       key: `callout:title:${callout.shortSlug}`,
       type: RenderType.MARKDOWN,
       markdown: "",
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
     };
 
     const title = escapeMd(callout.title);
@@ -151,6 +162,8 @@ export class CalloutRenderer {
       key: `callout:photo:${callout.shortSlug}`,
       type: RenderType.PHOTO,
       photo: calloutImage,
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
     };
 
     const keyboardResult = this.startResponseKeyboard(callout);

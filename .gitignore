@@ -134,3 +134,6 @@ dist
 
 # deno2node
 deno_cache/
+
+# Deno compiled output
+telegram-bot/telegram-bot

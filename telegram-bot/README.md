@@ -81,6 +81,22 @@ parts of the application:
   allows for a clear and efficient handling of the event-driven aspects of the
   application.
 
+## Docker
+
+To build the Docker image, you can use the following command:
+
+```bash
+deno task docker:build
+```
+
+And to run the Docker container, you can use the following command:
+
+```bash
+deno task docker:start
+```
+
+This assumes that your application is listening on port 8080. If it's listening on a different port, replace `8080:8080` with `<your port>:<your port>`.
+
 ### Contributing
 
 We welcome contributions from the community! If you want to fix a bug, add a
