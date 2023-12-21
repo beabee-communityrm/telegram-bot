@@ -7,7 +7,12 @@ import {
 } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
 import { TransformService } from "./transform.service.ts";
-import { getIdentifier } from "../utils/index.ts";
+import {
+  extractNumbers,
+  getIdentifier,
+  getTextFromMessage,
+  isNumber,
+} from "../utils/index.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
 import {
   filterMimeTypesByPatterns,
@@ -21,11 +26,13 @@ import type {
   RenderResponseParsed,
   ReplayAccepted,
   ReplayAcceptedFile,
+  ReplayAcceptedSelection,
   ReplayAcceptedText,
   ReplayCondition,
   ReplayConditionAny,
   ReplayConditionFile,
   ReplayConditionNone,
+  ReplayConditionSelection,
   ReplayConditionText,
 } from "../types/index.ts";
 import type { Context } from "grammy/context.ts";
@@ -78,31 +85,47 @@ export class CommunicationService {
     }
   }
 
-  public replayConditionNone(): ReplayConditionNone {
+  public replayConditionNone(multiple = false): ReplayConditionNone {
     return {
       type: ReplayType.NONE,
+      multiple,
     };
   }
 
-  public replayConditionAny(): ReplayConditionAny {
+  public replayConditionAny(multiple: boolean): ReplayConditionAny {
     return {
       type: ReplayType.ANY,
+      multiple,
     };
   }
 
   /**
    * - Define a specific message that is accepted to mark an answer as done
    * - Define a specific message to accepted messages before the message is marked as done
-   * @param message
-   * @returns
    */
-  public replayConditionText(text?: string): ReplayConditionText {
+  public replayConditionText(
+    multiple: boolean,
+    text?: string,
+  ): ReplayConditionText {
     const result: ReplayConditionText = {
       type: ReplayType.TEXT,
+      multiple,
     };
     if (text) {
       result.texts = text ? [text] : undefined;
     }
+    return result;
+  }
+
+  public replayConditionSelection(
+    multiple: boolean,
+    valueLabel: Record<string, string>,
+  ): ReplayConditionSelection {
+    const result: ReplayConditionSelection = {
+      type: ReplayType.SELECTION,
+      multiple,
+      valueLabel,
+    };
     return result;
   }
 
@@ -112,13 +135,15 @@ export class CommunicationService {
    * @param mimeTypes
    * @returns
    */
-  public replayConditionFile(mimeTypes?: string[]): ReplayConditionFile {
+  public replayConditionFile(
+    multiple: boolean,
+    mimeTypes: string[] = [],
+  ): ReplayConditionFile {
     const result: ReplayConditionFile = {
       type: ReplayType.FILE,
+      multiple,
+      mimeTypes,
     };
-    if (mimeTypes) {
-      result.mimeTypes = mimeTypes;
-    }
     return result;
   }
 
@@ -129,14 +154,16 @@ export class CommunicationService {
    * @returns
    */
   public replayConditionFilePattern(
+    multiple: boolean,
     filePattern: string,
   ): ReplayConditionFile {
     const mimeTypes = filterMimeTypesByPatterns(filePattern);
-    return this.replayConditionFile(mimeTypes);
+    return this.replayConditionFile(multiple, mimeTypes);
   }
 
   /**
-   * Wait for any message to be received
+   * Wait for any message to be received.
+   * TODO: Store event to be able to unsubscribe all unused events if the user stops the conversation or presses a button to answer instead
    * @param ctx
    * @returns
    */
@@ -221,9 +248,9 @@ export class CommunicationService {
     const documentAccepted = simpleTypes.some((m) => m === "document");
     const videoAccepted = simpleTypes.some((m) => m === "video");
     const audioAccepted = simpleTypes.some((m) => m === "audio");
-    const locationAccepted = simpleTypes.some((m) => m === "location"); // TODO: Can we do this this way?
-    const contactAccepted = simpleTypes.some((m) => m === "contact"); // TODO: What is the mime type for contact?
-    const addressAccepted = simpleTypes.some((m) => m === "address"); // TODO: Can we do this this way?
+    const locationAccepted = simpleTypes.some((m) => m === "location"); // TODO: Can we do this this way? Note: We can reply directly with the location using Telegram
+    const contactAccepted = simpleTypes.some((m) => m === "contact"); // TODO: What is the mime type for contact? Note: We can share contacts in Telegram
+    const addressAccepted = simpleTypes.some((m) => m === "address"); // TODO: Can we do this this way? Note: We can reply directly with the location using Telegram
 
     if (photoAccepted && this.messageIsPhotoFile(message)) {
       fileType = RelayAcceptedFileType.PHOTO;
@@ -297,6 +324,45 @@ export class CommunicationService {
   }
 
   /**
+   * A selection message is accepted if the message is a number
+   * and the number is in the range of the options
+   * or the message is the value of the option.
+   * @param message
+   * @param accepted
+   * @returns
+   */
+  protected messageIsSelection(
+    message: Message,
+    accepted: ReplayConditionSelection,
+  ): ReplayAcceptedSelection {
+    const text = getTextFromMessage(message).toLowerCase();
+
+    // The answer message can be the index of the value but starts with 1
+    if (isNumber(text)) {
+      const index1 = extractNumbers(text);
+      const keys = Object.keys(accepted.valueLabel);
+      const value = keys[index1 - 1];
+      if (value) {
+        return {
+          type: ReplayType.SELECTION,
+          accepted: true,
+          isDone: true,
+          value,
+        };
+      }
+    }
+
+    // The answer message can be the value directly
+    const acceptedValue = accepted.valueLabel[text];
+    return {
+      type: ReplayType.SELECTION,
+      accepted: !!acceptedValue,
+      isDone: !!acceptedValue,
+      value: acceptedValue,
+    };
+  }
+
+  /**
    * Wait for a specific message to be received and collect all messages of type `acceptedBefore` until the specific message is received.
    * @param ctx
    * @param render
@@ -314,11 +380,16 @@ export class CommunicationService {
       return [];
     }
 
-    let isAccepted: ReplayAccepted;
+    let isAccepted: ReplayAccepted | undefined;
 
     do {
       context = await this.receiveMessage(ctx);
       message = context.message;
+
+      if (!message) {
+        console.warn("Message is undefined");
+        continue;
+      }
 
       isAccepted = this.messageIsAccepted(
         render.accepted,
@@ -345,18 +416,18 @@ export class CommunicationService {
       if (!isAccepted.isDone) {
         replayTexts.push(context);
         // Stop collecting messages if only one message is accepted
-        if (!render.multiple) {
+        if (!render.accepted.multiple) {
           isAccepted.isDone = true;
         }
       }
-    } while (!isAccepted.isDone);
+    } while (!isAccepted?.isDone);
 
     return replayTexts;
   }
 
   protected messageIsAccepted(
     accepted: ReplayCondition,
-    message?: Message,
+    message: Message,
   ): ReplayAccepted {
     if (
       accepted.type === ReplayType.ANY && !accepted.mimeTypes?.length &&
@@ -388,6 +459,14 @@ export class CommunicationService {
       return isText;
     }
 
+    if (accepted.type === ReplayType.SELECTION) {
+      const isSelection = this.messageIsSelection(
+        message,
+        accepted as ReplayConditionSelection,
+      );
+      return isSelection;
+    }
+
     throw new Error(
       `Unknown replay until type: "${(accepted as ReplayCondition)?.type}"`,
     );
@@ -416,7 +495,7 @@ export class CommunicationService {
     }
 
     // Receive the first message of specific type
-    if (!render.multiple) {
+    if (!render.accepted.multiple) {
       const context = await this.receiveMessage(ctx);
       const res: RenderResponseParsed<false> = {
         type: render.parseType,

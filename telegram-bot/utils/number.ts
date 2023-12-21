@@ -1,9 +1,15 @@
 /**
  * Check whether variable is number or a string with numbers in JavaScript
  */
-// deno-lint-ignore no-explicit-any
-export const isNumber = (value?: any): boolean => {
-  return !isNaN(parseFloat(value)) && !isNaN(value - 0);
+export const isNumber = (
+  value?: string | number | undefined | null,
+): boolean => {
+  if (value === undefined || value === null) {
+    return false;
+  }
+
+  // deno-lint-ignore no-explicit-any
+  return !isNaN(parseFloat(value as any)) && !isNaN(value as any - 0);
 };
 
 /**

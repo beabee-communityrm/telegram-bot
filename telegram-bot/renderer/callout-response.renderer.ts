@@ -32,6 +32,7 @@ import type {
   NestableCalloutComponentSchema,
   RadioCalloutComponentSchema,
   Render,
+  RenderMarkdown,
   SelectCalloutComponentSchema,
 } from "../types/index.ts";
 
@@ -61,7 +62,6 @@ export class CalloutResponseRenderer {
     const result: Render = {
       key: createCalloutGroupKey(component.key, prefix),
       type: RenderType.MARKDOWN,
-      multiple: false,
       accepted: this.communication.replayConditionNone(),
       markdown: `*${escapeMd(component.label)}*`,
       parseType: calloutComponentTypeToParsedResponseType(component),
@@ -81,7 +81,6 @@ export class CalloutResponseRenderer {
     const result: Render = {
       key: createCalloutGroupKey(component.key, prefix),
       type: RenderType.MARKDOWN,
-      multiple: false,
       accepted: this.communication.replayConditionNone(),
       markdown: `${escapeMd(component.description)}`,
       parseType: calloutComponentTypeToParsedResponseType(component),
@@ -98,7 +97,6 @@ export class CalloutResponseRenderer {
     const result: Render = {
       key: createCalloutGroupKey(input.key, prefix),
       type: RenderType.MARKDOWN,
-      multiple: false,
       accepted: this.communication.replayConditionNone(),
       markdown: ``,
       parseType: calloutComponentTypeToParsedResponseType(input),
@@ -114,15 +112,15 @@ export class CalloutResponseRenderer {
   }
 
   protected multiple(component: BaseCalloutComponentSchema, prefix: string) {
+    const multiple = (component.multiple || false) as boolean;
     const result: Render = {
       key: createCalloutGroupKey(component.key, prefix),
       type: RenderType.MARKDOWN,
-      multiple: (component.multiple || false) as boolean,
-      accepted: this.communication.replayConditionNone(),
+      accepted: this.communication.replayConditionNone(multiple),
       markdown: ``,
       parseType: calloutComponentTypeToParsedResponseType(component),
     };
-    if (component.multiple) {
+    if (multiple) {
       result.markdown += `_${
         escapeMd(
           `You can enter multiple values by sending each value separately. ${
@@ -148,12 +146,13 @@ export class CalloutResponseRenderer {
    * @param radio The radio component to render
    */
   protected radioValues(radio: RadioCalloutComponentSchema, prefix: string) {
+    // Selectboxes are always multiple
+    const multiple =
+      (radio.multiple || radio.type === "selectboxes" || false) as boolean;
     const result: Render = {
       key: createCalloutGroupKey(radio.key, prefix),
       type: RenderType.MARKDOWN,
-      multiple:
-        (radio.multiple || radio.type === "selectboxes" || false) as boolean, // Selectboxes are always multiple
-      accepted: this.communication.replayConditionText(), // Wait for index which is a text message
+      accepted: this.communication.replayConditionText(multiple), // Wait for index which is a text message
       markdown: ``,
       parseType: calloutComponentTypeToParsedResponseType(radio),
     };
@@ -174,12 +173,13 @@ export class CalloutResponseRenderer {
    * @returns
    */
   protected selectValues(select: SelectCalloutComponentSchema, prefix: string) {
+    // TODO: Is a dropdown never multiple?
+    const multiple = (select.multiple || false) as boolean;
     const result: Render = {
       key: createCalloutGroupKey(select.key, prefix),
       type: RenderType.MARKDOWN,
-      multiple: (select.multiple || false) as boolean, // TODO: Is a dropdown never multiple?
       markdown: ``,
-      accepted: this.communication.replayConditionText(), // Wait for index which is a text message
+      accepted: this.communication.replayConditionText(multiple), // Wait for index which is a text message
       parseType: calloutComponentTypeToParsedResponseType(select),
     };
 
@@ -198,18 +198,19 @@ export class CalloutResponseRenderer {
    * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
   protected baseComponent(base: BaseCalloutComponentSchema, prefix: string) {
+    const multiple = (base.multiple || false) as boolean;
     const result: Render = {
       key: createCalloutGroupKey(base.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
-      multiple: (base.multiple || false) as boolean,
-      accepted: this.communication.replayConditionText(),
+      accepted: this.communication.replayConditionText(multiple),
       parseType: calloutComponentTypeToParsedResponseType(base),
     };
 
     // Wait for replay(s)
     result.accepted = this.communication.replayConditionText(
-      base.multiple ? DONE_MESSAGE : undefined,
+      multiple,
+      multiple ? DONE_MESSAGE : undefined,
     );
 
     // Label
@@ -241,12 +242,13 @@ export class CalloutResponseRenderer {
     file: InputCalloutComponentSchema,
     prefix: string,
   ) {
+    const multiple = (file.multiple || false) as boolean;
     const result = this.baseComponent(file, prefix);
     result.markdown += `\n\n`;
 
     result.markdown += `_${
       escapeMd(
-        file.multiple
+        multiple
           ? "Please upload the files here."
           : "Please upload the file here.",
       )
@@ -255,22 +257,26 @@ export class CalloutResponseRenderer {
     // TODO: Missing in common types
     if (file.type as unknown === "signature") {
       result.accepted = this.communication.replayConditionFilePattern(
+        multiple,
         "image/*",
       );
     } else {
       result.accepted = this.communication.replayConditionFilePattern(
+        multiple,
         file.filePattern as string || file.type as unknown === "signature"
           ? "image/*"
           : "",
       );
     }
 
-    if (file.multiple) {
+    if (result.accepted.multiple) {
       result.accepted = this.communication.replayConditionText(
+        result.accepted.multiple,
         DONE_MESSAGE,
       );
     } else {
       result.accepted = this.communication.replayConditionFilePattern(
+        result.accepted.multiple,
         file.filePattern as string || "",
       );
     }
@@ -441,8 +447,20 @@ export class CalloutResponseRenderer {
    * @param radio The radio component to render
    * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
-  protected radioComponent(radio: RadioCalloutComponentSchema, prefix: string) {
+  protected radioComponent(
+    radio: RadioCalloutComponentSchema,
+    prefix: string,
+  ): RenderMarkdown {
     const result = this.baseComponent(radio, prefix);
+
+    result.accepted = {
+      ...result.accepted,
+      ...this.communication.replayConditionSelection(
+        result.accepted.multiple,
+        this.selectValuesToValueLabelPairs(radio.values),
+      ),
+    };
+
     result.markdown += `\n${this.radioValues(radio, prefix).markdown}`;
 
     result.markdown += `\n\n`;
@@ -464,15 +482,31 @@ export class CalloutResponseRenderer {
               this.messageRenderer.writeDoneMessage(DONE_MESSAGE).text,
           )
         }_`;
-        result.multiple = true;
-        result.accepted = this.communication.replayConditionText(
-          DONE_MESSAGE,
-        );
+        result.accepted.multiple = true;
+        result.accepted = {
+          ...result.accepted,
+          ...this.communication.replayConditionText(
+            result.accepted.multiple,
+            DONE_MESSAGE,
+          ),
+        };
         break;
       }
     }
 
     return result;
+  }
+
+  protected selectValuesToValueLabelPairs(
+    values: { value: string; label: string }[],
+  ) {
+    const pairs: Record<string, string> = {};
+    let n = 1;
+    for (const selectValue of values) {
+      pairs[selectValue.value] = selectValue.label;
+      n++;
+    }
+    return pairs;
   }
 
   /**
@@ -484,8 +518,15 @@ export class CalloutResponseRenderer {
   protected selectComponent(
     select: SelectCalloutComponentSchema,
     prefix: string,
-  ) {
+  ): RenderMarkdown {
     const result = this.baseComponent(select, prefix);
+    result.accepted = {
+      ...result.accepted,
+      ...this.communication.replayConditionSelection(
+        result.accepted.multiple,
+        this.selectValuesToValueLabelPairs(select.data.values),
+      ),
+    };
     result.markdown += `\n${this.selectValues(select, prefix).markdown}`;
 
     result.markdown += `\n\n`;
@@ -550,11 +591,12 @@ export class CalloutResponseRenderer {
       case CalloutComponentMainType.UNKNOWN:
       default: {
         console.warn("Rendering unknown component", component, prefix);
+        const multiple = (component.multiple || false) as boolean;
         const unknown: Render = {
           key: createCalloutGroupKey(component.key, prefix),
           type: RenderType.MARKDOWN,
-          accepted: this.communication.replayConditionAny(),
-          multiple: (component.multiple || false) as boolean,
+          accepted: this.communication.replayConditionAny(multiple),
+
           markdown: `Unknown component type ${
             (component as CalloutComponentSchema).type || "undefined"
           }`,
@@ -594,7 +636,6 @@ export class CalloutResponseRenderer {
     const result: Render = {
       key: callout.slug,
       type: RenderType.HTML,
-      multiple: false,
       accepted: this.communication.replayConditionNone(),
       html: "",
       parseType: ParsedResponseType.NONE,
@@ -616,7 +657,6 @@ export class CalloutResponseRenderer {
     const result: Render = {
       key: callout.slug,
       type: RenderType.HTML,
-      multiple: false,
       accepted: this.communication.replayConditionNone(),
       html: ``,
       parseType: ParsedResponseType.NONE,

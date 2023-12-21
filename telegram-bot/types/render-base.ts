@@ -23,11 +23,6 @@ export interface RenderBase {
   keyboard?: InlineKeyboard | Keyboard;
 
   /**
-   * If you want to wait for a special replay, you can set this to `true`.
-   */
-  multiple: boolean;
-
-  /**
    * Define the types of the replay you are accepting.
    */
   accepted: ReplayCondition;

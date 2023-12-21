@@ -5,6 +5,8 @@ export enum ReplayType {
   FILE = "file",
   /** Accept any message */
   ANY = "any",
+  /** Select one of one or more options */
+  SELECTION = "selection",
   /** No answer is needed */
   NONE = "none",
 }
