@@ -96,7 +96,7 @@ export class CalloutResponseEventManager extends EventManager {
 
     const response = await this.callout.createResponse(slug, {
       answers,
-      // guestName: ctx.from?.username,
+      guestName: ctx.from?.username,
       // guestEmail: "test@beabee.io",
     });
 
