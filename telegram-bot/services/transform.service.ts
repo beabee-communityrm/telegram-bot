@@ -1,6 +1,7 @@
 import { Singleton } from "alosaur/mod.ts";
 
 import { ParsedResponseType, ReplayType } from "../enums/index.ts";
+import { CHECKBOX_FALSY, CHECKBOX_TRUTHY } from "../constants/messages.ts";
 import {
   extractNumbers,
   getFileIdFromMessage,
@@ -139,11 +140,11 @@ export class TransformService {
   public parseResponseBoolean(
     replay: ReplayAccepted,
   ): RenderResponseParsedBoolean<false>["data"] {
-    const boolStr = getTextFromMessage(replay.context.message);
+    const boolStr = getTextFromMessage(replay.context.message).toLowerCase();
     let bool = false;
-    if (boolStr === "true") {
+    if (boolStr === CHECKBOX_TRUTHY.toLowerCase()) {
       bool = true;
-    } else if (boolStr === "false") {
+    } else if (boolStr === CHECKBOX_FALSY.toLowerCase()) {
       bool = false;
     } else {
       console.warn(`Unknown boolean value: "${boolStr}"`);

@@ -15,6 +15,8 @@ import { ConditionService, KeyboardService } from "../services/index.ts";
 import { MessageRenderer } from "./message.renderer.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
+  CHECKBOX_FALSY,
+  CHECKBOX_TRUTHY,
   DONE_MESSAGE,
   EMPTY_RENDER,
 } from "../constants/index.ts";
@@ -225,13 +227,6 @@ export class CalloutResponseRenderer {
       parseType: calloutComponentTypeToParsedResponseType(base),
     };
 
-    // Wait for replay(s)
-    result.accepted = this.condition.replayConditionText(
-      multiple,
-      undefined,
-      multiple ? [DONE_MESSAGE] : [],
-    );
-
     // Label
     const label = this.labelMd(base, prefix);
     if (
@@ -319,8 +314,15 @@ export class CalloutResponseRenderer {
       }
       case "checkbox": {
         result.markdown += `_${
-          escapeMd("checkbox input component not implemented")
+          escapeMd(
+            `Please answer with "${CHECKBOX_TRUTHY}" or "${CHECKBOX_FALSY}".`,
+          )
         }_`;
+        result.accepted = this.condition.replayConditionText(
+          result.accepted.multiple,
+          [CHECKBOX_TRUTHY, CHECKBOX_FALSY],
+          result.accepted.multiple ? [DONE_MESSAGE] : [],
+        );
         break;
       }
       case "email": {

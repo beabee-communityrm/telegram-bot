@@ -67,17 +67,15 @@ export class ConditionService {
    */
   public replayConditionText(
     multiple: boolean,
-    text?: string,
+    texts?: string[],
     doneTexts: string[] = [],
   ): ReplayConditionText {
     const result: ReplayConditionText = {
       type: ReplayType.TEXT,
       multiple,
       doneTexts,
+      texts,
     };
-    if (text) {
-      result.texts = text ? [text] : undefined;
-    }
 
     if (multiple && !doneTexts.length) {
       throw new Error("Multiple text condition must have done texts");
