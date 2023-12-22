@@ -77,9 +77,9 @@ parts of the application:
 - `controllers`: HTTP controllers for handling requests.
 - `core`: Contains abstract classes of the application, such as `Command` to
   implement a new Telegram Command and the `EventManager` to implement a new
-  Event Manger. `CommandHandler`.
+  event manger.
 - `renderer`: Includes classes for rendering Markdown texts, including
-  `CalloutRenderer`, `MessageRenderer`, and `CalloutResponseRenderer`.
+  `CalloutRenderer`, `MessageRenderer`, `CalloutResponseRenderer` and more.
 - `enums`: Contains enums used throughout the application.
 - `event-managers`: This folder is dedicated to handling event-related logic. It
   contains the event handlers which are responsible for responding to various
@@ -89,7 +89,7 @@ parts of the application:
 - `models`: Contains classes representing various models used throughout the
   application using `typeorm`.
 - `renderer`: Contains classes for rendering Markdown texts, including
-  `CalloutRenderer`, `MessageRenderer`, and `CalloutResponseRenderer`.
+  `CalloutRenderer`, `MessageRenderer`, `CalloutResponseRenderer` and more.
 - `scripts`: Contains scripts for automation and building project components.
 - `services`: Contains classes for various services such as `CalloutService` for
   retrieving callout data, `KeyboardService` for creating Telegram keyboards,
