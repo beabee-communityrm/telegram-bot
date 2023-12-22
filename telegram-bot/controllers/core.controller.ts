@@ -8,7 +8,29 @@ export class CoreController {
     private readonly telegram: TelegramService,
   ) {}
 
-  @Get()
+  /**
+   * Alive endpoint
+   * @returns Alive message
+   */
+  @Get("/")
+  alive() {
+    return "Application is running";
+  }
+
+  /**
+   * Health check endpoint
+   * @returns Health check message
+   */
+  @Get("/health")
+  healthCheck() {
+    return "Application is healthy";
+  }
+
+  /**
+   * Just to test sending a message to all subscribers.
+   * Can be removed.
+   */
+  @Get("/hello-world")
   async helloWorld() {
     const all = await this.subscriber.all();
     if (all.length === 0) return "No subscribers yet!";
@@ -19,6 +41,10 @@ export class CoreController {
     return "Hello world message to all subscribers sent!";
   }
 
+  /**
+   * Just to test retrieving all subscribers.
+   * Can be removed.
+   */
   @Get("/subscribers")
   subscribers() {
     return this.subscriber.all();

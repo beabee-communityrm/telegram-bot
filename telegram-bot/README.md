@@ -60,26 +60,42 @@ running the bot in development mode, execute the following command:
 deno task dev
 ```
 
+For running the bot in production mode, execute the following command:
+
+```bash
+deno task start
+```
+
 ## Project Structure
 
 The project is organized into several main folders, each containing specific
 parts of the application:
 
+- `areas`: Contains areas from the Alosaur Framework, currently only `CoreArea`.
 - `commands`: Contains classes representing each Telegram command.
+- `constants` : Contains constants used throughout the application.
+- `controllers`: HTTP controllers for handling requests.
+- `core`: Contains abstract classes of the application, such as `Command` to implement a new Telegram Command and the `EventManager` to implement a new Event Manger.
+  `CommandHandler`.
 - `renderer`: Includes classes for rendering Markdown texts, including
   `CalloutRenderer`, `MessageRenderer`, and `CalloutResponseRenderer`.
-- `services`: Contains classes for various services such as retrieving callout
-  data, creating Telegram keyboards, and firing various events.
-- `areas`: Contains areas from the Alosaur Framework, currently only `CoreArea`.
-- `scripts`: Contains scripts for automation and building project components.
-- `types`: Houses all types and interfaces.
-- `utils`: Contains helper functions, such as `escapeMd` to escape Telegram
-  Markdown V2 characters, and more.
+- `enums`: Contains enums used throughout the application.
 - `event-managers`: This folder is dedicated to handling event-related logic. It
   contains the event handlers which are responsible for responding to various
   events triggered throughout the application. The organization of this folder
   allows for a clear and efficient handling of the event-driven aspects of the
   application.
+- `models`: Contains classes representing various models used throughout the
+  application using `typeorm`.
+- `renderer`: Contains classes for rendering Markdown texts, including
+  `CalloutRenderer`, `MessageRenderer`, and `CalloutResponseRenderer`.
+- `scripts`: Contains scripts for automation and building project components.
+- `services`: Contains classes for various services such as `CalloutService` for retrieving callout
+  data, `KeyboardService` for creating Telegram keyboards, the `CommunicationService` for sending messages to Telegram, and more.
+- `types`: Contains types used throughout the application.
+- `utils`: Contains helper functions, such as `escapeMd` to escape Telegram
+  Markdown V2 characters, and more.
+
 
 ## Docker
 

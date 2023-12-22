@@ -278,6 +278,7 @@ export class CalloutResponseRenderer {
       result.accepted = this.condition.replayConditionFilePattern(
         multiple,
         "image/*",
+        multiple ? [DONE_MESSAGE] : [],
       );
     } else {
       result.accepted = this.condition.replayConditionFilePattern(
@@ -285,19 +286,21 @@ export class CalloutResponseRenderer {
         file.filePattern as string || file.type as unknown === "signature"
           ? "image/*"
           : "",
+        multiple ? [DONE_MESSAGE] : [],
       );
     }
 
-    if (result.accepted.multiple) {
+    if (multiple) {
       result.accepted = this.condition.replayConditionText(
-        result.accepted.multiple,
+        multiple,
         undefined,
-        [DONE_MESSAGE],
+        multiple ? [DONE_MESSAGE] : [],
       );
     } else {
       result.accepted = this.condition.replayConditionFilePattern(
-        result.accepted.multiple,
+        multiple,
         file.filePattern as string || "",
+        multiple ? [DONE_MESSAGE] : [],
       );
     }
 

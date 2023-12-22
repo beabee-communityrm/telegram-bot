@@ -47,12 +47,14 @@ export class CalloutService {
   public readonly baseUrl: URL;
 
   constructor() {
-    const host = Deno.env.get("BEABEE_API_BASE_HOST") ||
+    const host = Deno.env.get("API_PROXY_URL") ||
+      Deno.env.get("BEABEE_AUDIENCE") ||
       "http://localhost:3001";
-    const path = Deno.env.get("BEABEE_API_BASE_PATH") || "/api/1.0/";
+    const path = Deno.env.get("API_BASE_URL") || "/api/1.0/";
     const token = Deno.env.get("BEABEE_API_TOKEN");
-    const baseUrl = Deno.env.get("CALLOUTS_BASE_URL") ||
-      "http://localhost:3000/callouts";
+    const baseUrl = Deno.env.get("BEABEE_AUDIENCE") ||
+      "http://localhost:3000";
+    const basePath = "/callouts";
 
     if (!token) {
       throw new Error("BEABEE_API_TOKEN is required");
@@ -60,7 +62,7 @@ export class CalloutService {
 
     this.client = new CalloutClient({ path, host, token });
     this.responseClient = new CalloutResponseClient({ path, host, token });
-    this.baseUrl = new URL(baseUrl);
+    this.baseUrl = new URL(basePath, baseUrl);
     console.debug(`${CalloutService.name} created`);
   }
 

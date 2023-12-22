@@ -4,8 +4,8 @@ import { CoreArea } from "./areas/core.area.ts";
 
 await load({ export: true });
 
-const port = Deno.env.get("APP_PORT") || "3003";
-const host = Deno.env.get("APP_HOST") || "localhost";
+const port = Deno.env.get("TELEGRAM_BOT_PORT") || "3003";
+const host = Deno.env.get("TELEGRAM_BOT_HOST") || "localhost";
 
 const app = new App({
   areas: [CoreArea],
