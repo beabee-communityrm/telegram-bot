@@ -28,8 +28,11 @@
     }
   },
   "tasks": {
-    "start": "./start.sh",
-    "docker:build": "docker build -f ./Dockerfile -t beabee/telegram-bot .",
-    "docker:start": "docker run -it --init -p 3003:3003 beabee/telegram-bot"
+    "dev": "cd telegram-bot && deno task dev",
+    "start": "cd telegram-bot && deno task start",
+    "compile": "cd telegram-bot && deno task compile",
+    "generate:index": "cd telegram-bot && deno task generate:index && cd ../beabee-client && deno task generate:index",
+    "docker:build": "cd telegram-bot && deno task docker:build",
+    "docker:start": "cd telegram-bot && deno task docker:start"
   }
 }
