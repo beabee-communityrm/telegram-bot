@@ -17,4 +17,4 @@ RUN deno cache main.ts --config deno.jsonc
 # RUN deno task compile
 
 # Run the compiled binary
-CMD ["deno", "task", "start"]
+CMD ["./start.sh"]
