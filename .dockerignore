@@ -1,0 +1,10 @@
+.vscode/
+node_modules/
+deno_cache/
+out/
+built/
+
+Dockerfile
+docker-compose.yml
+tsconfig.tsbuildinfo
+.env
