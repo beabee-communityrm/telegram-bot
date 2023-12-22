@@ -75,8 +75,9 @@ parts of the application:
 - `commands`: Contains classes representing each Telegram command.
 - `constants` : Contains constants used throughout the application.
 - `controllers`: HTTP controllers for handling requests.
-- `core`: Contains abstract classes of the application, such as `Command` to implement a new Telegram Command and the `EventManager` to implement a new Event Manger.
-  `CommandHandler`.
+- `core`: Contains abstract classes of the application, such as `Command` to
+  implement a new Telegram Command and the `EventManager` to implement a new
+  Event Manger. `CommandHandler`.
 - `renderer`: Includes classes for rendering Markdown texts, including
   `CalloutRenderer`, `MessageRenderer`, and `CalloutResponseRenderer`.
 - `enums`: Contains enums used throughout the application.
@@ -90,12 +91,12 @@ parts of the application:
 - `renderer`: Contains classes for rendering Markdown texts, including
   `CalloutRenderer`, `MessageRenderer`, and `CalloutResponseRenderer`.
 - `scripts`: Contains scripts for automation and building project components.
-- `services`: Contains classes for various services such as `CalloutService` for retrieving callout
-  data, `KeyboardService` for creating Telegram keyboards, the `CommunicationService` for sending messages to Telegram, and more.
+- `services`: Contains classes for various services such as `CalloutService` for
+  retrieving callout data, `KeyboardService` for creating Telegram keyboards,
+  the `CommunicationService` for sending messages to Telegram, and more.
 - `types`: Contains types used throughout the application.
 - `utils`: Contains helper functions, such as `escapeMd` to escape Telegram
   Markdown V2 characters, and more.
-
 
 ## Docker
 
@@ -111,7 +112,8 @@ And to run the Docker container, you can use the following command:
 deno task docker:start
 ```
 
-This assumes that your application is listening on port 8080. If it's listening on a different port, replace `8080:8080` with `<your port>:<your port>`.
+This assumes that your application is listening on port 8080. If it's listening
+on a different port, replace `8080:8080` with `<your port>:<your port>`.
 
 ### Contributing
 

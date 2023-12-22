@@ -273,36 +273,12 @@ export class CalloutResponseRenderer {
       )
     }_`;
 
-    // TODO: Missing in common types
-    if (file.type as unknown === "signature") {
-      result.accepted = this.condition.replayConditionFilePattern(
-        multiple,
-        "image/*",
-        multiple ? [DONE_MESSAGE] : [],
-      );
-    } else {
-      result.accepted = this.condition.replayConditionFilePattern(
-        multiple,
-        file.filePattern as string || file.type as unknown === "signature"
-          ? "image/*"
-          : "",
-        multiple ? [DONE_MESSAGE] : [],
-      );
-    }
-
-    if (multiple) {
-      result.accepted = this.condition.replayConditionText(
-        multiple,
-        undefined,
-        multiple ? [DONE_MESSAGE] : [],
-      );
-    } else {
-      result.accepted = this.condition.replayConditionFilePattern(
-        multiple,
-        file.filePattern as string || "",
-        multiple ? [DONE_MESSAGE] : [],
-      );
-    }
+    result.accepted = this.condition.replayConditionFilePattern(
+      multiple,
+      // TODO: Fix `filePattern` property in common types
+      file.filePattern || file.type as unknown === "signature" ? "image/*" : "",
+      multiple ? [DONE_MESSAGE] : [],
+    );
 
     if (file.placeholder) {
       result.markdown += `\n\n${this.placeholderMd(file, prefix).markdown}`;
