@@ -10,6 +10,7 @@
     "test:deno": "deno test --allow-net ./test/deno",
     "test:node": "npm run test:node",
     "test:web": "npm run test:web",
+    "cache": "deno cache --unstable --reload src/mod.ts",
     "generate:index": "deno run --allow-read --allow-write scripts/generate-index.ts && deno fmt"
   },
   // Please also add this imports the the root deno.jsonc file until the workspace feature is stable
