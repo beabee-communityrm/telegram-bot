@@ -13,10 +13,10 @@
     "url": "https://github.com/beabee-communityrm/telegram-bot/tree/main/beabee-client"
   },
   "scripts": {
-    "prepare": "npm run bundle",
-    "bundle": "npm run bundle:node && npm run bundle:web",
-    "bundle:node": "deno task bundle:node",
-    "bundle:web": "deno task bundle:web",
+    "prepare": "npm run build",
+    "build": "npm run build:node && npm run build:web",
+    "build:node": "deno task build:node",
+    "build:web": "deno task build:web",
     "test": "npm run test:deno && npm run test:node && npm run test:web",
     "test:deno": "deno test ./test/deno",
     "test:web": "NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.web.js",
