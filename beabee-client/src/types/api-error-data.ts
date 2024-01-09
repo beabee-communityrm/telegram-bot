@@ -1,7 +1,7 @@
 export interface ApiErrorData {
   code?: string;
   errors?: {
-    [key: string]: any;
+    [key: string]: unknown;
   };
   httpCode?: number;
 }

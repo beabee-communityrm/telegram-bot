@@ -1,4 +1,4 @@
-import { assertEquals, assert } from "std/assert/mod.ts";
+import { assert, assertEquals } from "std/assert/mod.ts";
 
 Deno.test("global fetch method is available and working", async () => {
   const response = await fetch("https://jsonplaceholder.typicode.com/posts/1");
@@ -10,5 +10,4 @@ Deno.test("global fetch method is available and working", async () => {
 
   // Check if data exists
   assert(data);
-
 });

@@ -25,7 +25,7 @@ export const isJson = (str?: string | null) => {
   try {
     const val = JSON.parse(str);
     return Array.isArray(val) || typeof val === "object" ? true : false;
-  } catch (error) {
+  } catch (_) {
     return false;
   }
 };

@@ -3,7 +3,7 @@ import type { ApiErrorData } from "../types/index.ts";
 export class ApiError extends Error implements ApiErrorData {
   code?: string;
   errors?: {
-    [key: string]: any;
+    [key: string]: unknown;
   };
   httpCode?: number;
 

@@ -2,6 +2,7 @@ export const cleanUrl = (url: string): string => {
   return url.replaceAll("//", "/");
 };
 
+// deno-lint-ignore no-explicit-any
 export function objToQueryString(obj: Record<string, any>): string {
   const params = new URLSearchParams();
 

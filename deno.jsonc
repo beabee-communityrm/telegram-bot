@@ -37,6 +37,9 @@
     "test": "deno task test:telegram-bot && deno task test:beabee-client",
     "test:telegram-bot": "cd telegram-bot && deno task test",
     "test:beabee-client": "cd beabee-client && deno task test",
+    "lint": "deno task lint:telegram-bot && deno task lint:beabee-client",
+    "lint:telegram-bot": "cd telegram-bot && deno lint",
+    "lint:beabee-client": "cd beabee-client && deno lint --ignore=deno_cache,out",
     "generate:index": "cd telegram-bot && deno task generate:index && cd ../beabee-client && deno task generate:index",
     "docker:build": "cd telegram-bot && deno task docker:build",
     "docker:start": "cd telegram-bot && deno task docker:start"
