@@ -19,17 +19,27 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 20.x ]
+        deno-version: [ vx.x.x ]
+        os:
+          - ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
 
-      - name: Setup Deno
-        # uses: denoland/setup-deno@v1
-        uses: denoland/setup-deno@61fe2df320078202e33d7d5ad347e7dcfa0e8f31  # v1.1.2
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          deno-version: v1.x
+          node-version: ${{ matrix.node-version }}
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ matrix.deno-version }}
 
       - name: Verify formatting
         run: deno fmt --check
