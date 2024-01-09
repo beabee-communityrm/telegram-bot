@@ -118,7 +118,9 @@ async function loadSheet(name: string) {
 function sortObject(obj: LocaleEntry): LocaleEntry {
   const ret: LocaleEntry = {};
   for (const key of Object.keys(obj).sort()) {
-    ret[key] = typeof obj[key] === "object" ? sortObject(obj[key] as LocaleEntry) : obj[key];
+    ret[key] = typeof obj[key] === "object"
+      ? sortObject(obj[key] as LocaleEntry)
+      : obj[key];
   }
   return ret;
 }

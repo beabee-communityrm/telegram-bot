@@ -11,7 +11,11 @@ import {
   ParsedResponseType,
   RenderType,
 } from "../enums/index.ts";
-import { ConditionService, KeyboardService, I18nService } from "../services/index.ts";
+import {
+  ConditionService,
+  I18nService,
+  KeyboardService,
+} from "../services/index.ts";
 import { MessageRenderer } from "./message.renderer.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
@@ -312,9 +316,9 @@ export class CalloutResponseRenderer {
         break;
       }
       case "checkbox": {
-        const truthyMessage = this.i18n.t("reactions.messages.truthy")
-        const falsyMessage = this.i18n.t("reactions.messages.falsy")
-        const doneMessage = this.i18n.t("reactions.messages.done")
+        const truthyMessage = this.i18n.t("reactions.messages.truthy");
+        const falsyMessage = this.i18n.t("reactions.messages.falsy");
+        const doneMessage = this.i18n.t("reactions.messages.done");
 
         result.markdown += `_${
           escapeMd(
@@ -486,7 +490,9 @@ export class CalloutResponseRenderer {
           escapeMd(
             "Please make your selection by typing the number choices. " +
               "Multiple selections are allowed, please send a separate message for each of your selection. " +
-              this.messageRenderer.writeDoneMessage(this.i18n.t("reactions.messages.done")).text,
+              this.messageRenderer.writeDoneMessage(
+                this.i18n.t("reactions.messages.done"),
+              ).text,
           )
         }_`;
         break;

@@ -1,4 +1,9 @@
-import { Singleton, CalloutClient, CalloutResponseClient, ItemStatus } from "../deps.ts";
+import {
+  CalloutClient,
+  CalloutResponseClient,
+  ItemStatus,
+  Singleton,
+} from "../deps.ts";
 import {
   isCalloutGroupKey,
   splitCalloutGroupKey,
@@ -6,16 +11,16 @@ import {
 } from "../utils/index.ts";
 
 import type {
-  CalloutDataExt,
-  GetCalloutDataExt,
-  GetCalloutDataWithExt,
-  NestableCalloutComponentSchema,
   CalloutData,
+  CalloutDataExt,
   CreateCalloutResponseData,
   GetCalloutData,
+  GetCalloutDataExt,
   GetCalloutDataWith,
+  GetCalloutDataWithExt,
   GetCalloutsQuery,
   GetCalloutWith,
+  NestableCalloutComponentSchema,
   Paginated,
 } from "../types/index.ts";
 

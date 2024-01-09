@@ -1,4 +1,4 @@
-import { Singleton, dirname, fromFileUrl } from "../deps.ts";
+import { dirname, fromFileUrl, Singleton } from "../deps.ts";
 import { readJson } from "../utils/file.ts";
 
 const __dirname = dirname(fromFileUrl(new URL(import.meta.url)));
@@ -12,13 +12,13 @@ export class I18nService {
   private translations: { [lang: string]: Translations } = {};
   private activeLang = "de";
 
-  /** 
+  /**
    * Alias for translate
    */
   t = this.translate.bind(this);
 
   constructor() {
-    this.setActiveLang(this.activeLang)
+    this.setActiveLang(this.activeLang);
   }
 
   setActiveLang(lang: string): void {
@@ -80,9 +80,9 @@ export class I18nService {
     placeholders: { [key: string]: string },
   ): string {
     return Object.keys(placeholders).reduce((acc, key) => {
-        // Allow whitespace in placeholders between curly braces
-        const regex = new RegExp(`\\{\\s*${key}\\s*\\}`, "g");
-        return acc.replaceAll(regex, placeholders[key]);
+      // Allow whitespace in placeholders between curly braces
+      const regex = new RegExp(`\\{\\s*${key}\\s*\\}`, "g");
+      return acc.replaceAll(regex, placeholders[key]);
     }, translation);
   }
 }

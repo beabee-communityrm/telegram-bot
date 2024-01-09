@@ -1,7 +1,7 @@
 import { Singleton } from "../deps.ts";
 
 import { ParsedResponseType, ReplayType } from "../enums/index.ts";
-import { I18nService } from '../services/i18n.service.ts';
+import { I18nService } from "../services/i18n.service.ts";
 import {
   extractNumbers,
   getFileIdFromMessage,
