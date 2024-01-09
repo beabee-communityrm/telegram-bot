@@ -137,3 +137,5 @@ deno_cache/
 
 # Deno compiled output
 telegram-bot/telegram-bot
+
+.credentials.json

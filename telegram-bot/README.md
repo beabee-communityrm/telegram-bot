@@ -39,6 +39,23 @@ these simple steps:
 Ensure the `.env` file is saved and your bot is ready to connect with the
 Telegram API.
 
+### Internationalisation
+
+Our locale data is stored in [this Google Sheet](https://docs.google.com/spreadsheets/d/1l35DW5OMi-xM8HXek5Q1jOxsXScINqqpEvPWDlpBPX8/edit#gid=0.). We use the Google Sheets APIs to pull this directly into the repository. You should ask another developers for their `.credentials.json` file so you can use the process below.
+
+#### Updating locale files
+
+To update the locale data in the repository you run the following
+
+```
+deno task i18n
+git add -A locales/ && git commit locales/ -m 'chore: updated locales'
+```
+
+#### Using the localisation strings
+
+TODO...
+
 ### Testing
 
 Just run `deno test` in the project root directory.
