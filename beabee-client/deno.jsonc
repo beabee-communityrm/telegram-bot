@@ -10,6 +10,7 @@
     "test:deno": "deno test --allow-net ./test/deno",
     "test:node": "npm run test:node",
     "test:web": "npm run test:web",
+    "lint": "deno lint",
     "cache": "deno task cache:deno && deno task cache:node",
     "cache:deno": "deno cache --unstable --reload src/mod.ts",
     "cache:node": "npm install",

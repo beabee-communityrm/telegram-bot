@@ -3,6 +3,7 @@ export * from "./communication.service.ts";
 export * from "./condition.service.ts";
 export * from "./database.service.ts";
 export * from "./event.service.ts";
+export * from "./i18n.service.ts";
 export * from "./keyboard.service.ts";
 export * from "./subscriber.service.ts";
 export * from "./telegram.service.ts";

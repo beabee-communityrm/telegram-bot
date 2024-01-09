@@ -1,4 +1,4 @@
-import { Singleton } from "alosaur/mod.ts";
+import { Singleton } from "../deps.ts";
 import {
   calloutComponentTypeToMainType,
   calloutComponentTypeToParsedResponseType,
@@ -11,13 +11,10 @@ import {
   ParsedResponseType,
   RenderType,
 } from "../enums/index.ts";
-import { ConditionService, KeyboardService } from "../services/index.ts";
+import { ConditionService, KeyboardService, I18nService } from "../services/index.ts";
 import { MessageRenderer } from "./message.renderer.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
-  CHECKBOX_FALSY,
-  CHECKBOX_TRUTHY,
-  DONE_MESSAGE,
   EMPTY_RENDER,
 } from "../constants/index.ts";
 
@@ -43,6 +40,7 @@ export class CalloutResponseRenderer {
     protected readonly keyboard: KeyboardService,
     protected readonly messageRenderer: MessageRenderer,
     protected readonly condition: ConditionService,
+    protected readonly i18n: I18nService,
   ) {
     console.debug(`${CalloutResponseRenderer.name} created`);
   }
@@ -122,6 +120,7 @@ export class CalloutResponseRenderer {
   }
 
   protected multipleMd(component: BaseCalloutComponentSchema, prefix: string) {
+    const doneMessage = this.i18n.t("reactions.messages.done");
     const multiple = this.isMultiple(component);
     const result: Render = {
       key: createCalloutGroupKey(component.key, prefix),
@@ -134,7 +133,7 @@ export class CalloutResponseRenderer {
       result.markdown += `_${
         escapeMd(
           `You can enter multiple values by sending each value separately. ${
-            this.messageRenderer.writeDoneMessage(DONE_MESSAGE).text
+            this.messageRenderer.writeDoneMessage(doneMessage).text
           }`,
         )
       }_`;
@@ -142,7 +141,7 @@ export class CalloutResponseRenderer {
       result.markdown += `_${
         escapeMd(
           `You can only enter one value. ${
-            this.messageRenderer.writeDoneMessage(DONE_MESSAGE).text
+            this.messageRenderer.writeDoneMessage(doneMessage).text
           }`,
         )
       }_`;
@@ -164,7 +163,7 @@ export class CalloutResponseRenderer {
       accepted: this.condition.replayConditionSelection(
         multiple,
         this.selectValuesToValueLabelPairs(radio.values),
-        multiple ? [DONE_MESSAGE] : [],
+        multiple ? [this.i18n.t("reactions.messages.done")] : [],
       ),
       markdown: ``,
       parseType: calloutComponentTypeToParsedResponseType(radio),
@@ -222,7 +221,7 @@ export class CalloutResponseRenderer {
       accepted: this.condition.replayConditionText(
         multiple,
         undefined,
-        multiple ? [DONE_MESSAGE] : [],
+        multiple ? [this.i18n.t("reactions.messages.done")] : [],
       ),
       parseType: calloutComponentTypeToParsedResponseType(base),
     };
@@ -272,7 +271,7 @@ export class CalloutResponseRenderer {
       multiple,
       // TODO: Fix `filePattern` property in common types
       file.filePattern || file.type as unknown === "signature" ? "image/*" : "",
-      multiple ? [DONE_MESSAGE] : [],
+      multiple ? [this.i18n.t("reactions.messages.done")] : [],
     );
 
     if (file.placeholder) {
@@ -313,15 +312,19 @@ export class CalloutResponseRenderer {
         break;
       }
       case "checkbox": {
+        const truthyMessage = this.i18n.t("reactions.messages.truthy")
+        const falsyMessage = this.i18n.t("reactions.messages.falsy")
+        const doneMessage = this.i18n.t("reactions.messages.done")
+
         result.markdown += `_${
           escapeMd(
-            `Please answer with "${CHECKBOX_TRUTHY}" or "${CHECKBOX_FALSY}".`,
+            `Please answer with "${truthyMessage}" or "${falsyMessage}".`,
           )
         }_`;
         result.accepted = this.condition.replayConditionText(
           result.accepted.multiple,
-          [CHECKBOX_TRUTHY, CHECKBOX_FALSY],
-          result.accepted.multiple ? [DONE_MESSAGE] : [],
+          [truthyMessage, falsyMessage],
+          result.accepted.multiple ? [doneMessage] : [],
         );
         break;
       }
@@ -461,7 +464,7 @@ export class CalloutResponseRenderer {
       ...this.condition.replayConditionSelection(
         multiple,
         this.selectValuesToValueLabelPairs(radio.values),
-        multiple ? [DONE_MESSAGE] : [],
+        multiple ? [this.i18n.t("reactions.messages.done")] : [],
       ),
     };
 
@@ -483,7 +486,7 @@ export class CalloutResponseRenderer {
           escapeMd(
             "Please make your selection by typing the number choices. " +
               "Multiple selections are allowed, please send a separate message for each of your selection. " +
-              this.messageRenderer.writeDoneMessage(DONE_MESSAGE).text,
+              this.messageRenderer.writeDoneMessage(this.i18n.t("reactions.messages.done")).text,
           )
         }_`;
         break;

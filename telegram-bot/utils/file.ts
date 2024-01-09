@@ -102,3 +102,13 @@ export const getSimpleMimeTypes = (mimeTypes: string[]) => {
   }
   return Object.keys(map);
 };
+
+/**
+ * Read a json file
+ * @param path The path to the json file
+ * @returns The json data
+ */
+export const readJson = async (path: string) => {
+  const fileContent = await Deno.readTextFile(path);
+  return JSON.parse(fileContent);
+};

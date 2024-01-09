@@ -1,12 +1,14 @@
-// deno-lint-ignore-file no-explicit-any
 // This script is based on https://github.com/beabee-communityrm/beabee-frontend/blob/main/scripts/i18n.js
 
-import { dirname, fromFileUrl, join } from "https://deno.land/std/path/mod.ts";
-import { google, sheets_v4 } from "npm:googleapis";
-// @deno-types="npm:@types/markdown-it"
-import MarkdownIt from "npm:markdown-it";
-// @deno-types="npm:@types/markdown-it/lib/renderer"
-import Renderer from "npm:markdown-it/lib/renderer";
+import {
+  dirname,
+  fromFileUrl,
+  google,
+  join,
+  MarkdownIt,
+  MarkdownRenderer,
+  sheets_v4,
+} from "../deps.ts";
 
 const __dirname = dirname(fromFileUrl(new URL(import.meta.url)));
 const simpleMd = new MarkdownIt("zero").enable(["emphasis", "link"]);
@@ -17,8 +19,8 @@ simpleMd.renderer.rules.link_open = (
   tokens: MarkdownIt.Token[],
   idx: number,
   options: MarkdownIt.Options,
-  _env: any,
-  self: Renderer,
+  _env: unknown,
+  self: MarkdownRenderer,
 ) => {
   const token = tokens[idx];
   const hrefIndex = token.attrIndex("href");
@@ -44,21 +46,25 @@ const auth = new google.auth.GoogleAuth({
 const sheets: sheets_v4.Sheets = google.sheets({ version: "v4", auth });
 
 interface LocaleData {
-  [key: string]: any;
+  [key: string]: LocaleEntry;
 }
 
+interface LocaleEntry {
+  [key: string]: string | LocaleEntry;
+}
 const localeData: LocaleData = {};
 
 function processKeyData(keyOpts: string[], keyData: string | undefined) {
-  if (keyData) {
-    return (
-      keyOpts
-        // Apply handlers
-        .reduce((data, opt) => optHandlers[opt](data), keyData || "")
-        // Sanitize special i18n character
-        .replace(/@/g, "{'@'}")
-    );
+  if (!keyData) {
+    return "";
   }
+  return (
+    keyOpts
+      // Apply handlers
+      .reduce((data, opt) => optHandlers[opt](data), keyData || "")
+      // Sanitize special i18n character
+      .replace(/@/g, "{'@'}")
+  );
 }
 
 async function loadSheet(name: string) {
@@ -73,7 +79,7 @@ async function loadSheet(name: string) {
   if (!headers) {
     throw new Error("No headers found");
   }
-  const rows = resp.data?.values?.slice(1)
+  const rows: Record<string, string>[] = resp.data?.values?.slice(1)
     .map((row) =>
       Object.fromEntries(headers.map((header, i) => [header, row[i]]))
     )
@@ -90,15 +96,15 @@ async function loadSheet(name: string) {
   // Construct nested objects from a.b.c key paths
   for (const row of rows) {
     const keyParts = row.key.split(".");
-    const [lastKeyPart, ...keyOpts] = keyParts.pop().split(":");
+    const [lastKeyPart, ...keyOpts] = keyParts.pop()?.split(":") ?? [];
 
     for (const locale of locales) {
-      let localeDataPart = localeData[locale];
+      let localeDataPart = localeData[locale] as LocaleEntry;
       for (const part of keyParts) {
         if (!localeDataPart[part]) {
           localeDataPart[part] = {};
         }
-        localeDataPart = localeDataPart[part];
+        localeDataPart = localeDataPart[part] as LocaleEntry;
       }
       if (localeDataPart[lastKeyPart] !== undefined) {
         console.log("Duplicate key " + row.key);
@@ -109,10 +115,10 @@ async function loadSheet(name: string) {
 }
 
 // Recursively sort for predictable output
-function sortObject(obj: any): any {
-  const ret: { [key: string]: any } = {};
+function sortObject(obj: LocaleEntry): LocaleEntry {
+  const ret: LocaleEntry = {};
   for (const key of Object.keys(obj).sort()) {
-    ret[key] = typeof obj[key] === "object" ? sortObject(obj[key]) : obj[key];
+    ret[key] = typeof obj[key] === "object" ? sortObject(obj[key] as LocaleEntry) : obj[key];
   }
   return ret;
 }

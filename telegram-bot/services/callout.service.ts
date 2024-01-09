@@ -1,6 +1,4 @@
-import { CalloutClient, CalloutResponseClient } from "@beabee/client";
-import { ItemStatus } from "@beabee/beabee-common";
-import { Singleton } from "alosaur/mod.ts";
+import { Singleton, CalloutClient, CalloutResponseClient, ItemStatus } from "../deps.ts";
 import {
   isCalloutGroupKey,
   splitCalloutGroupKey,
@@ -8,20 +6,18 @@ import {
 } from "../utils/index.ts";
 
 import type {
+  CalloutDataExt,
+  GetCalloutDataExt,
+  GetCalloutDataWithExt,
+  NestableCalloutComponentSchema,
   CalloutData,
   CreateCalloutResponseData,
   GetCalloutData,
   GetCalloutDataWith,
   GetCalloutsQuery,
   GetCalloutWith,
-} from "@beabee/client";
-import type {
-  CalloutDataExt,
-  GetCalloutDataExt,
-  GetCalloutDataWithExt,
-  NestableCalloutComponentSchema,
+  Paginated,
 } from "../types/index.ts";
-import type { Paginated } from "@beabee/beabee-common";
 
 const CALLOUTS_ACTIVE_QUERY: GetCalloutsQuery = {
   rules: {

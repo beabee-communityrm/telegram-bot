@@ -1,4 +1,4 @@
-import { Singleton } from "alosaur/mod.ts";
+import { Singleton } from "../deps.ts";
 import { ParsedResponseType, RenderType, ReplayType } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
 import { TransformService } from "./transform.service.ts";

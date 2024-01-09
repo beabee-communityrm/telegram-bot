@@ -1,5 +1,4 @@
-import { DataSource } from "typeorm";
-import { Singleton } from "alosaur/mod.ts";
+import { DataSource, Singleton } from "../deps.ts";
 import { SubscriberModel } from "../models/index.ts";
 import { nodeSqlite3 } from "../utils/node-sqlite3/index.ts";
 

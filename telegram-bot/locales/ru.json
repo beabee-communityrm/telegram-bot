@@ -1,1 +1,9 @@
-{}
+{
+  "reactions": {
+    "messages": {
+      "done": "Готово",
+      "falsy": "Нет",
+      "truthy": "Да"
+    }
+  }
+}

@@ -1,1 +1,9 @@
-{}
+{
+  "reactions": {
+    "messages": {
+      "done": "Klaar",
+      "falsy": "Nee",
+      "truthy": "Ja"
+    }
+  }
+}

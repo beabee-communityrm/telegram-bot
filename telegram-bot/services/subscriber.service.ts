@@ -1,4 +1,4 @@
-import { Singleton } from "alosaur/mod.ts";
+import { Singleton } from "../deps.ts";
 import { SubscriberModel } from "../models/index.ts";
 import { DatabaseService } from "./database.service.ts";
 import { getIdentifier } from "../utils/index.ts";

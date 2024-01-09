@@ -1,4 +1,4 @@
-import { Singleton } from "alosaur/mod.ts";
+import { Singleton } from "../deps.ts";
 import { RelayAcceptedFileType, ReplayType } from "../enums/index.ts";
 import {
   extractNumbers,

@@ -1,7 +1,7 @@
-import { Singleton } from "alosaur/mod.ts";
+import { Singleton } from "../deps.ts";
 
 import { ParsedResponseType, ReplayType } from "../enums/index.ts";
-import { CHECKBOX_FALSY, CHECKBOX_TRUTHY } from "../constants/messages.ts";
+import { I18nService } from '../services/i18n.service.ts';
 import {
   extractNumbers,
   getFileIdFromMessage,
@@ -33,7 +33,7 @@ import type {
  */
 @Singleton()
 export class TransformService {
-  constructor() {
+  constructor(readonly i18n: I18nService) {
     console.debug(`${TransformService.name} created`);
   }
 
@@ -142,9 +142,11 @@ export class TransformService {
   ): RenderResponseParsedBoolean<false>["data"] {
     const boolStr = getTextFromMessage(replay.context.message).toLowerCase();
     let bool = false;
-    if (boolStr === CHECKBOX_TRUTHY.toLowerCase()) {
+    const truthyStr = this.i18n.t("reactions.messages.truthy").toLowerCase();
+    const falsyStr = this.i18n.t("reactions.messages.falsy").toLowerCase();
+    if (boolStr === truthyStr) {
       bool = true;
-    } else if (boolStr === CHECKBOX_FALSY.toLowerCase()) {
+    } else if (boolStr === falsyStr) {
       bool = false;
     } else {
       console.warn(`Unknown boolean value: "${boolStr}"`);
