@@ -2,7 +2,10 @@ import { CalloutClient } from "../../../out/mod.js";
 import { describe, expect, test } from "@jest/globals";
 
 describe("CalloutClient", () => {
-  const calloutClient = new CalloutClient("");
+  const calloutClient = new CalloutClient({
+    host: "http://localhost:8080",
+    token: "test",
+  });
 
   test("is a class", () => {
     expect(typeof CalloutClient).toBe("function");

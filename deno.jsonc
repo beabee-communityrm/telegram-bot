@@ -30,7 +30,13 @@
   "tasks": {
     "dev": "cd telegram-bot && deno task dev",
     "start": "cd telegram-bot && deno task start",
-    "compile": "cd telegram-bot && deno task compile",
+    "compile": "deno task compile:telegram-bot",
+    "compile:telegram-bot": "cd telegram-bot && deno task compile",
+    "build": "deno task build:beabee-client",
+    "build:beabee-client": "cd beabee-client && deno task build",
+    "test": "deno task test:telegram-bot && deno task test:beabee-client",
+    "test:telegram-bot": "cd telegram-bot && deno task test",
+    "test:beabee-client": "cd beabee-client && deno task test",
     "generate:index": "cd telegram-bot && deno task generate:index && cd ../beabee-client && deno task generate:index",
     "docker:build": "cd telegram-bot && deno task docker:build",
     "docker:start": "cd telegram-bot && deno task docker:start"
