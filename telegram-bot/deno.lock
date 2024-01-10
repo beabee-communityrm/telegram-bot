@@ -3,6 +3,7 @@
   "packages": {
     "specifiers": {
       "npm:@beabee/beabee-common@1.18.1": "npm:@beabee/beabee-common@1.18.1",
+      "npm:@types/markdown-it": "npm:@types/markdown-it@13.0.7",
       "npm:googleapis": "npm:googleapis@130.0.0",
       "npm:markdown-it": "npm:markdown-it@14.0.0",
       "npm:query-string@8.1.0": "npm:query-string@8.1.0",
@@ -23,6 +24,21 @@
       },
       "@sqltools/formatter@1.2.5": {
         "integrity": "sha512-Uy0+khmZqUrUGm5dmMqVlnvufZRSK0FbYzVgp0UMstm+F5+W2/jnEEQyc9vo1ZR/E5ZI/B1WjjoTqBqwJL6Krw==",
+        "dependencies": {}
+      },
+      "@types/linkify-it@3.0.5": {
+        "integrity": "sha512-yg6E+u0/+Zjva+buc3EIb+29XEg4wltq7cSmd4Uc2EE/1nUVmxyzpX6gUXD0V8jIrG0r7YeOGVIbYRkxeooCtw==",
+        "dependencies": {}
+      },
+      "@types/markdown-it@13.0.7": {
+        "integrity": "sha512-U/CBi2YUUcTHBt5tjO2r5QV/x0Po6nsYwQU4Y04fBS6vfoImaiZ6f8bi3CjTCxBPQSO1LMyUqkByzi8AidyxfA==",
+        "dependencies": {
+          "@types/linkify-it": "@types/linkify-it@3.0.5",
+          "@types/mdurl": "@types/mdurl@1.0.5"
+        }
+      },
+      "@types/mdurl@1.0.5": {
+        "integrity": "sha512-6L6VymKTzYSrEf4Nev4Xa1LCHKrlTlYCBMTlQKFuddo1CvQcE52I0mwfOJayueUC7MJuXOeHTcIU683lzd0cUA==",
         "dependencies": {}
       },
       "agent-base@7.1.0": {

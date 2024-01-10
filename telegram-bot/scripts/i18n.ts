@@ -10,6 +10,14 @@ import {
   sheets_v4,
 } from "../deps.ts";
 
+interface LocaleData {
+  [key: string]: LocaleEntry;
+}
+
+interface LocaleEntry {
+  [key: string]: string | LocaleEntry;
+}
+
 const __dirname = dirname(fromFileUrl(new URL(import.meta.url)));
 const simpleMd = new MarkdownIt("zero").enable(["emphasis", "link"]);
 const sheetTab = Deno.args[0] || "telegram-bot";
@@ -45,13 +53,6 @@ const auth = new google.auth.GoogleAuth({
 
 const sheets: sheets_v4.Sheets = google.sheets({ version: "v4", auth });
 
-interface LocaleData {
-  [key: string]: LocaleEntry;
-}
-
-interface LocaleEntry {
-  [key: string]: string | LocaleEntry;
-}
 const localeData: LocaleData = {};
 
 function processKeyData(keyOpts: string[], keyData: string | undefined) {

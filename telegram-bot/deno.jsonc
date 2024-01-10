@@ -27,7 +27,7 @@
     "start": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces ./main.ts",
     "compile": "deno compile --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces ./main.ts",
     "generate:index": "deno run --allow-read --allow-write scripts/generate-index.ts && deno fmt",
-    "test": "deno test",
+    "test": "deno test --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces",
     "lint": "deno lint",
     "cache": "deno cache --unstable --reload main.ts",
     "docker:build": "docker build -f ../Dockerfile -t beabee/telegram-bot:latest ..",

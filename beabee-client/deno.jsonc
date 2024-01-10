@@ -7,7 +7,7 @@
     "build:node": "deno run --no-prompt --allow-read=. --allow-write=. https://deno.land/x/deno2node/src/cli.ts",
     "build:web": "mkdir -p out deno_cache && cd scripts && DENO_DIR=$PWD/../deno_cache deno run --unstable --quiet --allow-net --allow-read --allow-env --allow-write bundle-web.ts ../src/mod.ts",
     "test": "deno task test:deno && deno task test:node && deno task test:web",
-    "test:deno": "deno test --allow-net ./test/deno",
+    "test:deno": "deno test --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces ./test/deno",
     "test:node": "npm run test:node",
     "test:web": "npm run test:web",
     "lint": "deno lint",
