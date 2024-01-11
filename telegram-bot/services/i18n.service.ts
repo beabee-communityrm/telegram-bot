@@ -7,6 +7,11 @@ interface Translations {
   [key: string]: string | Translations;
 }
 
+/**
+ * I18nService is a Singleton service that handles internationalization.
+ * - Load translations
+ * - Translate strings
+ */
 @Singleton()
 export class I18nService {
   private translations: { [lang: string]: Translations } = {};
@@ -18,16 +23,33 @@ export class I18nService {
   t = this.translate.bind(this);
 
   constructor() {
-    this.setActiveLang(this.activeLang);
+    this.setActiveLangSync(this.activeLang);
     console.debug(`${I18nService.name} created`);
   }
+  /**
+   * Set the active language
+   * @param lang The language to set as active, e.g. "en"
+   */
+  public async setActiveLang(lang: string) {
+    this.activeLang = lang;
+    await this.loadLanguage(this.activeLang);
+  }
 
-  setActiveLang(lang: string): void {
+  /**
+   * Set the active language synchronously
+   * @param lang The language to set as active, e.g. "en"
+   */
+  public setActiveLangSync(lang: string): void {
     this.activeLang = lang;
     this.loadLanguageSync(this.activeLang);
   }
 
-  async loadLanguage(
+  /**
+   * Load a language file
+   * @param lang The language to load, e.g. "en"
+   * @param filePath The path to the language file, e.g. "./locales/{lang}.json"
+   */
+  public async loadLanguage(
     lang: string,
     filePath = __dirname + "/../locales/{lang}.json",
   ): Promise<void> {
@@ -35,7 +57,12 @@ export class I18nService {
     this.translations[lang] = await readJson(filePath) as Translations;
   }
 
-  loadLanguageSync(
+  /**
+   * Load a language file synchronously
+   * @param lang The language to load, e.g. "en"
+   * @param filePath The path to the language file, e.g. "./locales/{lang}.json"
+   */
+  public loadLanguageSync(
     lang: string,
     filePath = __dirname + "/../locales/{lang}.json",
   ): void {
@@ -43,14 +70,24 @@ export class I18nService {
     this.translations[lang] = readJsonSync(filePath) as Translations;
   }
 
-  async loadLanguages(
+  /**
+   * Load multiple languages
+   * @param langs The languages to load, e.g. ["en", "de"]
+   * @param filePath The path to the language file, e.g. "./locales/{lang}.json"
+   */
+  public async loadLanguages(
     langs: string[],
     filePath = __dirname + "/../locales/{lang}.json",
   ): Promise<void> {
     await Promise.all(langs.map((lang) => this.loadLanguage(lang, filePath)));
   }
 
-  translate(
+  /**
+   * Load multiple languages synchronously
+   * @param langs The languages to load, e.g. ["en", "de"]
+   * @param filePath The path to the language file, e.g. "./locales/{lang}.json"
+   */
+  public translate(
     path: string,
     placeholders: { [key: string]: string } = {},
     lang: string = this.activeLang,
@@ -64,7 +101,13 @@ export class I18nService {
     return this.replacePlaceholders(translation, placeholders);
   }
 
-  private getTranslation(
+  /**
+   * Get a translation
+   * @param path The path to the translation, e.g. "greetings.hello"
+   * @param placeholders The placeholders to replace in the translation, e.g. { name: "John" }
+   * @param lang The language to use, e.g. "en"
+   */
+  protected getTranslation(
     path: string,
     lang: string,
     translations: Translations | string,
@@ -72,8 +115,6 @@ export class I18nService {
     if (typeof translations === "string") {
       return translations;
     }
-
-    console.debug(`getTranslation: ${path} in ${lang}`, translations);
 
     const segments = path.split(".");
     const key = segments.shift() ?? "";
@@ -86,7 +127,12 @@ export class I18nService {
     return this.getTranslation(segments.join("."), lang, nextTranslations);
   }
 
-  private replacePlaceholders(
+  /**
+   * Replace placeholders in a translation
+   * @param translation The translation to replace the placeholders in
+   * @param placeholders The placeholders to replace in the translation, e.g. { name: "John" }
+   */
+  protected replacePlaceholders(
     translation: string,
     placeholders: { [key: string]: string },
   ): string {

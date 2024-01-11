@@ -1,3 +1,4 @@
+export * from "./beabee-content.service.ts";
 export * from "./callout.service.ts";
 export * from "./communication.service.ts";
 export * from "./condition.service.ts";

@@ -46,5 +46,9 @@ export { DataSource } from "typeorm";
 
 // BEABEE
 
-export { CalloutClient, CalloutResponseClient } from "@beabee/client";
+export {
+  CalloutClient,
+  CalloutResponseClient,
+  ContentClient,
+} from "@beabee/client";
 export { ItemStatus } from "@beabee/beabee-common";

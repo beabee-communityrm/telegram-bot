@@ -114,7 +114,7 @@ export class CalloutResponseEventManager extends EventManager {
   protected async onCalloutIntroKeyboardPressed(ctx: Context) {
     const data = ctx.callbackQuery?.data?.split(":");
     const shortSlug = data?.[1];
-    const startIntro = data?.[2] as "yes" | "no" === "yes";
+    const startIntro = data?.[2] as "yes" | "no" === "yes"; // This is the key, so it's not localized
 
     await ctx.answerCallbackQuery(); // remove loading animation
 

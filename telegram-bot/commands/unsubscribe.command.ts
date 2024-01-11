@@ -10,7 +10,10 @@ export class UnsubscribeCommand extends Command {
   command = "unsubscribe";
   description = "Unsubscribe from a Callout";
 
-  constructor(protected readonly subscriber: SubscriberService, protected readonly i18n: I18nService) {
+  constructor(
+    protected readonly subscriber: SubscriberService,
+    protected readonly i18n: I18nService,
+  ) {
     super();
     this.command = this.i18n.t("commands.unsubscribe.command");
     this.description = this.i18n.t("commands.unsubscribe.description");

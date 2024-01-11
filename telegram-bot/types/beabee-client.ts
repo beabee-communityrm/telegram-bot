@@ -1,5 +1,7 @@
 export type {
   CalloutData,
+  Content,
+  ContentId,
   CreateCalloutResponseData,
   GetCalloutData,
   GetCalloutDataWith,

@@ -10,7 +10,10 @@ export class SubscribeCommand extends Command {
   command = "subscribe";
   description = "Subscribe a Callout";
 
-  constructor(protected readonly subscriber: SubscriberService, protected readonly i18n: I18nService) {
+  constructor(
+    protected readonly subscriber: SubscriberService,
+    protected readonly i18n: I18nService,
+  ) {
     super();
     this.command = this.i18n.t("commands.subscribe.command");
     this.description = this.i18n.t("commands.subscribe.description");

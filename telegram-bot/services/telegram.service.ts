@@ -1,5 +1,7 @@
 import { Bot, container, Singleton } from "../deps.ts";
 import { Command } from "../core/index.ts";
+import { I18nService } from "./i18n.service.ts";
+import { BeabeeContentService } from "./beabee-content.service.ts";
 
 import type { CommandClass, EventManagerClass } from "../types/index.ts";
 import type { BotCommand } from "grammy_types/mod.ts";
@@ -16,25 +18,37 @@ export class TelegramService {
 
   commands: { [key: string]: Command } = {};
 
-  constructor() {
+  constructor(
+    protected readonly i18n: I18nService,
+    protected readonly beabeeContent: BeabeeContentService,
+  ) {
     const token = Deno.env.get("TELEGRAM_TOKEN");
     if (!token) throw new Error("TELEGRAM_TOKEN is not set");
     this.bot = new Bot(token);
 
-    this.init().catch(console.error);
+    this.bootstrap().catch(console.error);
     console.debug(`${TelegramService.name} created`);
   }
 
   /**
-   * Initialize the bot asynchronously:
+   * Bootstrap the bot asynchronously:
    * - Add commands
    * - Add event listeners
    * - Start the bot
    */
-  protected async init() {
+  protected async bootstrap() {
+    // TODO: Also process the other properties from the beabee content like `organisationName`, `logoUrl`. `siteUrl`, etc.
+    const beabeeGeneralContent = await this.beabeeContent.get("general");
+    console.debug("beabeeGeneralContent", beabeeGeneralContent);
+
+    // Initialize the localization
+    await this.i18n.setActiveLang(beabeeGeneralContent.locale);
+
+    // Initialize the Telegram commands
     const Commands = await import("../commands/index.ts");
     await this.addCommands(Commands);
 
+    // Initialize the EventManagers
     const EventMangers = await import("../event-managers/index.ts");
     this.initEvents(EventMangers);
 
