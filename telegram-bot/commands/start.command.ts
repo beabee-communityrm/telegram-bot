@@ -1,5 +1,6 @@
 import { Singleton } from "alosaur/mod.ts";
 import { Command } from "../core/index.ts";
+import { I18nService } from "../services/i18n.service.ts";
 
 import type { Context } from "../types/index.ts";
 
@@ -8,8 +9,10 @@ export class StartCommand extends Command {
   command = "start";
   description = "Start the bot";
 
-  constructor() {
+  constructor(protected readonly i18n: I18nService) {
     super();
+    this.command = this.i18n.t("commands.start.command");
+    this.description = this.i18n.t("commands.start.description");
     console.debug(`${StartCommand.name} created`);
   }
 

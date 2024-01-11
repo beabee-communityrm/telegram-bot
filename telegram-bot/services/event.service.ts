@@ -16,6 +16,7 @@ export class EventService {
   protected events = new EventTarget();
 
   constructor() {
+    console.debug(`${EventService.name} created`);
   }
 
   /**

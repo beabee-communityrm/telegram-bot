@@ -112,3 +112,13 @@ export const readJson = async (path: string) => {
   const fileContent = await Deno.readTextFile(path);
   return JSON.parse(fileContent);
 };
+
+/**
+ * Read a json file synchronously
+ * @param path The path to the json file
+ * @returns The json data
+ */
+export const readJsonSync = (path: string) => {
+  const fileContent = Deno.readTextFileSync(path);
+  return JSON.parse(fileContent);
+};

@@ -1,5 +1,6 @@
 import { InlineKeyboard, Singleton } from "../deps.ts";
 import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants/index.ts";
+import { I18nService } from "./i18n.service.ts";
 
 import type { CalloutDataExt } from "../types/index.ts";
 
@@ -8,7 +9,7 @@ import type { CalloutDataExt } from "../types/index.ts";
  */
 @Singleton()
 export class KeyboardService {
-  constructor() {
+  constructor(protected readonly i18n: I18nService) {
     console.debug(`${KeyboardService.name} created`);
   }
 
@@ -73,8 +74,8 @@ export class KeyboardService {
    */
   public yesNo(prefix = "") {
     const inlineKeyboard = new InlineKeyboard();
-    inlineKeyboard.text("Yes", prefix ? `${prefix}:yes` : `yes`);
-    inlineKeyboard.text("No", prefix ? `${prefix}:no` : `no`);
+    inlineKeyboard.text(this.i18n.t('keyboard.label.yes'), prefix ? `${prefix}:yes` : `yes`);
+    inlineKeyboard.text(this.i18n.t('keyboard.label.no'), prefix ? `${prefix}:no` : `no`);
     return inlineKeyboard;
   }
 
@@ -88,8 +89,8 @@ export class KeyboardService {
    */
   public continueCancel(prefix = "") {
     const inlineKeyboard = new InlineKeyboard();
-    inlineKeyboard.text("Continue", prefix ? `${prefix}:continue` : `continue`);
-    inlineKeyboard.text("Cancel", prefix ? `${prefix}:cancel` : `cancel`);
+    inlineKeyboard.text(this.i18n.t('keyboard.label.continue'), prefix ? `${prefix}:continue` : `continue`);
+    inlineKeyboard.text(this.i18n.t('keyboard.label.cancel'), prefix ? `${prefix}:cancel` : `cancel`);
     return inlineKeyboard;
   }
 }

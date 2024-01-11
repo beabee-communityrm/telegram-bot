@@ -1,20 +1,42 @@
 {
+  "commands": {
+    "list": {
+      "command": "list",
+      "description": "List active callouts"
+    },
+    "show": {
+      "command": "show",
+      "description": "Show information about a specific callout"
+    },
+    "start": {
+      "command": "start",
+      "description": "Start the bot"
+    },
+    "subscribe": {
+      "command": "subscribe",
+      "description": "Subscribe to a callout"
+    },
+    "unsubscribe": {
+      "command": "unsubscribe",
+      "description": "Unsubscribe from a callout"
+    }
+  },
   "info": {
     "messages": {
-      "done": "ℹ️ If you are finished with your response, write \"{done}\".",
+      "done": "ℹ️ If you have finished your response, please type \"{done}\".",
       "enter-amount-of-money": "ℹ️ Please enter an amount of money.",
-      "enter-content": "ℹ️ You may answer in multiple lines, but please only send the response when you have finished writing. You can also use Markdown formatting.",
+      "enter-content": "ℹ️ You may respond in multiple lines. Please send your response only after you have finished writing. Markdown formatting is supported.",
       "enter-date": "ℹ️ Please enter a date.",
-      "enter-lots-of-text": "ℹ️ You may answer in multiple lines, but please only send the response when you have finished writing.",
-      "enter-password": "ℹ️ You should enter a password here, and it's best to delete your response after sending it so the password doesn't remain in the history.",
+      "enter-lots-of-text": "ℹ️ You may respond in multiple lines. Please send your response only after you have finished writing.",
+      "enter-password": "ℹ️ Please enter a password. For security, it's advisable to delete your response after sending to prevent it from remaining in the chat history.",
       "enter-telephone-number": "ℹ️ Please enter a telephone number.",
-      "enter-text": "ℹ️ Please keep it brief and try to answer in one sentence.",
+      "enter-text": "ℹ️ Please keep your response brief, ideally in one sentence.",
       "enter-time": "ℹ️ Please enter a time.",
       "enter-url": "ℹ️ Please enter a URL.",
       "multiple-addresses-allowed": "ℹ️ You can enter one or more addresses.",
       "multiple-emails-allowed": "ℹ️ You can enter one or more emails.",
       "multiple-numbers-allowed": "ℹ️ Please enter one or more numbers.",
-      "multiple-selections-allowed": "ℹ️ Please make your selection by typing the number choices. Multiple selections are allowed, please send a separate message for each of your selection. ",
+      "multiple-selections-allowed": "ℹ️ Please make your selection by typing the number choices. Multiple selections are allowed, please send a separate message for each of your selection.",
       "multiple-values-allowed": "ℹ️ You can enter multiple values by sending each value separately.",
       "only-one-address-allowed": "ℹ️ Please enter an address.",
       "only-one-email-allowed": "ℹ️ Please enter an email.",
@@ -26,8 +48,16 @@
       "upload-files-here": "ℹ️ Please upload the files here."
     }
   },
-  "keyboards": {
-    "select-detail-callout": "❓ Which Callout would you like to get more information displayed about? Choose a number"
+  "keyboard": {
+    "label": {
+      "cancel": "Cancel",
+      "continue": "Continue",
+      "no": "No",
+      "yes": "Yes"
+    },
+    "message": {
+      "select-detail-callout": "❓ Which Callout would you like to get more information displayed about? Choose a number"
+    }
   },
   "reactions": {
     "messages": {
@@ -49,7 +79,7 @@
       "callout-not-found": "😥 Sorry, Callout not found..",
       "callout-start-response": "❓ Would you like to respond to the callout?",
       "component-not-supported": "😅 \"{type}\" not implemented..",
-      "component-unknown": "😅 Unknown input component type \"{type}\"..",
+      "component-unknown": "😅 Unknown component type \"{type}\"..",
       "no-active-callouts": "😔 Sorry, there are currently no active callouts..",
       "not-a-file-message": "🤔 Please send a file.",
       "not-a-selection-message": "🤔 Please select the number of one of the possible answers.",

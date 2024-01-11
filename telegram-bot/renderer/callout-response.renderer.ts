@@ -138,7 +138,7 @@ export class CalloutResponseRenderer {
     if (multiple) {
       result.markdown += `_${
         escapeMd(
-          `${this.i18n.t("info.messages.multiple-values-allowed")} ${
+          `${this.i18n.t("info.messages.multiple-values-allowed")}\n\n${
             this.messageRenderer.writeDoneMessage(doneMessage).text
           }`,
         )
@@ -146,7 +146,7 @@ export class CalloutResponseRenderer {
     } else {
       result.markdown += `_${
         escapeMd(
-          `${this.i18n.t("info.messages.only-one-value-allowed")} ${
+          `${this.i18n.t("info.messages.only-one-value-allowed")}\n\n${
             this.messageRenderer.writeDoneMessage(doneMessage).text
           }`,
         )
@@ -269,7 +269,7 @@ export class CalloutResponseRenderer {
       escapeMd(
         multiple
           ? this.i18n.t("info.messages.upload-files-here")
-          : this.i18n.t("info.messages.upload-file-here")
+          : this.i18n.t("info.messages.upload-file-here"),
       )
     }_`;
 
@@ -306,14 +306,18 @@ export class CalloutResponseRenderer {
           escapeMd(
             result.accepted.multiple
               ? this.i18n.t("info.messages.multiple-addresses-allowed")
-              : this.i18n.t("info.messages.only-one-address-allowed")
+              : this.i18n.t("info.messages.only-one-address-allowed"),
           )
         }_`;
         break;
       }
       case "button": {
         result.markdown += `_${
-          escapeMd(this.i18n.t("response.messages.component-not-supported", {type: "button input component"}))
+          escapeMd(
+            this.i18n.t("response.messages.component-not-supported", {
+              type: "button input component",
+            }),
+          )
         }_`;
         break;
       }
@@ -324,7 +328,10 @@ export class CalloutResponseRenderer {
 
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("response.messages.answer-with-truthy-or-falsy", { truthy: truthyMessage, falsy: falsyMessage })
+            this.i18n.t("response.messages.answer-with-truthy-or-falsy", {
+              truthy: truthyMessage,
+              falsy: falsyMessage,
+            }),
           )
         }_`;
         result.accepted = this.condition.replayConditionText(
@@ -382,7 +389,7 @@ export class CalloutResponseRenderer {
       case "content" as unknown: {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("info.messages.enter-content")
+            this.i18n.t("info.messages.enter-content"),
           )
         }_`;
         break;
@@ -427,14 +434,16 @@ export class CalloutResponseRenderer {
       case "url" as unknown: {
         result.markdown += `_${
           escapeMd(
-           this.i18n.t("info.messages.enter-url"),
+            this.i18n.t("info.messages.enter-url"),
           )
         }_`;
         break;
       }
 
       default: {
-        result.markdown += this.i18n.t("response.messages.component-unknown", { type: (input as InputCalloutComponentSchema).type || "undefined"});
+        result.markdown += this.i18n.t("response.messages.component-unknown", {
+          type: (input as InputCalloutComponentSchema).type || "undefined",
+        });
         break;
       }
     }
@@ -488,7 +497,7 @@ export class CalloutResponseRenderer {
       case "selectboxes": {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("info.messages.multiple-selections-allowed") +
+            this.i18n.t("info.messages.multiple-selections-allowed") + "\n\n" +
               this.messageRenderer.writeDoneMessage(
                 this.i18n.t("reactions.messages.done"),
               ).text,
@@ -537,7 +546,7 @@ export class CalloutResponseRenderer {
 
     result.markdown += `_${
       escapeMd(
-        this.i18n.t("info.messages.only-one-selection-allowed")
+        this.i18n.t("info.messages.only-one-selection-allowed"),
       )
     }_`;
     return result;
@@ -600,7 +609,9 @@ export class CalloutResponseRenderer {
           key: createCalloutGroupKey(component.key, prefix),
           type: RenderType.MARKDOWN,
           accepted: this.condition.replayConditionAny(multiple),
-          markdown: this.i18n.t("response.messages.component-unknown", { type: (component as CalloutComponentSchema).type || "undefined"}),
+          markdown: this.i18n.t("response.messages.component-unknown", {
+            type: (component as CalloutComponentSchema).type || "undefined",
+          }),
           parseType: calloutComponentTypeToParsedResponseType(component),
         };
         results.push(unknown);

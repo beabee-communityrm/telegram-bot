@@ -1,5 +1,5 @@
 import { dirname, fromFileUrl, Singleton } from "../deps.ts";
-import { readJson } from "../utils/file.ts";
+import { readJson, readJsonSync } from "../utils/file.ts";
 
 const __dirname = dirname(fromFileUrl(new URL(import.meta.url)));
 
@@ -19,11 +19,12 @@ export class I18nService {
 
   constructor() {
     this.setActiveLang(this.activeLang);
+    console.debug(`${I18nService.name} created`);
   }
 
   setActiveLang(lang: string): void {
     this.activeLang = lang;
-    this.loadLanguage(this.activeLang);
+    this.loadLanguageSync(this.activeLang);
   }
 
   async loadLanguage(
@@ -32,6 +33,14 @@ export class I18nService {
   ): Promise<void> {
     filePath = filePath.replace("{lang}", lang);
     this.translations[lang] = await readJson(filePath) as Translations;
+  }
+
+  loadLanguageSync(
+    lang: string,
+    filePath = __dirname + "/../locales/{lang}.json",
+  ): void {
+    filePath = filePath.replace("{lang}", lang);
+    this.translations[lang] = readJsonSync(filePath) as Translations;
   }
 
   async loadLanguages(
@@ -63,6 +72,8 @@ export class I18nService {
     if (typeof translations === "string") {
       return translations;
     }
+
+    console.debug(`getTranslation: ${path} in ${lang}`, translations);
 
     const segments = path.split(".");
     const key = segments.shift() ?? "";

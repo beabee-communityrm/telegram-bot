@@ -88,11 +88,15 @@ export class CalloutRenderer {
     };
 
     if (callouts.items.length === 0) {
-      listResult.markdown = escapeMd(this.i18n.t("response.messages.no-active-callouts"));
+      listResult.markdown = escapeMd(
+        this.i18n.t("response.messages.no-active-callouts"),
+      );
       return [listResult];
     }
 
-    listResult.markdown = `*${escapeMd(this.i18n.t("render.callout.list.title"))}*\n\n`;
+    listResult.markdown = `*${
+      escapeMd(this.i18n.t("render.callout.list.title"))
+    }*\n\n`;
     let p = 1;
     for (const callout of callouts.items) {
       listResult.markdown += `${this.listItem(callout, `${p}.`).markdown}`;
@@ -101,7 +105,7 @@ export class CalloutRenderer {
 
     const keyboard = this.keyboard.calloutSelection(callouts.items);
     const keyboardMessageMd = `_${
-      escapeMd(this.i18n.t("keyboards.select-detail-callout"))
+      escapeMd(this.i18n.t("keyboard.message.select-detail-callout"))
     }_`;
 
     const keyboardResult: Render = {

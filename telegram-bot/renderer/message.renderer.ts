@@ -18,7 +18,10 @@ import { ParsedResponseType } from "../enums/parsed-response-type.ts";
  */
 @Singleton()
 export class MessageRenderer {
-  constructor(protected readonly condition: ConditionService, protected readonly i18n: I18nService) {
+  constructor(
+    protected readonly condition: ConditionService,
+    protected readonly i18n: I18nService,
+  ) {
     console.debug(`${MessageRenderer.name} created`);
   }
 
@@ -88,7 +91,9 @@ export class MessageRenderer {
     );
     return {
       type: RenderType.TEXT,
-      text: this.i18n.t("response.messages.not-the-right-file-type", { type: mimeTypesStr}),
+      text: this.i18n.t("response.messages.not-the-right-file-type", {
+        type: mimeTypesStr,
+      }),
     } as RenderText;
   }
 
@@ -119,7 +124,7 @@ export class MessageRenderer {
   public writeDoneMessage(doneText: string) {
     return {
       type: RenderType.TEXT,
-      text: this.i18n.t("info.messages.done", { done: doneText}),
+      text: this.i18n.t("info.messages.done", { done: doneText }),
     } as RenderText;
   }
 }

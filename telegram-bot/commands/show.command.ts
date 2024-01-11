@@ -5,6 +5,7 @@ import {
   EventService,
   KeyboardService,
 } from "../services/index.ts";
+import { I18nService } from "../services/i18n.service.ts";
 import {
   CalloutRenderer,
   CalloutResponseRenderer,
@@ -28,8 +29,11 @@ export class ShowCommand extends Command {
     protected readonly messageRenderer: MessageRenderer,
     protected readonly calloutRenderer: CalloutRenderer,
     protected readonly calloutResponseRenderer: CalloutResponseRenderer,
+    protected readonly i18n: I18nService,
   ) {
     super();
+    this.command = this.i18n.t("commands.show.command");
+    this.description = this.i18n.t("commands.show.description");
     console.debug(`${ShowCommand.name} created`);
   }
 
