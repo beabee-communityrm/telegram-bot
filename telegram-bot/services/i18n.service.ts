@@ -10,7 +10,7 @@ interface Translations {
 @Singleton()
 export class I18nService {
   private translations: { [lang: string]: Translations } = {};
-  private activeLang = "de";
+  private activeLang = "en";
 
   /**
    * Alias for translate

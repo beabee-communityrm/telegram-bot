@@ -114,9 +114,11 @@ export class CalloutResponseRenderer {
       parseType: calloutComponentTypeToParsedResponseType(input),
     };
 
-    if (input.placeholder) {
+    const placeholder = input.placeholder as string | undefined;
+
+    if (placeholder) {
       result.markdown = `_${
-        escapeMd(`Please respond with something like "${input.placeholder}".`)
+        escapeMd(this.i18n.t("info.messages.placeholder", { placeholder }))
       }_`;
     }
 
@@ -136,7 +138,7 @@ export class CalloutResponseRenderer {
     if (multiple) {
       result.markdown += `_${
         escapeMd(
-          `You can enter multiple values by sending each value separately. ${
+          `${this.i18n.t("info.messages.multiple-values-allowed")} ${
             this.messageRenderer.writeDoneMessage(doneMessage).text
           }`,
         )
@@ -144,7 +146,7 @@ export class CalloutResponseRenderer {
     } else {
       result.markdown += `_${
         escapeMd(
-          `You can only enter one value. ${
+          `${this.i18n.t("info.messages.only-one-value-allowed")} ${
             this.messageRenderer.writeDoneMessage(doneMessage).text
           }`,
         )
@@ -266,8 +268,8 @@ export class CalloutResponseRenderer {
     result.markdown += `_${
       escapeMd(
         multiple
-          ? "Please upload the files here."
-          : "Please upload the file here.",
+          ? this.i18n.t("info.messages.upload-files-here")
+          : this.i18n.t("info.messages.upload-file-here")
       )
     }_`;
 
@@ -303,15 +305,15 @@ export class CalloutResponseRenderer {
         result.markdown += `_${
           escapeMd(
             result.accepted.multiple
-              ? "You can enter one or more addresses."
-              : "Please enter an address.",
+              ? this.i18n.t("info.messages.multiple-addresses-allowed")
+              : this.i18n.t("info.messages.only-one-address-allowed")
           )
         }_`;
         break;
       }
       case "button": {
         result.markdown += `_${
-          escapeMd("button input component not implemented")
+          escapeMd(this.i18n.t("response.messages.component-not-supported", {type: "button input component"}))
         }_`;
         break;
       }
@@ -322,7 +324,7 @@ export class CalloutResponseRenderer {
 
         result.markdown += `_${
           escapeMd(
-            `Please answer with "${truthyMessage}" or "${falsyMessage}".`,
+            this.i18n.t("response.messages.answer-with-truthy-or-falsy", { truthy: truthyMessage, falsy: falsyMessage })
           )
         }_`;
         result.accepted = this.condition.replayConditionText(
@@ -336,8 +338,8 @@ export class CalloutResponseRenderer {
         result.markdown += `_${
           escapeMd(
             result.accepted.multiple
-              ? "You can enter one or more emails."
-              : "Please enter an email.",
+              ? this.i18n.t("info.messages.multiple-emails-allowed")
+              : this.i18n.t("info.messages.only-one-email-allowed"),
           )
         }_`;
         break;
@@ -346,8 +348,8 @@ export class CalloutResponseRenderer {
         result.markdown += `_${
           escapeMd(
             result.accepted.multiple
-              ? "Please enter one or more numbers."
-              : "Please enter a number.",
+              ? this.i18n.t("info.messages.multiple-numbers-allowed")
+              : this.i18n.t("info.messages.only-one-number-allowed"),
           )
         }_`;
         break;
@@ -355,7 +357,7 @@ export class CalloutResponseRenderer {
       case "password": {
         result.markdown += `_${
           escapeMd(
-            "You should enter a password here, and it's best to delete your response after sending it so the password doesn't remain in the history.",
+            this.i18n.t("info.messages.enter-password"),
           )
         }_`;
         break;
@@ -363,7 +365,7 @@ export class CalloutResponseRenderer {
       case "textfield": {
         result.markdown += `_${
           escapeMd(
-            "Please keep it brief and try to answer in one sentence.",
+            this.i18n.t("info.messages.enter-text"),
           )
         }_`;
         break;
@@ -371,7 +373,7 @@ export class CalloutResponseRenderer {
       case "textarea": {
         result.markdown += `_${
           escapeMd(
-            "You may answer in multiple lines, but please only send the response when you have finished writing.",
+            this.i18n.t("info.messages.enter-lots-of-text"),
           )
         }_`;
         break;
@@ -380,7 +382,7 @@ export class CalloutResponseRenderer {
       case "content" as unknown: {
         result.markdown += `_${
           escapeMd(
-            "You may answer in multiple lines, but please only send the response when you have finished writing. You can also use Markdown formatting.",
+            this.i18n.t("info.messages.enter-content")
           )
         }_`;
         break;
@@ -389,7 +391,7 @@ export class CalloutResponseRenderer {
       case "phoneNumber" as unknown: {
         result.markdown += `_${
           escapeMd(
-            "Please enter a telephone number.",
+            this.i18n.t("info.messages.enter-telephone-number"),
           )
         }_`;
         break;
@@ -398,7 +400,7 @@ export class CalloutResponseRenderer {
       case "currency" as unknown: {
         result.markdown += `_${
           escapeMd(
-            "Please enter an amount of money.",
+            this.i18n.t("info.messages.enter-amount-of-money"),
           )
         }_`;
         break;
@@ -407,7 +409,7 @@ export class CalloutResponseRenderer {
       case "datetime" as unknown: {
         result.markdown += `_${
           escapeMd(
-            "Please enter a date.",
+            this.i18n.t("info.messages.enter-date"),
           )
         }_`;
         break;
@@ -416,7 +418,7 @@ export class CalloutResponseRenderer {
       case "time" as unknown: {
         result.markdown += `_${
           escapeMd(
-            "Please enter a time.",
+            this.i18n.t("info.messages.enter-time"),
           )
         }_`;
         break;
@@ -425,16 +427,14 @@ export class CalloutResponseRenderer {
       case "url" as unknown: {
         result.markdown += `_${
           escapeMd(
-            "Please enter a URL.",
+           this.i18n.t("info.messages.enter-url"),
           )
         }_`;
         break;
       }
 
       default: {
-        result.markdown += `Unknown input component type ${
-          (input as InputCalloutComponentSchema).type || "undefined"
-        }`;
+        result.markdown += this.i18n.t("response.messages.component-unknown", { type: (input as InputCalloutComponentSchema).type || "undefined"});
         break;
       }
     }
@@ -480,7 +480,7 @@ export class CalloutResponseRenderer {
       case "radio": {
         result.markdown += `_${
           escapeMd(
-            "Please make your selection by typing the number of your choice or pressing the button of your choice. Only one selection is allowed.",
+            this.i18n.t("info.messages.only-one-selection-allowed"),
           )
         }_`;
         break;
@@ -488,8 +488,7 @@ export class CalloutResponseRenderer {
       case "selectboxes": {
         result.markdown += `_${
           escapeMd(
-            "Please make your selection by typing the number choices. " +
-              "Multiple selections are allowed, please send a separate message for each of your selection. " +
+            this.i18n.t("info.messages.multiple-selections-allowed") +
               this.messageRenderer.writeDoneMessage(
                 this.i18n.t("reactions.messages.done"),
               ).text,
@@ -538,7 +537,7 @@ export class CalloutResponseRenderer {
 
     result.markdown += `_${
       escapeMd(
-        "Please make your selection by typing the number of your choice or pressing the button of your choice. Only one selection is allowed.",
+        this.i18n.t("info.messages.only-one-selection-allowed")
       )
     }_`;
     return result;
@@ -601,10 +600,7 @@ export class CalloutResponseRenderer {
           key: createCalloutGroupKey(component.key, prefix),
           type: RenderType.MARKDOWN,
           accepted: this.condition.replayConditionAny(multiple),
-
-          markdown: `Unknown component type ${
-            (component as CalloutComponentSchema).type || "undefined"
-          }`,
+          markdown: this.i18n.t("response.messages.component-unknown", { type: (component as CalloutComponentSchema).type || "undefined"}),
           parseType: calloutComponentTypeToParsedResponseType(component),
         };
         results.push(unknown);

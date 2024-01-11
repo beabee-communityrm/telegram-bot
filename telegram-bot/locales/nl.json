@@ -1,9 +1,64 @@
 {
+  "info": {
+    "messages": {
+      "done": "",
+      "enter-amount-of-money": "",
+      "enter-content": "",
+      "enter-date": "",
+      "enter-lots-of-text": "",
+      "enter-password": "",
+      "enter-telephone-number": "",
+      "enter-text": "",
+      "enter-time": "",
+      "enter-url": "",
+      "multiple-addresses-allowed": "",
+      "multiple-emails-allowed": "",
+      "multiple-numbers-allowed": "",
+      "multiple-selections-allowed": "",
+      "multiple-values-allowed": "",
+      "only-one-address-allowed": "",
+      "only-one-email-allowed": "",
+      "only-one-number-allowed": "",
+      "only-one-selection-allowed": "",
+      "only-one-value-allowed": "",
+      "placeholder": "",
+      "upload-file-here": "",
+      "upload-files-here": ""
+    }
+  },
+  "keyboards": {
+    "select-detail-callout": ""
+  },
   "reactions": {
     "messages": {
       "done": "Klaar",
       "falsy": "Nee",
       "truthy": "Ja"
     }
+  },
+  "render": {
+    "callout": {
+      "list": {
+        "title": ""
+      }
+    }
+  },
+  "response": {
+    "messages": {
+      "answer-with-truthy-or-falsy": "",
+      "callout-not-found": "",
+      "callout-start-response": "",
+      "component-not-supported": "",
+      "component-unknown": "",
+      "no-active-callouts": "",
+      "not-a-file-message": "",
+      "not-a-selection-message": "",
+      "not-a-text-message": "",
+      "not-the-right-file-type": "",
+      "stop": ""
+    }
+  },
+  "universal": {
+    "or": ""
   }
 }

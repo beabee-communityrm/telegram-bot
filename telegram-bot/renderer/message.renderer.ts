@@ -2,6 +2,7 @@ import { Singleton } from "alosaur/mod.ts";
 import { RenderType } from "../enums/index.ts";
 import { getSimpleMimeTypes } from "../utils/index.ts";
 import { ConditionService } from "../services/condition.service.ts";
+import { I18nService } from "../services/i18n.service.ts";
 
 import type {
   Render,
@@ -17,15 +18,16 @@ import { ParsedResponseType } from "../enums/parsed-response-type.ts";
  */
 @Singleton()
 export class MessageRenderer {
-  constructor(protected readonly condition: ConditionService) {
+  constructor(protected readonly condition: ConditionService, protected readonly i18n: I18nService) {
     console.debug(`${MessageRenderer.name} created`);
   }
 
   public stop() {
+    const tKey = "response.messages.stop";
     const result: Render = {
       type: RenderType.TEXT,
-      text: "Ok, no problem",
-      key: "stop",
+      text: this.i18n.t(tKey),
+      key: tKey,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
     };
@@ -34,10 +36,11 @@ export class MessageRenderer {
   }
 
   public calloutNotFound() {
+    const tKey = "response.messages.callout-not-found";
     const result: Render = {
       type: RenderType.TEXT,
-      text: "Callout not found",
-      key: "callout-not-found",
+      text: this.i18n.t(tKey),
+      key: tKey,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
     };
@@ -46,44 +49,46 @@ export class MessageRenderer {
   }
 
   public notATextMessage(): RenderText {
+    const tKey = "response.messages.not-a-text-message";
     return {
       type: RenderType.TEXT,
-      text: "Please send a text message",
-      key: "not-a-text-message",
+      text: this.i18n.t(tKey),
+      key: tKey,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
     };
   }
 
   public notASelectionMessage(): RenderText {
+    const tKey = "response.messages.not-a-selection-message";
     return {
       type: RenderType.TEXT,
-      text: "Please select the number of one of the possible answers",
-      key: "not-a-selection-message",
+      text: this.i18n.t(tKey),
+      key: tKey,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
     };
   }
 
   public notAFileMessage(): RenderText {
+    const tKey = "response.messages.not-a-file-message";
     return {
       type: RenderType.TEXT,
-      text: "Please send a file",
-      key: "not-a-file-message",
+      text: this.i18n.t(tKey),
+      key: tKey,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
     };
   }
 
   public notTheRightFileType(mimeTypes: string[]) {
-    // TODO: Translate `or`
     const mimeTypesStr = getSimpleMimeTypes(mimeTypes).join(", ").replace(
       /, ([^,]*)$/,
-      " or $1",
+      ` ${this.i18n.t("universal.or")} $1`,
     );
     return {
       type: RenderType.TEXT,
-      text: "Please send a file of type " + mimeTypesStr,
+      text: this.i18n.t("response.messages.not-the-right-file-type", { type: mimeTypesStr}),
     } as RenderText;
   }
 
@@ -92,7 +97,7 @@ export class MessageRenderer {
     condition: ReplayCondition,
   ) {
     if (accepted.accepted) {
-      throw new Error("This message was accepted");
+      throw new Error("This message was accepted but should not be");
     }
     if (condition.type === ReplayType.TEXT) {
       return this.notATextMessage();
@@ -114,7 +119,7 @@ export class MessageRenderer {
   public writeDoneMessage(doneText: string) {
     return {
       type: RenderType.TEXT,
-      text: `If you are finished with your response, write "${doneText}".`,
+      text: this.i18n.t("info.messages.done", { done: doneText}),
     } as RenderText;
   }
 }

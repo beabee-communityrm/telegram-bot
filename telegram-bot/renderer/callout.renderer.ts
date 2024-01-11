@@ -2,8 +2,11 @@ import { Singleton } from "alosaur/mod.ts";
 import { downloadImage, escapeMd } from "../utils/index.ts";
 import { InputFile, InputMediaBuilder } from "grammy/mod.ts";
 import { ParsedResponseType, RenderType } from "../enums/index.ts";
-import { ConditionService, KeyboardService } from "../services/index.ts";
 import { BUTTON_CALLBACK_CALLOUT_INTRO } from "../constants/index.ts";
+
+import { ConditionService } from "../services/condition.service.ts";
+import { KeyboardService } from "../services/keyboard.service.ts";
+import { I18nService } from "../services/i18n.service.ts";
 
 import type {
   CalloutDataExt,
@@ -20,6 +23,7 @@ export class CalloutRenderer {
   constructor(
     protected readonly keyboard: KeyboardService,
     protected readonly condition: ConditionService,
+    protected readonly i18n: I18nService,
   ) {
     console.debug(`${CalloutRenderer.name} created`);
   }
@@ -32,7 +36,7 @@ export class CalloutRenderer {
    */
   protected startResponseKeyboard(callout: CalloutDataExt) {
     const keyboardMessageMd = `_${
-      escapeMd("Would you like to respond to the callout?")
+      escapeMd(this.i18n.t("response.messages.callout-start-response"))
     }_`;
     const yesNoKeyboard = this.keyboard.yesNo(
       `${BUTTON_CALLBACK_CALLOUT_INTRO}:${callout.shortSlug}`,
@@ -84,11 +88,11 @@ export class CalloutRenderer {
     };
 
     if (callouts.items.length === 0) {
-      listResult.markdown = escapeMd("There are currently no active callouts");
+      listResult.markdown = escapeMd(this.i18n.t("response.messages.no-active-callouts"));
       return [listResult];
     }
 
-    listResult.markdown = `*${escapeMd("List of active callouts")}*\n\n`;
+    listResult.markdown = `*${escapeMd(this.i18n.t("render.callout.list.title"))}*\n\n`;
     let p = 1;
     for (const callout of callouts.items) {
       listResult.markdown += `${this.listItem(callout, `${p}.`).markdown}`;
@@ -97,9 +101,7 @@ export class CalloutRenderer {
 
     const keyboard = this.keyboard.calloutSelection(callouts.items);
     const keyboardMessageMd = `_${
-      escapeMd(
-        "Which callout would you like to get more information displayed about? Choose a number",
-      )
+      escapeMd(this.i18n.t("keyboards.select-detail-callout"))
     }_`;
 
     const keyboardResult: Render = {
