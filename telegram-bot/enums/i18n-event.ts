@@ -1,3 +1,3 @@
 export enum I18nEvent {
-  LanguageChanged = "i18n:lang-changed",
+  LANGUAGE_CHANGED = "i18n:lang:changed",
 }

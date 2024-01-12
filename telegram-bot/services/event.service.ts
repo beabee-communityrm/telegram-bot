@@ -1,8 +1,8 @@
 import { Singleton } from "../deps.ts";
 
 import type {
-  TelegramBotEvent,
-  TelegramBotEventListener,
+  EventTelegramBot,
+  EventTelegramBotListener,
 } from "../types/index.ts";
 import type { Context } from "grammy/mod.ts";
 
@@ -87,7 +87,7 @@ export class EventService {
    */
   public on<T = Context>(
     eventName: string,
-    callback: TelegramBotEventListener<T>,
+    callback: EventTelegramBotListener<T>,
   ) {
     return this.events.addEventListener(eventName, callback as EventListener);
   }
@@ -100,7 +100,7 @@ export class EventService {
    */
   public once<T = Context>(
     eventName: string,
-    callback: TelegramBotEventListener<T>,
+    callback: EventTelegramBotListener<T>,
   ) {
     return this.events.addEventListener(eventName, callback as EventListener, {
       once: true,
@@ -114,10 +114,10 @@ export class EventService {
    */
   public onceAsync<T = Context>(
     eventName: string,
-  ): Promise<TelegramBotEvent<T>> {
+  ): Promise<EventTelegramBot<T>> {
     return new Promise((resolve) => {
       this.on(eventName, (event) => {
-        resolve(event as TelegramBotEvent<T>);
+        resolve(event as EventTelegramBot<T>);
       });
     });
   }
@@ -127,7 +127,7 @@ export class EventService {
    * @param eventName
    * @param callback The callback function to call when the event is emitted
    */
-  public off(eventName: string, callback: TelegramBotEventListener) {
+  public off(eventName: string, callback: EventTelegramBotListener) {
     return this.events.removeEventListener(
       eventName,
       callback as EventListener,
@@ -139,7 +139,7 @@ export class EventService {
    * @param id The Telegram user id
    * @param callback The callback function to call when the event is emitted
    */
-  public onUserMessage(id: number, callback: TelegramBotEventListener) {
+  public onUserMessage(id: number, callback: EventTelegramBotListener) {
     return this.on("message:user-" + id, callback);
   }
 
@@ -148,7 +148,7 @@ export class EventService {
    * @param id The Telegram user id
    * @param callback The callback function to call when the event is emitted
    */
-  public onceUserMessage(id: number, callback: TelegramBotEventListener) {
+  public onceUserMessage(id: number, callback: EventTelegramBotListener) {
     return this.once("message:user-" + id, callback);
   }
 
@@ -157,8 +157,8 @@ export class EventService {
    * @param id The Telegram user id
    * @returns
    */
-  public async onceUserMessageAsync(id: number): Promise<TelegramBotEvent> {
-    return await this.onceAsync("message:user-" + id) as TelegramBotEvent;
+  public async onceUserMessageAsync(id: number): Promise<EventTelegramBot> {
+    return await this.onceAsync("message:user-" + id) as EventTelegramBot;
   }
 
   /**
@@ -166,7 +166,7 @@ export class EventService {
    * @param id The Telegram user id
    * @param callback The callback function to call when the event is emitted
    */
-  public offUserMessage(id: number, callback: TelegramBotEventListener) {
+  public offUserMessage(id: number, callback: EventTelegramBotListener) {
     return this.off("message:user-" + id, callback);
   }
 }

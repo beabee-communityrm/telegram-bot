@@ -18,6 +18,7 @@ interface Translations {
 export class I18nService {
   protected translations: { [lang: string]: Translations } = {};
   protected _activeLang = "en";
+  protected _ready = false;
 
   /**
    * Alias for translate
@@ -30,6 +31,7 @@ export class I18nService {
 
   constructor(protected readonly event: EventService) {
     this.setActiveLangSync(this._activeLang);
+    this._ready = true;
     console.debug(`${this.constructor.name} created`);
   }
   /**
@@ -37,19 +39,29 @@ export class I18nService {
    * @param lang The language to set as active, e.g. "en"
    */
   public async setActiveLang(lang: string) {
+    if (this._ready && this._activeLang === lang) {
+      console.debug(`Language already set to "${lang}"`);
+      return false;
+    }
     this._activeLang = lang;
     await this.loadLanguage(this._activeLang);
-    this.event.emit(I18nEvent.LanguageChanged, this._activeLang);
+    this.event.emit(I18nEvent.LANGUAGE_CHANGED, this._activeLang);
   }
 
   /**
    * Set the active language synchronously
    * @param lang The language to set as active, e.g. "en"
+   * @returns Whether the language was changed
    */
-  public setActiveLangSync(lang: string): void {
+  public setActiveLangSync(lang: string): boolean {
+    if (this._ready && this._activeLang === lang) {
+      console.debug(`Language already set to "${lang}"`);
+      return false;
+    }
     this._activeLang = lang;
     this.loadLanguageSync(this._activeLang);
-    this.event.emit(I18nEvent.LanguageChanged, this._activeLang);
+    this.event.emit(I18nEvent.LANGUAGE_CHANGED, this._activeLang);
+    return true;
   }
 
   /**

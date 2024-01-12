@@ -1,3 +1,4 @@
+export * from "./beabee-content-event-name.ts";
 export * from "./bot-command-scope.ts";
 export * from "./callout-component-main-type.ts";
 export * from "./i18n-event.ts";
