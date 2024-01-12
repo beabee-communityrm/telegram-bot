@@ -28,7 +28,7 @@
       "enter-content": "ℹ️ Você pode responder em várias linhas. Envie sua resposta somente após terminar de escrever. Formatação Markdown é suportada.",
       "enter-date": "ℹ️ Por favor, insira uma data.",
       "enter-lots-of-text": "ℹ️ Você pode responder em várias linhas. Envie sua resposta somente após terminar de escrever. Formatação Markdown é suportada.",
-      "enter-password": "",
+      "enter-password": "ℹ️ Por favor, insira uma senha. Por segurança, é aconselhável apagar sua resposta após o envio para evitar que ela permaneça no histórico do chat.",
       "enter-telephone-number": "ℹ️ Por favor, insira um número de telefone.",
       "enter-text": "ℹ️ Por favor, mantenha sua resposta breve, idealmente em uma frase.",
       "enter-time": "ℹ️ Por favor, insira um horário.",
