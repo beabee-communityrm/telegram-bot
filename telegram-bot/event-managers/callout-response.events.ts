@@ -23,7 +23,7 @@ export class CalloutResponseEventManager extends EventManager {
     protected readonly transform: TransformService,
   ) {
     super();
-    console.debug(`${CalloutResponseEventManager.name} created`);
+    console.debug(`${this.constructor.name} created`);
   }
 
   public init() {

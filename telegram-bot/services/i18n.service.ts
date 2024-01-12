@@ -1,5 +1,7 @@
 import { dirname, fromFileUrl, Singleton } from "../deps.ts";
 import { readJson, readJsonSync } from "../utils/file.ts";
+import { EventService } from "./event.service.ts";
+import { I18nEvent } from "../enums/i18n-event.ts";
 
 const __dirname = dirname(fromFileUrl(new URL(import.meta.url)));
 
@@ -14,25 +16,30 @@ interface Translations {
  */
 @Singleton()
 export class I18nService {
-  private translations: { [lang: string]: Translations } = {};
-  private activeLang = "en";
+  protected translations: { [lang: string]: Translations } = {};
+  protected _activeLang = "en";
 
   /**
    * Alias for translate
    */
   t = this.translate.bind(this);
 
-  constructor() {
-    this.setActiveLangSync(this.activeLang);
-    console.debug(`${I18nService.name} created`);
+  get activeLang() {
+    return this._activeLang;
+  }
+
+  constructor(protected readonly event: EventService) {
+    this.setActiveLangSync(this._activeLang);
+    console.debug(`${this.constructor.name} created`);
   }
   /**
    * Set the active language
    * @param lang The language to set as active, e.g. "en"
    */
   public async setActiveLang(lang: string) {
-    this.activeLang = lang;
-    await this.loadLanguage(this.activeLang);
+    this._activeLang = lang;
+    await this.loadLanguage(this._activeLang);
+    this.event.emit(I18nEvent.LanguageChanged, this._activeLang);
   }
 
   /**
@@ -40,8 +47,9 @@ export class I18nService {
    * @param lang The language to set as active, e.g. "en"
    */
   public setActiveLangSync(lang: string): void {
-    this.activeLang = lang;
-    this.loadLanguageSync(this.activeLang);
+    this._activeLang = lang;
+    this.loadLanguageSync(this._activeLang);
+    this.event.emit(I18nEvent.LanguageChanged, this._activeLang);
   }
 
   /**
@@ -90,7 +98,7 @@ export class I18nService {
   public translate(
     path: string,
     placeholders: { [key: string]: string } = {},
-    lang: string = this.activeLang,
+    lang: string = this._activeLang,
   ): string {
     const translation = this.getTranslation(
       path,

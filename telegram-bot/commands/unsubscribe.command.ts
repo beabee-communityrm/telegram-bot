@@ -7,6 +7,7 @@ import type { Context } from "../types/index.ts";
 
 @Singleton()
 export class UnsubscribeCommand extends Command {
+  key = "unsubscribe";
   command = "unsubscribe";
   description = "Unsubscribe from a Callout";
 
@@ -15,9 +16,6 @@ export class UnsubscribeCommand extends Command {
     protected readonly i18n: I18nService,
   ) {
     super();
-    this.command = this.i18n.t("commands.unsubscribe.command");
-    this.description = this.i18n.t("commands.unsubscribe.description");
-    console.debug(`${UnsubscribeCommand.name} created`);
   }
 
   async action(ctx: Context) {

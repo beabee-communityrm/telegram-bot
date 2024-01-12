@@ -1,10 +1,7 @@
 import { Singleton } from "alosaur/mod.ts";
-import {
-  CalloutService,
-  CommunicationService,
-  EventService,
-  KeyboardService,
-} from "../services/index.ts";
+import { CalloutService } from "../services/callout.service.ts";
+import { CommunicationService } from "../services/communication.service.ts";
+import { KeyboardService } from "../services/keyboard.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import {
   CalloutRenderer,
@@ -18,6 +15,7 @@ import type { Context } from "../types/index.ts";
 
 @Singleton()
 export class ShowCommand extends Command {
+  key = "show";
   command = "show";
   description = `Shows you information about a specific callout`;
 
@@ -25,16 +23,12 @@ export class ShowCommand extends Command {
     protected readonly callout: CalloutService,
     protected readonly communication: CommunicationService,
     protected readonly keyboard: KeyboardService,
-    protected readonly event: EventService,
     protected readonly messageRenderer: MessageRenderer,
     protected readonly calloutRenderer: CalloutRenderer,
     protected readonly calloutResponseRenderer: CalloutResponseRenderer,
     protected readonly i18n: I18nService,
   ) {
     super();
-    this.command = this.i18n.t("commands.show.command");
-    this.description = this.i18n.t("commands.show.description");
-    console.debug(`${ShowCommand.name} created`);
   }
 
   // Handle the /show command

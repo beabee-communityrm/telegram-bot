@@ -7,6 +7,7 @@ import type { Context } from "../types/index.ts";
 
 @Singleton()
 export class SubscribeCommand extends Command {
+  key = "subscribe";
   command = "subscribe";
   description = "Subscribe a Callout";
 
@@ -15,9 +16,6 @@ export class SubscribeCommand extends Command {
     protected readonly i18n: I18nService,
   ) {
     super();
-    this.command = this.i18n.t("commands.subscribe.command");
-    this.description = this.i18n.t("commands.subscribe.description");
-    console.debug(`${SubscribeCommand.name} created`);
   }
 
   async action(ctx: Context) {

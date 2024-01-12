@@ -4,7 +4,7 @@ import { I18nService } from "./i18n.service.ts";
 import { BeabeeContentService } from "./beabee-content.service.ts";
 
 import type { CommandClass, EventManagerClass } from "../types/index.ts";
-import type { BotCommand } from "grammy_types/mod.ts";
+import type { BotCommand } from "../types/index.ts";
 
 /**
  * TelegramService is a Singleton service that handles the Telegram bot.
@@ -16,7 +16,7 @@ import type { BotCommand } from "grammy_types/mod.ts";
 export class TelegramService {
   bot: Bot;
 
-  commands: { [key: string]: Command } = {};
+  protected readonly _commands: { [key: string]: Command } = {};
 
   constructor(
     protected readonly i18n: I18nService,
@@ -27,7 +27,15 @@ export class TelegramService {
     this.bot = new Bot(token);
 
     this.bootstrap().catch(console.error);
-    console.debug(`${TelegramService.name} created`);
+    console.debug(`${this.constructor.name} created`);
+  }
+
+  public changeLanguage(lang: string) {
+    for (const command of Object.values(this._commands)) {
+      command.changeLanguage(lang);
+    }
+    // FIXME: This is not working on runtime
+    // await this.resetCommands();
   }
 
   /**
@@ -38,11 +46,18 @@ export class TelegramService {
    */
   protected async bootstrap() {
     // TODO: Also process the other properties from the beabee content like `organisationName`, `logoUrl`. `siteUrl`, etc.
-    const beabeeGeneralContent = await this.beabeeContent.get("general");
-    console.debug("beabeeGeneralContent", beabeeGeneralContent);
+    try {
+      const beabeeGeneralContent = await this.beabeeContent.get("general");
+      console.debug("beabeeGeneralContent", beabeeGeneralContent);
 
-    // Initialize the localization
-    await this.i18n.setActiveLang(beabeeGeneralContent.locale);
+      // Initialize the localization
+      await this.i18n.setActiveLang(beabeeGeneralContent.locale);
+    } catch (error) {
+      console.warn(
+        `Could not load beabee content, this means that some settings cannot be adopted by beabee, for example the language. The bot will therefore use the default language code "${this.i18n.activeLang}". `,
+        error,
+      );
+    }
 
     // Initialize the Telegram commands
     const Commands = await import("../commands/index.ts");
@@ -66,6 +81,32 @@ export class TelegramService {
   }
 
   /**
+   * FIXME: Not working on runtime
+   * @returns
+   */
+  protected async resetCommands() {
+    const commands = Object.values(this._commands);
+
+    if (commands.length === 0) {
+      console.warn("No commands found");
+      return;
+    }
+
+    await this.bot.api.deleteMyCommands();
+
+    for (const command of commands) {
+      this.bot.command(command.command, command.action.bind(command));
+    }
+
+    await this.bot.api.setMyCommands(
+      commands.map((command) => ({
+        command: command.command,
+        description: command.description,
+      })),
+    );
+  }
+
+  /**
    * Register new commands to the bot.
    * To define a new command, create a new class in the commands folder:
    * - The class must implement the Command interface.
@@ -75,16 +116,9 @@ export class TelegramService {
   protected async addCommands(Commands: { [key: string]: CommandClass }) {
     for (const Command of Object.values(Commands)) {
       const command = container.resolve(Command); // Get the Singleton instance
-      this.commands[command.command] = command;
-      this.bot.command(command.command, command.action.bind(command));
+      this._commands[command.command] = command;
     }
 
-    const setCommands = Object.values(this.commands).map((
-      { command, description },
-    ) => ({ command, description } as BotCommand));
-    console.debug("Setting commands", setCommands);
-    // Remove all commands and set the new ones
-    await this.bot.api.deleteMyCommands();
-    await this.bot.api.setMyCommands(setCommands);
+    await this.resetCommands();
   }
 }

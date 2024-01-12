@@ -11,11 +11,9 @@ import {
   ParsedResponseType,
   RenderType,
 } from "../enums/index.ts";
-import {
-  ConditionService,
-  I18nService,
-  KeyboardService,
-} from "../services/index.ts";
+import { KeyboardService } from "../services/keyboard.service.ts";
+import { I18nService } from "../services/i18n.service.ts";
+import { ConditionService } from "../services/condition.service.ts";
 import { MessageRenderer } from "./message.renderer.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
@@ -46,7 +44,7 @@ export class CalloutResponseRenderer {
     protected readonly condition: ConditionService,
     protected readonly i18n: I18nService,
   ) {
-    console.debug(`${CalloutResponseRenderer.name} created`);
+    console.debug(`${this.constructor.name} created`);
   }
 
   protected isMultiple(component: BaseCalloutComponentSchema) {

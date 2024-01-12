@@ -22,7 +22,7 @@ export class MessageRenderer {
     protected readonly condition: ConditionService,
     protected readonly i18n: I18nService,
   ) {
-    console.debug(`${MessageRenderer.name} created`);
+    console.debug(`${this.constructor.name} created`);
   }
 
   public stop() {

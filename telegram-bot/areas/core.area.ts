@@ -1,9 +1,9 @@
 import { Area } from "alosaur/mod.ts";
-import { CoreController } from "../controllers/core.controller.ts";
+import * as Controllers from "../controllers/index.ts";
 
 // Declare module
 @Area({
-  controllers: [CoreController],
+  controllers: [...Object.values(Controllers)],
 })
 export class CoreArea {
 }

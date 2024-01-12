@@ -23,7 +23,7 @@ export class BeabeeContentService {
 
     this.client = new ContentClient({ path, host, token });
     this.baseUrl = new URL(basePath, baseUrl);
-    console.debug(`${BeabeeContentService.name} created`);
+    console.debug(`${this.constructor.name} created`);
   }
 
   public async get<Id extends ContentId>(

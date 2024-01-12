@@ -10,7 +10,7 @@ import type { CalloutDataExt } from "../types/index.ts";
 @Singleton()
 export class KeyboardService {
   constructor(protected readonly i18n: I18nService) {
-    console.debug(`${KeyboardService.name} created`);
+    console.debug(`${this.constructor.name} created`);
   }
 
   /**

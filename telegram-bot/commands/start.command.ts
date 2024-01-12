@@ -6,14 +6,12 @@ import type { Context } from "../types/index.ts";
 
 @Singleton()
 export class StartCommand extends Command {
+  key = "start";
   command = "start";
   description = "Start the bot";
 
   constructor(protected readonly i18n: I18nService) {
     super();
-    this.command = this.i18n.t("commands.start.command");
-    this.description = this.i18n.t("commands.start.description");
-    console.debug(`${StartCommand.name} created`);
   }
 
   // Handle the /start command, replay with markdown formatted text: https://grammy.dev/guide/basics#sending-message-with-formatting

@@ -9,7 +9,7 @@ const paths = [
   "./event-managers",
   "./models",
   "./renderer",
-  "./services",
+  // "./services", // The dependency injection system can sometimes cause problems with it
   "./types",
   "./utils",
 ];

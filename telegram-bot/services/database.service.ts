@@ -26,6 +26,6 @@ export class DatabaseService extends DataSource {
       console.error(error);
     }
 
-    console.debug(`${DatabaseService.name} created`);
+    console.debug(`${this.constructor.name} created`);
   }
 }

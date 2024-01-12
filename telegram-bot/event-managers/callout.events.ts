@@ -17,7 +17,7 @@ export class CalloutEventManager extends EventManager {
     protected readonly calloutRenderer: CalloutRenderer,
   ) {
     super();
-    console.debug(`${CalloutEventManager.name} created`);
+    console.debug(`${this.constructor.name} created`);
   }
 
   public init() {

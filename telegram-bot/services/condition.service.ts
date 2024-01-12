@@ -33,7 +33,7 @@ import { Context } from "../types/grammy.ts";
 @Singleton()
 export class ConditionService {
   constructor() {
-    console.debug(`${ConditionService.name} created`);
+    console.debug(`${this.constructor.name} created`);
   }
 
   public replayConditionNone(multiple = false): ReplayConditionNone {

@@ -1,6 +1,6 @@
 import { Singleton } from "alosaur/mod.ts";
 import { EventService } from "../services/event.service.ts";
-import { TelegramService } from "../services/index.ts";
+import { TelegramService } from "../services/telegram.service.ts";
 import { EventManager } from "../core/event-manager.ts";
 
 import type { Context } from "../types/index.ts";
@@ -12,7 +12,7 @@ export class TelegramEventManager extends EventManager {
     protected readonly telegramService: TelegramService,
   ) {
     super();
-    console.debug(`${TelegramEventManager.name} created`);
+    console.debug(`${this.constructor.name} created`);
   }
 
   /**

@@ -26,7 +26,7 @@ export class CommunicationService {
     protected readonly transform: TransformService,
     protected readonly condition: ConditionService,
   ) {
-    console.debug(`${CommunicationService.name} created`);
+    console.debug(`${this.constructor.name} created`);
   }
 
   /**

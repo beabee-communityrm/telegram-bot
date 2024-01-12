@@ -34,7 +34,7 @@ import type {
 @Singleton()
 export class TransformService {
   constructor(readonly i18n: I18nService) {
-    console.debug(`${TransformService.name} created`);
+    console.debug(`${this.constructor.name} created`);
   }
 
   public parseResponseFile(

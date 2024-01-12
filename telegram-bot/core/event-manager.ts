@@ -1,4 +1,4 @@
-import { EventService } from "../services/index.ts";
+import { EventService } from "../services/event.service.ts";
 
 export abstract class EventManager {
   protected abstract readonly event: EventService;
