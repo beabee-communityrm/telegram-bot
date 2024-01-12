@@ -46,6 +46,6 @@
     "generate:index": "cd telegram-bot && deno task generate:index && cd ../beabee-client && deno task generate:index",
     "docker:build": "cd telegram-bot && deno task docker:build",
     "docker:start": "cd telegram-bot && deno task docker:start",
-    "dicker:push": "docker push beabee/telegram-bot:latest"
+    "docker:push": "docker push beabee/telegram-bot:latest"
   }
 }
