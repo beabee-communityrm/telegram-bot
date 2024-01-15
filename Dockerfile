@@ -13,8 +13,8 @@ WORKDIR /app/telegram-bot
 # Download the dependencies
 RUN deno cache main.ts --config deno.jsonc
 
-# Start the bot
+# Compile the bot
 # RUN deno task compile
 
-# Run the compiled binary
+# Run the bot
 CMD ["deno", "task", "start"]
