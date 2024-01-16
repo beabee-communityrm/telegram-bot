@@ -2,6 +2,7 @@ import { Bot, container, Singleton } from "../deps.ts";
 import { Command } from "../core/index.ts";
 import { I18nService } from "./i18n.service.ts";
 import { BeabeeContentService } from "./beabee-content.service.ts";
+import { readJson } from '../utils/index.ts';
 
 import type { CommandClass, EventManagerClass } from "../types/index.ts";
 
@@ -44,12 +45,22 @@ export class TelegramService {
    * - Start the bot
    */
   protected async bootstrap() {
+    await this.printInfo();
     await this.initBeabeeContent();
     await this.initCommands();
     await this.initEventManagers();
 
     // Start the bot
     this.bot.start();
+  }
+
+  protected async printInfo() {
+
+    const pkg = await readJson("./deno.jsonc");
+    console.info(`\n${pkg.name} v${pkg.version}`);
+
+    const me = await this.bot.api.getMe();
+    console.info(`\nBot will start as "${me.username}"`);
   }
 
   protected async initBeabeeContent() {
@@ -61,6 +72,8 @@ export class TelegramService {
 
     // Watch the general content for changes, changes will be broadcasted to the EventService
     this.beabeeContent.watch("general");
+
+    return beabeeGeneralContent;
   }
 
   protected async initEventManagers() {

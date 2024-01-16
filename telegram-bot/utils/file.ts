@@ -1,5 +1,5 @@
 import { getFilenameFromUrl } from "./index.ts";
-import { mediaTypes } from "../deps.ts";
+import { mediaTypes, parseJsonc } from "../deps.ts";
 
 export const mimeTypeNames = Object.keys(mediaTypes.db);
 
@@ -110,7 +110,7 @@ export const getSimpleMimeTypes = (mimeTypes: string[]) => {
  */
 export const readJson = async (path: string) => {
   const fileContent = await Deno.readTextFile(path);
-  return JSON.parse(fileContent);
+  return parseJsonc(fileContent);
 };
 
 /**
@@ -120,5 +120,5 @@ export const readJson = async (path: string) => {
  */
 export const readJsonSync = (path: string) => {
   const fileContent = Deno.readTextFileSync(path);
-  return JSON.parse(fileContent);
+  return parseJsonc(fileContent);
 };
