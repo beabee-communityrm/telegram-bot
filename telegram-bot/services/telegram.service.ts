@@ -2,7 +2,7 @@ import { Bot, container, Singleton } from "../deps.ts";
 import { Command } from "../core/index.ts";
 import { I18nService } from "./i18n.service.ts";
 import { BeabeeContentService } from "./beabee-content.service.ts";
-import { readJson } from '../utils/index.ts';
+import { readJson, waitForUrl } from '../utils/index.ts';
 
 import type { CommandClass, EventManagerClass } from "../types/index.ts";
 
@@ -46,12 +46,21 @@ export class TelegramService {
    */
   protected async bootstrap() {
     await this.printInfo();
+    await this.waitForBeabee();
     await this.initBeabeeContent();
     await this.initCommands();
     await this.initEventManagers();
 
     // Start the bot
     this.bot.start();
+  }
+
+  protected async waitForBeabee() {
+    console.debug("Waiting for Beabee...");
+    const api = Deno.env.get("API_PROXY_URL")!;
+    await waitForUrl(api);
+    console.debug("Beabee is ready");
+    return;
   }
 
   protected async printInfo() {
@@ -71,7 +80,7 @@ export class TelegramService {
     await this.i18n.setActiveLang(beabeeGeneralContent.locale);
 
     // Watch the general content for changes, changes will be broadcasted to the EventService
-    this.beabeeContent.watch("general");
+    this.beabeeContent.subscribe("general");
 
     return beabeeGeneralContent;
   }

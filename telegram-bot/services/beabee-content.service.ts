@@ -52,11 +52,12 @@ export class BeabeeContentService {
   }
 
   /**
-   * Watch a content for changes by polling the API
+   * Subscribe a content for changes by polling the API
    * @param id
    * @param interval
+   * @emits beabee-content:[id]:changed e.g. "beabee-content:general:changed"
    */
-  public watch<Id extends ContentId>(
+  public subscribe<Id extends ContentId>(
     id: Id,
     interval = 5000,
   ) {
@@ -82,10 +83,10 @@ export class BeabeeContentService {
   }
 
   /**
-   * Stop watching a content / polling the API
+   * Unsubscribe a content / polling the API
    * @param id
    */
-  public unwatch<Id extends ContentId>(
+  public unsubscribe<Id extends ContentId>(
     id: Id,
   ) {
     if (this._timer[id]) {
@@ -101,6 +102,13 @@ export class BeabeeContentService {
     return await this.client.update(id, content);
   }
 
+  /**
+   * Emit a content change event
+   * @param id The content id
+   * @param newContent The new content
+   * @param oldContent The old content
+   * @emits beabee-content:[id]:changed e.g. "beabee-content:general:changed"
+   */
   protected emitContentChange<Id extends ContentId>(
     id: Id,
     newContent: Content<Id>,
