@@ -15,7 +15,17 @@
     "sqlite3": "https://deno.land/x/sqlite3@0.10.0/mod.ts",
     "@beabee/beabee-common": "../beabee-common/mod.ts",
     "@beabee/client": "../beabee-client/mod.ts",
-    "@beabee/telegram-bot": "./main.ts"
+    "@beabee/telegram-bot": "./main.ts",
+    "date-fns": "npm:date-fns@3.2.0",
+    "date-fns/add": "npm:date-fns@3.2.0/add",
+    "date-fns/isValid": "npm:date-fns@3.2.0/isValid",
+    "date-fns/parseISO": "npm:date-fns@3.2.0/parseISO",
+    "date-fns/startOfDay": "npm:date-fns@3.2.0/startOfDay",
+    "date-fns/startOfHour": "npm:date-fns@3.2.0/startOfHour",
+    "date-fns/startOfMinute": "npm:date-fns@3.2.0/startOfMinute",
+    "date-fns/startOfMonth": "npm:date-fns@3.2.0/startOfMonth",
+    "date-fns/startOfSecond": "npm:date-fns@3.2.0/startOfSecond",
+    "date-fns/startOfYear": "npm:date-fns@3.2.0/startOfYear"
   },
   "scopes": {
     "https://raw.githubusercontent.com/Zhomart/dex/": {

@@ -4,6 +4,7 @@
     "specifiers": {
       "npm:@beabee/beabee-common@1.18.1": "npm:@beabee/beabee-common@1.18.1",
       "npm:@types/markdown-it": "npm:@types/markdown-it@13.0.7",
+      "npm:date-fns@3.2.0": "npm:date-fns@3.2.0",
       "npm:googleapis": "npm:googleapis@130.0.0",
       "npm:markdown-it": "npm:markdown-it@14.0.0",
       "npm:query-string@8.1.0": "npm:query-string@8.1.0",
@@ -155,6 +156,10 @@
         "dependencies": {
           "@babel/runtime": "@babel/runtime@7.23.4"
         }
+      },
+      "date-fns@3.2.0": {
+        "integrity": "sha512-E4KWKavANzeuusPi0jUjpuI22SURAznGkx7eZV+4i6x2A+IZxAMcajgkvuDAU1bg40+xuhW1zRdVIIM/4khuIg==",
+        "dependencies": {}
       },
       "debug@4.3.4": {
         "integrity": "sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==",

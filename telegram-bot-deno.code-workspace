@@ -34,7 +34,10 @@
       "./beabee-client/node_modules",
       "./beabee-client/jest.config.web.js",
       "./beabee-client/jest.config.node.js",
-      "./beabee-common"
+      "./beabee-common/dist",
+      "./beabee-common/scripts",
+      "./beabee-common/test/node",
+      "./beabee-common/jest.config.js"
     ],
     "[typescript]": {
       "editor.defaultFormatter": "denoland.vscode-deno"
