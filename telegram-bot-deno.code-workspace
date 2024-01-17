@@ -1,0 +1,68 @@
+{
+  "folders": [
+    {
+      "path": ".",
+      "name": "root"
+    },
+    {
+      "path": "./telegram-bot",
+      "name": "telegram-bot"
+    },
+    {
+      "path": "./beabee-client",
+      "name": "beabee-client"
+    }
+  ],
+  "settings": {
+    "cSpell.words": [
+      "alosaur",
+      "Beabee",
+      "callouts",
+      "datetime",
+      "Deno",
+      "denodb",
+      "selectboxes"
+    ],
+    "deno.enable": true,
+    "deno.lint": true,
+    "deno.unstable": true,
+    "deno.cacheOnSave": true,
+    "deno.disablePaths": [
+      "./beabee-client/test/web",
+      "./beabee-client/test/node",
+      "./beabee-client/out",
+      "./beabee-client/node_modules",
+      "./beabee-client/jest.config.web.js",
+      "./beabee-client/jest.config.node.js",
+      "./beabee-common"
+    ],
+    "[typescript]": {
+      "editor.defaultFormatter": "denoland.vscode-deno"
+    },
+    "editor.formatOnSave": true,
+    "typescript.format.enable": true,
+  },
+  "recommendations": [
+    "denoland.vscode-deno"
+  ],
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "request": "launch",
+        "name": "Debug Telegram Bot with Deno",
+        "type": "node",
+        "program": "${workspaceFolder}/main.ts",
+        "cwd": "${workspaceFolder}/telegram-bot",
+        "runtimeExecutable": "deno",
+        "runtimeArgs": [
+          "run",
+          "--inspect-wait",
+          "--allow-all",
+          "--unstable"
+        ],
+        "attachSimplePort": 9229
+      }
+    ]
+  }
+}

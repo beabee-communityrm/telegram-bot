@@ -26,8 +26,10 @@ To get started with this workspace:
   migration between different versions of Deno.
 - Ensure you have Visual Studio Code installed with support for Deno.
 - Clone this repository and open it in VSCode.
-- VSCode will recognize the workspace configuration and load each project with
-  its specific settings and dependencies.
+- Open the `telegram-bot-deno.code-workspace` workspace file in VSCode to work on the projects written with Deno.
+- Open the `telegram-bot-node.code-workspace` workspace file in VSCode to work on the projects written with Node.js.
+
+| Note: At the moment it is not working to mix Node.js and Deno workspaces. See issues: [#1](https://github.com/denoland/vscode_deno/issues/787) and [#2](https://github.com/denoland/vscode_deno/issues/488).
 
 For detailed information on working with multi-root workspaces in Visual Studio
 Code, refer to the

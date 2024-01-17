@@ -1,0 +1,3 @@
+[submodule "beabee-common"]
+	path = beabee-common
+	url = git@github.com:beabee-communityrm/beabee-common.git

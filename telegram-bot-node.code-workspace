@@ -1,0 +1,27 @@
+{
+  "folders": [
+    {
+      "path": ".",
+      "name": "telegram-bot (root)"
+    },
+    {
+      "path": "./beabee-common",
+      "name": "beabee-common"
+    }
+  ],
+  "settings": {
+    "cSpell.words": [
+      "alosaur",
+      "Beabee",
+      "callouts",
+      "datetime",
+      "Deno",
+      "denodb",
+      "selectboxes"
+    ],
+    "deno.enable": false,
+    "editor.formatOnSave": true,
+    "typescript.format.enable": true,
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+  }
+}
