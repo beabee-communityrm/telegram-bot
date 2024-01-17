@@ -42,9 +42,6 @@
     "editor.formatOnSave": true,
     "typescript.format.enable": true,
   },
-  "recommendations": [
-    "denoland.vscode-deno"
-  ],
   "launch": {
     "version": "0.2.0",
     "configurations": [
@@ -63,6 +60,11 @@
         ],
         "attachSimplePort": 9229
       }
+    ]
+  },
+  "extensions": {
+    "recommendations": [
+      "denoland.vscode-deno"
     ]
   }
 }
