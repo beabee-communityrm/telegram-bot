@@ -99,6 +99,7 @@ parts of the application:
 - `core`: Contains abstract classes of the application, such as `Command` to
   implement a new Telegram Command and the `EventManager` to implement a new
   event manger.
+- `data`: Contains data which can be persisted in docker volumes such the `database.sql`.
 - `renderer`: Includes classes for rendering Markdown texts, including
   `CalloutRenderer`, `MessageRenderer`, `CalloutResponseRenderer` and more.
 - `enums`: Contains enums used throughout the application.
