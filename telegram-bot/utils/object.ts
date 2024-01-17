@@ -1,3 +1,9 @@
+/**
+ * Deep equal for objects
+ * @param obj1 The first object to compare.
+ * @param obj2 The second object to compare.
+ * @returns Whether the objects are equal.
+ */
 // deno-lint-ignore no-explicit-any
 export function deepEqual(obj1: any, obj2: any): boolean {
   if (obj1 === obj2) {

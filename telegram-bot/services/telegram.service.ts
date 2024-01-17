@@ -2,7 +2,7 @@ import { Bot, container, Singleton } from "../deps.ts";
 import { Command } from "../core/index.ts";
 import { I18nService } from "./i18n.service.ts";
 import { BeabeeContentService } from "./beabee-content.service.ts";
-import { readJson, waitForUrl } from '../utils/index.ts';
+import { readJson, waitForUrl } from "../utils/index.ts";
 
 import type { CommandClass, EventManagerClass } from "../types/index.ts";
 
@@ -64,7 +64,6 @@ export class TelegramService {
   }
 
   protected async printInfo() {
-
     const pkg = await readJson("./deno.jsonc");
     console.info(`\n${pkg.name} v${pkg.version}`);
 

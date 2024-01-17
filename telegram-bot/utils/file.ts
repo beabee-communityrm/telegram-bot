@@ -3,6 +3,12 @@ import { mediaTypes, parseJsonc } from "../deps.ts";
 
 export const mimeTypeNames = Object.keys(mediaTypes.db);
 
+/**
+ * Download an image from a url and return the path to the downloaded image.
+ * @param url The url of the image to download.
+ * @param path The path to download the image to, or undefined to download to a temporary directory.
+ * @returns The path to the downloaded image.
+ */
 export const downloadImage = async (url: string | URL, path?: string) => {
   if (typeof url === "string") {
     url = new URL(url);
