@@ -19,7 +19,7 @@
   // Please also add this imports the the root deno.jsonc file until the workspace feature is stable
   "imports": {
     "std/": "https://deno.land/std@0.207.0/",
-    "@beabee/beabee-common": "npm:@beabee/beabee-common@1.18.1",
+    "@beabee/beabee-common": "../beabee-common/mod.ts",
     "@beabee/client": "./mod.ts"
   }
 }
