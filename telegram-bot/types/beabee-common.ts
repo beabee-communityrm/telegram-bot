@@ -7,8 +7,9 @@ export type {
   CalloutResponseAnswers,
   CalloutSlideSchema,
   InputCalloutComponentSchema,
+  InputFileCalloutComponentSchema,
   NestableCalloutComponentSchema,
   Paginated,
   RadioCalloutComponentSchema,
   SelectCalloutComponentSchema,
-} from "@beabee/beabee-common";
+} from "../../beabee-common/mod.ts";

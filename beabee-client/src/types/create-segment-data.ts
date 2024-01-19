@@ -1,4 +1,4 @@
-import type { RuleGroup } from "@beabee/beabee-common";
+import type { RuleGroup } from "../deps.ts";
 
 export interface CreateSegmentData {
   name: string;

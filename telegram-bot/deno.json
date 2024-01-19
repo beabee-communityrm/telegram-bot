@@ -13,19 +13,7 @@
     "std/": "https://deno.land/std@0.207.0/",
     "typeorm": "npm:typeorm@0.3.17",
     "sqlite3": "https://deno.land/x/sqlite3@0.10.0/mod.ts",
-    "@beabee/beabee-common": "../beabee-common/mod.ts",
-    "@beabee/client": "../beabee-client/mod.ts",
-    "@beabee/telegram-bot": "./main.ts",
-    "date-fns": "npm:date-fns@3.2.0",
-    "date-fns/add": "npm:date-fns@3.2.0/add",
-    "date-fns/isValid": "npm:date-fns@3.2.0/isValid",
-    "date-fns/parseISO": "npm:date-fns@3.2.0/parseISO",
-    "date-fns/startOfDay": "npm:date-fns@3.2.0/startOfDay",
-    "date-fns/startOfHour": "npm:date-fns@3.2.0/startOfHour",
-    "date-fns/startOfMinute": "npm:date-fns@3.2.0/startOfMinute",
-    "date-fns/startOfMonth": "npm:date-fns@3.2.0/startOfMonth",
-    "date-fns/startOfSecond": "npm:date-fns@3.2.0/startOfSecond",
-    "date-fns/startOfYear": "npm:date-fns@3.2.0/startOfYear"
+    "date-fns": "npm:date-fns@3.2.0"
   },
   "scopes": {
     "https://raw.githubusercontent.com/Zhomart/dex/": {
@@ -36,7 +24,7 @@
     "dev": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces --watch ./main.ts",
     "start": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces ./main.ts",
     "compile": "deno compile --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces ./main.ts",
-    "generate:index": "deno run --allow-read --allow-write scripts/generate-index.ts && deno fmt",
+    "generate:index": "deno run --allow-read --allow-write --unstable-workspaces scripts/generate-index.ts && deno fmt",
     "test": "deno test --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces",
     "lint": "deno lint",
     "cache": "deno cache --unstable --reload main.ts",

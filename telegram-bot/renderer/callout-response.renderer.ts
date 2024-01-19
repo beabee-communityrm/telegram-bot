@@ -26,6 +26,7 @@ import type {
   CalloutSlideSchema,
   GetCalloutDataWithExt,
   InputCalloutComponentSchema,
+  InputFileCalloutComponentSchema,
   NestableCalloutComponentSchema,
   RadioCalloutComponentSchema,
   Render,
@@ -115,9 +116,8 @@ export class CalloutResponseRenderer {
     const placeholder = input.placeholder as string | undefined;
 
     if (placeholder) {
-      result.markdown = `_${
-        escapeMd(this.i18n.t("info.messages.placeholder", { placeholder }))
-      }_`;
+      result.markdown = `_${escapeMd(this.i18n.t("info.messages.placeholder", { placeholder }))
+        }_`;
     }
 
     return result;
@@ -134,21 +134,17 @@ export class CalloutResponseRenderer {
       parseType: calloutComponentTypeToParsedResponseType(component),
     };
     if (multiple) {
-      result.markdown += `_${
-        escapeMd(
-          `${this.i18n.t("info.messages.multiple-values-allowed")}\n\n${
-            this.messageRenderer.writeDoneMessage(doneMessage).text
-          }`,
-        )
-      }_`;
+      result.markdown += `_${escapeMd(
+        `${this.i18n.t("info.messages.multiple-values-allowed")}\n\n${this.messageRenderer.writeDoneMessage(doneMessage).text
+        }`,
+      )
+        }_`;
     } else {
-      result.markdown += `_${
-        escapeMd(
-          `${this.i18n.t("info.messages.only-one-value-allowed")}\n\n${
-            this.messageRenderer.writeDoneMessage(doneMessage).text
-          }`,
-        )
-      }_`;
+      result.markdown += `_${escapeMd(
+        `${this.i18n.t("info.messages.only-one-value-allowed")}\n\n${this.messageRenderer.writeDoneMessage(doneMessage).text
+        }`,
+      )
+        }_`;
     }
 
     return result;
@@ -256,25 +252,23 @@ export class CalloutResponseRenderer {
    * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
   protected inputFileComponent(
-    file: InputCalloutComponentSchema,
+    file: InputCalloutComponentSchema | InputFileCalloutComponentSchema,
     prefix: string,
   ) {
     const multiple = this.isMultiple(file);
     const result = this.baseComponent(file, prefix);
     result.markdown += `\n\n`;
 
-    result.markdown += `_${
-      escapeMd(
-        multiple
-          ? this.i18n.t("info.messages.upload-files-here")
-          : this.i18n.t("info.messages.upload-file-here"),
-      )
-    }_`;
+    result.markdown += `_${escapeMd(
+      multiple
+        ? this.i18n.t("info.messages.upload-files-here")
+        : this.i18n.t("info.messages.upload-file-here"),
+    )
+      }_`;
 
     result.accepted = this.condition.replayConditionFilePattern(
       multiple,
-      // TODO: Fix `filePattern` property in common types
-      file.filePattern || file.type as unknown === "signature" ? "image/*" : "",
+      file.filePattern || file.type === "signature" ? "image/*" : "",
       multiple ? [this.i18n.t("reactions.messages.done")] : [],
     );
 
@@ -300,23 +294,21 @@ export class CalloutResponseRenderer {
 
     switch (input.type) {
       case "address": {
-        result.markdown += `_${
-          escapeMd(
-            result.accepted.multiple
-              ? this.i18n.t("info.messages.multiple-addresses-allowed")
-              : this.i18n.t("info.messages.only-one-address-allowed"),
-          )
-        }_`;
+        result.markdown += `_${escapeMd(
+          result.accepted.multiple
+            ? this.i18n.t("info.messages.multiple-addresses-allowed")
+            : this.i18n.t("info.messages.only-one-address-allowed"),
+        )
+          }_`;
         break;
       }
       case "button": {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("response.messages.component-not-supported", {
-              type: "button input component",
-            }),
-          )
-        }_`;
+        result.markdown += `_${escapeMd(
+          this.i18n.t("response.messages.component-not-supported", {
+            type: "button input component",
+          }),
+        )
+          }_`;
         break;
       }
       case "checkbox": {
@@ -324,14 +316,13 @@ export class CalloutResponseRenderer {
         const falsyMessage = this.i18n.t("reactions.messages.falsy");
         const doneMessage = this.i18n.t("reactions.messages.done");
 
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("response.messages.answer-with-truthy-or-falsy", {
-              truthy: truthyMessage,
-              falsy: falsyMessage,
-            }),
-          )
-        }_`;
+        result.markdown += `_${escapeMd(
+          this.i18n.t("response.messages.answer-with-truthy-or-falsy", {
+            truthy: truthyMessage,
+            falsy: falsyMessage,
+          }),
+        )
+          }_`;
         result.accepted = this.condition.replayConditionText(
           result.accepted.multiple,
           [truthyMessage, falsyMessage],
@@ -340,101 +331,84 @@ export class CalloutResponseRenderer {
         break;
       }
       case "email": {
-        result.markdown += `_${
-          escapeMd(
-            result.accepted.multiple
-              ? this.i18n.t("info.messages.multiple-emails-allowed")
-              : this.i18n.t("info.messages.only-one-email-allowed"),
-          )
-        }_`;
+        result.markdown += `_${escapeMd(
+          result.accepted.multiple
+            ? this.i18n.t("info.messages.multiple-emails-allowed")
+            : this.i18n.t("info.messages.only-one-email-allowed"),
+        )
+          }_`;
         break;
       }
       case "number": {
-        result.markdown += `_${
-          escapeMd(
-            result.accepted.multiple
-              ? this.i18n.t("info.messages.multiple-numbers-allowed")
-              : this.i18n.t("info.messages.only-one-number-allowed"),
-          )
-        }_`;
+        result.markdown += `_${escapeMd(
+          result.accepted.multiple
+            ? this.i18n.t("info.messages.multiple-numbers-allowed")
+            : this.i18n.t("info.messages.only-one-number-allowed"),
+        )
+          }_`;
         break;
       }
       case "password": {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("info.messages.enter-password"),
-          )
-        }_`;
+        result.markdown += `_${escapeMd(
+          this.i18n.t("info.messages.enter-password"),
+        )
+          }_`;
         break;
       }
       case "textfield": {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("info.messages.enter-text"),
-          )
-        }_`;
+        result.markdown += `_${escapeMd(
+          this.i18n.t("info.messages.enter-text"),
+        )
+          }_`;
         break;
       }
       case "textarea": {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("info.messages.enter-lots-of-text"),
-          )
-        }_`;
+        result.markdown += `_${escapeMd(
+          this.i18n.t("info.messages.enter-lots-of-text"),
+        )
+          }_`;
         break;
       }
-      // TODO: Missing in common types
-      case "content" as unknown: {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("info.messages.enter-content"),
-          )
-        }_`;
+      case "content": {
+        result.markdown += `_${escapeMd(
+          this.i18n.t("info.messages.enter-content"),
+        )
+          }_`;
         break;
       }
-      // TODO: Missing in common types
-      case "phoneNumber" as unknown: {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("info.messages.enter-telephone-number"),
-          )
-        }_`;
+      case "phoneNumber": {
+        result.markdown += `_${escapeMd(
+          this.i18n.t("info.messages.enter-telephone-number"),
+        )
+          }_`;
         break;
       }
-      // TODO: Missing in common types
-      case "currency" as unknown: {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("info.messages.enter-amount-of-money"),
-          )
-        }_`;
+      case "currency": {
+        result.markdown += `_${escapeMd(
+          this.i18n.t("info.messages.enter-amount-of-money"),
+        )
+          }_`;
         break;
       }
-      // TODO: Missing in common types
-      case "datetime" as unknown: {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("info.messages.enter-date"),
-          )
-        }_`;
+      case "datetime": {
+        result.markdown += `_${escapeMd(
+          this.i18n.t("info.messages.enter-date"),
+        )
+          }_`;
         break;
       }
-      // TODO: Missing in common types
-      case "time" as unknown: {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("info.messages.enter-time"),
-          )
-        }_`;
+      case "time": {
+        result.markdown += `_${escapeMd(
+          this.i18n.t("info.messages.enter-time"),
+        )
+          }_`;
         break;
       }
-      // TODO: Missing in common types
-      case "url" as unknown: {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("info.messages.enter-url"),
-          )
-        }_`;
+      case "url": {
+        result.markdown += `_${escapeMd(
+          this.i18n.t("info.messages.enter-url"),
+        )
+          }_`;
         break;
       }
 
@@ -485,22 +459,20 @@ export class CalloutResponseRenderer {
 
     switch (radio.type) {
       case "radio": {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("info.messages.only-one-selection-allowed"),
-          )
-        }_`;
+        result.markdown += `_${escapeMd(
+          this.i18n.t("info.messages.only-one-selection-allowed"),
+        )
+          }_`;
         break;
       }
       case "selectboxes": {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("info.messages.multiple-selections-allowed") + "\n\n" +
-              this.messageRenderer.writeDoneMessage(
-                this.i18n.t("reactions.messages.done"),
-              ).text,
-          )
-        }_`;
+        result.markdown += `_${escapeMd(
+          this.i18n.t("info.messages.multiple-selections-allowed") + "\n\n" +
+          this.messageRenderer.writeDoneMessage(
+            this.i18n.t("reactions.messages.done"),
+          ).text,
+        )
+          }_`;
         break;
       }
     }
@@ -542,11 +514,10 @@ export class CalloutResponseRenderer {
 
     result.markdown += `\n\n`;
 
-    result.markdown += `_${
-      escapeMd(
-        this.i18n.t("info.messages.only-one-selection-allowed"),
-      )
-    }_`;
+    result.markdown += `_${escapeMd(
+      this.i18n.t("info.messages.only-one-selection-allowed"),
+    )
+      }_`;
     return result;
   }
 
@@ -566,7 +537,7 @@ export class CalloutResponseRenderer {
 
       case CalloutComponentMainType.FILE: {
         results.push(this.inputFileComponent(
-          component as InputCalloutComponentSchema,
+          component as InputFileCalloutComponentSchema,
           prefix,
         ));
         break;

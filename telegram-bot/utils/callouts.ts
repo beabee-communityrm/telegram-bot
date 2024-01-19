@@ -42,18 +42,17 @@ export const calloutComponentTypeToMainType = (
     case "password":
     case "textfield":
     case "textarea":
-    // TODO: missing in common types
-    case "content" as unknown:
-    case "phoneNumber" as unknown:
-    case "currency" as unknown:
-    case "datetime" as unknown:
-    case "time" as unknown:
-    case "url" as unknown: {
+    case "content":
+    case "phoneNumber":
+    case "currency":
+    case "datetime":
+    case "time":
+    case "url": {
       return CalloutComponentMainType.INPUT;
     }
     // File components
     case "file":
-    case "signature" as unknown: {
+    case "signature": {
       return CalloutComponentMainType.FILE;
     }
     // Radio components
@@ -93,13 +92,12 @@ export const calloutComponentTypeToParsedResponseType = (
     case "password":
     case "textfield":
     case "textarea":
-    // TODO: missing in common types
-    case "content" as unknown:
-    case "phoneNumber" as unknown:
-    case "currency" as unknown:
-    case "datetime" as unknown: // TODO: parse date
-    case "time" as unknown: // TODO: parse time
-    case "url" as unknown: {
+    case "content":
+    case "phoneNumber":
+    case "currency":
+    case "datetime": // TODO: parse date
+    case "time": // TODO: parse time
+    case "url": {
       return ParsedResponseType.TEXT;
     }
 
@@ -116,7 +114,7 @@ export const calloutComponentTypeToParsedResponseType = (
     }
 
     case "file":
-    case "signature" as unknown: {
+    case "signature": {
       return ParsedResponseType.FILE;
     }
 

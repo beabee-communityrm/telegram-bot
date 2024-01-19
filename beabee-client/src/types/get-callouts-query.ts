@@ -1,3 +1,3 @@
-import type { PaginatedQuery } from "@beabee/beabee-common";
+import type { PaginatedQuery } from "../deps.ts";
 
 export type GetCalloutsQuery = PaginatedQuery; // TODO: constrain fields

@@ -6,6 +6,7 @@
       "npm:@types/markdown-it": "npm:@types/markdown-it@13.0.7",
       "npm:date-fns@3.2.0": "npm:date-fns@3.2.0",
       "npm:googleapis": "npm:googleapis@130.0.0",
+      "npm:googleapis@131.0.0": "npm:googleapis@131.0.0",
       "npm:markdown-it": "npm:markdown-it@14.0.0",
       "npm:query-string@8.1.0": "npm:query-string@8.1.0",
       "npm:typeorm@0.3.17": "npm:typeorm@0.3.17"
@@ -280,6 +281,13 @@
       },
       "googleapis@130.0.0": {
         "integrity": "sha512-+ZSOowVv+vGBTueu1Ot9O7EqC0U4PS9l7fUjzc0ThCT4w4g+r78Vgn17q7eGBB5JMu4hxYC1hbbm1U/MCnYFdg==",
+        "dependencies": {
+          "google-auth-library": "google-auth-library@9.4.1",
+          "googleapis-common": "googleapis-common@7.0.1"
+        }
+      },
+      "googleapis@131.0.0": {
+        "integrity": "sha512-fa4kdkY0VwHDw/04ItpQv2tlvlPIwbh6NjHDoWAVrV52GuaZbYCMOC5Y+hRmprp5HHIMRODmyb2YujlbZSRUbQ==",
         "dependencies": {
           "google-auth-library": "google-auth-library@9.4.1",
           "googleapis-common": "googleapis-common@7.0.1"

@@ -64,7 +64,7 @@ export class TelegramService {
   }
 
   protected async printInfo() {
-    const pkg = await readJson("./deno.jsonc");
+    const pkg = await readJson("./deno.json");
     console.info(`\n${pkg.name} v${pkg.version}`);
 
     const me = await this.bot.api.getMe();

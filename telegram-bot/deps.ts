@@ -50,7 +50,20 @@ export {
   CalloutClient,
   CalloutResponseClient,
   ContentClient,
-} from "@beabee/client";
-export { ItemStatus } from "@beabee/beabee-common";
+  ApiError,
+} from "../beabee-client/mod.ts";
+
+export type {
+  CalloutData,
+  Content,
+  ContentId,
+  CreateCalloutResponseData,
+  GetCalloutData,
+  GetCalloutDataWith,
+  GetCalloutsQuery,
+  GetCalloutWith,
+} from "../beabee-client/mod.ts";
+
+export { ItemStatus } from "../beabee-common/mod.ts";
 
 export { parse as parseJsonc } from "https://deno.land/x/jsonc@1/main.ts";

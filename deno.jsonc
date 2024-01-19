@@ -1,11 +1,12 @@
 {
   // TODO use this workspaces feature as soon as this is supported by denoland.vscode-deno
   // As long as this is not supported, we need to place all imports in this file instead of 'telegram-bot/deno.jsonc' and 'beabee-client/deno.jsonc'
-  // See https://github.com/denoland/deno/pull/20410
-  // "workspaces": [
-  //     "telegram-bot",
-  //     "beabee-client"
-  // ],
+  // See https://github.com/denoland/deno/issues/21769
+  "workspaces": [
+    "telegram-bot",
+    "beabee-client",
+    "beabee-common"
+  ],
   "name": "beabee-telegram-workspace",
   "version": "0.0.2",
   "compilerOptions": {
@@ -21,18 +22,7 @@
     "typeorm": "npm:typeorm@0.3.17",
     "sqlite3": "https://deno.land/x/sqlite3@0.10.0/mod.ts",
     "@beabee/beabee-common": "./beabee-common/mod.ts",
-    "@beabee/client": "./beabee-client/mod.ts",
-    "@beabee/telegram-bot": "./telegram-bot/main.ts",
-    "date-fns": "npm:date-fns@3.2.0",
-    "date-fns/add": "npm:date-fns@3.2.0/add",
-    "date-fns/isValid": "npm:date-fns@3.2.0/isValid",
-    "date-fns/parseISO": "npm:date-fns@3.2.0/parseISO",
-    "date-fns/startOfDay": "npm:date-fns@3.2.0/startOfDay",
-    "date-fns/startOfHour": "npm:date-fns@3.2.0/startOfHour",
-    "date-fns/startOfMinute": "npm:date-fns@3.2.0/startOfMinute",
-    "date-fns/startOfMonth": "npm:date-fns@3.2.0/startOfMonth",
-    "date-fns/startOfSecond": "npm:date-fns@3.2.0/startOfSecond",
-    "date-fns/startOfYear": "npm:date-fns@3.2.0/startOfYear"
+    "date-fns": "npm:date-fns@3.2.0"
   },
   "scopes": {
     "https://raw.githubusercontent.com/Zhomart/dex/": {
@@ -40,22 +30,20 @@
     }
   },
   "tasks": {
-    "dev": "cd telegram-bot && deno task dev",
-    "start": "cd telegram-bot && deno task start",
-    "compile": "deno task compile:telegram-bot",
-    "compile:telegram-bot": "cd telegram-bot && deno task compile",
-    "build": "deno task build:beabee-client",
-    "build:beabee-client": "cd beabee-client && deno task build",
-    "test": "deno task test:telegram-bot && deno task test:beabee-client",
-    "test:telegram-bot": "cd telegram-bot && deno task test",
-    "test:beabee-client": "cd beabee-client && deno task test",
-    "lint": "deno task lint:telegram-bot && deno task lint:beabee-client",
+    "dev": "cd telegram-bot && deno task --unstable-workspaces dev",
+    "start": "cd telegram-bot && deno task --unstable-workspaces start",
+    "build": "deno task --unstable-workspaces build:beabee-client",
+    "build:beabee-client": "cd beabee-client && deno task --unstable-workspaces build",
+    "test": "deno task --unstable-workspaces test:telegram-bot && deno task --unstable-workspaces test:beabee-client",
+    "test:telegram-bot": "cd telegram-bot && deno task --unstable-workspaces test",
+    "test:beabee-client": "cd beabee-client && deno task --unstable-workspaces test",
+    "lint": "deno task --unstable-workspaces lint:telegram-bot && deno task --unstable-workspaces lint:beabee-client",
     "lint:telegram-bot": "cd telegram-bot && deno lint",
     "lint:beabee-client": "cd beabee-client && deno lint --ignore=deno_cache,out",
-    "cache": "deno task cache:telegram-bot && deno task cache:beabee-client",
-    "cache:telegram-bot": "cd telegram-bot && deno task cache",
-    "cache:beabee-client": "cd beabee-client && deno task cache",
-    "generate:index": "cd telegram-bot && deno task generate:index && cd ../beabee-client && deno task generate:index",
+    "cache": "deno task --unstable-workspaces cache:telegram-bot && deno task --unstable-workspaces cache:beabee-client",
+    "cache:telegram-bot": "cd telegram-bot && deno task --unstable-workspaces cache",
+    "cache:beabee-client": "cd beabee-client && deno task --unstable-workspaces cache",
+    "generate:index": "cd telegram-bot && deno task --unstable-workspaces generate:index && cd ../beabee-client && deno task --unstable-workspaces generate:index",
     "docker:build": "docker build -t beabee/telegram-bot:latest .docker p",
     "docker:start": "docker run -it --init -p 3003:3003 beabee/telegram-bot:latest",
     "docker:push": "docker push beabee/telegram-bot:latest"

@@ -8,7 +8,7 @@ import {
   CalloutResponseRenderer,
   MessageRenderer,
 } from "../renderer/index.ts";
-import { ApiError } from "@beabee/client";
+import { ApiError } from "../deps.ts";
 import { Command } from "../core/index.ts";
 
 import type { Context } from "../types/index.ts";
