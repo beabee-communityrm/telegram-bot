@@ -1,5 +1,8 @@
 import type { Context, Message } from "../types/index.ts";
 
+/**
+ * Extract the chat id from a context
+ */
 export const getIdentifier = (ctx: Context) => {
   const id = ctx.chat?.id || ctx.from?.id;
   if (!id) {
@@ -28,6 +31,9 @@ export const getFileIdFromMessage = (message?: Message) => {
     message?.animation?.file_id;
 };
 
+/**
+ * Extract the location from a message
+ */
 export const getLocationFromMessage = (message?: Message) => {
   return {
     location: message?.location || message?.venue?.location,
