@@ -127,7 +127,10 @@ export class EventService {
    * @param eventName
    * @param callback The callback function to call when the event is emitted
    */
-  public off(eventName: string, callback: EventTelegramBotListener) {
+  public off<T = Context>(
+    eventName: string,
+    callback: EventTelegramBotListener<T>,
+  ) {
     return this.events.removeEventListener(
       eventName,
       callback as EventListener,
