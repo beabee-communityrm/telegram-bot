@@ -24,7 +24,7 @@
   "tasks": {
     "dev": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-ffi --watch ./main.ts",
     "start": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-ffi ./main.ts",
-    "compile": "deno compile --allow-net --allow-read --allow-write --allow-env --allow-ffi ./main.ts",
+    "compile": "deno compile --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-ffi ./main.ts",
     "generate:index": "deno run --allow-read --allow-write scripts/generate-index.ts && deno task format",
     "test": "deno test --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-ffi",
     "lint": "deno lint",

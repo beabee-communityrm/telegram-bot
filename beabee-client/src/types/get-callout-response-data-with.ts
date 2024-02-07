@@ -11,7 +11,8 @@ import type {
 
 export type GetCalloutResponseDataWith<With extends GetCalloutResponseWith> =
   & GetCalloutResponseData
-  & ("answers" extends With ? { answers: CalloutResponseAnswersNestable } : Noop)
+  & ("answers" extends With ? { answers: CalloutResponseAnswersNestable }
+    : Noop)
   & ("assignee" extends With ? { assignee: GetContactData | null } : Noop)
   & ("callout" extends With ? { callout: GetCalloutData } : Noop)
   & ("contact" extends With ? { contact: GetContactData | null } : Noop)

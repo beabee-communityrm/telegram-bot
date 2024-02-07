@@ -1,3 +1,4 @@
+export * from "./auth.ts";
 export * from "./callouts.ts";
 export * from "./file.test.ts";
 export * from "./file.ts";

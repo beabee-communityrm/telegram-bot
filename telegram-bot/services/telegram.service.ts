@@ -1,6 +1,7 @@
 import { Bot, container, Singleton } from "../deps.ts";
 import { Command } from "../core/index.ts";
 import { I18nService } from "./i18n.service.ts";
+import { NetworkCommunicatorService } from "./network-communicator.service.ts";
 import { BeabeeContentService } from "./beabee-content.service.ts";
 import { readJson, waitForUrl } from "../utils/index.ts";
 
@@ -21,6 +22,7 @@ export class TelegramService {
   constructor(
     protected readonly i18n: I18nService,
     protected readonly beabeeContent: BeabeeContentService,
+    protected readonly networkCommunicator: NetworkCommunicatorService,
   ) {
     const token = Deno.env.get("TELEGRAM_TOKEN");
     if (!token) throw new Error("TELEGRAM_TOKEN is not set");
@@ -47,7 +49,7 @@ export class TelegramService {
   protected async bootstrap() {
     await this.printInfo();
     await this.waitForBeabee();
-    await this.initBeabeeContent();
+    this.networkCommunicator.startServer();
     await this.initCommands();
     await this.initEventManagers();
 
@@ -77,9 +79,6 @@ export class TelegramService {
 
     // Initialize the localization
     await this.i18n.setActiveLang(beabeeGeneralContent.locale);
-
-    // Watch the general content for changes, changes will be broadcasted to the EventService
-    this.beabeeContent.subscribe("general");
 
     return beabeeGeneralContent;
   }
