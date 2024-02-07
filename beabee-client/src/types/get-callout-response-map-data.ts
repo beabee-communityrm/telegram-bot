@@ -1,12 +1,12 @@
 import type {
   CalloutResponseAnswerAddress,
   CalloutResponseAnswerFileUpload,
-  CalloutResponseAnswers,
+  CalloutResponseAnswersNestable,
 } from "../deps.ts";
 
 export interface GetCalloutResponseMapData {
   number: number;
-  answers: CalloutResponseAnswers;
+  answers: CalloutResponseAnswersNestable;
   title: string;
   photos: CalloutResponseAnswerFileUpload[];
   address?: CalloutResponseAnswerAddress;

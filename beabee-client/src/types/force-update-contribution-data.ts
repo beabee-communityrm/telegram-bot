@@ -1,7 +1,4 @@
-import type {
-  ContributionPeriod,
-  ContributionType,
-} from "../deps.ts";
+import type { ContributionPeriod, ContributionType } from "../deps.ts";
 
 export interface ForceUpdateContributionData {
   type: ContributionType.Manual | ContributionType.None;

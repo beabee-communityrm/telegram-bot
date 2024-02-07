@@ -1,17 +1,11 @@
-// deno-lint-ignore-file no-fallthrough
-import { CALLOUT_RESPONSE_GROUP_KEY_SEPARATOR } from "../constants/index.ts";
-import {
-  CalloutComponentMainType,
-  ParsedResponseType,
-} from "../enums/index.ts";
+// TODO: Move to common or use common utils
 
-import type {
-  BaseCalloutComponentSchema,
-  CalloutComponentSchema,
-  InputCalloutComponentSchema,
-  RadioCalloutComponentSchema,
-  SelectCalloutComponentSchema,
-} from "../types/index.ts";
+import { CALLOUT_RESPONSE_GROUP_KEY_SEPARATOR } from "../constants/index.ts";
+import { ParsedResponseType } from "../enums/index.ts";
+
+import { CalloutComponentType } from "../deps.ts";
+
+import type { CalloutComponentSchema } from "../deps.ts";
 
 export const createCalloutGroupKey = (key: string, prefix: string) => {
   return prefix + CALLOUT_RESPONSE_GROUP_KEY_SEPARATOR + key;
@@ -29,104 +23,51 @@ export const isCalloutGroupKey = (key: string) => {
   return key.includes(CALLOUT_RESPONSE_GROUP_KEY_SEPARATOR);
 };
 
-export const calloutComponentTypeToMainType = (
-  component: CalloutComponentSchema,
-) => {
-  switch (component.type) {
-    // Input components
-    case "address":
-    case "button":
-    case "checkbox":
-    case "email":
-    case "number":
-    case "password":
-    case "textfield":
-    case "textarea":
-    case "content":
-    case "phoneNumber":
-    case "currency":
-    case "datetime":
-    case "time":
-    case "url": {
-      return CalloutComponentMainType.INPUT;
-    }
-    // File components
-    case "file":
-    case "signature": {
-      return CalloutComponentMainType.FILE;
-    }
-    // Radio components
-    case "radio":
-    case "selectboxes": {
-      return CalloutComponentMainType.RADIO;
-    }
-
-    // Select components
-    case "select": {
-      return CalloutComponentMainType.SELECT;
-    }
-    // Nested components
-    case "panel":
-    case "tabs":
-    case "well": {
-      return CalloutComponentMainType.NESTED;
-    }
-    default: {
-      return CalloutComponentMainType.UNKNOWN;
-    }
-  }
-};
-
 export const calloutComponentTypeToParsedResponseType = (
-  component:
-    | CalloutComponentSchema
-    | BaseCalloutComponentSchema
-    | InputCalloutComponentSchema
-    | RadioCalloutComponentSchema
-    | SelectCalloutComponentSchema
-    | InputCalloutComponentSchema,
+  component: CalloutComponentSchema,
 ): ParsedResponseType => {
   switch (component.type) {
-    case "button":
-    case "email":
-    case "password":
-    case "textfield":
-    case "textarea":
-    case "content":
-    case "phoneNumber":
-    case "currency":
-    case "datetime": // TODO: parse date
-    case "time": // TODO: parse time
-    case "url": {
+    case CalloutComponentType.INPUT_EMAIL:
+    case CalloutComponentType.INPUT_TEXT_FIELD:
+    case CalloutComponentType.INPUT_TEXT_AREA:
+    case CalloutComponentType.INPUT_PHONE_NUMBER:
+    case CalloutComponentType.INPUT_CURRENCY:
+    case CalloutComponentType.INPUT_DATE_TIME: // TODO: parse date
+    case CalloutComponentType.INPUT_TIME: // TODO: parse time
+    case CalloutComponentType.INPUT_URL: {
       return ParsedResponseType.TEXT;
     }
 
-    case "checkbox": {
+    case CalloutComponentType.CONTENT: {
+      return ParsedResponseType.NONE;
+    }
+
+    case CalloutComponentType.INPUT_CHECKBOX: {
       return ParsedResponseType.BOOLEAN;
     }
 
-    case "number": {
+    case CalloutComponentType.INPUT_NUMBER: {
       return ParsedResponseType.NUMBER;
     }
 
-    case "address": {
+    case CalloutComponentType.INPUT_ADDRESS: {
       return ParsedResponseType.ADDRESS;
     }
 
-    case "file":
-    case "signature": {
+    case CalloutComponentType.INPUT_FILE:
+    case CalloutComponentType.INPUT_SIGNATURE: {
       return ParsedResponseType.FILE;
     }
 
-    case "radio":
-    case "selectboxes":
-    case "select": {
+    case CalloutComponentType.INPUT_SELECTABLE_RADIO:
+    case CalloutComponentType.INPUT_SELECTABLE_SELECTBOXES:
+    case CalloutComponentType.INPUT_SELECT: {
       return ParsedResponseType.SELECTION;
     }
 
-    case "panel":
-    case "tabs":
-    case "well": {
+    case CalloutComponentType.NESTABLE_PANEL:
+    case CalloutComponentType.NESTABLE_TABS:
+    case CalloutComponentType.NESTABLE_WELL: {
       return ParsedResponseType.NONE;
     }
 

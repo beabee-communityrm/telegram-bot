@@ -3,6 +3,7 @@
   "version": "0.0.2",
   "compilerOptions": {
     "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "jsxFactory": "h",
     "jsxFragmentFactory": "Fragment"
   },
@@ -21,13 +22,14 @@
     }
   },
   "tasks": {
-    "dev": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces --watch ./main.ts",
-    "start": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces ./main.ts",
-    "compile": "deno compile --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces ./main.ts",
-    "generate:index": "deno run --allow-read --allow-write --unstable-workspaces scripts/generate-index.ts && deno fmt",
-    "test": "deno test --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable --unstable-workspaces",
+    "dev": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-ffi --watch ./main.ts",
+    "start": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-ffi ./main.ts",
+    "compile": "deno compile --allow-net --allow-read --allow-write --allow-env --allow-ffi ./main.ts",
+    "generate:index": "deno run --allow-read --allow-write scripts/generate-index.ts && deno task format",
+    "test": "deno test --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-ffi",
     "lint": "deno lint",
-    "cache": "deno cache --unstable --reload main.ts",
+    "format": "deno fmt",
+    "cache": "deno cache --reload main.ts",
     "docker:build": "docker build -f ../Dockerfile -t beabee/telegram-bot:latest ..",
     "docker:start": "docker run -it --init -p 3003:3003 beabee/telegram-bot",
     "i18n": "deno run --allow-read --allow-write --allow-env --allow-net scripts/i18n.ts"

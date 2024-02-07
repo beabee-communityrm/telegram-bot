@@ -36,6 +36,7 @@ export class ConditionService {
     console.debug(`${this.constructor.name} created`);
   }
 
+  /** No replay / answer is expected */
   public replayConditionNone(multiple = false): ReplayConditionNone {
     return {
       type: ReplayType.NONE,
@@ -44,6 +45,7 @@ export class ConditionService {
     };
   }
 
+  /** Any replay / answer is expected */
   public replayConditionAny(
     multiple: boolean,
     doneTexts: string[] = [],
@@ -62,6 +64,7 @@ export class ConditionService {
   }
 
   /**
+   * A text replay / answer is expected
    * - Define a specific message that is accepted to mark an answer as done
    * - Define a specific message to accepted messages before the message is marked as done
    */

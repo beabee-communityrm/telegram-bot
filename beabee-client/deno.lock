@@ -127,5 +127,26 @@
     "https://deno.land/x/emit@0.28.0/mod.ts": "817cb45fcd94d15a43de826161049eee89e3be4bcf06b3a2f60e8cf459e559f1",
     "https://deno.land/x/wasmbuild@0.14.1/cache.ts": "89eea5f3ce6035a1164b3e655c95f21300498920575ade23161421f5b01967f4",
     "https://deno.land/x/wasmbuild@0.14.1/loader.ts": "d98d195a715f823151cbc8baa3f32127337628379a02d9eb2a3c5902dbccfc02"
+  },
+  "workspace": {
+    "dependencies": [
+      "npm:date-fns@3.2.0"
+    ],
+    "packageJson": {
+      "dependencies": [
+        "npm:@beabee/beabee-common@^1.18.1",
+        "npm:@types/node-fetch@2.6.2",
+        "npm:@types/node@^12.20.55",
+        "npm:deno2node@^1.9.0",
+        "npm:jest-environment-jsdom@^29.7.0",
+        "npm:jest-environment-node@^29.7.0",
+        "npm:jest@^29.7.0",
+        "npm:jsdom@^22.1.0",
+        "npm:node-fetch@^2.7.0",
+        "npm:ts-jest@^29.1.1",
+        "npm:typescript@^5.3.2",
+        "npm:whatwg-fetch@^3.6.19"
+      ]
+    }
   }
 }

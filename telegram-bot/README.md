@@ -58,7 +58,13 @@ git add -A locales/ && git commit locales/ -m 'chore: updated locales'
 
 #### Using the localisation strings
 
-TODO...
+```ts
+import { container } from "../deps.ts";
+import { I18nService } from "./services/index.ts";
+
+const i18n = container.resolve(I18nService); // Get the Singleton instance of I18nService
+const translated = i18n.t("info.messages.placeholder", { placeholder: "Hello World!" }
+```
 
 ### Testing
 

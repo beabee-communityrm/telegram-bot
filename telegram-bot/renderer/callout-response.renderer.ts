@@ -1,16 +1,28 @@
-import { Singleton } from "../deps.ts";
 import {
-  calloutComponentTypeToMainType,
+  CalloutComponentBaseInputSchema,
+  CalloutComponentBaseNestableSchema,
+  CalloutComponentBaseSchema,
+  CalloutComponentBaseType,
+  CalloutComponentContentSchema,
+  CalloutComponentInputFileSchema,
+  CalloutComponentInputSchema,
+  CalloutComponentInputSelectableSchema,
+  CalloutComponentInputSelectSchema,
+  CalloutComponentSchema,
+  CalloutComponentType,
+  CalloutSlideSchema,
+  isCalloutComponentOfBaseType,
+  isCalloutComponentOfType,
+  Singleton,
+} from "../deps.ts";
+import {
   calloutComponentTypeToParsedResponseType,
   createCalloutGroupKey,
+  escapeHtml,
   escapeMd,
   sanitizeHtml,
 } from "../utils/index.ts";
-import {
-  CalloutComponentMainType,
-  ParsedResponseType,
-  RenderType,
-} from "../enums/index.ts";
+import { ParsedResponseType, RenderType } from "../enums/index.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import { ConditionService } from "../services/condition.service.ts";
@@ -21,18 +33,11 @@ import {
 } from "../constants/index.ts";
 
 import type {
-  BaseCalloutComponentSchema,
-  CalloutComponentSchema,
-  CalloutSlideSchema,
   GetCalloutDataWithExt,
-  InputCalloutComponentSchema,
-  InputFileCalloutComponentSchema,
-  NestableCalloutComponentSchema,
-  RadioCalloutComponentSchema,
   Render,
   RenderMarkdown,
-  SelectCalloutComponentSchema,
 } from "../types/index.ts";
+import { CalloutComponentInputSignatureSchema } from "../deps.ts";
 
 /**
  * Render callout responses for Telegram in Markdown
@@ -48,7 +53,7 @@ export class CalloutResponseRenderer {
     console.debug(`${this.constructor.name} created`);
   }
 
-  protected isMultiple(component: BaseCalloutComponentSchema) {
+  protected isMultiple(component: CalloutComponentBaseSchema) {
     if (component.multiple) {
       return true;
     }
@@ -63,7 +68,7 @@ export class CalloutResponseRenderer {
    * @param component The component to render
    * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
-  protected labelMd(component: BaseCalloutComponentSchema, prefix: string) {
+  protected labelMd(component: CalloutComponentSchema, prefix: string) {
     if (!component.label) {
       return EMPTY_RENDER;
     }
@@ -82,7 +87,7 @@ export class CalloutResponseRenderer {
    * Render a component description in Markdown
    */
   protected descriptionMd(
-    component: BaseCalloutComponentSchema,
+    component: CalloutComponentSchema,
     prefix: string,
   ) {
     if (typeof component.description !== "string" || !component.description) {
@@ -104,7 +109,10 @@ export class CalloutResponseRenderer {
    * Render an input component placeholder in Markdown
    * @param input The input component to render
    */
-  protected placeholderMd(input: InputCalloutComponentSchema, prefix: string) {
+  protected placeholderMd(
+    input: CalloutComponentInputSchema,
+    prefix: string,
+  ) {
     const result: Render = {
       key: createCalloutGroupKey(input.key, prefix),
       type: RenderType.MARKDOWN,
@@ -116,14 +124,15 @@ export class CalloutResponseRenderer {
     const placeholder = input.placeholder as string | undefined;
 
     if (placeholder) {
-      result.markdown = `_${escapeMd(this.i18n.t("info.messages.placeholder", { placeholder }))
-        }_`;
+      result.markdown = `_${
+        escapeMd(this.i18n.t("info.messages.placeholder", { placeholder }))
+      }_`;
     }
 
     return result;
   }
 
-  protected multipleMd(component: BaseCalloutComponentSchema, prefix: string) {
+  protected multipleMd(component: CalloutComponentSchema, prefix: string) {
     const doneMessage = this.i18n.t("reactions.messages.done");
     const multiple = this.isMultiple(component);
     const result: Render = {
@@ -134,17 +143,21 @@ export class CalloutResponseRenderer {
       parseType: calloutComponentTypeToParsedResponseType(component),
     };
     if (multiple) {
-      result.markdown += `_${escapeMd(
-        `${this.i18n.t("info.messages.multiple-values-allowed")}\n\n${this.messageRenderer.writeDoneMessage(doneMessage).text
-        }`,
-      )
-        }_`;
+      result.markdown += `_${
+        escapeMd(
+          `${this.i18n.t("info.messages.multiple-values-allowed")}\n\n${
+            this.messageRenderer.writeDoneMessage(doneMessage).text
+          }`,
+        )
+      }_`;
     } else {
-      result.markdown += `_${escapeMd(
-        `${this.i18n.t("info.messages.only-one-value-allowed")}\n\n${this.messageRenderer.writeDoneMessage(doneMessage).text
-        }`,
-      )
-        }_`;
+      result.markdown += `_${
+        escapeMd(
+          `${this.i18n.t("info.messages.only-one-value-allowed")}\n\n${
+            this.messageRenderer.writeDoneMessage(doneMessage).text
+          }`,
+        )
+      }_`;
     }
 
     return result;
@@ -152,26 +165,29 @@ export class CalloutResponseRenderer {
 
   /**
    * Render radio or selectboxes values in Markdown
-   * @param radio The radio component to render
+   * @param selectable The selectable component to render
    */
-  protected radioValues(radio: RadioCalloutComponentSchema, prefix: string) {
+  protected selectableValues(
+    selectable: CalloutComponentInputSelectableSchema,
+    prefix: string,
+  ) {
     // Selectboxes are always multiple
-    const multiple = this.isMultiple(radio);
+    const multiple = this.isMultiple(selectable);
     const result: Render = {
-      key: createCalloutGroupKey(radio.key, prefix),
+      key: createCalloutGroupKey(selectable.key, prefix),
       type: RenderType.MARKDOWN,
       accepted: this.condition.replayConditionSelection(
         multiple,
-        this.selectValuesToValueLabelPairs(radio.values),
+        this.selectValuesToValueLabelPairs(selectable.values),
         multiple ? [this.i18n.t("reactions.messages.done")] : [],
       ),
       markdown: ``,
-      parseType: calloutComponentTypeToParsedResponseType(radio),
+      parseType: calloutComponentTypeToParsedResponseType(selectable),
     };
 
     let n = 1;
-    for (const radioValue of radio.values) {
-      result.markdown += `*${escapeMd(`${n}. ${radioValue.label}`)}*\n`;
+    for (const selectableValue of selectable.values) {
+      result.markdown += `*${escapeMd(`${n}. ${selectableValue.label}`)}*\n`;
       n++;
     }
 
@@ -184,7 +200,10 @@ export class CalloutResponseRenderer {
    * @param prefix
    * @returns
    */
-  protected selectValues(select: SelectCalloutComponentSchema, prefix: string) {
+  protected selectValues(
+    select: CalloutComponentInputSelectSchema,
+    prefix: string,
+  ) {
     // TODO: Is a dropdown never multiple?
     const multiple = this.isMultiple(select);
     const result: Render = {
@@ -212,7 +231,7 @@ export class CalloutResponseRenderer {
    * @param base The base component to render
    * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
-  protected baseComponent(base: BaseCalloutComponentSchema, prefix: string) {
+  protected baseComponent(base: CalloutComponentSchema, prefix: string) {
     const multiple = this.isMultiple(base);
     const result: Render = {
       key: createCalloutGroupKey(base.key, prefix),
@@ -252,19 +271,22 @@ export class CalloutResponseRenderer {
    * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
   protected inputFileComponent(
-    file: InputCalloutComponentSchema | InputFileCalloutComponentSchema,
+    file:
+      | CalloutComponentInputFileSchema
+      | CalloutComponentInputSignatureSchema,
     prefix: string,
   ) {
     const multiple = this.isMultiple(file);
     const result = this.baseComponent(file, prefix);
     result.markdown += `\n\n`;
 
-    result.markdown += `_${escapeMd(
-      multiple
-        ? this.i18n.t("info.messages.upload-files-here")
-        : this.i18n.t("info.messages.upload-file-here"),
-    )
-      }_`;
+    result.markdown += `_${
+      escapeMd(
+        multiple
+          ? this.i18n.t("info.messages.upload-files-here")
+          : this.i18n.t("info.messages.upload-file-here"),
+      )
+    }_`;
 
     result.accepted = this.condition.replayConditionFilePattern(
       multiple,
@@ -273,7 +295,10 @@ export class CalloutResponseRenderer {
     );
 
     if (file.placeholder) {
-      result.markdown += `\n\n${this.placeholderMd(file, prefix).markdown}`;
+      result.markdown += `\n\n${
+        this.placeholderMd(file, prefix)
+          .markdown
+      }`;
     }
 
     if (multiple) {
@@ -283,46 +308,67 @@ export class CalloutResponseRenderer {
     return result;
   }
 
+  /** A content component only prints a text and does not expect an answer */
+  protected contentComponent(
+    content: CalloutComponentContentSchema,
+    prefix: string,
+  ) {
+    let html = "";
+
+    if (content.label) {
+      `<b>${escapeHtml(content.label)}</b>`;
+      html += `%0A%0A`; // %0A is a newline
+    }
+
+    html += `${sanitizeHtml(content.html)}`;
+
+    const result: Render = {
+      key: createCalloutGroupKey(content.key, prefix),
+      type: RenderType.HTML,
+      html,
+      accepted: this.condition.replayConditionNone(false),
+      parseType: calloutComponentTypeToParsedResponseType(content),
+    };
+
+    return result;
+  }
+
   /**
    * Render an input component in Markdown
    * @param input The input component to render
    * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
-  protected inputComponent(input: InputCalloutComponentSchema, prefix: string) {
+  protected inputComponent(
+    input: CalloutComponentInputSchema,
+    prefix: string,
+  ) {
     const result = this.baseComponent(input, prefix);
     result.markdown += `\n\n`;
 
     switch (input.type) {
-      case "address": {
-        result.markdown += `_${escapeMd(
-          result.accepted.multiple
-            ? this.i18n.t("info.messages.multiple-addresses-allowed")
-            : this.i18n.t("info.messages.only-one-address-allowed"),
-        )
-          }_`;
+      case CalloutComponentType.INPUT_ADDRESS: {
+        result.markdown += `_${
+          escapeMd(
+            result.accepted.multiple
+              ? this.i18n.t("info.messages.multiple-addresses-allowed")
+              : this.i18n.t("info.messages.only-one-address-allowed"),
+          )
+        }_`;
         break;
       }
-      case "button": {
-        result.markdown += `_${escapeMd(
-          this.i18n.t("response.messages.component-not-supported", {
-            type: "button input component",
-          }),
-        )
-          }_`;
-        break;
-      }
-      case "checkbox": {
+      case CalloutComponentType.INPUT_CHECKBOX: {
         const truthyMessage = this.i18n.t("reactions.messages.truthy");
         const falsyMessage = this.i18n.t("reactions.messages.falsy");
         const doneMessage = this.i18n.t("reactions.messages.done");
 
-        result.markdown += `_${escapeMd(
-          this.i18n.t("response.messages.answer-with-truthy-or-falsy", {
-            truthy: truthyMessage,
-            falsy: falsyMessage,
-          }),
-        )
-          }_`;
+        result.markdown += `_${
+          escapeMd(
+            this.i18n.t("response.messages.answer-with-truthy-or-falsy", {
+              truthy: truthyMessage,
+              falsy: falsyMessage,
+            }),
+          )
+        }_`;
         result.accepted = this.condition.replayConditionText(
           result.accepted.multiple,
           [truthyMessage, falsyMessage],
@@ -330,91 +376,86 @@ export class CalloutResponseRenderer {
         );
         break;
       }
-      case "email": {
-        result.markdown += `_${escapeMd(
-          result.accepted.multiple
-            ? this.i18n.t("info.messages.multiple-emails-allowed")
-            : this.i18n.t("info.messages.only-one-email-allowed"),
-        )
-          }_`;
+      case CalloutComponentType.INPUT_EMAIL: {
+        result.markdown += `_${
+          escapeMd(
+            result.accepted.multiple
+              ? this.i18n.t("info.messages.multiple-emails-allowed")
+              : this.i18n.t("info.messages.only-one-email-allowed"),
+          )
+        }_`;
         break;
       }
-      case "number": {
-        result.markdown += `_${escapeMd(
-          result.accepted.multiple
-            ? this.i18n.t("info.messages.multiple-numbers-allowed")
-            : this.i18n.t("info.messages.only-one-number-allowed"),
-        )
-          }_`;
+      case CalloutComponentType.INPUT_NUMBER: {
+        result.markdown += `_${
+          escapeMd(
+            result.accepted.multiple
+              ? this.i18n.t("info.messages.multiple-numbers-allowed")
+              : this.i18n.t("info.messages.only-one-number-allowed"),
+          )
+        }_`;
         break;
       }
-      case "password": {
-        result.markdown += `_${escapeMd(
-          this.i18n.t("info.messages.enter-password"),
-        )
-          }_`;
+      case CalloutComponentType.INPUT_TEXT_FIELD: {
+        result.markdown += `_${
+          escapeMd(
+            this.i18n.t("info.messages.enter-text"),
+          )
+        }_`;
         break;
       }
-      case "textfield": {
-        result.markdown += `_${escapeMd(
-          this.i18n.t("info.messages.enter-text"),
-        )
-          }_`;
+      case CalloutComponentType.INPUT_TEXT_AREA: {
+        result.markdown += `_${
+          escapeMd(
+            this.i18n.t("info.messages.enter-lots-of-text"),
+          )
+        }_`;
         break;
       }
-      case "textarea": {
-        result.markdown += `_${escapeMd(
-          this.i18n.t("info.messages.enter-lots-of-text"),
-        )
-          }_`;
+      case CalloutComponentType.INPUT_PHONE_NUMBER: {
+        result.markdown += `_${
+          escapeMd(
+            this.i18n.t("info.messages.enter-telephone-number"),
+          )
+        }_`;
         break;
       }
-      case "content": {
-        result.markdown += `_${escapeMd(
-          this.i18n.t("info.messages.enter-content"),
-        )
-          }_`;
+      case CalloutComponentType.INPUT_CURRENCY: {
+        result.markdown += `_${
+          escapeMd(
+            this.i18n.t("info.messages.enter-amount-of-money"),
+          )
+        }_`;
         break;
       }
-      case "phoneNumber": {
-        result.markdown += `_${escapeMd(
-          this.i18n.t("info.messages.enter-telephone-number"),
-        )
-          }_`;
+      case CalloutComponentType.INPUT_DATE_TIME: {
+        result.markdown += `_${
+          escapeMd(
+            this.i18n.t("info.messages.enter-date"),
+          )
+        }_`;
         break;
       }
-      case "currency": {
-        result.markdown += `_${escapeMd(
-          this.i18n.t("info.messages.enter-amount-of-money"),
-        )
-          }_`;
+      case CalloutComponentType.INPUT_TIME: {
+        result.markdown += `_${
+          escapeMd(
+            this.i18n.t("info.messages.enter-time"),
+          )
+        }_`;
         break;
       }
-      case "datetime": {
-        result.markdown += `_${escapeMd(
-          this.i18n.t("info.messages.enter-date"),
-        )
-          }_`;
-        break;
-      }
-      case "time": {
-        result.markdown += `_${escapeMd(
-          this.i18n.t("info.messages.enter-time"),
-        )
-          }_`;
-        break;
-      }
-      case "url": {
-        result.markdown += `_${escapeMd(
-          this.i18n.t("info.messages.enter-url"),
-        )
-          }_`;
+      case CalloutComponentType.INPUT_URL: {
+        result.markdown += `_${
+          escapeMd(
+            this.i18n.t("info.messages.enter-url"),
+          )
+        }_`;
         break;
       }
 
       default: {
         result.markdown += this.i18n.t("response.messages.component-unknown", {
-          type: (input as InputCalloutComponentSchema).type || "undefined",
+          type: (input as CalloutComponentBaseInputSchema).type || "undefined",
         });
         break;
       }
@@ -436,11 +477,11 @@ export class CalloutResponseRenderer {
    * @param radio The radio component to render
    * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
-  protected radioComponent(
-    radio: RadioCalloutComponentSchema,
+  protected selectableComponent(
+    selectable: CalloutComponentInputSelectableSchema,
     prefix: string,
   ): RenderMarkdown {
-    const result = this.baseComponent(radio, prefix);
+    const result = this.baseComponent(selectable, prefix);
 
     const multiple = result.accepted.multiple;
 
@@ -448,31 +489,35 @@ export class CalloutResponseRenderer {
       ...result.accepted,
       ...this.condition.replayConditionSelection(
         multiple,
-        this.selectValuesToValueLabelPairs(radio.values),
+        this.selectValuesToValueLabelPairs(selectable.values),
         multiple ? [this.i18n.t("reactions.messages.done")] : [],
       ),
     };
 
-    result.markdown += `\n${this.radioValues(radio, prefix).markdown}`;
+    result.markdown += `\n${
+      this.selectableValues(selectable, prefix).markdown
+    }`;
 
     result.markdown += `\n\n`;
 
-    switch (radio.type) {
+    switch (selectable.type) {
       case "radio": {
-        result.markdown += `_${escapeMd(
-          this.i18n.t("info.messages.only-one-selection-allowed"),
-        )
-          }_`;
+        result.markdown += `_${
+          escapeMd(
+            this.i18n.t("info.messages.only-one-selection-allowed"),
+          )
+        }_`;
         break;
       }
       case "selectboxes": {
-        result.markdown += `_${escapeMd(
-          this.i18n.t("info.messages.multiple-selections-allowed") + "\n\n" +
-          this.messageRenderer.writeDoneMessage(
-            this.i18n.t("reactions.messages.done"),
-          ).text,
-        )
-          }_`;
+        result.markdown += `_${
+          escapeMd(
+            this.i18n.t("info.messages.multiple-selections-allowed") + "\n\n" +
+              this.messageRenderer.writeDoneMessage(
+                this.i18n.t("reactions.messages.done"),
+              ).text,
+          )
+        }_`;
         break;
       }
     }
@@ -493,13 +538,32 @@ export class CalloutResponseRenderer {
   }
 
   /**
+   * Render a callout response slide or nestable component and each nested component in Markdown
+   * @param nestable The nestable component or slide to render
+   * @param prefix The prefix, used to group the answers later (only used for slides)
+   */
+  public nestableComponent(
+    nestable: CalloutComponentBaseNestableSchema | CalloutSlideSchema,
+    prefix: string,
+  ) {
+    const nestableResults: Render[] = [];
+
+    for (const component of nestable.components) {
+      const componentRenders = this.component(component, prefix);
+      nestableResults.push(...componentRenders);
+    }
+
+    return nestableResults;
+  }
+
+  /**
    * Render a select component in Markdown.
    * Note: A select component is a dropdown menu in the frontend.
    * @param select The select component to render
    * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
   protected selectComponent(
-    select: SelectCalloutComponentSchema,
+    select: CalloutComponentInputSelectSchema,
     prefix: string,
   ): RenderMarkdown {
     const result = this.baseComponent(select, prefix);
@@ -514,10 +578,11 @@ export class CalloutResponseRenderer {
 
     result.markdown += `\n\n`;
 
-    result.markdown += `_${escapeMd(
-      this.i18n.t("info.messages.only-one-selection-allowed"),
-    )
-      }_`;
+    result.markdown += `_${
+      escapeMd(
+        this.i18n.t("info.messages.only-one-selection-allowed"),
+      )
+    }_`;
     return result;
   }
 
@@ -525,89 +590,90 @@ export class CalloutResponseRenderer {
     console.debug("Rendering component", component);
     const results: Render[] = [];
 
-    const mainType = calloutComponentTypeToMainType(component);
-
-    switch (mainType) {
-      case CalloutComponentMainType.INPUT: {
-        results.push(
-          this.inputComponent(component as InputCalloutComponentSchema, prefix),
-        );
-        break;
-      }
-
-      case CalloutComponentMainType.FILE: {
-        results.push(this.inputFileComponent(
-          component as InputFileCalloutComponentSchema,
-          prefix,
-        ));
-        break;
-      }
-
-      case CalloutComponentMainType.RADIO: {
-        results.push(
-          this.radioComponent(component as RadioCalloutComponentSchema, prefix),
-        );
-        break;
-      }
-
-      case CalloutComponentMainType.SELECT: {
-        results.push(
-          this.selectComponent(
-            component as SelectCalloutComponentSchema,
-            prefix,
-          ),
-        );
-        break;
-      }
-
-      case CalloutComponentMainType.NESTED: {
-        results.push(
-          ...this.nestableComponent(
-            component as NestableCalloutComponentSchema,
-            prefix,
-          ),
-        );
-        break;
-      }
-
-      case CalloutComponentMainType.UNKNOWN:
-      default: {
-        console.warn("Rendering unknown component", component, prefix);
-        const multiple = this.isMultiple(component);
-        const unknown: Render = {
-          key: createCalloutGroupKey(component.key, prefix),
-          type: RenderType.MARKDOWN,
-          accepted: this.condition.replayConditionAny(multiple),
-          markdown: this.i18n.t("response.messages.component-unknown", {
-            type: (component as CalloutComponentSchema).type || "undefined",
-          }),
-          parseType: calloutComponentTypeToParsedResponseType(component),
-        };
-        results.push(unknown);
-        break;
-      }
+    if (isCalloutComponentOfType(component, CalloutComponentType.CONTENT)) {
+      results.push(this.contentComponent(
+        component,
+        prefix,
+      ));
+      return results;
     }
+
+    if (isCalloutComponentOfType(component, CalloutComponentType.INPUT_FILE)) {
+      results.push(this.inputFileComponent(
+        component,
+        prefix,
+      ));
+      return results;
+    }
+
+    if (
+      isCalloutComponentOfType(component, CalloutComponentType.INPUT_SELECT)
+    ) {
+      results.push(
+        this.selectComponent(
+          component,
+          prefix,
+        ),
+      );
+      return results;
+    }
+
+    if (
+      isCalloutComponentOfBaseType(
+        component,
+        CalloutComponentBaseType.INPUT_SELECTABLE,
+      )
+    ) {
+      results.push(
+        this.selectableComponent(
+          component,
+          prefix,
+        ),
+      );
+      return results;
+    }
+
+    if (
+      isCalloutComponentOfBaseType(component, CalloutComponentBaseType.NESTABLE)
+    ) {
+      results.push(
+        ...this.nestableComponent(
+          component,
+          prefix,
+        ),
+      );
+      return results;
+    }
+
+    if (
+      isCalloutComponentOfBaseType(component, CalloutComponentBaseType.INPUT)
+    ) {
+      results.push(
+        this.inputComponent(
+          component,
+          prefix,
+        ),
+      );
+      return results;
+    }
+
+    console.warn("Rendering unknown component", component, prefix);
+    const multiple = this.isMultiple(component);
+    const unknown: Render = {
+      key: createCalloutGroupKey(
+        (component as CalloutComponentBaseSchema).key,
+        prefix,
+      ),
+      type: RenderType.MARKDOWN,
+      accepted: this.condition.replayConditionAny(multiple),
+      markdown: this.i18n.t("response.messages.component-unknown", {
+        type: (component as CalloutComponentSchema).type || "undefined",
+      }),
+      parseType: calloutComponentTypeToParsedResponseType(component),
+    };
+    results.push(unknown);
 
     return results;
-  }
-
-  /**
-   * Render a callout response slide or nestable component and each nested component in Markdown
-   * @param nestable The nestable component or slide to render
-   * @param prefix The prefix, used to group the answers later (only used for slides)
-   */
-  public nestableComponent(
-    nestable: NestableCalloutComponentSchema | CalloutSlideSchema,
-    prefix: string,
-  ) {
-    const nestableResults: Render[] = [];
-
-    for (const component of nestable.components) {
-      const componentRenders = this.component(component, prefix);
-      nestableResults.push(...componentRenders);
-    }
-
-    return nestableResults;
   }
 
   /**
