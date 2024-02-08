@@ -1,11 +1,11 @@
 import {
-  CalloutComponentNestableSchema,
   CalloutComponentBaseType,
   CalloutComponentContentSchema,
   CalloutComponentInputFileSchema,
   CalloutComponentInputSchema,
   CalloutComponentInputSelectableSchema,
   CalloutComponentInputSelectSchema,
+  CalloutComponentNestableSchema,
   CalloutComponentSchema,
   CalloutComponentType,
   CalloutSlideSchema,
