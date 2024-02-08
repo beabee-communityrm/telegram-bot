@@ -33,7 +33,7 @@
   "tasks": {
     "dev": "cd telegram-bot && deno task dev",
     "start": "cd telegram-bot && deno task start",
-    "build": "deno task build:beabee-client && deno task build:beabee-common",
+    "build": "deno task build:beabee-common && deno task build:beabee-client",
     "build:beabee-client": "cd beabee-client && deno task build",
     "build:beabee-common": "cd beabee-common && deno task build",
     "test": "deno task test:telegram-bot && deno task test:beabee-client && deno task test:beabee-common",
@@ -48,7 +48,7 @@
     "format:telegram-bot": "cd telegram-bot && deno task format",
     "format:beabee-client": "cd beabee-client && deno task format",
     "format:beabee-common": "cd beabee-common && deno task format",
-    "cache": "deno task cache:telegram-bot && deno task cache:beabee-client && deno task cache:beabee-common",
+    "cache": "deno task cache:telegram-bot && deno task cache:beabee-common && deno task cache:beabee-client",
     "cache:telegram-bot": "cd telegram-bot && deno task cache",
     "cache:beabee-client": "cd beabee-client && deno task cache",
     "cache:beabee-common": "cd beabee-common && deno task cache",
