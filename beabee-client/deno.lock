@@ -457,7 +457,6 @@
     ],
     "packageJson": {
       "dependencies": [
-        "npm:@beabee/beabee-common@^1.18.1",
         "npm:@tsconfig/recommended@^1.0.3",
         "npm:@types/node-fetch@2.6.2",
         "npm:@types/node@^12.20.55",
