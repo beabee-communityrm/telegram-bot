@@ -16,7 +16,7 @@
     "lint": "deno lint",
     "format": "deno fmt",
     "cache": "deno task cache:deno && deno task cache:node",
-    "cache:deno": "deno cache --reload src/mod.ts",
+    "cache:deno": "deno cache --reload mod.ts",
     "cache:node": "npm install",
     "generate:index": "deno run --allow-read --allow-write scripts/generate-index.ts && deno task format"
   },
