@@ -23,6 +23,7 @@
     "typeorm": "npm:typeorm@0.3.17",
     "sqlite3": "https://deno.land/x/sqlite3@0.10.0/mod.ts",
     "@beabee/beabee-common": "./beabee-common/mod.ts",
+    "@beabee/beabee-client": "../beabee-client/mod.ts",
     "date-fns": "npm:date-fns@3.2.0"
   },
   "scopes": {
