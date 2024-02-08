@@ -1,23 +1,19 @@
 {
+  "extends": "@tsconfig/recommended",
+  "include": ["./src"],
+  "exclude": ["src/**/*.test.ts"],
   "compilerOptions": {
-    "rootDir": "./src/",
-    "strict": true,
-    "declaration": true,
-    "moduleResolution": "Bundler",
-    "module": "ESNext",
-    "outDir": "./out/",
-    "skipLibCheck": true,
     "target": "ESNext",
-    "esModuleInterop": true
-  },
-  "include": [
-    "src/"
-  ],
-  "exclude": [
-    "src/*.web.ts",
-    "src/**/*.test.ts"
-  ],
-  "deno2node": {
-    "shim": "./src/shim.node.ts"
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "declarationDir": "./dist/types",
+    "allowImportingTsExtensions": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "isolatedModules": true,
+    "paths": {
+      "@beabee/beabee-common": ["../beabee-common/mod.ts"],
+      "@beabee/client": ["."]
+    }
   }
 }

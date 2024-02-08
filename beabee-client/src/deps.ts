@@ -15,4 +15,4 @@ export type {
   PaymentStatus,
   RoleType,
   RuleGroup,
-} from "../../beabee-common/mod.ts";
+} from "@beabee/beabee-common";
