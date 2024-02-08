@@ -1,7 +1,5 @@
 import {
-  CalloutComponentBaseInputSchema,
-  CalloutComponentBaseNestableSchema,
-  CalloutComponentBaseSchema,
+  CalloutComponentNestableSchema,
   CalloutComponentBaseType,
   CalloutComponentContentSchema,
   CalloutComponentInputFileSchema,
@@ -53,7 +51,7 @@ export class CalloutResponseRenderer {
     console.debug(`${this.constructor.name} created`);
   }
 
-  protected isMultiple(component: CalloutComponentBaseSchema) {
+  protected isMultiple(component: CalloutComponentSchema) {
     if (component.multiple) {
       return true;
     }
@@ -455,7 +453,7 @@ export class CalloutResponseRenderer {
 
       default: {
         result.markdown += this.i18n.t("response.messages.component-unknown", {
-          type: (input as CalloutComponentBaseInputSchema).type || "undefined",
+          type: (input as CalloutComponentSchema).type || "undefined",
         });
         break;
       }
@@ -543,7 +541,7 @@ export class CalloutResponseRenderer {
    * @param prefix The prefix, used to group the answers later (only used for slides)
    */
   public nestableComponent(
-    nestable: CalloutComponentBaseNestableSchema | CalloutSlideSchema,
+    nestable: CalloutComponentNestableSchema | CalloutSlideSchema,
     prefix: string,
   ) {
     const nestableResults: Render[] = [];
@@ -661,7 +659,7 @@ export class CalloutResponseRenderer {
     const multiple = this.isMultiple(component);
     const unknown: Render = {
       key: createCalloutGroupKey(
-        (component as CalloutComponentBaseSchema).key,
+        (component as CalloutComponentSchema).key,
         prefix,
       ),
       type: RenderType.MARKDOWN,
