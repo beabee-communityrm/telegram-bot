@@ -2,13 +2,11 @@ import { Singleton } from "../deps.ts";
 import { RelayAcceptedFileType, ReplayType } from "../enums/index.ts";
 import {
   extractNumbers,
+  filterMimeTypesByPatterns,
   getFileIdFromMessage,
+  getSimpleMimeTypes,
   getTextFromMessage,
   isNumber,
-} from "../utils/index.ts";
-import {
-  filterMimeTypesByPatterns,
-  getSimpleMimeTypes,
 } from "../utils/index.ts";
 
 import type {
@@ -25,7 +23,7 @@ import type {
   ReplayConditionSelection,
   ReplayConditionText,
 } from "../types/index.ts";
-import { Context } from "../types/grammy.ts";
+import type { Context } from "../types/grammy.ts";
 
 /**
  * Define and check conditions for a replay.
