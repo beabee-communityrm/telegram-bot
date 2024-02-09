@@ -58,7 +58,13 @@ git add -A locales/ && git commit locales/ -m 'chore: updated locales'
 
 #### Using the localisation strings
 
-TODO...
+```ts
+import { container } from "../deps.ts";
+import { I18nService } from "./services/index.ts";
+
+const i18n = container.resolve(I18nService); // Get the Singleton instance of I18nService
+const translated = i18n.t("info.messages.placeholder", { placeholder: "Hello World!" }
+```
 
 ### Testing
 
@@ -99,6 +105,8 @@ parts of the application:
 - `core`: Contains abstract classes of the application, such as `Command` to
   implement a new Telegram Command and the `EventManager` to implement a new
   event manger.
+- `data`: Contains data which can be persisted in docker volumes such the
+  `database.sql`.
 - `renderer`: Includes classes for rendering Markdown texts, including
   `CalloutRenderer`, `MessageRenderer`, `CalloutResponseRenderer` and more.
 - `enums`: Contains enums used throughout the application.

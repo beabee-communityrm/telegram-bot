@@ -1,4 +1,4 @@
-import type { ContributionPeriod, RoleType } from "@beabee/beabee-common";
+import type { ContributionPeriod, RoleType } from "../deps.ts";
 
 import type { ContactData } from "./index.ts";
 

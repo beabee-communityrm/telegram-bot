@@ -1,4 +1,4 @@
-import type { CalloutResponseAnswers } from "@beabee/beabee-common";
+import type { CalloutResponseAnswersNestable } from "../deps.ts";
 
 import type {
   GetCalloutData,
@@ -11,7 +11,8 @@ import type {
 
 export type GetCalloutResponseDataWith<With extends GetCalloutResponseWith> =
   & GetCalloutResponseData
-  & ("answers" extends With ? { answers: CalloutResponseAnswers } : Noop)
+  & ("answers" extends With ? { answers: CalloutResponseAnswersNestable }
+    : Noop)
   & ("assignee" extends With ? { assignee: GetContactData | null } : Noop)
   & ("callout" extends With ? { callout: GetCalloutData } : Noop)
   & ("contact" extends With ? { contact: GetContactData | null } : Noop)

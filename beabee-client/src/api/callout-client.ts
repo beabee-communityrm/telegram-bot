@@ -11,7 +11,7 @@ import type {
   Serial,
   UpdateCalloutData,
 } from "../types/index.ts";
-import type { Paginated } from "@beabee/beabee-common";
+import type { Paginated } from "../deps.ts";
 
 export class CalloutClient extends BaseClient {
   constructor(protected readonly options: BaseClientOptions) {

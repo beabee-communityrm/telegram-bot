@@ -1,7 +1,5 @@
-import type {
-  CalloutResponseAnswerFileUpload,
-  RenderResponseParsedBase,
-} from "./index.ts";
+import type { RenderResponseParsedBase } from "./index.ts";
+import { CalloutResponseAnswerFileUpload } from "../deps.ts";
 import type { ParsedResponseType } from "../enums/index.ts";
 
 export interface RenderResponseParsedFile<MULTI extends boolean = boolean>

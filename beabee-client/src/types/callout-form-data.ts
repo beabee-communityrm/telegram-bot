@@ -1,4 +1,4 @@
-import type { CalloutFormSchema } from "@beabee/beabee-common";
+import type { CalloutFormSchema } from "../deps.ts";
 
 export interface CalloutFormData {
   formSchema: CalloutFormSchema;

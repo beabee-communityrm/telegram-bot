@@ -7,4 +7,4 @@ export type {
   GetCalloutDataWith,
   GetCalloutsQuery,
   GetCalloutWith,
-} from "@beabee/client";
+} from "../deps.ts";

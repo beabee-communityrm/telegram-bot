@@ -1,5 +1,4 @@
 export * from "./beabee-client.ts";
-export * from "./beabee-common.ts";
 export * from "./callout-data-ext.ts";
 export * from "./command-class.ts";
 export * from "./event-manager-class.ts";

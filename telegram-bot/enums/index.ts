@@ -1,5 +1,4 @@
 export * from "./bot-command-scope.ts";
-export * from "./callout-component-main-type.ts";
 export * from "./i18n-event.ts";
 export * from "./network-communicator-events.ts";
 export * from "./parsed-response-type.ts";

@@ -11,6 +11,7 @@ import {
 } from "../utils/index.ts";
 
 import type {
+  CalloutComponentBaseNestableSchema,
   CalloutData,
   CalloutDataExt,
   CreateCalloutResponseData,
@@ -20,7 +21,6 @@ import type {
   GetCalloutDataWithExt,
   GetCalloutsQuery,
   GetCalloutWith,
-  NestableCalloutComponentSchema,
   Paginated,
 } from "../types/index.ts";
 
@@ -137,7 +137,7 @@ export class CalloutService {
       [slideId, componentKey] = splitCalloutGroupKey(componentKey);
     }
 
-    // TODO: If not slide id is provided, we can search in all slides
+    // TODO: If no slide id is provided, we can search in all slides
     if (!slideId) {
       return null;
     }
@@ -152,8 +152,8 @@ export class CalloutService {
         return true;
       }
       // Also check nested components
-      if ((c as NestableCalloutComponentSchema).components) {
-        return (c as NestableCalloutComponentSchema).components.find((c) =>
+      if ((c as CalloutComponentBaseNestableSchema).components) {
+        return (c as CalloutComponentBaseNestableSchema).components.find((c) =>
           c.key === componentKey
         );
       }

@@ -1,12 +1,12 @@
 import type {
   CalloutResponseAnswerAddress,
   CalloutResponseAnswerFileUpload,
-  CalloutResponseAnswers,
-} from "@beabee/beabee-common";
+  CalloutResponseAnswersNestable,
+} from "../deps.ts";
 
 export interface GetCalloutResponseMapData {
   number: number;
-  answers: CalloutResponseAnswers;
+  answers: CalloutResponseAnswersNestable;
   title: string;
   photos: CalloutResponseAnswerFileUpload[];
   address?: CalloutResponseAnswerAddress;

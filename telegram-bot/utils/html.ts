@@ -1,4 +1,4 @@
-import { AmmoniaBuilder, ammoniaInit } from "../deps.ts";
+import { AmmoniaBuilder, ammoniaCleanText, ammoniaInit } from "../deps.ts";
 import { ALLOWED_TAGS } from "../constants/index.ts";
 
 const initAmmonia = async () => {
@@ -13,6 +13,14 @@ const initAmmonia = async () => {
 };
 
 const ammonia = await initAmmonia();
+
+/**
+ * Turn an arbitrary string into unformatted HTML.
+ * @see https://deno.land/x/ammonia@0.3.1/mod.ts?s=cleanText
+ * @param htmlContent The HTML content to be cleaned.
+ * @returns The cleaned HTML content.
+ */
+export const escapeHtml = ammoniaCleanText;
 
 /**
  * Sanitizes HTML content by keeping only Telegram allowed tags and replacing or removing others.

@@ -139,3 +139,5 @@ deno_cache/
 telegram-bot/telegram-bot
 
 .credentials.json
+
+# Temporary type build files

@@ -1,4 +1,4 @@
-import { ItemStatus } from "@beabee/beabee-common";
+import { ItemStatus } from "../deps.ts";
 import { NoticeData } from "./index.ts";
 
 export interface GetNoticeData extends NoticeData {

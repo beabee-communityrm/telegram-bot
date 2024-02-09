@@ -1,4 +1,4 @@
-import { CalloutData } from "@beabee/client";
+import { CalloutData } from "../deps.ts";
 
 export interface CalloutDataExt extends CalloutData {
   url: string | null;
