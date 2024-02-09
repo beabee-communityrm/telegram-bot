@@ -20,7 +20,7 @@ export class KeyboardService {
    *
    * @fires `callback_query:data:${BUTTON_CALLBACK_SHOW_CALLOUT}`
    *
-   * @param callouts The callouts to select from
+   * @param callouts The Callouts to select from
    * @param startIndex The index of the first callout to show, starting at 1
    * @param endIndex The index of the last callout to show, starting at 1 and must be larger than startIndex
    */

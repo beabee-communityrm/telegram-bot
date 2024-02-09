@@ -11,7 +11,6 @@ import {
 } from "../utils/index.ts";
 
 import type {
-  CalloutComponentBaseNestableSchema,
   CalloutData,
   CalloutDataExt,
   CreateCalloutResponseData,
@@ -21,8 +20,9 @@ import type {
   GetCalloutDataWithExt,
   GetCalloutsQuery,
   GetCalloutWith,
-  Paginated,
 } from "../types/index.ts";
+
+import type { CalloutComponentNestableSchema, Paginated } from "../deps.ts";
 
 const CALLOUTS_ACTIVE_QUERY: GetCalloutsQuery = {
   rules: {
@@ -152,8 +152,8 @@ export class CalloutService {
         return true;
       }
       // Also check nested components
-      if ((c as CalloutComponentBaseNestableSchema).components) {
-        return (c as CalloutComponentBaseNestableSchema).components.find((c) =>
+      if ((c as CalloutComponentNestableSchema).components) {
+        return (c as CalloutComponentNestableSchema).components.find((c) =>
           c.key === componentKey
         );
       }

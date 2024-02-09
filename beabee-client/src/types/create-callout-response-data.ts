@@ -1,9 +1,9 @@
-import type { CalloutResponseAnswersNestable } from "../deps.ts";
+import type { CalloutResponseAnswersSlide } from "../deps.ts";
 
 export interface CreateCalloutResponseData {
   guestName?: string;
   guestEmail?: string;
-  answers: CalloutResponseAnswersNestable;
+  answers: CalloutResponseAnswersSlide;
   bucket?: string;
   tags?: string[];
   assigneeId?: string | null;

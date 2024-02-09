@@ -12,8 +12,6 @@ import {
 } from "../utils/index.ts";
 
 import type {
-  CalloutResponseAnswer,
-  CalloutResponseAnswers,
   Render,
   RenderResponse,
   RenderResponseParsed,
@@ -27,6 +25,11 @@ import type {
   RenderResponseParsedText,
   ReplayAccepted,
 } from "../types/index.ts";
+
+import type {
+  CalloutResponseAnswer,
+  CalloutResponseAnswersSlide,
+} from "../deps.ts";
 
 /**
  * Service to transform message responses
@@ -335,7 +338,7 @@ export class TransformService {
     responses: RenderResponse<boolean>[],
   ) {
     const slideResponses = this.groupResponsesByGroupKey(responses);
-    const answers: CalloutResponseAnswers = {};
+    const answers: CalloutResponseAnswersSlide = {};
     for (const [slideId, responses] of Object.entries(slideResponses)) {
       const slideAnswers: Record<
         string,

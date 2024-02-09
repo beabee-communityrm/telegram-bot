@@ -4,6 +4,7 @@ export type {
   CalloutResponseAnswerAddress,
   CalloutResponseAnswerFileUpload,
   CalloutResponseAnswersNestable,
+  CalloutResponseAnswersSlide,
   ContributionPeriod,
   ContributionType,
   ItemStatus,
