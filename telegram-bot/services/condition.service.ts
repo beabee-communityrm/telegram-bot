@@ -286,7 +286,9 @@ export class ConditionService {
 
     if (accepted.multiple && accepted.doneTexts?.length) {
       const doneTexts = accepted.doneTexts.map((t) => t.toLowerCase().trim());
-      const isDone = doneTexts.some((t) => t === textMessage);
+      const isDone = doneTexts.some((t) =>
+        t === textMessage.toLowerCase().trim()
+      );
       if (isDone) {
         return {
           type: ReplayType.TEXT,

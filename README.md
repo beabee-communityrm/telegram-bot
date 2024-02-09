@@ -28,10 +28,10 @@ To get started with this workspace:
 - Clone this repository and open the `telegram-bot-deno.code-workspace`
   workspace file in VSCode.
 
-| Note: At the moment there are some issues working with Deno workspaces. See
+| Note: At the moment there are some issues working with multi-root workspaces and the Deno extension for VSCode. See
 issues: [#1](https://github.com/denoland/vscode_deno/issues/787),
 [#2](https://github.com/denoland/vscode_deno/issues/488) and
-[#3](https://github.com/denoland/deno/issues/21769).
+[#3](https://github.com/denoland/deno/issues/21769). We workaround this by making the same import entries in all `deno.json` files, this will be removed later when the VSCode Deno extension gets along better with the workspace feature.
 
 For detailed information on working with multi-root workspaces in Visual Studio
 Code, refer to the

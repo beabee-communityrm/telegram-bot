@@ -94,16 +94,23 @@ export class CalloutResponseEventManager extends EventManager {
       answers,
     );
 
-    const response = await this.callout.createResponse(slug, {
-      answers,
-      guestName: ctx.from?.username,
-      // guestEmail: "test@beabee.io",
-    });
+    try {
+      const response = await this.callout.createResponse(slug, {
+        answers,
+        guestName: ctx.from?.username,
+        // guestEmail: "test@beabee.io",
+      });
 
-    console.debug(
-      "Created response",
-      response,
-    );
+      console.debug(
+        "Created response",
+        response,
+      );
+    } catch (error) {
+      console.error(
+        `Failed to create response`,
+        error,
+      );
+    }
   }
 
   /**
