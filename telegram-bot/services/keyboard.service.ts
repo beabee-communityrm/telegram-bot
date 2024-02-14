@@ -75,11 +75,11 @@ export class KeyboardService {
   public yesNo(prefix = "") {
     const inlineKeyboard = new InlineKeyboard();
     inlineKeyboard.text(
-      this.i18n.t("keyboard.label.yes"),
+      this.i18n.t("bot.keyboard.label.yes"),
       prefix ? `${prefix}:yes` : `yes`,
     );
     inlineKeyboard.text(
-      this.i18n.t("keyboard.label.no"),
+      this.i18n.t("bot.keyboard.label.no"),
       prefix ? `${prefix}:no` : `no`,
     );
     return inlineKeyboard;
@@ -96,11 +96,11 @@ export class KeyboardService {
   public continueCancel(prefix = "") {
     const inlineKeyboard = new InlineKeyboard();
     inlineKeyboard.text(
-      this.i18n.t("keyboard.label.continue"),
+      this.i18n.t("bot.keyboard.label.continue"),
       prefix ? `${prefix}:continue` : `continue`,
     );
     inlineKeyboard.text(
-      this.i18n.t("keyboard.label.cancel"),
+      this.i18n.t("bot.keyboard.label.cancel"),
       prefix ? `${prefix}:cancel` : `cancel`,
     );
     return inlineKeyboard;
