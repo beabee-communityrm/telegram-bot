@@ -84,10 +84,7 @@ export class CalloutResponseRenderer {
   /**
    * Render a component description in Markdown
    */
-  protected descriptionMd(
-    component: CalloutComponentSchema,
-    prefix: string,
-  ) {
+  protected descriptionMd(component: CalloutComponentSchema, prefix: string) {
     if (typeof component.description !== "string" || !component.description) {
       return EMPTY_RENDER;
     }
@@ -107,10 +104,7 @@ export class CalloutResponseRenderer {
    * Render an input component placeholder in Markdown
    * @param input The input component to render
    */
-  protected placeholderMd(
-    input: CalloutComponentInputSchema,
-    prefix: string,
-  ) {
+  protected placeholderMd(input: CalloutComponentInputSchema, prefix: string) {
     const result: Render = {
       key: createCalloutGroupKey(input.key, prefix),
       type: RenderType.MARKDOWN,
@@ -123,7 +117,9 @@ export class CalloutResponseRenderer {
 
     if (placeholder) {
       result.markdown = `_${
-        escapeMd(this.i18n.t("info.messages.placeholder", { placeholder }))
+        escapeMd(
+          this.i18n.t("info.messages.placeholder", { placeholder }),
+        )
       }_`;
     }
 
@@ -235,28 +231,23 @@ export class CalloutResponseRenderer {
       key: createCalloutGroupKey(base.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
-      accepted: this.condition.replayConditionText(
+      accepted: this.condition.replayConditionCalloutConponent(
         multiple,
-        undefined,
+        base,
         multiple ? [this.i18n.t("reactions.messages.done")] : [],
       ),
-      parseType: calloutComponentTypeToParsedResponseType(base),
+      parseType: ParsedResponseType.CALLOUT_COMPONENT,
     };
 
     // Label
     const label = this.labelMd(base, prefix);
-    if (
-      label.type === RenderType.MARKDOWN && label.markdown
-    ) {
+    if (label.type === RenderType.MARKDOWN && label.markdown) {
       result.markdown += `${label.markdown}\n`;
     }
 
     // Description
     const desc = this.descriptionMd(base, prefix);
-    if (
-      desc.type === RenderType.MARKDOWN &&
-      desc.markdown
-    ) {
+    if (desc.type === RenderType.MARKDOWN && desc.markdown) {
       result.markdown += `${desc.markdown}\n`;
     }
 
@@ -293,10 +284,7 @@ export class CalloutResponseRenderer {
     );
 
     if (file.placeholder) {
-      result.markdown += `\n\n${
-        this.placeholderMd(file, prefix)
-          .markdown
-      }`;
+      result.markdown += `\n\n${this.placeholderMd(file, prefix).markdown}`;
     }
 
     if (multiple) {
@@ -304,6 +292,18 @@ export class CalloutResponseRenderer {
     }
 
     return result;
+  }
+
+  /**
+   * Render an input signature component in Markdown
+   * @param signature The input signature component to render
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
+   */
+  protected inputSignatureComponent(
+    signature: CalloutComponentInputSignatureSchema,
+    prefix: string,
+  ) {
+    return this.inputFileComponent(signature, prefix);
   }
 
   /** A content component only prints a text and does not expect an answer */
@@ -325,7 +325,7 @@ export class CalloutResponseRenderer {
       type: RenderType.HTML,
       html,
       accepted: this.condition.replayConditionNone(false),
-      parseType: calloutComponentTypeToParsedResponseType(content),
+      parseType: ParsedResponseType.NONE,
     };
 
     return result;
@@ -336,10 +336,7 @@ export class CalloutResponseRenderer {
    * @param input The input component to render
    * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
-  protected inputComponent(
-    input: CalloutComponentInputSchema,
-    prefix: string,
-  ) {
+  protected inputComponent(input: CalloutComponentInputSchema, prefix: string) {
     const result = this.baseComponent(input, prefix);
     result.markdown += `\n\n`;
 
@@ -382,6 +379,7 @@ export class CalloutResponseRenderer {
               : this.i18n.t("info.messages.only-one-email-allowed"),
           )
         }_`;
+
         break;
       }
       case CalloutComponentType.INPUT_NUMBER: {
@@ -510,7 +508,8 @@ export class CalloutResponseRenderer {
       case "selectboxes": {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("info.messages.multiple-selections-allowed") + "\n\n" +
+            this.i18n.t("info.messages.multiple-selections-allowed") +
+              "\n\n" +
               this.messageRenderer.writeDoneMessage(
                 this.i18n.t("reactions.messages.done"),
               ).text,
@@ -589,30 +588,26 @@ export class CalloutResponseRenderer {
     const results: Render[] = [];
 
     if (isCalloutComponentOfType(component, CalloutComponentType.CONTENT)) {
-      results.push(this.contentComponent(
-        component,
-        prefix,
-      ));
+      results.push(this.contentComponent(component, prefix));
       return results;
     }
 
     if (isCalloutComponentOfType(component, CalloutComponentType.INPUT_FILE)) {
-      results.push(this.inputFileComponent(
-        component,
-        prefix,
-      ));
+      results.push(this.inputFileComponent(component, prefix));
+      return results;
+    }
+
+    if (
+      isCalloutComponentOfType(component, CalloutComponentType.INPUT_SIGNATURE)
+    ) {
+      results.push(this.inputSignatureComponent(component, prefix));
       return results;
     }
 
     if (
       isCalloutComponentOfType(component, CalloutComponentType.INPUT_SELECT)
     ) {
-      results.push(
-        this.selectComponent(
-          component,
-          prefix,
-        ),
-      );
+      results.push(this.selectComponent(component, prefix));
       return results;
     }
 
@@ -622,36 +617,21 @@ export class CalloutResponseRenderer {
         CalloutComponentBaseType.INPUT_SELECTABLE,
       )
     ) {
-      results.push(
-        this.selectableComponent(
-          component,
-          prefix,
-        ),
-      );
+      results.push(this.selectableComponent(component, prefix));
       return results;
     }
 
     if (
       isCalloutComponentOfBaseType(component, CalloutComponentBaseType.NESTABLE)
     ) {
-      results.push(
-        ...this.nestableComponent(
-          component,
-          prefix,
-        ),
-      );
+      results.push(...this.nestableComponent(component, prefix));
       return results;
     }
 
     if (
       isCalloutComponentOfBaseType(component, CalloutComponentBaseType.INPUT)
     ) {
-      results.push(
-        this.inputComponent(
-          component,
-          prefix,
-        ),
-      );
+      results.push(this.inputComponent(component, prefix));
       return results;
     }
 
@@ -725,9 +705,7 @@ export class CalloutResponseRenderer {
    * @param callout The callout to render
    * @returns
    */
-  public full(
-    callout: GetCalloutDataWithExt<"form">,
-  ) {
+  public full(callout: GetCalloutDataWithExt<"form">) {
     const form = callout.formSchema;
 
     const slidesRenders: Render[] = [];

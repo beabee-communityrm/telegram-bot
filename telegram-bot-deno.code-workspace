@@ -2,7 +2,7 @@
   "folders": [
     {
       "path": ".",
-      "name": "root"
+      "name": "_root"
     },
     {
       "path": "./telegram-bot",
@@ -11,6 +11,10 @@
     {
       "path": "./beabee-client",
       "name": "beabee-client"
+    },
+    {
+      "path": "./beabee-common",
+      "name": "beabee-common"
     }
   ],
   "settings": {
@@ -23,6 +27,8 @@
       "denodb",
       "selectboxes"
     ],
+    "prettier.enable": false,
+    "eslint.enable": false,
     "deno.enable": true,
     "deno.lint": true,
     "deno.unstable": true,
@@ -35,13 +41,12 @@
       "./beabee-client/jest.config.web.js",
       "./beabee-client/jest.config.node.js",
       "./beabee-common/dist",
-      "./beabee-common/scripts",
       "./beabee-common/test/node",
       "./beabee-common/jest.config.js"
     ],
     "editor.defaultFormatter": "denoland.vscode-deno",
     "editor.formatOnSave": true,
-    "typescript.format.enable": true,
+    "typescript.format.enable": true
   },
   "launch": {
     "version": "0.2.0",

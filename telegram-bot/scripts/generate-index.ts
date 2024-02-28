@@ -5,6 +5,7 @@ const paths = [
   "./controllers",
   "./constants",
   "./core",
+  "./deps",
   "./enums",
   "./event-managers",
   "./models",

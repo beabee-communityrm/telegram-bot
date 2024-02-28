@@ -23,6 +23,11 @@ export const isCalloutGroupKey = (key: string) => {
   return key.includes(CALLOUT_RESPONSE_GROUP_KEY_SEPARATOR);
 };
 
+/**
+ * @deprecated Use `ParsedResponseType.CALLOUT_COMPONENT` instead
+ * @param component
+ * @returns
+ */
 export const calloutComponentTypeToParsedResponseType = (
   component: CalloutComponentSchema,
 ): ParsedResponseType => {
@@ -32,10 +37,12 @@ export const calloutComponentTypeToParsedResponseType = (
     case CalloutComponentType.INPUT_TEXT_AREA:
     case CalloutComponentType.INPUT_PHONE_NUMBER:
     case CalloutComponentType.INPUT_CURRENCY:
-    case CalloutComponentType.INPUT_DATE_TIME: // TODO: parse date
-    case CalloutComponentType.INPUT_TIME: // TODO: parse time
-    case CalloutComponentType.INPUT_URL: {
-      return ParsedResponseType.TEXT;
+    case CalloutComponentType.INPUT_DATE_TIME:
+    case CalloutComponentType.INPUT_TIME:
+    case CalloutComponentType.INPUT_URL:
+    case CalloutComponentType.INPUT_NUMBER:
+    case CalloutComponentType.INPUT_ADDRESS: {
+      return ParsedResponseType.CALLOUT_COMPONENT;
     }
 
     case CalloutComponentType.CONTENT: {
@@ -44,14 +51,6 @@ export const calloutComponentTypeToParsedResponseType = (
 
     case CalloutComponentType.INPUT_CHECKBOX: {
       return ParsedResponseType.BOOLEAN;
-    }
-
-    case CalloutComponentType.INPUT_NUMBER: {
-      return ParsedResponseType.NUMBER;
-    }
-
-    case CalloutComponentType.INPUT_ADDRESS: {
-      return ParsedResponseType.ADDRESS;
     }
 
     case CalloutComponentType.INPUT_FILE:

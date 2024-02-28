@@ -11,9 +11,10 @@ import { I18nService } from "../services/i18n.service.ts";
 import type {
   CalloutDataExt,
   GetCalloutDataExt,
-  Paginated,
   Render,
 } from "../types/index.ts";
+
+import type { Paginated } from "../deps.ts";
 
 /**
  * Render callouts for Telegram in Markdown
@@ -147,7 +148,7 @@ export class CalloutRenderer {
   }
 
   /**
-   * Render a callout as a photo.
+   * Render a callout with photo.
    *
    * @param callout
    * @returns

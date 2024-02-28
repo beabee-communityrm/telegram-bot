@@ -1,5 +1,8 @@
-import type { ContributionPeriod, PaymentMethod } from "../deps.ts";
-import type { StripeFeeCountry } from "./index.ts";
+import type {
+  ContributionPeriod,
+  PaymentMethod,
+  StripeFeeCountry,
+} from "../deps.ts";
 
 export interface ContentJoin {
   title: string;

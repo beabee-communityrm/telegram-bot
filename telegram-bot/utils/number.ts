@@ -9,7 +9,7 @@ export const isNumber = (
   }
 
   // deno-lint-ignore no-explicit-any
-  return !isNaN(parseFloat(value as any)) && !isNaN(value as any - 0);
+  return !isNaN(parseFloat(value as any)) && !isNaN((value as any) - 0);
 };
 
 /**
@@ -21,7 +21,7 @@ export const extractNumbers = (str: string | number) => {
   }
   const num = str.replace(/[^-\d.]/g, "");
   if (!isNumber(num)) {
-    return 0;
+    return NaN;
   } else {
     return Number(num);
   }

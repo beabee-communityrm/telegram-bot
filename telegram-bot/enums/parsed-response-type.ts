@@ -4,12 +4,7 @@ export enum ParsedResponseType {
   NUMBER = "number",
   BOOLEAN = "boolean",
   SELECTION = "selection",
-  ADDRESS = "address",
-
-  // TODO: implement these?
-  // DATE = "date",
-  // TIME = "time",
-  // ...
+  CALLOUT_COMPONENT = "callout-component",
   ANY = "any",
   NONE = "none",
 }

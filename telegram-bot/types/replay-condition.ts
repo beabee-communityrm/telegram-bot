@@ -1,5 +1,6 @@
 import {
   ReplayConditionAny,
+  ReplayConditionCalloutComponentSchema,
   ReplayConditionFile,
   ReplayConditionNone,
   ReplayConditionSelection,
@@ -14,4 +15,5 @@ export type ReplayCondition =
   | ReplayConditionFile
   | ReplayConditionSelection
   | ReplayConditionAny
-  | ReplayConditionNone;
+  | ReplayConditionNone
+  | ReplayConditionCalloutComponentSchema;

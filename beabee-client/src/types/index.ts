@@ -74,7 +74,6 @@ export * from "./set-contribution-data.ts";
 export * from "./start-contribution-data.ts";
 export * from "./stripe-bacs-payment-source.ts";
 export * from "./stripe-card-payment-source.ts";
-export * from "./stripe-fee-country.ts";
 export * from "./stripe-sepa-payment-source.ts";
 export * from "./update-callout-data.ts";
 export * from "./update-callout-response-comment-data.ts";
