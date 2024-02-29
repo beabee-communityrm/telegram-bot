@@ -1,94 +1,94 @@
 {
-  "commands": {
-    "list": {
-      "command": "listar",
-      "description": "Listar chamados ativos"
-    },
-    "show": {
-      "command": "mostrar",
-      "description": "Mostrar informações sobre um chamado específico"
-    },
-    "start": {
-      "command": "começar",
-      "description": "Iniciar o bot"
-    },
-    "subscribe": {
-      "command": "inscrever-se",
-      "description": "Inscrever-se em um chamado"
-    },
-    "unsubscribe": {
-      "command": "cancelar inscrição",
-      "description": "Cancelar inscrição de um chamado"
-    }
-  },
-  "info": {
-    "messages": {
-      "done": "ℹ️ Se você terminou sua resposta, por favor digite \"{done}\".",
-      "enter-amount-of-money": "ℹ️ Por favor, insira um valor em dinheiro.",
-      "enter-content": "ℹ️ Você pode responder em várias linhas. Envie sua resposta somente após terminar de escrever. Formatação Markdown é suportada.",
-      "enter-date": "ℹ️ Por favor, insira uma data.",
-      "enter-lots-of-text": "ℹ️ Você pode responder em várias linhas. Envie sua resposta somente após terminar de escrever. Formatação Markdown é suportada.",
-      "enter-password": "ℹ️ Por favor, insira uma senha. Por segurança, é aconselhável apagar sua resposta após o envio para evitar que ela permaneça no histórico do chat.",
-      "enter-telephone-number": "ℹ️ Por favor, insira um número de telefone.",
-      "enter-text": "ℹ️ Por favor, mantenha sua resposta breve, idealmente em uma frase.",
-      "enter-time": "ℹ️ Por favor, insira um horário.",
-      "enter-url": "ℹ️ Por favor, insira uma URL.",
-      "multiple-addresses-allowed": "ℹ️ Você pode inserir um ou mais endereços.",
-      "multiple-emails-allowed": "ℹ️ Você pode inserir um ou mais e-mails.",
-      "multiple-numbers-allowed": "ℹ️ Por favor, insira um ou mais números.",
-      "multiple-selections-allowed": "ℹ️ Faça sua seleção digitando as opções de número. Múltiplas seleções são permitidas, envie uma mensagem separada para cada uma de suas escolhas.",
-      "multiple-values-allowed": "ℹ️ Você pode inserir vários valores enviando cada valor separadamente.",
-      "only-one-address-allowed": "ℹ️ Por favor, insira um endereço.",
-      "only-one-email-allowed": "ℹ️ Por favor, insira um e-mail.",
-      "only-one-number-allowed": "ℹ️ Por favor, insira um número.",
-      "only-one-selection-allowed": "ℹ️ Faça sua seleção digitando o número de sua escolha ou pressionando o botão de sua escolha. Apenas uma seleção é permitida.",
-      "only-one-value-allowed": "ℹ️ Você só pode inserir um valor.",
-      "placeholder": "ℹ️ Por favor, responda com algo como \"{placeholder}\".",
-      "upload-file-here": "ℹ️ Por favor, faça o upload do arquivo aqui.",
-      "upload-files-here": "ℹ️ Por favor, faça o upload dos arquivos aqui."
-    }
-  },
-  "keyboard": {
-    "label": {
-      "cancel": "Cancelar",
-      "continue": "Continuar",
-      "no": "Não",
-      "yes": "Sim"
-    },
-    "message": {
-      "select-detail-callout": "❓ Sobre qual chamado você gostaria de obter mais informações? Escolha um número."
-    }
-  },
-  "reactions": {
-    "messages": {
-      "done": "Concluído",
-      "falsy": "Não",
-      "truthy": "Sim"
-    }
-  },
-  "render": {
-    "callout": {
+  "bot": {
+    "commands": {
       "list": {
-        "title": "Lista de chamados ativos"
+        "command": "listar",
+        "description": "Listar chamados ativos"
+      },
+      "show": {
+        "command": "mostrar",
+        "description": "Mostrar informações sobre um chamado específico"
+      },
+      "start": {
+        "command": "começar",
+        "description": "Iniciar o bot"
+      },
+      "subscribe": {
+        "command": "inscrever-se",
+        "description": "Inscrever-se em um chamado"
+      },
+      "unsubscribe": {
+        "command": "cancelar inscrição",
+        "description": "Cancelar inscrição de um chamado"
       }
+    },
+    "info": {
+      "messages": {
+        "done": "ℹ️ Se você terminou sua resposta, por favor digite \"{done}\".",
+        "enterAmountOfMoney": "ℹ️ Por favor, insira um valor em dinheiro.",
+        "enterDate": "ℹ️ Por favor, insira uma data.",
+        "enterLotsOfText": "ℹ️ Você pode responder em várias linhas. Envie sua resposta somente após terminar de escrever. Formatação Markdown é suportada.",
+        "enterTelephoneNumber": "ℹ️ Por favor, insira um número de telefone.",
+        "enterText": "ℹ️ Por favor, mantenha sua resposta breve, idealmente em uma frase.",
+        "enterTime": "ℹ️ Por favor, insira um horário.",
+        "enterUrl": "ℹ️ Por favor, insira uma URL.",
+        "multipleAddressesAllowed": "ℹ️ Você pode inserir um ou mais endereços.",
+        "multipleEmailsAllowed": "ℹ️ Você pode inserir um ou mais e-mails.",
+        "multipleNumbersAllowed": "ℹ️ Por favor, insira um ou mais números.",
+        "multipleSelectionsAllowed": "ℹ️ Faça sua seleção digitando as opções de número. Múltiplas seleções são permitidas, envie uma mensagem separada para cada uma de suas escolhas.",
+        "multipleValuesAllowed": "ℹ️ Você pode inserir vários valores enviando cada valor separadamente.",
+        "onlyOneAddressAllowed": "ℹ️ Por favor, insira um endereço.",
+        "onlyOneEmailAllowed": "ℹ️ Por favor, insira um e-mail.",
+        "onlyOneNumberAllowed": "ℹ️ Por favor, insira um número.",
+        "onlyOneSelectionAllowed": "ℹ️ Faça sua seleção digitando o número de sua escolha ou pressionando o botão de sua escolha. Apenas uma seleção é permitida.",
+        "onlyOneValueAllowed": "ℹ️ Você só pode inserir um valor.",
+        "placeholder": "ℹ️ Por favor, responda com algo como \"{placeholder}\".",
+        "uploadFileHere": "ℹ️ Por favor, faça o upload do arquivo aqui.",
+        "uploadFilesHere": "ℹ️ Por favor, faça o upload dos arquivos aqui."
+      }
+    },
+    "keyboard": {
+      "label": {
+        "cancel": "Cancelar",
+        "continue": "Continuar",
+        "no": "Não",
+        "yes": "Sim"
+      },
+      "message": {
+        "selectDetailCallout": "❓ Sobre qual chamado você gostaria de obter mais informações? Escolha um número."
+      }
+    },
+    "reactions": {
+      "messages": {
+        "done": "Concluído",
+        "falsy": "Não",
+        "truthy": "Sim"
+      }
+    },
+    "render": {
+      "callout": {
+        "list": {
+          "title": "Lista de chamados ativos"
+        }
+      }
+    },
+    "response": {
+      "messages": {
+        "answerWithTruthyOrFalsy": "🤔 Por favor, responda com \"{truthy}\" ou \"{falsy}\".",
+        "calloutNotFound": "😥 Desculpe, Chamado não encontrado..",
+        "calloutStartResponse": "❓ Você gostaria de responder ao chamado?",
+        "componentNotSupported": "😅 O tipo de componente \"{type}\" ainda não foi implementado..",
+        "componentUnknown": "😅 Tipo de componente desconhecido \"{type}\"..",
+        "noActiveCallouts": "😔 Desculpe, atualmente não há chamados ativos..",
+        "notAFileMessage": "🤔 Por favor, envie um arquivo.",
+        "notASelectionMessage": "🤔 Por favor, selecione o número de uma das possíveis respostas.",
+        "notATextMessage": "🤔 Por favor, envie uma mensagem de texto.",
+        "notTheRightFileType": "🤔 Por favor, envie um arquivo do tipo {type}.",
+        "stop": "☺️ Ok, sem problema."
+      }
+    },
+    "universal": {
+      "or": "ou"
     }
-  },
-  "response": {
-    "messages": {
-      "answer-with-truthy-or-falsy": "🤔 Por favor, responda com \"{truthy}\" ou \"{falsy}\".",
-      "callout-not-found": "😥 Desculpe, Chamado não encontrado..",
-      "callout-start-response": "❓ Você gostaria de responder ao chamado?",
-      "component-not-supported": "😅 O tipo de componente \"{type}\" ainda não foi implementado..",
-      "component-unknown": "😅 Tipo de componente desconhecido \"{type}\"..",
-      "no-active-callouts": "😔 Desculpe, atualmente não há chamados ativos..",
-      "not-a-file-message": "🤔 Por favor, envie um arquivo.",
-      "not-a-selection-message": "🤔 Por favor, selecione o número de uma das possíveis respostas.",
-      "not-a-text-message": "🤔 Por favor, envie uma mensagem de texto.",
-      "not-the-right-file-type": "🤔 Por favor, envie um arquivo do tipo {type}.",
-      "stop": "☺️ Ok, sem problema."
-    }
-  },
-  "universal": {
-    "or": "ou"
   }
 }

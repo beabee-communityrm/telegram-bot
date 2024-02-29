@@ -1,4 +1,5 @@
 // This script is based on https://github.com/beabee-communityrm/beabee-frontend/blob/main/scripts/i18n.js
+import { toCamelCase } from "../utils/string.ts";
 
 import {
   dirname,
@@ -97,11 +98,15 @@ async function loadSheet(name: string) {
   // Construct nested objects from a.b.c key paths
   for (const row of rows) {
     const keyParts = row.key.split(".");
-    const [lastKeyPart, ...keyOpts] = keyParts.pop()?.split(":") ?? [];
+    const [_lastKeyPart, ...keyOpts] = keyParts.pop()?.split(":") ?? [];
+    const lastKeyPart = toCamelCase(_lastKeyPart);
+    console.debug("lastKeyPart", _lastKeyPart, lastKeyPart);
 
     for (const locale of locales) {
       let localeDataPart = localeData[locale] as LocaleEntry;
-      for (const part of keyParts) {
+      for (const _part of keyParts) {
+        const part = toCamelCase(_part);
+        console.debug("part", _part, part);
         if (!localeDataPart[part]) {
           localeDataPart[part] = {};
         }

@@ -1,5 +1,5 @@
 import { dirname, fromFileUrl, Singleton } from "../deps.ts";
-import { readJson, readJsonSync } from "../utils/file.ts";
+import { readJson, readJsonSync, toCamelCase } from "../utils/index.ts";
 import { EventService } from "./event.service.ts";
 import { I18nEvent } from "../enums/i18n-event.ts";
 
@@ -137,7 +137,8 @@ export class I18nService {
     }
 
     const segments = path.split(".");
-    const key = segments.shift() ?? "";
+    const _key = segments.shift() ?? "";
+    const key = toCamelCase(_key);
     const nextTranslations = translations[key];
 
     if (!nextTranslations) {

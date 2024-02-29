@@ -88,11 +88,11 @@ export class MessageRenderer {
   public notTheRightFileType(mimeTypes: string[]) {
     const mimeTypesStr = getSimpleMimeTypes(mimeTypes).join(", ").replace(
       /, ([^,]*)$/,
-      ` ${this.i18n.t("universal.or")} $1`,
+      ` ${this.i18n.t("bot.universal.or")} $1`,
     );
     return {
       type: RenderType.TEXT,
-      text: this.i18n.t("response.messages.not-the-right-file-type", {
+      text: this.i18n.t("bot.response.messages.notTheRightFileType", {
         type: mimeTypesStr,
       }),
     } as RenderText;
@@ -143,7 +143,7 @@ export class MessageRenderer {
   public writeDoneMessage(doneText: string) {
     return {
       type: RenderType.TEXT,
-      text: this.i18n.t("info.messages.done", { done: doneText }),
+      text: this.i18n.t("bot.info.messages.done", { done: doneText }),
     } as RenderText;
   }
 }

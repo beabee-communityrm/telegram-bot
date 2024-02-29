@@ -1,94 +1,94 @@
 {
-  "commands": {
-    "list": {
-      "command": "liste",
-      "description": "Liste aktive Callouts"
-    },
-    "show": {
-      "command": "zeigen",
-      "description": "Zeigt Infos über einen bestimmten Callout"
-    },
-    "start": {
-      "command": "starten",
-      "description": "Starte den Bot"
-    },
-    "subscribe": {
-      "command": "abonnieren",
-      "description": "Abonniere einen Callout"
-    },
-    "unsubscribe": {
-      "command": "abmelden",
-      "description": "Abmelden von einem Callout"
-    }
-  },
-  "info": {
-    "messages": {
-      "done": "ℹ️ Wenn du mit deiner Antwort fertig bist, tippe bitte \"{done}\".",
-      "enter-amount-of-money": "ℹ️ Bitte gib einen Geldbetrag ein.",
-      "enter-content": "ℹ️ Du kannst in mehreren Zeilen antworten. Bitte sende deine Antwort erst, nachdem du fertig geschrieben hast. Markdown-Formatierung wird unterstützt.",
-      "enter-date": "ℹ️ Bitte gib ein Datum ein.",
-      "enter-lots-of-text": "ℹ️ Du kannst in mehreren Zeilen antworten. Bitte sende deine Antwort erst, nachdem du fertig geschrieben hast. Markdown-Formatierung wird unterstützt.",
-      "enter-password": "ℹ️ Bitte gebe ein Passwort ein. Aus Sicherheitsgründen ist es ratsam, deine Antwort nach dem Senden zu löschen, damit sie nicht im Chatverlauf bleibt.",
-      "enter-telephone-number": "ℹ️ Bitte gib eine Telefonnummer ein.",
-      "enter-text": "ℹ️ Bitte halte deine Antwort kurz, idealerweise in einem Satz.",
-      "enter-time": "ℹ️ Bitte gib eine Uhrzeit ein.",
-      "enter-url": "ℹ️ Bitte gib eine URL ein.",
-      "multiple-addresses-allowed": "ℹ️ Du kannst eine oder mehrere Adressen eingeben.",
-      "multiple-emails-allowed": "ℹ️ Du kannst eine oder mehrere E-Mail-Adressen eingeben.",
-      "multiple-numbers-allowed": "ℹ️ Bitte gib eine oder mehrere Nummern ein.",
-      "multiple-selections-allowed": "ℹ️ Treffe deine Auswahl, indem du die Nummer deiner Wahl eingibst. Mehrfachauswahlen sind möglich; bitte sende für jede Auswahl eine separate Nachricht.",
-      "multiple-values-allowed": "ℹ️ Du kannst mehrere Werte eingeben. Bitte sende jeden Wert in einer separaten Nachricht.",
-      "only-one-address-allowed": "ℹ️ Bitte gib nur eine Adresse ein.",
-      "only-one-email-allowed": "ℹ️ Bitte gib nur eine E-Mail-Adresse ein.",
-      "only-one-number-allowed": "ℹ️ Bitte gib nur eine Nummer ein.",
-      "only-one-selection-allowed": "ℹ️ Treffe deine Auswahl, indem du die Nummer deiner Wahl eingibst oder den entsprechenden Button drückst. Nur eine Auswahl ist möglich.",
-      "only-one-value-allowed": "ℹ️ Du kannst nur einen Wert eingeben.",
-      "placeholder": "ℹ️ Bitte antworte mit etwas Ähnlichem wie \"{placeholder}\".",
-      "upload-file-here": "ℹ️ Bitte lade die Datei hier hoch.",
-      "upload-files-here": "ℹ️ Bitte lade die Dateien hier hoch."
-    }
-  },
-  "keyboard": {
-    "label": {
-      "cancel": "Abbrechen",
-      "continue": "Weiter",
-      "no": "Nein",
-      "yes": "Ja"
-    },
-    "message": {
-      "select-detail-callout": "❓ Über welchen Callout möchtest du mehr Informationen erhalten? Wähle eine Nummer."
-    }
-  },
-  "reactions": {
-    "messages": {
-      "done": "Fertig",
-      "falsy": "Nein",
-      "truthy": "Ja"
-    }
-  },
-  "render": {
-    "callout": {
+  "bot": {
+    "commands": {
       "list": {
-        "title": "Liste der aktiven Callouts"
+        "command": "liste",
+        "description": "Liste aktive Callouts"
+      },
+      "show": {
+        "command": "zeigen",
+        "description": "Zeigt Infos über einen bestimmten Callout"
+      },
+      "start": {
+        "command": "starten",
+        "description": "Starte den Bot"
+      },
+      "subscribe": {
+        "command": "abonnieren",
+        "description": "Abonniere einen Callout"
+      },
+      "unsubscribe": {
+        "command": "abmelden",
+        "description": "Abmelden von einem Callout"
       }
+    },
+    "info": {
+      "messages": {
+        "done": "ℹ️ Wenn du mit deiner Antwort fertig bist, tippe bitte \"{done}\".",
+        "enterAmountOfMoney": "ℹ️ Bitte gib einen Geldbetrag ein.",
+        "enterDate": "ℹ️ Bitte gib ein Datum ein.",
+        "enterLotsOfText": "ℹ️ Du kannst in mehreren Zeilen antworten. Bitte sende deine Antwort erst, nachdem du fertig geschrieben hast. Markdown-Formatierung wird unterstützt.",
+        "enterTelephoneNumber": "ℹ️ Bitte gib eine Telefonnummer ein.",
+        "enterText": "ℹ️ Bitte halte deine Antwort kurz, idealerweise in einem Satz.",
+        "enterTime": "ℹ️ Bitte gib eine Uhrzeit ein.",
+        "enterUrl": "ℹ️ Bitte gib eine URL ein.",
+        "multipleAddressesAllowed": "ℹ️ Du kannst eine oder mehrere Adressen eingeben.",
+        "multipleEmailsAllowed": "ℹ️ Du kannst eine oder mehrere E-Mail-Adressen eingeben.",
+        "multipleNumbersAllowed": "ℹ️ Bitte gib eine oder mehrere Nummern ein.",
+        "multipleSelectionsAllowed": "ℹ️ Treffe deine Auswahl, indem du die Nummer deiner Wahl eingibst. Mehrfachauswahlen sind möglich; bitte sende für jede Auswahl eine separate Nachricht.",
+        "multipleValuesAllowed": "ℹ️ Du kannst mehrere Werte eingeben. Bitte sende jeden Wert in einer separaten Nachricht.",
+        "onlyOneAddressAllowed": "ℹ️ Bitte gib nur eine Adresse ein.",
+        "onlyOneEmailAllowed": "ℹ️ Bitte gib nur eine E-Mail-Adresse ein.",
+        "onlyOneNumberAllowed": "ℹ️ Bitte gib nur eine Nummer ein.",
+        "onlyOneSelectionAllowed": "ℹ️ Treffe deine Auswahl, indem du die Nummer deiner Wahl eingibst oder den entsprechenden Button drückst. Nur eine Auswahl ist möglich.",
+        "onlyOneValueAllowed": "ℹ️ Du kannst nur einen Wert eingeben.",
+        "placeholder": "ℹ️ Bitte antworte mit etwas Ähnlichem wie \"{placeholder}\".",
+        "uploadFileHere": "ℹ️ Bitte lade die Datei hier hoch.",
+        "uploadFilesHere": "ℹ️ Bitte lade die Dateien hier hoch."
+      }
+    },
+    "keyboard": {
+      "label": {
+        "cancel": "Abbrechen",
+        "continue": "Weiter",
+        "no": "Nein",
+        "yes": "Ja"
+      },
+      "message": {
+        "selectDetailCallout": "❓ Über welchen Callout möchtest du mehr Informationen erhalten? Wähle eine Nummer."
+      }
+    },
+    "reactions": {
+      "messages": {
+        "done": "Fertig",
+        "falsy": "Nein",
+        "truthy": "Ja"
+      }
+    },
+    "render": {
+      "callout": {
+        "list": {
+          "title": "Liste der aktiven Callouts"
+        }
+      }
+    },
+    "response": {
+      "messages": {
+        "answerWithTruthyOrFalsy": "🤔 Bitte antworte mit \"{truthy}\" oder \"{falsy}\".",
+        "calloutNotFound": "😥 Entschuldigung, Callout nicht gefunden.",
+        "calloutStartResponse": "❓ Möchtest du den Callout beantworten?",
+        "componentNotSupported": "😅 Der Komponententyp \"{type}\" ist noch nicht implementiert.",
+        "componentUnknown": "😅 Unbekannter Komponententyp \"{type}\".",
+        "noActiveCallouts": "😔 Entschuldigung, derzeit gibt es keine aktiven Callouts.",
+        "notAFileMessage": "🤔 Bitte sende eine Datei.",
+        "notASelectionMessage": "🤔 Bitte wähle die Nummer einer der verfügbaren Optionen aus.",
+        "notATextMessage": "🤔 Bitte sende eine Textnachricht.",
+        "notTheRightFileType": "🤔 Bitte sende eine Datei des Typs \"{type}\".",
+        "stop": "☺️ Okay, kein Problem."
+      }
+    },
+    "universal": {
+      "or": "oder"
     }
-  },
-  "response": {
-    "messages": {
-      "answer-with-truthy-or-falsy": "🤔 Bitte antworte mit \"{truthy}\" oder \"{falsy}\".",
-      "callout-not-found": "😥 Entschuldigung, Callout nicht gefunden.",
-      "callout-start-response": "❓ Möchtest du den Callout beantworten?",
-      "component-not-supported": "😅 Der Komponententyp \"{type}\" ist noch nicht implementiert.",
-      "component-unknown": "😅 Unbekannter Komponententyp \"{type}\".",
-      "no-active-callouts": "😔 Entschuldigung, derzeit gibt es keine aktiven Callouts.",
-      "not-a-file-message": "🤔 Bitte sende eine Datei.",
-      "not-a-selection-message": "🤔 Bitte wähle die Nummer einer der verfügbaren Optionen aus.",
-      "not-a-text-message": "🤔 Bitte sende eine Textnachricht.",
-      "not-the-right-file-type": "🤔 Bitte sende eine Datei des Typs \"{type}\".",
-      "stop": "☺️ Okay, kein Problem."
-    }
-  },
-  "universal": {
-    "or": "oder"
   }
 }

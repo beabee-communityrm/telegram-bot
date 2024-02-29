@@ -1,94 +1,94 @@
 {
-  "commands": {
-    "list": {
-      "command": "list",
-      "description": "List active callouts"
-    },
-    "show": {
-      "command": "show",
-      "description": "Show information about a specific callout"
-    },
-    "start": {
-      "command": "start",
-      "description": "Start the bot"
-    },
-    "subscribe": {
-      "command": "subscribe",
-      "description": "Subscribe to a callout"
-    },
-    "unsubscribe": {
-      "command": "unsubscribe",
-      "description": "Unsubscribe from a callout"
-    }
-  },
-  "info": {
-    "messages": {
-      "done": "ℹ️ If you have finished your response, please type \"{done}\".",
-      "enter-amount-of-money": "ℹ️ Please enter an amount of money.",
-      "enter-content": "ℹ️ You may respond in multiple lines. Please send your response only after you have finished writing. Markdown formatting is supported.",
-      "enter-date": "ℹ️ Please enter a date.",
-      "enter-lots-of-text": "ℹ️ You may respond in multiple lines. Please send your response only after you have finished writing.",
-      "enter-password": "ℹ️ Please enter a password. For security, it's advisable to delete your response after sending to prevent it from remaining in the chat history.",
-      "enter-telephone-number": "ℹ️ Please enter a telephone number.",
-      "enter-text": "ℹ️ Please keep your response brief, ideally in one sentence.",
-      "enter-time": "ℹ️ Please enter a time.",
-      "enter-url": "ℹ️ Please enter a URL.",
-      "multiple-addresses-allowed": "ℹ️ You can enter one or more addresses.",
-      "multiple-emails-allowed": "ℹ️ You can enter one or more emails.",
-      "multiple-numbers-allowed": "ℹ️ Please enter one or more numbers.",
-      "multiple-selections-allowed": "ℹ️ Please make your selection by typing the number choices. Multiple selections are allowed, please send a separate message for each of your selection.",
-      "multiple-values-allowed": "ℹ️ You can enter multiple values by sending each value separately.",
-      "only-one-address-allowed": "ℹ️ Please enter an address.",
-      "only-one-email-allowed": "ℹ️ Please enter an email.",
-      "only-one-number-allowed": "ℹ️ Please enter a number.",
-      "only-one-selection-allowed": "ℹ️ Please make your selection by typing the number of your choice or pressing the button of your choice. Only one selection is allowed.",
-      "only-one-value-allowed": "ℹ️ You can only enter one value.",
-      "placeholder": "ℹ️ Please respond with something like \"{placeholder}\".",
-      "upload-file-here": "ℹ️ Please upload the file here.",
-      "upload-files-here": "ℹ️ Please upload the files here."
-    }
-  },
-  "keyboard": {
-    "label": {
-      "cancel": "Cancel",
-      "continue": "Continue",
-      "no": "No",
-      "yes": "Yes"
-    },
-    "message": {
-      "select-detail-callout": "❓ Which Callout would you like to get more information displayed about? Choose a number"
-    }
-  },
-  "reactions": {
-    "messages": {
-      "done": "Done",
-      "falsy": "No",
-      "truthy": "Yes"
-    }
-  },
-  "render": {
-    "callout": {
+  "bot": {
+    "commands": {
       "list": {
-        "title": "List of active callouts"
+        "command": "list",
+        "description": "List active callouts"
+      },
+      "show": {
+        "command": "show",
+        "description": "Show information about a specific callout"
+      },
+      "start": {
+        "command": "start",
+        "description": "Start the bot"
+      },
+      "subscribe": {
+        "command": "subscribe",
+        "description": "Subscribe to a callout"
+      },
+      "unsubscribe": {
+        "command": "unsubscribe",
+        "description": "Unsubscribe from a callout"
       }
+    },
+    "info": {
+      "messages": {
+        "done": "ℹ️ If you have finished your response, please type \"{done}\".",
+        "enterAmountOfMoney": "ℹ️ Please enter an amount of money.",
+        "enterDate": "ℹ️ Please enter a date.",
+        "enterLotsOfText": "ℹ️ You may respond in multiple lines. Please send your response only after you have finished writing.",
+        "enterTelephoneNumber": "ℹ️ Please enter a telephone number.",
+        "enterText": "ℹ️ Please keep your response brief, ideally in one sentence.",
+        "enterTime": "ℹ️ Please enter a time.",
+        "enterUrl": "ℹ️ Please enter a URL.",
+        "multipleAddressesAllowed": "ℹ️ You can enter one or more addresses.",
+        "multipleEmailsAllowed": "ℹ️ You can enter one or more emails.",
+        "multipleNumbersAllowed": "ℹ️ Please enter one or more numbers.",
+        "multipleSelectionsAllowed": "ℹ️ Please make your selection by typing the number choices. Multiple selections are allowed, please send a separate message for each of your selection.",
+        "multipleValuesAllowed": "ℹ️ You can enter multiple values by sending each value separately.",
+        "onlyOneAddressAllowed": "ℹ️ Please enter an address.",
+        "onlyOneEmailAllowed": "ℹ️ Please enter an email.",
+        "onlyOneNumberAllowed": "ℹ️ Please enter a number.",
+        "onlyOneSelectionAllowed": "ℹ️ Please make your selection by typing the number of your choice or pressing the button of your choice. Only one selection is allowed.",
+        "onlyOneValueAllowed": "ℹ️ You can only enter one value.",
+        "placeholder": "ℹ️ Please respond with something like \"{placeholder}\".",
+        "uploadFileHere": "ℹ️ Please upload the file here.",
+        "uploadFilesHere": "ℹ️ Please upload the files here."
+      }
+    },
+    "keyboard": {
+      "label": {
+        "cancel": "Cancel",
+        "continue": "Continue",
+        "no": "No",
+        "yes": "Yes"
+      },
+      "message": {
+        "selectDetailCallout": "❓ Which Callout would you like to get more information displayed about? Choose a number"
+      }
+    },
+    "reactions": {
+      "messages": {
+        "done": "Done",
+        "falsy": "No",
+        "truthy": "Yes"
+      }
+    },
+    "render": {
+      "callout": {
+        "list": {
+          "title": "List of active callouts"
+        }
+      }
+    },
+    "response": {
+      "messages": {
+        "answerWithTruthyOrFalsy": "🤔 Please answer with \"{truthy}\" or \"{falsy}\".",
+        "calloutNotFound": "😥 Sorry, Callout not found..",
+        "calloutStartResponse": "❓ Would you like to respond to the callout?",
+        "componentNotSupported": "😅 \"{type}\" not implemented..",
+        "componentUnknown": "😅 Unknown component type \"{type}\"..",
+        "noActiveCallouts": "😔 Sorry, there are currently no active callouts..",
+        "notAFileMessage": "🤔 Please send a file.",
+        "notASelectionMessage": "🤔 Please select the number of one of the possible answers.",
+        "notATextMessage": "🤔 Please send a text message.",
+        "notTheRightFileType": "🤔 Please send a file of type {type}.",
+        "stop": "☺️ Ok, no problem."
+      }
+    },
+    "universal": {
+      "or": "or"
     }
-  },
-  "response": {
-    "messages": {
-      "answer-with-truthy-or-falsy": "🤔 Please answer with \"{truthy}\" or \"{falsy}\".",
-      "callout-not-found": "😥 Sorry, Callout not found..",
-      "callout-start-response": "❓ Would you like to respond to the callout?",
-      "component-not-supported": "😅 \"{type}\" not implemented..",
-      "component-unknown": "😅 Unknown component type \"{type}\"..",
-      "no-active-callouts": "😔 Sorry, there are currently no active callouts..",
-      "not-a-file-message": "🤔 Please send a file.",
-      "not-a-selection-message": "🤔 Please select the number of one of the possible answers.",
-      "not-a-text-message": "🤔 Please send a text message.",
-      "not-the-right-file-type": "🤔 Please send a file of type {type}.",
-      "stop": "☺️ Ok, no problem."
-    }
-  },
-  "universal": {
-    "or": "or"
   }
 }
