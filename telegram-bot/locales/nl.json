@@ -3,48 +3,48 @@
     "commands": {
       "list": {
         "command": "lijst",
-        "description": "Lijst van actieve oproepen"
+        "description": "Open oproepen tonen"
       },
       "show": {
         "command": "tonen",
-        "description": "Toont informatie over een specifieke oproep"
+        "description": "Details over een specifieke oproep tonen"
       },
       "start": {
         "command": "starten",
-        "description": "Start de bot"
+        "description": "De bot starten"
       },
       "subscribe": {
         "command": "abonneren",
         "description": "Abonneren op een oproep"
       },
       "unsubscribe": {
-        "command": "afmelden",
-        "description": "Afmelden van een oproep"
+        "command": "uitschrijven",
+        "description": "Uitschrijven van een oproep"
       }
     },
     "info": {
       "messages": {
-        "done": "ℹ️ Als u klaar bent met uw reactie, typ dan \"{done}\".",
-        "enterAmountOfMoney": "ℹ️ Voer alstublieft een geldbedrag in.",
-        "enterDate": "ℹ️ Voer alstublieft een datum in.",
-        "enterLotsOfText": "ℹ️ U mag in meerdere regels reageren. Stuur uw reactie pas nadat u klaar bent met schrijven. Markdown-opmaak wordt ondersteund.",
-        "enterTelephoneNumber": "ℹ️ Voer alstublieft een telefoonnummer in.",
-        "enterText": "ℹ️ Houd uw reactie kort, bij voorkeur in één zin.",
-        "enterTime": "ℹ️ Voer alstublieft een tijd in.",
-        "enterUrl": "ℹ️ Voer alstublieft een URL in.",
-        "multipleAddressesAllowed": "ℹ️ U kunt een of meer adressen invoeren.",
-        "multipleEmailsAllowed": "ℹ️ U kunt een of meer e-mails invoeren.",
-        "multipleNumbersAllowed": "ℹ️ Voer alstublieft een of meer nummers in.",
-        "multipleSelectionsAllowed": "ℹ️ Maak uw keuze door de nummerkeuzes in te typen. Meerdere selecties zijn toegestaan, stuur alstublieft een apart bericht voor elke selectie.",
-        "multipleValuesAllowed": "ℹ️ U kunt meerdere waarden invoeren door elke waarde afzonderlijk te verzenden.",
-        "onlyOneAddressAllowed": "ℹ️ Voer alstublieft een adres in.",
-        "onlyOneEmailAllowed": "ℹ️ Voer alstublieft een e-mailadres in.",
-        "onlyOneNumberAllowed": "ℹ️ Voer alstublieft een nummer in.",
-        "onlyOneSelectionAllowed": "ℹ️ Maak uw keuze door het nummer van uw keuze in te typen of op de bijbehorende knop te drukken. Slechts één selectie is toegestaan.",
-        "onlyOneValueAllowed": "ℹ️ U kunt slechts één waarde invoeren.",
-        "placeholder": "ℹ️ Reageer alstublieft met iets als \"{placeholder}\".",
-        "uploadFileHere": "ℹ️ Upload het bestand hier alstublieft.",
-        "uploadFilesHere": "ℹ️ Upload de bestanden hier alstublieft."
+        "done": "Als u klaar bent met uw antwoord, typ dan gewoon \"{done}\".",
+        "enterAmountOfMoney": "Voer alstublieft een geldbedrag in.",
+        "enterDate": "Voer alstublieft een datum in.",
+        "enterLotsOfText": "Antwoord alstublieft met één bericht. U kunt het zo lang maken als u wilt.",
+        "enterTelephoneNumber": "Voer alstublieft een telefoonnummer in.",
+        "enterText": "Houd uw antwoord kort, bij voorkeur in één zin.",
+        "enterTime": "Voer alstublieft een tijd in. (bijv. 20:45)",
+        "enterUrl": "Voer alstublieft een webadres in. (bijv. https://www.voorbeeld.nl)",
+        "multipleAddressesAllowed": "Voer een of meer adressen in.",
+        "multipleEmailsAllowed": "U kunt een of meer e-mailadressen invoeren.",
+        "multipleNumbersAllowed": "Voer een of meer nummers in.",
+        "multipleSelectionsAllowed": "Typ alstublieft het antwoordnummer in. U kunt meerdere keuzes maken, stuur gewoon voor elk een apart bericht.",
+        "multipleValuesAllowed": "U kunt meerdere waarden invoeren door elke waarde in een apart bericht te sturen.",
+        "onlyOneAddressAllowed": "Voer alstublieft een adres in.",
+        "onlyOneEmailAllowed": "Voer alstublieft een e-mailadres in.",
+        "onlyOneNumberAllowed": "Voer alstublieft een nummer in.",
+        "onlyOneSelectionAllowed": "Kies uw keuze door het nummer in te typen of op de knop te drukken (u kunt er maar één kiezen).",
+        "onlyOneValueAllowed": "Voer alstublieft een enkele waarde in.",
+        "placeholder": "Antwoord alstublieft met iets als \"{placeholder}\".",
+        "uploadFileHere": "Stuur me alstublieft een bestand.",
+        "uploadFilesHere": "Stuur me alstublieft een of meer bestanden."
       }
     },
     "keyboard": {
@@ -55,12 +55,12 @@
         "yes": "Ja"
       },
       "message": {
-        "selectDetailCallout": "❓ Over welke oproep wilt u meer informatie krijgen? Kies een nummer."
+        "selectDetailCallout": "❓ Over welke oproep wilt u meer informatie weergegeven krijgen? Kies een nummer"
       }
     },
     "reactions": {
       "messages": {
-        "done": "Klaar",
+        "done": "Gedaan",
         "falsy": "Nee",
         "truthy": "Ja"
       }
@@ -75,16 +75,16 @@
     "response": {
       "messages": {
         "answerWithTruthyOrFalsy": "🤔 Antwoord alstublieft met \"{truthy}\" of \"{falsy}\".",
-        "calloutNotFound": "😥 Sorry, oproep niet gevonden..",
-        "calloutStartResponse": "❓ Wilt u reageren op de oproep?",
-        "componentNotSupported": "😅 \"{type}\" niet geïmplementeerd..",
-        "componentUnknown": "😅 Onbekend componenttype \"{type}\"..",
-        "noActiveCallouts": "😔 Sorry, er zijn momenteel geen actieve oproepen..",
-        "notAFileMessage": "🤔 Stuur alstublieft een bestand.",
-        "notASelectionMessage": "🤔 Selecteer alstublieft het nummer van een van de mogelijke antwoorden.",
-        "notATextMessage": "🤔 Stuur alstublieft een tekstbericht.",
-        "notTheRightFileType": "🤔 Stuur alstublieft een bestand van het type {type}.",
-        "stop": "☺️ Oké, geen probleem."
+        "calloutNotFound": "Sorry, ik kon deze oproep niet vinden.",
+        "calloutStartResponse": "Wilt u reageren op deze oproep?",
+        "componentNotSupported": "\"{type}\" niet geïmplementeerd..",
+        "componentUnknown": "Onbekend componenttype \"{type}\"..",
+        "noActiveCallouts": "Er zijn momenteel geen open oproepen.",
+        "notAFileMessage": "Stuur alstublieft een bestand.",
+        "notASelectionMessage": "Selecteer alstublieft het nummer van een van de mogelijke antwoorden.",
+        "notATextMessage": "Stuur alstublieft een tekstbericht.",
+        "notTheRightFileType": "Stuur alstublieft een bestand van het type {type}.",
+        "stop": "Ok, geen probleem."
       }
     },
     "universal": {

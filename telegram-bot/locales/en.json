@@ -3,11 +3,11 @@
     "commands": {
       "list": {
         "command": "list",
-        "description": "List active callouts"
+        "description": "Show open callouts"
       },
       "show": {
         "command": "show",
-        "description": "Show information about a specific callout"
+        "description": "Show details about a specific callout"
       },
       "start": {
         "command": "start",
@@ -24,27 +24,27 @@
     },
     "info": {
       "messages": {
-        "done": "ℹ️ If you have finished your response, please type \"{done}\".",
-        "enterAmountOfMoney": "ℹ️ Please enter an amount of money.",
-        "enterDate": "ℹ️ Please enter a date.",
-        "enterLotsOfText": "ℹ️ You may respond in multiple lines. Please send your response only after you have finished writing.",
-        "enterTelephoneNumber": "ℹ️ Please enter a telephone number.",
-        "enterText": "ℹ️ Please keep your response brief, ideally in one sentence.",
-        "enterTime": "ℹ️ Please enter a time.",
-        "enterUrl": "ℹ️ Please enter a URL.",
-        "multipleAddressesAllowed": "ℹ️ You can enter one or more addresses.",
-        "multipleEmailsAllowed": "ℹ️ You can enter one or more emails.",
-        "multipleNumbersAllowed": "ℹ️ Please enter one or more numbers.",
-        "multipleSelectionsAllowed": "ℹ️ Please make your selection by typing the number choices. Multiple selections are allowed, please send a separate message for each of your selection.",
-        "multipleValuesAllowed": "ℹ️ You can enter multiple values by sending each value separately.",
-        "onlyOneAddressAllowed": "ℹ️ Please enter an address.",
-        "onlyOneEmailAllowed": "ℹ️ Please enter an email.",
-        "onlyOneNumberAllowed": "ℹ️ Please enter a number.",
-        "onlyOneSelectionAllowed": "ℹ️ Please make your selection by typing the number of your choice or pressing the button of your choice. Only one selection is allowed.",
-        "onlyOneValueAllowed": "ℹ️ You can only enter one value.",
-        "placeholder": "ℹ️ Please respond with something like \"{placeholder}\".",
-        "uploadFileHere": "ℹ️ Please upload the file here.",
-        "uploadFilesHere": "ℹ️ Please upload the files here."
+        "done": "When you are finished with your response, just type \"{done}\".",
+        "enterAmountOfMoney": "Please enter an amount of money.",
+        "enterDate": "Please enter a date.",
+        "enterLotsOfText": "Please reply with a single message. You can make it as long as you want.",
+        "enterTelephoneNumber": "Please enter a telephone number.",
+        "enterText": "Please keep your response brief, ideally in one sentence.",
+        "enterTime": "Please enter a time. (e.g. 20:45)",
+        "enterUrl": "Please enter a web address. (e.g. https://www.beabee.io)",
+        "multipleAddressesAllowed": "Enter one or more addresses.",
+        "multipleEmailsAllowed": "You can enter one or more e-mail addresses.",
+        "multipleNumbersAllowed": "Enter one or more numbers.",
+        "multipleSelectionsAllowed": "Please type in the answer number. You can pick multiple choices, just send a separate message for each.",
+        "multipleValuesAllowed": "You can enter multiple values by sending each value in a separate message.",
+        "onlyOneAddressAllowed": "Please enter an address.",
+        "onlyOneEmailAllowed": "Please enter an e-mail address.",
+        "onlyOneNumberAllowed": "Please enter a number.",
+        "onlyOneSelectionAllowed": "Please pick your choice by typing its number or pressing its button (you can only pick one).",
+        "onlyOneValueAllowed": "Please enter a single value.",
+        "placeholder": "Please respond with something like \"{placeholder}\".",
+        "uploadFileHere": "Please send me a file.",
+        "uploadFilesHere": "Please send me one or more files."
       }
     },
     "keyboard": {
@@ -55,7 +55,7 @@
         "yes": "Yes"
       },
       "message": {
-        "selectDetailCallout": "❓ Which Callout would you like to get more information displayed about? Choose a number"
+        "selectDetailCallout": "❓ Which Callout would you like to get more information displayed about? Choose a number."
       }
     },
     "reactions": {
@@ -75,16 +75,16 @@
     "response": {
       "messages": {
         "answerWithTruthyOrFalsy": "🤔 Please answer with \"{truthy}\" or \"{falsy}\".",
-        "calloutNotFound": "😥 Sorry, Callout not found..",
-        "calloutStartResponse": "❓ Would you like to respond to the callout?",
-        "componentNotSupported": "😅 \"{type}\" not implemented..",
-        "componentUnknown": "😅 Unknown component type \"{type}\"..",
-        "noActiveCallouts": "😔 Sorry, there are currently no active callouts..",
-        "notAFileMessage": "🤔 Please send a file.",
-        "notASelectionMessage": "🤔 Please select the number of one of the possible answers.",
-        "notATextMessage": "🤔 Please send a text message.",
-        "notTheRightFileType": "🤔 Please send a file of type {type}.",
-        "stop": "☺️ Ok, no problem."
+        "calloutNotFound": "I'm sorry, I couldn't find this callout.",
+        "calloutStartResponse": "Would you like to respond to this callout?",
+        "componentNotSupported": "\"{type}\" not implemented..",
+        "componentUnknown": "Unknown component type \"{type}\"..",
+        "noActiveCallouts": "There are currently no open callouts.",
+        "notAFileMessage": "Please send a file.",
+        "notASelectionMessage": "Please select the number of one of the possible answers.",
+        "notATextMessage": "Please send a text message.",
+        "notTheRightFileType": "Please send a file of type {type}.",
+        "stop": "Ok, no problem."
       }
     },
     "universal": {
