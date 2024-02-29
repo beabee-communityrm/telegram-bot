@@ -1,4 +1,4 @@
-import type { NewsletterStatus } from "@beabee/beabee-common";
+import type { NewsletterStatus } from "../deps.ts";
 import type { Address } from "./index.ts";
 
 export interface ContactProfileData {

@@ -1,7 +1,7 @@
 {
   "name": "@beabee/client",
   "description": "The Beabee API Client for Deno, Node.js, and the browser",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "license": "Apache-2.0",
   "type": "module",
   "engines": {
@@ -14,22 +14,24 @@
   },
   "scripts": {
     "prepare": "npm run build",
-    "build": "npm run build:node && npm run build:web",
+    "build": "deno task build",
     "build:node": "deno task build:node",
-    "build:web": "deno task build:web",
+    "build:node:esm": "deno task build:node:esm",
+    "build:node:cjs": "deno task build:node:cjs",
+    "build:types": "tsc --declarationDir tmp && rm ./dist/types -rf && mkdir -p ./dist && mv ./tmp/beabee-client/src ./dist/types && rm ./tmp -rf",
     "test": "npm run test:deno && npm run test:node && npm run test:web",
-    "test:deno": "deno test ./test/deno",
+    "test:deno": "deno task test:deno",
     "test:web": "NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.web.js",
     "test:node": "NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.node.js"
   },
   "dependencies": {
-    "@beabee/beabee-common": "^1.18.1",
+    "@beabee/beabee-common": "file:../beabee-common",
     "node-fetch": "^2.7.0"
   },
   "devDependencies": {
+    "@tsconfig/recommended": "^1.0.3",
     "@types/node": "^12.20.55",
     "@types/node-fetch": "2.6.2",
-    "deno2node": "^1.9.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-environment-node": "^29.7.0",
@@ -39,34 +41,17 @@
     "whatwg-fetch": "^3.6.19"
   },
   "files": [
-    "out/"
+    "dist/"
   ],
   "main": "./out/mod.js",
   "types": "./out/mod.d.ts",
   "exports": {
     ".": {
-      "types": "./out/mod.d.ts",
-      "node": "./out/mod.js",
-      "browser": "./out/web.js",
-      "default": "./out/web.js"
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.cjs",
+      "types": "./dist/types/index.d.ts"
     },
-    "./types": {
-      "types": "./out/types.d.ts"
-    },
-    "./web": {
-      "types": "./out/web.d.ts",
-      "default": "./out/web.js"
-    }
-  },
-  "typesVersions": {
-    "*": {
-      "web": [
-        "out/web"
-      ],
-      "types": [
-        "out/types"
-      ]
-    }
+    "./package.json": "./package.json"
   },
   "keywords": [
     "beabee",

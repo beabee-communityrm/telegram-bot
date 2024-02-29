@@ -26,12 +26,21 @@ export class BeabeeContentService {
     console.debug(`${this.constructor.name} created`);
   }
 
+  /**
+   * Get a content from the API
+   * @param id The content id
+   */
   public async get<Id extends ContentId>(
     id: Id,
   ) {
     return await this.client.get(id);
   }
 
+  /**
+   * Update a content
+   * @param id The content id
+   * @param content The content to update
+   */
   public async update<Id extends ContentId>(
     id: Id,
     content: Partial<Content<Id>>,

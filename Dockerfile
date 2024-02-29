@@ -1,5 +1,5 @@
 # Use the official Deno image from the Docker Hub
-FROM denoland/deno:alpine
+FROM denoland/deno:latest
 
 # Set the working directory in the Docker image
 WORKDIR /app
@@ -13,8 +13,8 @@ WORKDIR /app/telegram-bot
 # Download the dependencies
 RUN deno cache main.ts --config deno.jsonc
 
-# Start the bot
+# Compile the bot
 # RUN deno task compile
 
-# Run the compiled binary
+# Run the bot
 CMD ["deno", "task", "start"]

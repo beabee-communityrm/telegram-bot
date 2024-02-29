@@ -1,13 +1,17 @@
 {
   // TODO use this workspaces feature as soon as this is supported by denoland.vscode-deno
   // As long as this is not supported, we need to place all imports in this file instead of 'telegram-bot/deno.jsonc' and 'beabee-client/deno.jsonc'
-  // See https://github.com/denoland/deno/pull/20410
-  // "workspaces": [
-  //     "telegram-bot",
-  //     "beabee-client"
-  // ],
+  // See https://github.com/denoland/deno/issues/21769
+  "workspaces": [
+    "telegram-bot",
+    "beabee-client",
+    "beabee-common"
+  ],
+  "name": "beabee-telegram-workspace",
+  "version": "0.0.2",
   "compilerOptions": {
     "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "jsxFactory": "h",
     "jsxFragmentFactory": "Fragment"
   },
@@ -18,9 +22,9 @@
     "std/": "https://deno.land/std@0.207.0/",
     "typeorm": "npm:typeorm@0.3.17",
     "sqlite3": "https://deno.land/x/sqlite3@0.10.0/mod.ts",
-    "@beabee/beabee-common": "npm:@beabee/beabee-common@1.18.1",
-    "@beabee/client": "./beabee-client/mod.ts",
-    "@beabee/telegram-bot": "./telegram-bot/main.ts"
+    "@beabee/beabee-common": "./beabee-common/mod.ts",
+    "@beabee/beabee-client": "../beabee-client/mod.ts",
+    "date-fns": "npm:date-fns@3.2.0"
   },
   "scopes": {
     "https://raw.githubusercontent.com/Zhomart/dex/": {
@@ -30,21 +34,37 @@
   "tasks": {
     "dev": "cd telegram-bot && deno task dev",
     "start": "cd telegram-bot && deno task start",
-    "compile": "deno task compile:telegram-bot",
-    "compile:telegram-bot": "cd telegram-bot && deno task compile",
-    "build": "deno task build:beabee-client",
+    "build": "deno task build:beabee-common && deno task build:beabee-client",
     "build:beabee-client": "cd beabee-client && deno task build",
-    "test": "deno task test:telegram-bot && deno task test:beabee-client",
+    "build:beabee-common": "cd beabee-common && deno task build",
+    "test": "deno task test:telegram-bot && deno task test:beabee-client && deno task test:beabee-common",
     "test:telegram-bot": "cd telegram-bot && deno task test",
     "test:beabee-client": "cd beabee-client && deno task test",
-    "lint": "deno task lint:telegram-bot && deno task lint:beabee-client",
-    "lint:telegram-bot": "cd telegram-bot && deno lint",
-    "lint:beabee-client": "cd beabee-client && deno lint --ignore=deno_cache,out",
-    "cache": "deno task cache:telegram-bot && deno task cache:beabee-client",
+    "test:beabee-common": "cd beabee-common && deno task test",
+    "lint": "deno task lint:telegram-bot && deno task lint:beabee-client && deno task lint:beabee-common",
+    "lint:telegram-bot": "cd telegram-bot && deno task lint",
+    "lint:beabee-client": "cd beabee-client && deno task lint",
+    "lint:beabee-common": "cd beabee-common && deno task lint",
+    "format": "deno task format:root && deno task format:telegram-bot && deno task format:beabee-client && deno task format:beabee-common",
+    "format:root": "deno fmt",
+    "format:telegram-bot": "cd telegram-bot && deno task format",
+    "format:beabee-client": "cd beabee-client && deno task format",
+    "format:beabee-common": "cd beabee-common && deno task format",
+    "check": "deno task check:telegram-bot && deno task check:beabee-client && deno task check:beabee-common",
+    "check:telegram-bot": "cd telegram-bot && deno task check",
+    "check:beabee-client": "cd beabee-client && deno task check",
+    "check:beabee-common": "cd beabee-common && deno task check",
+    // TODO Add check:types, see https://github.com/denoland/deno/issues/22353
+    "cache": "deno task cache:telegram-bot && deno task cache:beabee-common && deno task cache:beabee-client",
     "cache:telegram-bot": "cd telegram-bot && deno task cache",
     "cache:beabee-client": "cd beabee-client && deno task cache",
-    "generate:index": "cd telegram-bot && deno task generate:index && cd ../beabee-client && deno task generate:index",
-    "docker:build": "cd telegram-bot && deno task docker:build",
-    "docker:start": "cd telegram-bot && deno task docker:start"
+    "cache:beabee-common": "cd beabee-common && deno task cache",
+    "generate:index": "deno task generate:index:telegram-bot && deno task generate:index:beabee-client && deno task generate:index:beabee-common",
+    "generate:index:telegram-bot": "cd telegram-bot && deno task generate:index",
+    "generate:index:beabee-client": "cd beabee-client && deno task generate:index",
+    "generate:index:beabee-common": "cd beabee-common && deno task generate:index",
+    "docker:build": "docker build -t beabee/telegram-bot:latest .docker p",
+    "docker:start": "docker run -it --init -p 3003:3003 beabee/telegram-bot:latest",
+    "docker:push": "docker push beabee/telegram-bot:latest"
   }
 }

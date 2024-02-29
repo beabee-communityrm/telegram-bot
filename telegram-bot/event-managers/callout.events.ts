@@ -33,15 +33,18 @@ export class CalloutEventManager extends EventManager {
   protected async onCalloutSelectionKeyboardPressed(ctx: Context) {
     const shortSlug = ctx.callbackQuery?.data?.split(":")[1];
 
+    const noSlugMessage =
+      "This button has not a callout slug associated with it";
+
     if (!shortSlug) {
-      await ctx.reply("This button has not a callout slug associated with it");
+      await ctx.reply(noSlugMessage);
       return;
     }
 
     const slug = this.callout.getSlug(shortSlug);
 
     if (!slug) {
-      await ctx.reply("This button has not a callout slug associated with it");
+      await ctx.reply(noSlugMessage);
       return;
     }
 

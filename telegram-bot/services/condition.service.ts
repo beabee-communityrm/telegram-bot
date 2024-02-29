@@ -28,7 +28,8 @@ import type {
 import { Context } from "../types/grammy.ts";
 
 /**
- * Define and check conditions for a replay
+ * Define and check conditions for a replay.
+ * This class checks replays messages for general conditions which can also be used for other things than Callouts.
  */
 @Singleton()
 export class ConditionService {
@@ -36,6 +37,7 @@ export class ConditionService {
     console.debug(`${this.constructor.name} created`);
   }
 
+  /** No replay / answer is expected */
   public replayConditionNone(multiple = false): ReplayConditionNone {
     return {
       type: ReplayType.NONE,
@@ -44,6 +46,7 @@ export class ConditionService {
     };
   }
 
+  /** Any replay / answer is expected */
   public replayConditionAny(
     multiple: boolean,
     doneTexts: string[] = [],
@@ -62,6 +65,7 @@ export class ConditionService {
   }
 
   /**
+   * A text replay / answer is expected
    * - Define a specific message that is accepted to mark an answer as done
    * - Define a specific message to accepted messages before the message is marked as done
    */
@@ -269,7 +273,9 @@ export class ConditionService {
     context: Context,
     accepted: ReplayCondition,
   ): ReplayAcceptedText | ReplayAcceptedNone {
-    const textMessage = getTextFromMessage(context.message);
+    // Capitalisation should not play a role for done messages, see https://github.com/beabee-communityrm/telegram-bot/issues/5
+    const textMessage = getTextFromMessage(context.message)?.toLowerCase()
+      .trim();
 
     // Is not a text message or empty
     if (!textMessage) {

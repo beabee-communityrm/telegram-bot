@@ -1,5 +1,9 @@
 import type { ReplayType } from "../enums/index.ts";
 
+/**
+ * Define the type of replay you are waiting for.
+ * If multiple answers are allowed, you need to set the `doneTexts` property.
+ */
 export interface ReplayConditionBase {
   /**
    * Define the type you are waiting for to mark the question as answered or to accept the answer.

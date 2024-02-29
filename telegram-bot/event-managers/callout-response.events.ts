@@ -1,4 +1,4 @@
-import { Singleton } from "alosaur/mod.ts";
+import { Singleton } from "../deps.ts";
 import { CalloutService } from "../services/callout.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { EventService } from "../services/event.service.ts";
@@ -94,16 +94,23 @@ export class CalloutResponseEventManager extends EventManager {
       answers,
     );
 
-    const response = await this.callout.createResponse(slug, {
-      answers,
-      guestName: ctx.from?.username,
-      // guestEmail: "test@beabee.io",
-    });
+    try {
+      const response = await this.callout.createResponse(slug, {
+        answers,
+        guestName: ctx.from?.username,
+        // guestEmail: "test@beabee.io",
+      });
 
-    console.debug(
-      "Created response",
-      response,
-    );
+      console.debug(
+        "Created response",
+        response,
+      );
+    } catch (error) {
+      console.error(
+        `Failed to create response`,
+        error,
+      );
+    }
   }
 
   /**
@@ -116,7 +123,14 @@ export class CalloutResponseEventManager extends EventManager {
     const shortSlug = data?.[1];
     const startIntro = data?.[2] as "yes" | "no" === "yes"; // This is the key, so it's not localized
 
-    await ctx.answerCallbackQuery(); // remove loading animation
+    try {
+      await ctx.answerCallbackQuery(); // remove loading animation
+    } catch (error) {
+      console.warn(
+        "Failed to answer callback query",
+        error,
+      );
+    }
 
     if (!shortSlug) {
       await this.communication.send(

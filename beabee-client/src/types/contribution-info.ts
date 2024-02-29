@@ -2,7 +2,7 @@ import type {
   ContributionPeriod,
   ContributionType,
   MembershipStatus,
-} from "@beabee/beabee-common";
+} from "../deps.ts";
 
 import type { PaymentSource } from "./index.ts";
 

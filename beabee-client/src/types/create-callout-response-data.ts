@@ -1,9 +1,9 @@
-import type { CalloutResponseAnswers } from "@beabee/beabee-common";
+import type { CalloutResponseAnswersSlide } from "../deps.ts";
 
 export interface CreateCalloutResponseData {
   guestName?: string;
   guestEmail?: string;
-  answers: CalloutResponseAnswers;
+  answers: CalloutResponseAnswersSlide;
   bucket?: string;
   tags?: string[];
   assigneeId?: string | null;

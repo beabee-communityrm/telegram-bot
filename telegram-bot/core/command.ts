@@ -38,8 +38,9 @@ export abstract class Command implements BotCommand {
    * Called when the language changes.
    * @param lang The new language code.
    */
-  changeLanguage(lang: string) {
-    this.command = this.i18n.t(`commands.${this.key}.command`, {}, lang);
+  changeLocale(lang: string) {
+    // FIXME: This is not working on runtime
+    // this.command = this.i18n.t(`commands.${this.key}.command`, {}, lang);
     this.description = this.i18n.t(
       `commands.${this.key}.description`,
       {},

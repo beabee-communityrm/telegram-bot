@@ -30,6 +30,8 @@ jobs:
     steps:
       - name: Setup repo
         uses: actions/checkout@v3
+        with:
+          submodules: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -42,7 +44,7 @@ jobs:
           deno-version: ${{ matrix.deno-version }}
 
       - name: Verify formatting
-        run: deno fmt --check
+        run: deno task check
 
       - name: Run linter
         run: deno task lint

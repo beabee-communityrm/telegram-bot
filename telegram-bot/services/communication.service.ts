@@ -17,6 +17,7 @@ import type { Context } from "grammy/context.ts";
 
 /**
  * Service to handle the communication with the telegram bot and the telegram user.
+ * This service waits for a response until a response is received that fulfils a basic condition (if there is a condition).
  */
 @Singleton()
 export class CommunicationService {

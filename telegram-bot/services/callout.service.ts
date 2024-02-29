@@ -20,9 +20,9 @@ import type {
   GetCalloutDataWithExt,
   GetCalloutsQuery,
   GetCalloutWith,
-  NestableCalloutComponentSchema,
-  Paginated,
 } from "../types/index.ts";
+
+import type { CalloutComponentNestableSchema, Paginated } from "../deps.ts";
 
 const CALLOUTS_ACTIVE_QUERY: GetCalloutsQuery = {
   rules: {
@@ -137,7 +137,7 @@ export class CalloutService {
       [slideId, componentKey] = splitCalloutGroupKey(componentKey);
     }
 
-    // TODO: If not slide id is provided, we can search in all slides
+    // TODO: If no slide id is provided, we can search in all slides
     if (!slideId) {
       return null;
     }
@@ -152,8 +152,8 @@ export class CalloutService {
         return true;
       }
       // Also check nested components
-      if ((c as NestableCalloutComponentSchema).components) {
-        return (c as NestableCalloutComponentSchema).components.find((c) =>
+      if ((c as CalloutComponentNestableSchema).components) {
+        return (c as CalloutComponentNestableSchema).components.find((c) =>
           c.key === componentKey
         );
       }
