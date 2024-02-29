@@ -139,7 +139,7 @@ export class I18nService {
     const segments = path.split(".");
     const _key = segments.shift() ?? "";
     const key = toCamelCase(_key);
-    const nextTranslations = translations[key];
+    const nextTranslations = translations[key] || translations[_key];
 
     if (!nextTranslations) {
       return `Error: Translation not found for '${path}' in language '${lang}'`;
