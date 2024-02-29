@@ -144,9 +144,9 @@ export class TransformService {
   ): RenderResponseParsedBoolean<false>["data"] {
     const boolStr = getTextFromMessage(context.message).toLowerCase().trim();
     let bool = false;
-    const truthyStr = this.i18n.t("reactions.messages.truthy").toLowerCase()
+    const truthyStr = this.i18n.t("bot.reactions.messages.truthy").toLowerCase()
       .trim();
-    const falsyStr = this.i18n.t("reactions.messages.falsy").toLowerCase()
+    const falsyStr = this.i18n.t("bot.reactions.messages.falsy").toLowerCase()
       .trim();
     if (boolStr === truthyStr) {
       bool = true;

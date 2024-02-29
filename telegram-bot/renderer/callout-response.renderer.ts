@@ -118,9 +118,7 @@ export class CalloutResponseRenderer {
 
     if (placeholder) {
       result.markdown = `_${
-        escapeMd(
-          this.i18n.t("info.messages.placeholder", { placeholder }),
-        )
+        escapeMd(this.i18n.t("bot.info.messages.placeholder", { placeholder }))
       }_`;
     }
 
@@ -128,7 +126,7 @@ export class CalloutResponseRenderer {
   }
 
   protected multipleMd(component: CalloutComponentSchema, prefix: string) {
-    const doneMessage = this.i18n.t("reactions.messages.done");
+    const doneMessage = this.i18n.t("bot.reactions.messages.done");
     const multiple = this.isMultiple(component);
     const result: Render = {
       key: createCalloutGroupKey(component.key, prefix),
@@ -140,7 +138,7 @@ export class CalloutResponseRenderer {
     if (multiple) {
       result.markdown += `_${
         escapeMd(
-          `${this.i18n.t("info.messages.multiple-values-allowed")}\n\n${
+          `${this.i18n.t("bot.info.messages.multipleValuesAllowed")}\n\n${
             this.messageRenderer.writeDoneMessage(doneMessage).text
           }`,
         )
@@ -148,7 +146,7 @@ export class CalloutResponseRenderer {
     } else {
       result.markdown += `_${
         escapeMd(
-          `${this.i18n.t("info.messages.only-one-value-allowed")}\n\n${
+          `${this.i18n.t("bot.info.messages.onlyOneValueAllowed")}\n\n${
             this.messageRenderer.writeDoneMessage(doneMessage).text
           }`,
         )
@@ -174,7 +172,7 @@ export class CalloutResponseRenderer {
       accepted: this.condition.replayConditionSelection(
         multiple,
         this.selectValuesToValueLabelPairs(selectable.values),
-        multiple ? [this.i18n.t("reactions.messages.done")] : [],
+        multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
       ),
       markdown: ``,
       parseType: calloutComponentTypeToParsedResponseType(selectable),
@@ -235,7 +233,7 @@ export class CalloutResponseRenderer {
       accepted: this.condition.replayConditionCalloutConponent(
         multiple,
         base,
-        multiple ? [this.i18n.t("reactions.messages.done")] : [],
+        multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
       ),
       parseType: ParsedResponseType.CALLOUT_COMPONENT,
     };
@@ -273,15 +271,15 @@ export class CalloutResponseRenderer {
     result.markdown += `_${
       escapeMd(
         multiple
-          ? this.i18n.t("info.messages.upload-files-here")
-          : this.i18n.t("info.messages.upload-file-here"),
+          ? this.i18n.t("bot.info.messages.uploadFilesHere")
+          : this.i18n.t("bot.info.messages.uploadFileHere"),
       )
     }_`;
 
     result.accepted = this.condition.replayConditionFilePattern(
       multiple,
       file.filePattern || file.type === "signature" ? "image/*" : "",
-      multiple ? [this.i18n.t("reactions.messages.done")] : [],
+      multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
     );
 
     if (file.placeholder) {
@@ -340,13 +338,13 @@ export class CalloutResponseRenderer {
     result.parseType = ParsedResponseType.BOOLEAN;
     result.markdown += `\n\n`;
 
-    const truthyMessage = this.i18n.t("reactions.messages.truthy");
-    const falsyMessage = this.i18n.t("reactions.messages.falsy");
-    const doneMessage = this.i18n.t("reactions.messages.done");
+    const truthyMessage = this.i18n.t("bot.reactions.messages.truthy");
+    const falsyMessage = this.i18n.t("bot.reactions.messages.falsy");
+    const doneMessage = this.i18n.t("bot.reactions.messages.done");
 
     result.markdown += `_${
       escapeMd(
-        this.i18n.t("response.messages.answer-with-truthy-or-falsy", {
+        this.i18n.t("bot.response.messages.answerWithTruthyOrFalsy", {
           truthy: truthyMessage,
           falsy: falsyMessage,
         }),
@@ -384,8 +382,8 @@ export class CalloutResponseRenderer {
         result.markdown += `_${
           escapeMd(
             result.accepted.multiple
-              ? this.i18n.t("info.messages.multiple-addresses-allowed")
-              : this.i18n.t("info.messages.only-one-address-allowed"),
+              ? this.i18n.t("bot.info.messages.multipleAddressesAllowed")
+              : this.i18n.t("bot.info.messages.onlyOneAddressAllowed"),
           )
         }_`;
         break;
@@ -394,8 +392,8 @@ export class CalloutResponseRenderer {
         result.markdown += `_${
           escapeMd(
             result.accepted.multiple
-              ? this.i18n.t("info.messages.multiple-emails-allowed")
-              : this.i18n.t("info.messages.only-one-email-allowed"),
+              ? this.i18n.t("bot.info.messages.multipleEmailsAllowed")
+              : this.i18n.t("bot.info.messages.onlyOneEmailAllowed"),
           )
         }_`;
 
@@ -405,8 +403,8 @@ export class CalloutResponseRenderer {
         result.markdown += `_${
           escapeMd(
             result.accepted.multiple
-              ? this.i18n.t("info.messages.multiple-numbers-allowed")
-              : this.i18n.t("info.messages.only-one-number-allowed"),
+              ? this.i18n.t("bot.info.messages.multipleNumbersAllowed")
+              : this.i18n.t("bot.info.messages.onlyOneNumberAllowed"),
           )
         }_`;
         break;
@@ -414,7 +412,7 @@ export class CalloutResponseRenderer {
       case CalloutComponentType.INPUT_TEXT_FIELD: {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("info.messages.enter-text"),
+            this.i18n.t("bot.info.messages.enterText"),
           )
         }_`;
         break;
@@ -422,7 +420,7 @@ export class CalloutResponseRenderer {
       case CalloutComponentType.INPUT_TEXT_AREA: {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("info.messages.enter-lots-of-text"),
+            this.i18n.t("bot.info.messages.enterLotsOfText"),
           )
         }_`;
         break;
@@ -430,7 +428,7 @@ export class CalloutResponseRenderer {
       case CalloutComponentType.INPUT_PHONE_NUMBER: {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("info.messages.enter-telephone-number"),
+            this.i18n.t("bot.info.messages.enterTelephoneNumber"),
           )
         }_`;
         break;
@@ -438,7 +436,7 @@ export class CalloutResponseRenderer {
       case CalloutComponentType.INPUT_CURRENCY: {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("info.messages.enter-amount-of-money"),
+            this.i18n.t("bot.info.messages.enterAmountOfMoney"),
           )
         }_`;
         break;
@@ -446,7 +444,7 @@ export class CalloutResponseRenderer {
       case CalloutComponentType.INPUT_DATE_TIME: {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("info.messages.enter-date"),
+            this.i18n.t("bot.info.messages.enterDate"),
           )
         }_`;
         break;
@@ -454,7 +452,7 @@ export class CalloutResponseRenderer {
       case CalloutComponentType.INPUT_TIME: {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("info.messages.enter-time"),
+            this.i18n.t("bot.info.messages.enterTime"),
           )
         }_`;
         break;
@@ -462,14 +460,14 @@ export class CalloutResponseRenderer {
       case CalloutComponentType.INPUT_URL: {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("info.messages.enter-url"),
+            this.i18n.t("bot.info.messages.enterUrl"),
           )
         }_`;
         break;
       }
 
       default: {
-        result.markdown += this.i18n.t("response.messages.component-unknown", {
+        result.markdown += this.i18n.t("bot.response.messages.componentUnknown", {
           type: (input as CalloutComponentSchema).type || "undefined",
         });
         break;
@@ -513,7 +511,7 @@ export class CalloutResponseRenderer {
 
     result.markdown += `_${
       escapeMd(
-        this.i18n.t("info.messages.only-one-selection-allowed"),
+        this.i18n.t("info.messages.onlyOneSelectionAllowed"),
       )
     }_`;
     return result;
@@ -537,7 +535,7 @@ export class CalloutResponseRenderer {
       ...this.condition.replayConditionSelection(
         multiple,
         this.selectValuesToValueLabelPairs(selectable.values),
-        multiple ? [this.i18n.t("reactions.messages.done")] : [],
+        multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
       ),
     };
 
@@ -551,7 +549,7 @@ export class CalloutResponseRenderer {
       case "radio": {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("info.messages.only-one-selection-allowed"),
+            this.i18n.t("bot.info.messages.onlyOneSelectionAllowed"),
           )
         }_`;
         break;
@@ -559,10 +557,10 @@ export class CalloutResponseRenderer {
       case "selectboxes": {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("info.messages.multiple-selections-allowed") +
+            this.i18n.t("bot.info.messages.multipleSelectionsAllowed") +
               "\n\n" +
               this.messageRenderer.writeDoneMessage(
-                this.i18n.t("reactions.messages.done"),
+                this.i18n.t("bot.reactions.messages.done"),
               ).text,
           )
         }_`;
@@ -672,7 +670,7 @@ export class CalloutResponseRenderer {
       ),
       type: RenderType.MARKDOWN,
       accepted: this.condition.replayConditionAny(multiple),
-      markdown: this.i18n.t("response.messages.component-unknown", {
+      markdown: this.i18n.t("response.messages.componentUnknown", {
         type: (component as CalloutComponentSchema).type || "undefined",
       }),
       parseType: calloutComponentTypeToParsedResponseType(component),

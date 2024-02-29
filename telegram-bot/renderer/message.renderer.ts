@@ -27,7 +27,7 @@ export class MessageRenderer {
   }
 
   public stop() {
-    const tKey = "response.messages.stop";
+    const tKey = "bot.response.messages.stop";
     const result: Render = {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
@@ -40,7 +40,7 @@ export class MessageRenderer {
   }
 
   public calloutNotFound() {
-    const tKey = "response.messages.callout-not-found";
+    const tKey = "bot.response.messages.calloutNotFound";
     const result: Render = {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
@@ -53,7 +53,7 @@ export class MessageRenderer {
   }
 
   public notATextMessage(): RenderText {
-    const tKey = "response.messages.not-a-text-message";
+    const tKey = "bot.response.messages.notATextMessage";
     return {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
@@ -64,7 +64,7 @@ export class MessageRenderer {
   }
 
   public notASelectionMessage(): RenderText {
-    const tKey = "response.messages.not-a-selection-message";
+    const tKey = "bot.response.messages.notASelectionMessage";
     return {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
@@ -75,7 +75,7 @@ export class MessageRenderer {
   }
 
   public notAFileMessage(): RenderText {
-    const tKey = "response.messages.not-a-file-message";
+    const tKey = "bot.response.messages.notAFileMessage";
     return {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
@@ -88,11 +88,11 @@ export class MessageRenderer {
   public notTheRightFileType(mimeTypes: string[]) {
     const mimeTypesStr = getSimpleMimeTypes(mimeTypes).join(", ").replace(
       /, ([^,]*)$/,
-      ` ${this.i18n.t("universal.or")} $1`,
+      ` ${this.i18n.t("bot.universal.or")} $1`,
     );
     return {
       type: RenderType.TEXT,
-      text: this.i18n.t("response.messages.not-the-right-file-type", {
+      text: this.i18n.t("bot.response.messages.notTheRightFileType", {
         type: mimeTypesStr,
       }),
     } as RenderText;
@@ -143,7 +143,7 @@ export class MessageRenderer {
   public writeDoneMessage(doneText: string) {
     return {
       type: RenderType.TEXT,
-      text: this.i18n.t("info.messages.done", { done: doneText }),
+      text: this.i18n.t("bot.info.messages.done", { done: doneText }),
     } as RenderText;
   }
 }
