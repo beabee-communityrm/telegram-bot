@@ -27,7 +27,7 @@ export class MessageRenderer {
   }
 
   public stop() {
-    const tKey = "response.messages.stop";
+    const tKey = "bot.response.messages.stop";
     const result: Render = {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
@@ -40,7 +40,7 @@ export class MessageRenderer {
   }
 
   public calloutNotFound() {
-    const tKey = "response.messages.callout-not-found";
+    const tKey = "bot.response.messages.calloutNotFound";
     const result: Render = {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
@@ -53,7 +53,7 @@ export class MessageRenderer {
   }
 
   public notATextMessage(): RenderText {
-    const tKey = "response.messages.not-a-text-message";
+    const tKey = "bot.response.messages.notATextMessage";
     return {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
@@ -64,7 +64,7 @@ export class MessageRenderer {
   }
 
   public notASelectionMessage(): RenderText {
-    const tKey = "response.messages.not-a-selection-message";
+    const tKey = "bot.response.messages.notASelectionMessage";
     return {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
@@ -75,7 +75,7 @@ export class MessageRenderer {
   }
 
   public notAFileMessage(): RenderText {
-    const tKey = "response.messages.not-a-file-message";
+    const tKey = "bot.response.messages.notAFileMessage";
     return {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),

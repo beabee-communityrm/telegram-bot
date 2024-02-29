@@ -273,8 +273,8 @@ export class CalloutResponseRenderer {
     result.markdown += `_${
       escapeMd(
         multiple
-          ? this.i18n.t("bot.info.messages.upload-files-here")
-          : this.i18n.t("bot.info.messages.upload-file-here"),
+          ? this.i18n.t("bot.info.messages.uploadFilesHere")
+          : this.i18n.t("bot.info.messages.uploadFileHere"),
       )
     }_`;
 
@@ -346,7 +346,7 @@ export class CalloutResponseRenderer {
 
     result.markdown += `_${
       escapeMd(
-        this.i18n.t("bot.response.messages.answer-with-truthy-or-falsy", {
+        this.i18n.t("bot.response.messages.answerWithTruthyOrFalsy", {
           truthy: truthyMessage,
           falsy: falsyMessage,
         }),
@@ -384,8 +384,8 @@ export class CalloutResponseRenderer {
         result.markdown += `_${
           escapeMd(
             result.accepted.multiple
-              ? this.i18n.t("bot.info.messages.multiple-addresses-allowed")
-              : this.i18n.t("bot.info.messages.only-one-address-allowed"),
+              ? this.i18n.t("bot.info.messages.multipleAddressesAllowed")
+              : this.i18n.t("bot.info.messages.onlyOneAddressAllowed"),
           )
         }_`;
         break;
@@ -394,8 +394,8 @@ export class CalloutResponseRenderer {
         result.markdown += `_${
           escapeMd(
             result.accepted.multiple
-              ? this.i18n.t("bot.info.messages.multiple-emails-allowed")
-              : this.i18n.t("bot.info.messages.only-one-email-allowed"),
+              ? this.i18n.t("bot.info.messages.multipleEmailsAllowed")
+              : this.i18n.t("bot.info.messages.onlyOneEmailAllowed"),
           )
         }_`;
 
@@ -405,8 +405,8 @@ export class CalloutResponseRenderer {
         result.markdown += `_${
           escapeMd(
             result.accepted.multiple
-              ? this.i18n.t("bot.info.messages.multiple-numbers-allowed")
-              : this.i18n.t("bot.info.messages.only-one-number-allowed"),
+              ? this.i18n.t("bot.info.messages.multipleNumbersAllowed")
+              : this.i18n.t("bot.info.messages.onlyOneNumberAllowed"),
           )
         }_`;
         break;
@@ -414,7 +414,7 @@ export class CalloutResponseRenderer {
       case CalloutComponentType.INPUT_TEXT_FIELD: {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("bot.info.messages.enter-text"),
+            this.i18n.t("bot.info.messages.enterText"),
           )
         }_`;
         break;
@@ -422,7 +422,7 @@ export class CalloutResponseRenderer {
       case CalloutComponentType.INPUT_TEXT_AREA: {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("bot.info.messages.enter-lots-of-text"),
+            this.i18n.t("bot.info.messages.enterLotsOfText"),
           )
         }_`;
         break;
@@ -430,7 +430,7 @@ export class CalloutResponseRenderer {
       case CalloutComponentType.INPUT_PHONE_NUMBER: {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("bot.info.messages.enter-telephone-number"),
+            this.i18n.t("bot.info.messages.enterTelephoneNumber"),
           )
         }_`;
         break;
@@ -438,7 +438,7 @@ export class CalloutResponseRenderer {
       case CalloutComponentType.INPUT_CURRENCY: {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("bot.info.messages.enter-amount-of-money"),
+            this.i18n.t("bot.info.messages.enterAmountOfMoney"),
           )
         }_`;
         break;
@@ -446,7 +446,7 @@ export class CalloutResponseRenderer {
       case CalloutComponentType.INPUT_DATE_TIME: {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("bot.info.messages.enter-date"),
+            this.i18n.t("bot.info.messages.enterDate"),
           )
         }_`;
         break;
@@ -454,7 +454,7 @@ export class CalloutResponseRenderer {
       case CalloutComponentType.INPUT_TIME: {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("bot.info.messages.enter-time"),
+            this.i18n.t("bot.info.messages.enterTime"),
           )
         }_`;
         break;
@@ -516,7 +516,7 @@ export class CalloutResponseRenderer {
 
     result.markdown += `_${
       escapeMd(
-        this.i18n.t("bot.info.messages.onlyOneSelectionAllowed"),
+        this.i18n.t("info.messages.onlyOneSelectionAllowed"),
       )
     }_`;
     return result;
