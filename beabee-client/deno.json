@@ -27,6 +27,6 @@
     "std/": "https://deno.land/std@0.207.0/",
     "@beabee/beabee-common": "../beabee-common/mod.ts",
     "@beabee/client": "./mod.ts",
-    "date-fns": "npm:date-fns@3.2.0"
+    "date-fns": "npm:date-fns@3.3.1"
   }
 }

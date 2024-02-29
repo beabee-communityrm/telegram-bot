@@ -4,7 +4,7 @@
     "specifiers": {
       "npm:@beabee/beabee-common@1.18.1": "npm:@beabee/beabee-common@1.18.1",
       "npm:@gjsify/esbuild-plugin-transform-ext@0.0.4": "npm:@gjsify/esbuild-plugin-transform-ext@0.0.4",
-      "npm:date-fns@3.2.0": "npm:date-fns@3.2.0"
+      "npm:date-fns@3.3.1": "npm:date-fns@3.3.1"
     },
     "npm": {
       "@babel/runtime@7.23.4": {
@@ -453,7 +453,7 @@
   },
   "workspace": {
     "dependencies": [
-      "npm:date-fns@3.2.0"
+      "npm:date-fns@3.3.1"
     ],
     "packageJson": {
       "dependencies": [

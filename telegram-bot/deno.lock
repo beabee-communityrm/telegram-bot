@@ -3,7 +3,7 @@
   "packages": {
     "specifiers": {
       "npm:@types/markdown-it": "npm:@types/markdown-it@13.0.7",
-      "npm:date-fns@3.2.0": "npm:date-fns@3.2.0",
+      "npm:date-fns@3.3.1": "npm:date-fns@3.3.1",
       "npm:googleapis@131.0.0": "npm:googleapis@131.0.0",
       "npm:jsonwebtoken": "npm:jsonwebtoken@9.0.2",
       "npm:markdown-it": "npm:markdown-it@14.0.0",
@@ -1081,7 +1081,7 @@
   },
   "workspace": {
     "dependencies": [
-      "npm:date-fns@3.2.0",
+      "npm:date-fns@3.3.1",
       "npm:typeorm@0.3.17"
     ]
   }
