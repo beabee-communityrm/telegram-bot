@@ -222,12 +222,10 @@ export class ValidationService {
     const message = context.message;
     const texts = accepted.texts?.map((t) => t.toLowerCase().trim());
     const originalText = message?.text?.trim();
-    if (message?.text) {
-      message.text = message.text.toLowerCase().trim();
-    }
+    const lowerCaseText = originalText?.toLowerCase();
 
     // Is not a text message
-    if (!message || !originalText || !message.text) {
+    if (!message || !originalText || !lowerCaseText) {
       return {
         type: ReplayType.NONE,
         accepted: false,
@@ -247,13 +245,23 @@ export class ValidationService {
       };
     }
     // Is a text message and one of the texts is accepted
+    const match = texts.some((t) => t === message.text);
+    if (!match) {
+      return {
+        type: ReplayType.NONE,
+        accepted: false,
+        isDone: false,
+        context,
+      } as ReplayAcceptedNone;
+    }
+
     return {
       type: ReplayType.TEXT,
       accepted: true,
-      isDone: texts.some((t) => t === message.text),
+      isDone: !accepted.multiple,
       text: originalText,
       context,
-    };
+    } as ReplayAcceptedText;
   }
 
   /**
@@ -312,11 +320,11 @@ export class ValidationService {
     accepted: ReplayConditionCalloutComponentSchema,
   ): ReplayAcceptedCalloutComponentSchema | ReplayAcceptedNone {
     const result: ReplayAcceptedCalloutComponentSchema = {
-      accepted: false,
-      context,
-      isDone: false,
       type: ReplayType.CALLOUT_COMPONENT_SCHEMA,
+      accepted: false,
+      isDone: false,
       answer: undefined,
+      context,
     };
 
     switch (accepted.schema.type) {
@@ -325,7 +333,7 @@ export class ValidationService {
         return {
           type: ReplayType.NONE,
           accepted: false,
-          isDone: false,
+          isDone: true,
           context,
         };
       }
@@ -377,7 +385,7 @@ export class ValidationService {
 
     const isValid = calloutComponentValidator(accepted.schema, result.answer);
     result.accepted = isValid;
-    result.isDone = isValid;
+    result.isDone = isValid && !accepted.multiple;
 
     return result;
   }
@@ -438,6 +446,7 @@ export class ValidationService {
       return isSelection;
     }
 
+    // Callout component response answer is accepted
     if (accepted.type === ReplayType.CALLOUT_COMPONENT_SCHEMA) {
       const isCalloutAnswer = this.messageIsCalloutComponent(context, accepted);
       return isCalloutAnswer;

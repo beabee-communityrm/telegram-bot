@@ -1,6 +1,7 @@
 import {
   CalloutComponentBaseType,
   CalloutComponentContentSchema,
+  CalloutComponentInputCheckboxSchema,
   CalloutComponentInputFileSchema,
   CalloutComponentInputSchema,
   CalloutComponentInputSelectableSchema,
@@ -331,6 +332,44 @@ export class CalloutResponseRenderer {
     return result;
   }
 
+  protected inputCheckboxComponent(
+    input: CalloutComponentInputCheckboxSchema,
+    prefix: string,
+  ) {
+    const result = this.baseComponent(input, prefix);
+    result.parseType = ParsedResponseType.BOOLEAN;
+    result.markdown += `\n\n`;
+
+    const truthyMessage = this.i18n.t("reactions.messages.truthy");
+    const falsyMessage = this.i18n.t("reactions.messages.falsy");
+    const doneMessage = this.i18n.t("reactions.messages.done");
+
+    result.markdown += `_${
+      escapeMd(
+        this.i18n.t("response.messages.answer-with-truthy-or-falsy", {
+          truthy: truthyMessage,
+          falsy: falsyMessage,
+        }),
+      )
+    }_`;
+
+    result.accepted = this.condition.replayConditionText(
+      result.accepted.multiple,
+      [truthyMessage, falsyMessage],
+      result.accepted.multiple ? [doneMessage] : [],
+    );
+
+    if (input.placeholder) {
+      result.markdown += `\n\n${this.placeholderMd(input, prefix).markdown}`;
+    }
+
+    if (input.multiple) {
+      result.markdown += `\n\n${this.multipleMd(input, prefix).markdown}`;
+    }
+
+    return result;
+  }
+
   /**
    * Render an input component in Markdown
    * @param input The input component to render
@@ -349,26 +388,6 @@ export class CalloutResponseRenderer {
               : this.i18n.t("info.messages.only-one-address-allowed"),
           )
         }_`;
-        break;
-      }
-      case CalloutComponentType.INPUT_CHECKBOX: {
-        const truthyMessage = this.i18n.t("reactions.messages.truthy");
-        const falsyMessage = this.i18n.t("reactions.messages.falsy");
-        const doneMessage = this.i18n.t("reactions.messages.done");
-
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("response.messages.answer-with-truthy-or-falsy", {
-              truthy: truthyMessage,
-              falsy: falsyMessage,
-            }),
-          )
-        }_`;
-        result.accepted = this.condition.replayConditionText(
-          result.accepted.multiple,
-          [truthyMessage, falsyMessage],
-          result.accepted.multiple ? [doneMessage] : [],
-        );
         break;
       }
       case CalloutComponentType.INPUT_EMAIL: {
@@ -469,6 +488,38 @@ export class CalloutResponseRenderer {
   }
 
   /**
+   * Render a select component in Markdown.
+   * Note: A select component is a dropdown menu in the frontend.
+   * @param select The select component to render
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
+   */
+  protected selectComponent(
+    select: CalloutComponentInputSelectSchema,
+    prefix: string,
+  ): RenderMarkdown {
+    const result = this.baseComponent(select, prefix);
+    result.parseType = ParsedResponseType.SELECTION;
+    result.markdown += `\n\n`;
+    result.accepted = {
+      ...result.accepted,
+      ...this.condition.replayConditionSelection(
+        result.accepted.multiple,
+        this.selectValuesToValueLabelPairs(select.data.values),
+      ),
+    };
+    result.markdown += `\n${this.selectValues(select, prefix).markdown}`;
+
+    result.markdown += `\n\n`;
+
+    result.markdown += `_${
+      escapeMd(
+        this.i18n.t("info.messages.only-one-selection-allowed"),
+      )
+    }_`;
+    return result;
+  }
+
+  /**
    * Render a radio component in Markdown
    * @param radio The radio component to render
    * @param prefix The prefix, used to group the answers later (only used to group slides)
@@ -478,7 +529,7 @@ export class CalloutResponseRenderer {
     prefix: string,
   ): RenderMarkdown {
     const result = this.baseComponent(selectable, prefix);
-
+    result.parseType = ParsedResponseType.SELECTION;
     const multiple = result.accepted.multiple;
 
     result.accepted = {
@@ -553,36 +604,6 @@ export class CalloutResponseRenderer {
     return nestableResults;
   }
 
-  /**
-   * Render a select component in Markdown.
-   * Note: A select component is a dropdown menu in the frontend.
-   * @param select The select component to render
-   * @param prefix The prefix, used to group the answers later (only used to group slides)
-   */
-  protected selectComponent(
-    select: CalloutComponentInputSelectSchema,
-    prefix: string,
-  ): RenderMarkdown {
-    const result = this.baseComponent(select, prefix);
-    result.accepted = {
-      ...result.accepted,
-      ...this.condition.replayConditionSelection(
-        result.accepted.multiple,
-        this.selectValuesToValueLabelPairs(select.data.values),
-      ),
-    };
-    result.markdown += `\n${this.selectValues(select, prefix).markdown}`;
-
-    result.markdown += `\n\n`;
-
-    result.markdown += `_${
-      escapeMd(
-        this.i18n.t("info.messages.only-one-selection-allowed"),
-      )
-    }_`;
-    return result;
-  }
-
   public component(component: CalloutComponentSchema, prefix: string) {
     console.debug("Rendering component", component);
     const results: Render[] = [];
@@ -608,6 +629,13 @@ export class CalloutResponseRenderer {
       isCalloutComponentOfType(component, CalloutComponentType.INPUT_SELECT)
     ) {
       results.push(this.selectComponent(component, prefix));
+      return results;
+    }
+
+    if (
+      isCalloutComponentOfType(component, CalloutComponentType.INPUT_CHECKBOX)
+    ) {
+      results.push(this.inputCheckboxComponent(component, prefix));
       return results;
     }
 

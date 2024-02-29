@@ -19,8 +19,7 @@ export interface ReplayConditionText extends ReplayConditionBase {
   type: ReplayType.TEXT;
   /**
    * Define this to wait for a specific message or leave it undefined to wait for any message.
-   * - If you define multiple possible messages, the logic will wait for the first message that matches.
-   * - Leave this undefined or empty to wait for only the first message.
+   * - Currently used for "yes" or "no" questions.
    */
   texts?: string[];
 }

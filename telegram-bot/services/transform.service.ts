@@ -142,10 +142,12 @@ export class TransformService {
   public parseResponseBoolean(
     context: Context,
   ): RenderResponseParsedBoolean<false>["data"] {
-    const boolStr = getTextFromMessage(context.message).toLowerCase();
+    const boolStr = getTextFromMessage(context.message).toLowerCase().trim();
     let bool = false;
-    const truthyStr = this.i18n.t("reactions.messages.truthy").toLowerCase();
-    const falsyStr = this.i18n.t("reactions.messages.falsy").toLowerCase();
+    const truthyStr = this.i18n.t("reactions.messages.truthy").toLowerCase()
+      .trim();
+    const falsyStr = this.i18n.t("reactions.messages.falsy").toLowerCase()
+      .trim();
     if (boolStr === truthyStr) {
       bool = true;
     } else if (boolStr === falsyStr) {
@@ -248,6 +250,11 @@ export class TransformService {
   ): RenderResponseParsed<false>["data"] {
     switch (render.parseType) {
       case ParsedResponseType.CALLOUT_COMPONENT:
+        if (replay.type !== ReplayType.CALLOUT_COMPONENT_SCHEMA) {
+          throw new Error(
+            `Unsupported accepted type for callout component: "${replay.type}"`,
+          );
+        }
         // Already parsed for validation
         return (replay as ReplayAcceptedCalloutComponentSchema).answer;
       case ParsedResponseType.FILE:
