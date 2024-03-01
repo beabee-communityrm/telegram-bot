@@ -4,6 +4,6 @@ import type { ReplayType } from "../enums/index.ts";
 export interface ReplayAcceptedText extends ReplayAcceptedBase {
   type: ReplayType.TEXT;
   accepted: boolean;
-  /** The accepted text */
+  /** The text message that was accepted or undefined if the replay was not accepted */
   text?: string;
 }

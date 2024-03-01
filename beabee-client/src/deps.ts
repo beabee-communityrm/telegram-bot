@@ -3,7 +3,7 @@ export type {
   CalloutResponseAnswer,
   CalloutResponseAnswerAddress,
   CalloutResponseAnswerFileUpload,
-  CalloutResponseAnswersNestable,
+  CalloutResponseAnswers,
   CalloutResponseAnswersSlide,
   ContributionPeriod,
   ContributionType,
@@ -16,4 +16,5 @@ export type {
   PaymentStatus,
   RoleType,
   RuleGroup,
+  StripeFeeCountry,
 } from "@beabee/beabee-common";

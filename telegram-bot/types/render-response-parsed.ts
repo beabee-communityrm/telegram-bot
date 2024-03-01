@@ -1,7 +1,7 @@
 import type {
-  RenderResponseParsedAddress,
   RenderResponseParsedAny,
   RenderResponseParsedBoolean,
+  RenderResponseParsedCalloutComponent,
   RenderResponseParsedFile,
   RenderResponseParsedNone,
   RenderResponseParsedNumber,
@@ -12,9 +12,9 @@ import type {
 export type RenderResponseParsed<MULTI extends boolean = boolean> =
   | RenderResponseParsedText<MULTI>
   | RenderResponseParsedNumber<MULTI>
-  | RenderResponseParsedAddress<MULTI>
   | RenderResponseParsedBoolean<MULTI>
   | RenderResponseParsedSelection<MULTI>
   | RenderResponseParsedFile<MULTI>
   | RenderResponseParsedAny<MULTI>
-  | RenderResponseParsedNone<MULTI>;
+  | RenderResponseParsedNone<MULTI>
+  | RenderResponseParsedCalloutComponent<MULTI>;

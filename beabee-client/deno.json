@@ -13,10 +13,11 @@
     "test:deno": "deno test --allow-net --allow-read --allow-write --allow-env --allow-ffi ./test/deno",
     "test:node": "npm run test:node",
     "test:web": "npm run test:web",
-    "lint": "deno lint",
+    "lint": "deno lint mod.ts src",
     "format": "deno fmt",
-    "check": "deno task check:format",
+    "check": "deno task check:types && deno task check:format",
     "check:format": "deno task format --check",
+    "check:types": "deno check mod.ts",
     "cache": "deno task cache:deno && deno task cache:node",
     "cache:deno": "deno cache --reload mod.ts",
     "cache:node": "npm install",
@@ -26,6 +27,6 @@
     "std/": "https://deno.land/std@0.207.0/",
     "@beabee/beabee-common": "../beabee-common/mod.ts",
     "@beabee/client": "./mod.ts",
-    "date-fns": "npm:date-fns@3.2.0"
+    "date-fns": "npm:date-fns@3.3.1"
   }
 }

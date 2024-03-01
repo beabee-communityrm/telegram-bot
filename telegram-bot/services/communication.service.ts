@@ -3,6 +3,7 @@ import { ParsedResponseType, RenderType, ReplayType } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
 import { TransformService } from "./transform.service.ts";
 import { ConditionService } from "./condition.service.ts";
+import { ValidationService } from "./validation.service.ts";
 import { getIdentifier } from "../utils/index.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
 
@@ -26,6 +27,7 @@ export class CommunicationService {
     protected readonly messageRenderer: MessageRenderer,
     protected readonly transform: TransformService,
     protected readonly condition: ConditionService,
+    protected readonly validation: ValidationService,
   ) {
     console.debug(`${this.constructor.name} created`);
   }
@@ -81,10 +83,7 @@ export class CommunicationService {
    * @param render
    * @returns
    */
-  protected async acceptedUntilSpecificMessage(
-    ctx: Context,
-    render: Render,
-  ) {
+  protected async acceptedUntilSpecificMessage(ctx: Context, render: Render) {
     let context: Context;
     let message: Message | undefined;
     const replays: ReplayAccepted[] = [];
@@ -104,9 +103,9 @@ export class CommunicationService {
         continue;
       }
 
-      replayAccepted = this.condition.messageIsAccepted(
-        render.accepted,
+      replayAccepted = this.validation.messageIsAccepted(
         context,
+        render.accepted,
       );
 
       if (!replayAccepted.accepted) {
@@ -146,9 +145,7 @@ export class CommunicationService {
     render: Render,
   ): Promise<RenderResponseParsed<boolean>> {
     // Do not wait for a specific message
-    if (
-      !render.accepted || render.accepted.type === ReplayType.NONE
-    ) {
+    if (!render.accepted || render.accepted.type === ReplayType.NONE) {
       return {
         type: ParsedResponseType.NONE,
         multiple: false,
@@ -158,10 +155,7 @@ export class CommunicationService {
     }
 
     // Receive all messages of specific type until a message of specific type is received
-    const replays = await this.acceptedUntilSpecificMessage(
-      ctx,
-      render,
-    );
+    const replays = await this.acceptedUntilSpecificMessage(ctx, render);
 
     // Parse multiple messages
     if (render.accepted.multiple) {
@@ -195,10 +189,7 @@ export class CommunicationService {
   public async sendAndReceive(ctx: Context, render: Render) {
     await this.send(ctx, render);
 
-    const responses = await this.receive(
-      ctx,
-      render,
-    );
+    const responses = await this.receive(ctx, render);
     const response: RenderResponse = {
       render,
       responses,
@@ -211,10 +202,7 @@ export class CommunicationService {
    * @param ctx
    * @param renders
    */
-  public async sendAndReceiveAll(
-    ctx: Context,
-    renders: Render[],
-  ) {
+  public async sendAndReceiveAll(ctx: Context, renders: Render[]) {
     const responses: RenderResponse[] = [];
     for (const render of renders) {
       const response = await this.sendAndReceive(ctx, render);

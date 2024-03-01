@@ -40,9 +40,9 @@ export abstract class Command implements BotCommand {
    */
   changeLocale(lang: string) {
     // FIXME: This is not working on runtime
-    // this.command = this.i18n.t(`commands.${this.key}.command`, {}, lang);
+    // this.command = this.i18n.t(`bot.commands.${this.key}.command`, {}, lang);
     this.description = this.i18n.t(
-      `commands.${this.key}.description`,
+      `bot.commands.${this.key}.description`,
       {},
       lang,
     );

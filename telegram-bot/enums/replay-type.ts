@@ -7,6 +7,8 @@ export enum ReplayType {
   ANY = "any",
   /** Select one of one or more options */
   SELECTION = "selection",
+  /** Accept or wait for callout answer replay */
+  CALLOUT_COMPONENT_SCHEMA = "callout-component-schema",
   /** No answer is needed */
   NONE = "none",
 }

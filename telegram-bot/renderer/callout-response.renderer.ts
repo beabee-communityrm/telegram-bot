@@ -1,6 +1,7 @@
 import {
   CalloutComponentBaseType,
   CalloutComponentContentSchema,
+  CalloutComponentInputCheckboxSchema,
   CalloutComponentInputFileSchema,
   CalloutComponentInputSchema,
   CalloutComponentInputSelectableSchema,
@@ -84,10 +85,7 @@ export class CalloutResponseRenderer {
   /**
    * Render a component description in Markdown
    */
-  protected descriptionMd(
-    component: CalloutComponentSchema,
-    prefix: string,
-  ) {
+  protected descriptionMd(component: CalloutComponentSchema, prefix: string) {
     if (typeof component.description !== "string" || !component.description) {
       return EMPTY_RENDER;
     }
@@ -107,10 +105,7 @@ export class CalloutResponseRenderer {
    * Render an input component placeholder in Markdown
    * @param input The input component to render
    */
-  protected placeholderMd(
-    input: CalloutComponentInputSchema,
-    prefix: string,
-  ) {
+  protected placeholderMd(input: CalloutComponentInputSchema, prefix: string) {
     const result: Render = {
       key: createCalloutGroupKey(input.key, prefix),
       type: RenderType.MARKDOWN,
@@ -123,7 +118,9 @@ export class CalloutResponseRenderer {
 
     if (placeholder) {
       result.markdown = `_${
-        escapeMd(this.i18n.t("bot.info.messages.placeholder", { placeholder }))
+        escapeMd(
+          this.i18n.t("bot.info.messages.placeholder", { placeholder }),
+        )
       }_`;
     }
 
@@ -143,7 +140,7 @@ export class CalloutResponseRenderer {
     if (multiple) {
       result.markdown += `_${
         escapeMd(
-          `${this.i18n.t("bot.info.messages.multipleValuesAllowed")}\n\n${
+          `${this.i18n.t("bot.info.messages.multiple-values-allowed")}\n\n${
             this.messageRenderer.writeDoneMessage(doneMessage).text
           }`,
         )
@@ -151,7 +148,7 @@ export class CalloutResponseRenderer {
     } else {
       result.markdown += `_${
         escapeMd(
-          `${this.i18n.t("bot.info.messages.onlyOneValueAllowed")}\n\n${
+          `${this.i18n.t("bot.info.messages.only-one-value-allowed")}\n\n${
             this.messageRenderer.writeDoneMessage(doneMessage).text
           }`,
         )
@@ -235,28 +232,23 @@ export class CalloutResponseRenderer {
       key: createCalloutGroupKey(base.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
-      accepted: this.condition.replayConditionText(
+      accepted: this.condition.replayConditionCalloutConponent(
         multiple,
-        undefined,
+        base,
         multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
       ),
-      parseType: calloutComponentTypeToParsedResponseType(base),
+      parseType: ParsedResponseType.CALLOUT_COMPONENT,
     };
 
     // Label
     const label = this.labelMd(base, prefix);
-    if (
-      label.type === RenderType.MARKDOWN && label.markdown
-    ) {
+    if (label.type === RenderType.MARKDOWN && label.markdown) {
       result.markdown += `${label.markdown}\n`;
     }
 
     // Description
     const desc = this.descriptionMd(base, prefix);
-    if (
-      desc.type === RenderType.MARKDOWN &&
-      desc.markdown
-    ) {
+    if (desc.type === RenderType.MARKDOWN && desc.markdown) {
       result.markdown += `${desc.markdown}\n`;
     }
 
@@ -293,10 +285,7 @@ export class CalloutResponseRenderer {
     );
 
     if (file.placeholder) {
-      result.markdown += `\n\n${
-        this.placeholderMd(file, prefix)
-          .markdown
-      }`;
+      result.markdown += `\n\n${this.placeholderMd(file, prefix).markdown}`;
     }
 
     if (multiple) {
@@ -304,6 +293,18 @@ export class CalloutResponseRenderer {
     }
 
     return result;
+  }
+
+  /**
+   * Render an input signature component in Markdown
+   * @param signature The input signature component to render
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
+   */
+  protected inputSignatureComponent(
+    signature: CalloutComponentInputSignatureSchema,
+    prefix: string,
+  ) {
+    return this.inputFileComponent(signature, prefix);
   }
 
   /** A content component only prints a text and does not expect an answer */
@@ -325,8 +326,46 @@ export class CalloutResponseRenderer {
       type: RenderType.HTML,
       html,
       accepted: this.condition.replayConditionNone(false),
-      parseType: calloutComponentTypeToParsedResponseType(content),
+      parseType: ParsedResponseType.NONE,
     };
+
+    return result;
+  }
+
+  protected inputCheckboxComponent(
+    input: CalloutComponentInputCheckboxSchema,
+    prefix: string,
+  ) {
+    const result = this.baseComponent(input, prefix);
+    result.parseType = ParsedResponseType.BOOLEAN;
+    result.markdown += `\n\n`;
+
+    const truthyMessage = this.i18n.t("bot.reactions.messages.truthy");
+    const falsyMessage = this.i18n.t("bot.reactions.messages.falsy");
+    const doneMessage = this.i18n.t("bot.reactions.messages.done");
+
+    result.markdown += `_${
+      escapeMd(
+        this.i18n.t("bot.response.messages.answerWithTruthyOrFalsy", {
+          truthy: truthyMessage,
+          falsy: falsyMessage,
+        }),
+      )
+    }_`;
+
+    result.accepted = this.condition.replayConditionText(
+      result.accepted.multiple,
+      [truthyMessage, falsyMessage],
+      result.accepted.multiple ? [doneMessage] : [],
+    );
+
+    if (input.placeholder) {
+      result.markdown += `\n\n${this.placeholderMd(input, prefix).markdown}`;
+    }
+
+    if (input.multiple) {
+      result.markdown += `\n\n${this.multipleMd(input, prefix).markdown}`;
+    }
 
     return result;
   }
@@ -336,10 +375,7 @@ export class CalloutResponseRenderer {
    * @param input The input component to render
    * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
-  protected inputComponent(
-    input: CalloutComponentInputSchema,
-    prefix: string,
-  ) {
+  protected inputComponent(input: CalloutComponentInputSchema, prefix: string) {
     const result = this.baseComponent(input, prefix);
     result.markdown += `\n\n`;
 
@@ -354,26 +390,6 @@ export class CalloutResponseRenderer {
         }_`;
         break;
       }
-      case CalloutComponentType.INPUT_CHECKBOX: {
-        const truthyMessage = this.i18n.t("bot.reactions.messages.truthy");
-        const falsyMessage = this.i18n.t("bot.reactions.messages.falsy");
-        const doneMessage = this.i18n.t("bot.reactions.messages.done");
-
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("bot.response.messages.answerWithTruthyOrFalsy", {
-              truthy: truthyMessage,
-              falsy: falsyMessage,
-            }),
-          )
-        }_`;
-        result.accepted = this.condition.replayConditionText(
-          result.accepted.multiple,
-          [truthyMessage, falsyMessage],
-          result.accepted.multiple ? [doneMessage] : [],
-        );
-        break;
-      }
       case CalloutComponentType.INPUT_EMAIL: {
         result.markdown += `_${
           escapeMd(
@@ -382,6 +398,7 @@ export class CalloutResponseRenderer {
               : this.i18n.t("bot.info.messages.onlyOneEmailAllowed"),
           )
         }_`;
+
         break;
       }
       case CalloutComponentType.INPUT_NUMBER: {
@@ -452,9 +469,12 @@ export class CalloutResponseRenderer {
       }
 
       default: {
-        result.markdown += this.i18n.t("bot.response.messages.component-unknown", {
-          type: (input as CalloutComponentSchema).type || "undefined",
-        });
+        result.markdown += this.i18n.t(
+          "bot.response.messages.componentUnknown",
+          {
+            type: (input as CalloutComponentSchema).type || "undefined",
+          },
+        );
         break;
       }
     }
@@ -471,6 +491,38 @@ export class CalloutResponseRenderer {
   }
 
   /**
+   * Render a select component in Markdown.
+   * Note: A select component is a dropdown menu in the frontend.
+   * @param select The select component to render
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
+   */
+  protected selectComponent(
+    select: CalloutComponentInputSelectSchema,
+    prefix: string,
+  ): RenderMarkdown {
+    const result = this.baseComponent(select, prefix);
+    result.parseType = ParsedResponseType.SELECTION;
+    result.markdown += `\n\n`;
+    result.accepted = {
+      ...result.accepted,
+      ...this.condition.replayConditionSelection(
+        result.accepted.multiple,
+        this.selectValuesToValueLabelPairs(select.data.values),
+      ),
+    };
+    result.markdown += `\n${this.selectValues(select, prefix).markdown}`;
+
+    result.markdown += `\n\n`;
+
+    result.markdown += `_${
+      escapeMd(
+        this.i18n.t("info.messages.onlyOneSelectionAllowed"),
+      )
+    }_`;
+    return result;
+  }
+
+  /**
    * Render a radio component in Markdown
    * @param radio The radio component to render
    * @param prefix The prefix, used to group the answers later (only used to group slides)
@@ -480,7 +532,7 @@ export class CalloutResponseRenderer {
     prefix: string,
   ): RenderMarkdown {
     const result = this.baseComponent(selectable, prefix);
-
+    result.parseType = ParsedResponseType.SELECTION;
     const multiple = result.accepted.multiple;
 
     result.accepted = {
@@ -510,7 +562,8 @@ export class CalloutResponseRenderer {
       case "selectboxes": {
         result.markdown += `_${
           escapeMd(
-            this.i18n.t("bot.info.messages.multipleSelectionsAllowed") + "\n\n" +
+            this.i18n.t("bot.info.messages.multipleSelectionsAllowed") +
+              "\n\n" +
               this.messageRenderer.writeDoneMessage(
                 this.i18n.t("bot.reactions.messages.done"),
               ).text,
@@ -554,65 +607,38 @@ export class CalloutResponseRenderer {
     return nestableResults;
   }
 
-  /**
-   * Render a select component in Markdown.
-   * Note: A select component is a dropdown menu in the frontend.
-   * @param select The select component to render
-   * @param prefix The prefix, used to group the answers later (only used to group slides)
-   */
-  protected selectComponent(
-    select: CalloutComponentInputSelectSchema,
-    prefix: string,
-  ): RenderMarkdown {
-    const result = this.baseComponent(select, prefix);
-    result.accepted = {
-      ...result.accepted,
-      ...this.condition.replayConditionSelection(
-        result.accepted.multiple,
-        this.selectValuesToValueLabelPairs(select.data.values),
-      ),
-    };
-    result.markdown += `\n${this.selectValues(select, prefix).markdown}`;
-
-    result.markdown += `\n\n`;
-
-    result.markdown += `_${
-      escapeMd(
-        this.i18n.t("bot.info.messages.onlyOneSelectionAllowed"),
-      )
-    }_`;
-    return result;
-  }
-
   public component(component: CalloutComponentSchema, prefix: string) {
     console.debug("Rendering component", component);
     const results: Render[] = [];
 
     if (isCalloutComponentOfType(component, CalloutComponentType.CONTENT)) {
-      results.push(this.contentComponent(
-        component,
-        prefix,
-      ));
+      results.push(this.contentComponent(component, prefix));
       return results;
     }
 
     if (isCalloutComponentOfType(component, CalloutComponentType.INPUT_FILE)) {
-      results.push(this.inputFileComponent(
-        component,
-        prefix,
-      ));
+      results.push(this.inputFileComponent(component, prefix));
+      return results;
+    }
+
+    if (
+      isCalloutComponentOfType(component, CalloutComponentType.INPUT_SIGNATURE)
+    ) {
+      results.push(this.inputSignatureComponent(component, prefix));
       return results;
     }
 
     if (
       isCalloutComponentOfType(component, CalloutComponentType.INPUT_SELECT)
     ) {
-      results.push(
-        this.selectComponent(
-          component,
-          prefix,
-        ),
-      );
+      results.push(this.selectComponent(component, prefix));
+      return results;
+    }
+
+    if (
+      isCalloutComponentOfType(component, CalloutComponentType.INPUT_CHECKBOX)
+    ) {
+      results.push(this.inputCheckboxComponent(component, prefix));
       return results;
     }
 
@@ -622,36 +648,21 @@ export class CalloutResponseRenderer {
         CalloutComponentBaseType.INPUT_SELECTABLE,
       )
     ) {
-      results.push(
-        this.selectableComponent(
-          component,
-          prefix,
-        ),
-      );
+      results.push(this.selectableComponent(component, prefix));
       return results;
     }
 
     if (
       isCalloutComponentOfBaseType(component, CalloutComponentBaseType.NESTABLE)
     ) {
-      results.push(
-        ...this.nestableComponent(
-          component,
-          prefix,
-        ),
-      );
+      results.push(...this.nestableComponent(component, prefix));
       return results;
     }
 
     if (
       isCalloutComponentOfBaseType(component, CalloutComponentBaseType.INPUT)
     ) {
-      results.push(
-        this.inputComponent(
-          component,
-          prefix,
-        ),
-      );
+      results.push(this.inputComponent(component, prefix));
       return results;
     }
 
@@ -664,7 +675,7 @@ export class CalloutResponseRenderer {
       ),
       type: RenderType.MARKDOWN,
       accepted: this.condition.replayConditionAny(multiple),
-      markdown: this.i18n.t("response.messages.component-unknown", {
+      markdown: this.i18n.t("bot.response.messages.componentUnknown", {
         type: (component as CalloutComponentSchema).type || "undefined",
       }),
       parseType: calloutComponentTypeToParsedResponseType(component),
@@ -725,9 +736,7 @@ export class CalloutResponseRenderer {
    * @param callout The callout to render
    * @returns
    */
-  public full(
-    callout: GetCalloutDataWithExt<"form">,
-  ) {
+  public full(callout: GetCalloutDataWithExt<"form">) {
     const form = callout.formSchema;
 
     const slidesRenders: Render[] = [];
