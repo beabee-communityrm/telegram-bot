@@ -42,7 +42,7 @@ Telegram API.
 ### Internationalisation
 
 Our locale data is stored in
-[this Google Sheet](https://docs.google.com/spreadsheets/d/1l35DW5OMi-xM8HXek5Q1jOxsXScINqqpEvPWDlpBPX8/edit#gid=0.).
+[this Google Sheet](https://docs.google.com/spreadsheets/d/1l35DW5OMi-xM8HXek5Q1jOxsXScINqqpEvPWDlpBPX8/edit#gid=383159437).
 We use the Google Sheets APIs to pull this directly into the repository. You
 should ask another developers for their `.credentials.json` file so you can use
 the process below.
