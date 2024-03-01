@@ -84,6 +84,24 @@
         "notASelectionMessage": "Selecteer alstublieft het nummer van een van de mogelijke antwoorden.",
         "notATextMessage": "Stuur alstublieft een tekstbericht.",
         "notTheRightFileType": "Stuur alstublieft een bestand van het type {type}.",
+        "notacalloutcomponent": {
+          "address": "Uw antwoord is geen geldig adres. Probeer het opnieuw.",
+          "checkbox": "🤔 Antwoord alstublieft met \"{truthy}\" of \"{falsy}\".",
+          "currency": "Uw antwoord is geen geldig geldbedrag. Probeer het opnieuw.",
+          "datetime": "Uw antwoord lijkt geen geldige datum te zijn. Probeer het opnieuw.",
+          "email": "Uw antwoord lijkt geen geldig e-mailadres te zijn. Probeer het opnieuw.",
+          "file": "Uw antwoord lijkt geen geldig bestand te zijn. Probeer het opnieuw.",
+          "number": "Uw antwoord lijkt geen geldig nummer te zijn. Probeer het opnieuw.",
+          "phonenumber": "Uw antwoord lijkt geen geldig telefoonnummer te zijn. Probeer het opnieuw.",
+          "radio": "Uw antwoord lijkt geen geldige keuze te zijn. Probeer het opnieuw.",
+          "select": "Uw antwoord lijkt geen geldige keuze te zijn. Probeer het opnieuw.",
+          "selectboxes": "Uw antwoord lijkt geen geldige keuze te zijn. Probeer het opnieuw.",
+          "signature": "Uw antwoord lijkt geen geldig afbeeldingsbestand te zijn. Probeer het opnieuw.",
+          "textarea": "Uw antwoord lijkt niet te voldoen aan de regels voor toegestane tekstreacties. Probeer het opnieuw.",
+          "textfield": "Uw antwoord lijkt niet te voldoen aan de regels voor toegestane tekstreacties. Probeer het opnieuw.",
+          "time": "Uw antwoord lijkt geen geldige tijd te zijn. Probeer het opnieuw.",
+          "url": "Uw antwoord lijkt geen geldige URL te zijn. Probeer het opnieuw."
+        },
         "stop": "Ok, geen probleem."
       }
     },

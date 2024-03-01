@@ -84,6 +84,24 @@
         "notASelectionMessage": "Por favor, selecione o número de uma das possíveis respostas.",
         "notATextMessage": "Por favor, envie uma mensagem de texto.",
         "notTheRightFileType": "Por favor, envie um arquivo do tipo {type}.",
+        "notacalloutcomponent": {
+          "address": "Sua resposta não é um endereço válido. Por favor, tente novamente.",
+          "checkbox": "🤔 Por favor, responda com \"{truthy}\" ou \"{falsy}\".",
+          "currency": "Sua resposta não é uma quantia de dinheiro válida. Por favor, tente novamente.",
+          "datetime": "Sua resposta não parece ser uma data válida. Por favor, tente novamente.",
+          "email": "Sua resposta não parece ser um endereço de e-mail válido. Por favor, tente novamente.",
+          "file": "Sua resposta não parece ser um arquivo válido. Por favor, tente novamente.",
+          "number": "Sua resposta não parece ser um número válido. Por favor, tente novamente.",
+          "phonenumber": "Sua resposta não parece ser um número de telefone válido. Por favor, tente novamente.",
+          "radio": "Sua resposta não parece ser uma escolha válida. Por favor, tente novamente.",
+          "select": "Sua resposta não parece ser uma escolha válida. Por favor, tente novamente.",
+          "selectboxes": "Sua resposta não parece ser uma escolha válida. Por favor, tente novamente.",
+          "signature": "Sua resposta não parece ser um arquivo de imagem válido. Por favor, tente novamente.",
+          "textarea": "Sua resposta não parece seguir as regras para respostas de texto permitidas. Por favor, tente novamente.",
+          "textfield": "Sua resposta não parece seguir as regras para respostas de texto permitidas. Por favor, tente novamente.",
+          "time": "Sua resposta não parece ser um horário válido. Por favor, tente novamente.",
+          "url": "Sua resposta não parece ser um URL válido. Por favor, tente novamente."
+        },
         "stop": "Ok, sem problema."
       }
     },

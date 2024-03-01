@@ -100,13 +100,11 @@ async function loadSheet(name: string) {
     const keyParts = row.key.split(".");
     const [_lastKeyPart, ...keyOpts] = keyParts.pop()?.split(":") ?? [];
     const lastKeyPart = toCamelCase(_lastKeyPart);
-    console.debug("lastKeyPart", _lastKeyPart, lastKeyPart);
 
     for (const locale of locales) {
       let localeDataPart = localeData[locale] as LocaleEntry;
       for (const _part of keyParts) {
         const part = toCamelCase(_part);
-        console.debug("part", _part, part);
         if (!localeDataPart[part]) {
           localeDataPart[part] = {};
         }
