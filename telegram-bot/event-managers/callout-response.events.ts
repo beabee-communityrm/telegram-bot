@@ -3,6 +3,7 @@ import { CalloutService } from "../services/callout.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { EventService } from "../services/event.service.ts";
 import { TransformService } from "../services/transform.service.ts";
+import { KeyboardService } from "../services/keyboard.service.ts";
 import { CalloutResponseRenderer, MessageRenderer } from "../renderer/index.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_INTRO,
@@ -21,6 +22,8 @@ export class CalloutResponseEventManager extends EventManager {
     protected readonly messageRenderer: MessageRenderer,
     protected readonly calloutResponseRenderer: CalloutResponseRenderer,
     protected readonly transform: TransformService,
+
+    protected readonly keyboard: KeyboardService,
   ) {
     super();
     console.debug(`${this.constructor.name} created`);
@@ -48,10 +51,11 @@ export class CalloutResponseEventManager extends EventManager {
     const slug = data?.[1];
     const startResponse = data?.[2] as "continue" | "cancel" === "continue";
 
-    await ctx.answerCallbackQuery(); // remove loading animation
-
     if (!startResponse) {
       await this.communication.send(ctx, this.messageRenderer.stop());
+
+      // remove loading animation
+      await this.communication.answerCallbackQuery(ctx);
       return;
     }
 
@@ -60,31 +64,38 @@ export class CalloutResponseEventManager extends EventManager {
         ctx,
         this.messageRenderer.calloutNotFound(),
       );
+
+      // remove loading animation
+      await this.communication.answerCallbackQuery(ctx);
       return;
     }
+
 
     console.debug(
       "onCalloutParticipateKeyboardPressed",
       data,
       slug,
-      startResponse,
+      // startResponse,
     );
 
     const calloutWithForm = await this.callout.get(slug, ["form"]);
-    console.debug("Got callout with form", calloutWithForm);
 
     // Render the callout with the form
     const questions = this.calloutResponseRenderer
       .full(calloutWithForm);
-    console.debug(
-      "Got questions",
-      questions,
-    );
+
+    // Remove the inline keyboard
+    await this.keyboard.removeInlineKeyboard(ctx);
+
+    // remove loading animation
+    await this.communication.answerCallbackQuery(ctx, "Disabled inline keyboard");
 
     const responses = await this.communication.sendAndReceiveAll(
       ctx,
       questions,
     );
+
+
     const answers = this.transform.parseCalloutFormResponses(responses);
 
     // TODO: Show summary of answers here
@@ -123,15 +134,6 @@ export class CalloutResponseEventManager extends EventManager {
     const shortSlug = data?.[1];
     const startIntro = data?.[2] as "yes" | "no" === "yes"; // This is the key, so it's not localized
 
-    try {
-      await ctx.answerCallbackQuery(); // remove loading animation
-    } catch (error) {
-      console.warn(
-        "Failed to answer callback query",
-        error,
-      );
-    }
-
     if (!shortSlug) {
       await this.communication.send(
         ctx,
@@ -157,7 +159,6 @@ export class CalloutResponseEventManager extends EventManager {
 
     // Start intro
     const calloutWithForm = await this.callout.get(slug, ["form"]);
-    console.debug("Got callout with form", calloutWithForm);
 
     const res = this.calloutResponseRenderer.intro(calloutWithForm);
     await this.communication.send(ctx, res);

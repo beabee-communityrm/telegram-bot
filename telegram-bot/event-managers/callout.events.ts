@@ -50,7 +50,6 @@ export class CalloutEventManager extends EventManager {
 
     try {
       const callout = await this.callout.get(slug);
-      console.debug("Got callout", callout);
 
       const calloutFormRender = await this.calloutRenderer.callout(
         callout,
@@ -61,6 +60,6 @@ export class CalloutEventManager extends EventManager {
       await ctx.reply("Error sending callout");
     }
 
-    await ctx.answerCallbackQuery(); // remove loading animation
+    await this.communication.answerCallbackQuery(ctx); // remove loading animation
   }
 }

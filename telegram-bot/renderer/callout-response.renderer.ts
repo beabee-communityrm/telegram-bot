@@ -608,7 +608,6 @@ export class CalloutResponseRenderer {
   }
 
   public component(component: CalloutComponentSchema, prefix: string) {
-    console.debug("Rendering component", component);
     const results: Render[] = [];
 
     if (isCalloutComponentOfType(component, CalloutComponentType.CONTENT)) {
@@ -698,7 +697,7 @@ export class CalloutResponseRenderer {
     };
     result.html = `${sanitizeHtml(callout.intro)}`;
 
-    const continueKeyboard = this.keyboard.continueCancel(
+    const continueKeyboard = this.keyboard.inlineContinueCancel(
       `${BUTTON_CALLBACK_CALLOUT_PARTICIPATE}:${callout.slug}`,
     );
     result.keyboard = continueKeyboard;

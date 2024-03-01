@@ -45,8 +45,6 @@ export class ShowCommand extends Command {
 
     try {
       const callout = await this.callout.get(slug);
-      console.debug("Got callout", callout);
-
       const res = await this.calloutRenderer.callout(callout);
       await this.communication.sendAndReceiveAll(ctx, res);
     } catch (error) {
