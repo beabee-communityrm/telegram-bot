@@ -26,7 +26,7 @@ import type {
 } from "../types/index.ts";
 
 import type {
-CalloutComponentInputUrlSchema,
+  CalloutComponentInputUrlSchema,
   CalloutResponseAnswer,
   CalloutResponseAnswersSlide,
 } from "../deps.ts";
@@ -224,7 +224,7 @@ export class TransformService {
     context: Context,
   ): string {
     let text = this.parseResponseText(context);
-    if(!text.startsWith("http")) {
+    if (!text.startsWith("http")) {
       text = `https://${text}`;
     }
     return text;

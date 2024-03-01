@@ -53,7 +53,9 @@ export class MessageRenderer {
   }
 
   public notATextMessage(texts: string[] = []): RenderText {
-    const tKey = texts.length ? "bot.response.messages.notATextMessageWithAllowed" : "bot.response.messages.notATextMessage";
+    const tKey = texts.length
+      ? "bot.response.messages.notATextMessageWithAllowed"
+      : "bot.response.messages.notATextMessage";
     return {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey, { allowed: texts.join(", ") }),

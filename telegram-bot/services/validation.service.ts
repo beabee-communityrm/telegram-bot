@@ -358,10 +358,12 @@ export class ValidationService {
         break;
       }
       case CalloutComponentType.INPUT_URL: {
-        result.answer = this.transform.parseResponseCalloutComponentInputUrl(context);
+        result.answer = this.transform.parseResponseCalloutComponentInputUrl(
+          context,
+        );
         break;
       }
-      
+
       case CalloutComponentType.INPUT_NUMBER: {
         result.answer = this.transform.parseResponseNumber(context);
         break;
