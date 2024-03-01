@@ -353,11 +353,15 @@ export class ValidationService {
       case CalloutComponentType.INPUT_PHONE_NUMBER:
       case CalloutComponentType.INPUT_TEXT_AREA:
       case CalloutComponentType.INPUT_TEXT_FIELD:
-      case CalloutComponentType.INPUT_TIME:
-      case CalloutComponentType.INPUT_URL: {
+      case CalloutComponentType.INPUT_TIME: {
         result.answer = this.transform.parseResponseText(context);
         break;
       }
+      case CalloutComponentType.INPUT_URL: {
+        result.answer = this.transform.parseResponseCalloutComponentInputUrl(context);
+        break;
+      }
+      
       case CalloutComponentType.INPUT_NUMBER: {
         result.answer = this.transform.parseResponseNumber(context);
         break;

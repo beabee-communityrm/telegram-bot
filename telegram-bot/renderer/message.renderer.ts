@@ -52,11 +52,11 @@ export class MessageRenderer {
     return result;
   }
 
-  public notATextMessage(): RenderText {
-    const tKey = "bot.response.messages.notATextMessage";
+  public notATextMessage(texts: string[] = []): RenderText {
+    const tKey = texts.length ? "bot.response.messages.notATextMessageWithAllowed" : "bot.response.messages.notATextMessage";
     return {
       type: RenderType.TEXT,
-      text: this.i18n.t(tKey),
+      text: this.i18n.t(tKey, { allowed: texts.join(", ") }),
       key: tKey,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
@@ -118,7 +118,7 @@ export class MessageRenderer {
     }
 
     if (condition.type === ReplayType.TEXT) {
-      return this.notATextMessage();
+      return this.notATextMessage(condition.texts);
     }
 
     if (condition.type === ReplayType.SELECTION) {

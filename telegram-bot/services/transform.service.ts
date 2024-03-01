@@ -26,6 +26,7 @@ import type {
 } from "../types/index.ts";
 
 import type {
+CalloutComponentInputUrlSchema,
   CalloutResponseAnswer,
   CalloutResponseAnswersSlide,
 } from "../deps.ts";
@@ -187,6 +188,7 @@ export class TransformService {
     return texts;
   }
 
+  // TODO: Use CalloutComponentInputAdressSchema as return type
   public parseResponseCalloutComponentAddress(
     context: Context,
   ): CalloutResponseAnswerAddress {
@@ -206,6 +208,7 @@ export class TransformService {
     return address;
   }
 
+  // TODO: Use CalloutComponentInputAdressSchema as return type
   public parseResponsesCalloutComponentAddress(
     contexts: Context[],
   ): CalloutResponseAnswerAddress[] {
@@ -215,6 +218,16 @@ export class TransformService {
       .map(this.parseResponseCalloutComponentAddress);
 
     return addresses;
+  }
+
+  public parseResponseCalloutComponentInputUrl(
+    context: Context,
+  ): string {
+    let text = this.parseResponseText(context);
+    if(!text.startsWith("http")) {
+      text = `https://${text}`;
+    }
+    return text;
   }
 
   public parseResponseAny(
