@@ -26,7 +26,6 @@ import type {
 } from "../types/index.ts";
 
 import type {
-  CalloutComponentInputUrlSchema,
   CalloutResponseAnswer,
   CalloutResponseAnswersSlide,
 } from "../deps.ts";
