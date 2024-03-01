@@ -71,21 +71,21 @@ export class NetworkCommunicatorService {
     eventName: string,
     callback: EventTelegramBotListener<T>,
   ) {
-    return this.event.on<T>(eventName, callback as EventListener);
+    return this.event.on<T>(eventName, callback);
   }
 
   public once<T = djwt.Payload>(
     eventName: string,
     callback: EventTelegramBotListener<T>,
   ) {
-    return this.event.once<T>(eventName, callback as EventListener);
+    return this.event.once<T>(eventName, callback);
   }
 
   public off<T = djwt.Payload>(
     eventName: string,
     callback: EventTelegramBotListener<T>,
   ) {
-    return this.event.off<T>(eventName, callback as EventListener);
+    return this.event.off<T>(eventName, callback);
   }
 
   /**

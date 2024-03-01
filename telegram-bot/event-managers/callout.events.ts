@@ -25,7 +25,7 @@ export class CalloutEventManager extends EventManager {
     this.event.on(
       `callback_query:data:${BUTTON_CALLBACK_SHOW_CALLOUT}`,
       (event) => {
-        this.onCalloutSelectionKeyboardPressed(event.detail);
+        this.onCalloutSelectionKeyboardPressed(event);
       },
     );
   }

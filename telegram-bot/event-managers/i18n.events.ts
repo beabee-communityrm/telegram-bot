@@ -23,8 +23,8 @@ export class I18nEventManager extends EventManager {
     );
   }
 
-  protected onLanguageChanged(event: EventTelegramBot<string>) {
-    console.debug("Language changed to: ", event.detail);
-    this.telegramService.changeLocale(event.detail);
+  protected onLanguageChanged(data: EventTelegramBot<string>) {
+    console.debug("Language changed to: ", data);
+    this.telegramService.changeLocale(data);
   }
 }

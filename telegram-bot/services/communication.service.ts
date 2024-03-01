@@ -73,8 +73,8 @@ export class CommunicationService {
    * @returns
    */
   public async receiveMessage(ctx: Context) {
-    const event = await this.event.onceUserMessageAsync(getIdentifier(ctx));
-    return event.detail;
+    const data = await this.event.onceUserMessageAsync(getIdentifier(ctx));
+    return data;
   }
 
   /**

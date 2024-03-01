@@ -31,14 +31,14 @@ export class CalloutResponseEventManager extends EventManager {
     this.event.on(
       `callback_query:data:${BUTTON_CALLBACK_CALLOUT_INTRO}`,
       (event) => {
-        this.onCalloutIntroKeyboardPressed(event.detail);
+        this.onCalloutIntroKeyboardPressed(event);
       },
     );
 
     this.event.on(
       `callback_query:data:${BUTTON_CALLBACK_CALLOUT_PARTICIPATE}`,
       (event) => {
-        this.onCalloutParticipateKeyboardPressed(event.detail);
+        this.onCalloutParticipateKeyboardPressed(event);
       },
     );
   }
