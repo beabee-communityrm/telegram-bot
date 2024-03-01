@@ -47,6 +47,11 @@ export const truncateSlug = (input: string, maxLength = 32): string => {
  * @returns The camelCase formatted string.
  */
 export const toCamelCase = (input: string): string => {
+  // Check if no need to convert
+  if (!/[\s-_]/.test(input)) {
+    return input;
+  }
+
   return input
     // Remove special characters except spaces, hyphens, and underscores
     .replace(/[^a-zA-Z0-9\s-_]/g, "")

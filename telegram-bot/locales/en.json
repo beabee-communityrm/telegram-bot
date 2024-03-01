@@ -80,11 +80,7 @@
         "componentNotSupported": "\"{type}\" not implemented..",
         "componentUnknown": "Unknown component type \"{type}\"..",
         "noActiveCallouts": "There are currently no open callouts.",
-        "notAFileMessage": "Please send a file.",
-        "notASelectionMessage": "Please select the number of one of the possible answers.",
-        "notATextMessage": "Please send a text message.",
-        "notTheRightFileType": "Please send a file of type {type}.",
-        "notacalloutcomponent": {
+        "notACalloutComponent": {
           "address": "Your answer is not a valid address. Please try again.",
           "checkbox": "🤔 Please answer with \"{truthy}\" or \"{falsy}\".",
           "currency": "Your answer is not a valid amount of money. Please try again.",
@@ -92,7 +88,7 @@
           "email": "Your reply does not appear to be a valid email address. Please try again.",
           "file": "Your answer doesn't seem to be a valid file. Please try again.",
           "number": "Your answer doesn't seem to be a valid number. Please try again.",
-          "phonenumber": "Your answer doesn't appear to be a valid phone number. Please try again.",
+          "phoneNumber": "Your answer doesn't appear to be a valid phone number. Please try again.",
           "radio": "Your answer doesn't seem like a valid choice. Please try again.",
           "select": "Your answer doesn't seem like a valid choice. Please try again.",
           "selectboxes": "Your answer doesn't seem like a valid choice. Please try again.",
@@ -102,6 +98,11 @@
           "time": "Your answer doesn't seem to be a valid time. Please try again.",
           "url": "Your answer doesn't seem to be a valid URL. Please try again."
         },
+        "notAFileMessage": "Please send a file.",
+        "notASelectionMessage": "Please select the number of one of the possible answers.",
+        "notATextMessage": "Please send a text message.",
+        "notATextMessageWithAllowed": "Please send a text message containing one of the following: {allowed}.",
+        "notTheRightFileType": "Please send a file of type {type}.",
         "stop": "Ok, no problem."
       }
     },

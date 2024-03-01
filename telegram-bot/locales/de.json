@@ -80,11 +80,7 @@
         "componentNotSupported": "\"{type}\" nicht implementiert..",
         "componentUnknown": "Unbekannter Komponententyp \"{type}\"..",
         "noActiveCallouts": "Derzeit gibt es keine offenen Aufrufe.",
-        "notAFileMessage": "Bitte senden Sie eine Datei.",
-        "notASelectionMessage": "Bitte wählen Sie die Nummer einer der möglichen Antworten.",
-        "notATextMessage": "Bitte senden Sie eine Textnachricht.",
-        "notTheRightFileType": "Bitte senden Sie eine Datei vom Typ {type}.",
-        "notacalloutcomponent": {
+        "notACalloutComponent": {
           "address": "Ihre Antwort ist keine valide Adresse. Bitte versuchen Sie es erneut.",
           "checkbox": "🤔 Bitte antworten Sie mit \"{truthy}\" oder \"{falsy}\".",
           "currency": "Ihre Antwort ist kein valider Geldbetrag. Bitte versuchen Sie es erneut.",
@@ -92,7 +88,7 @@
           "email": "Ihre Antwort scheint keine valide E-Mail Adresse zu sein. Bitte versuchen Sie es erneut.",
           "file": "Ihre Antwort scheint keine valide Datei zu sein. Bitte versuchen Sie es erneut.",
           "number": "Ihre Antwort scheint keine valide Nummer zu sein. Bitte versuchen Sie es erneut.",
-          "phonenumber": "Ihre Antwort scheint keine valide Telefonnummer zu sein. Bitte versuchen Sie es erneut.",
+          "phoneNumber": "Ihre Antwort scheint keine valide Telefonnummer zu sein. Bitte versuchen Sie es erneut.",
           "radio": "Ihre Antwort scheint keine valide Auswahl zu sein. Bitte versuchen Sie es erneut.",
           "select": "Ihre Antwort scheint keine valide Auswahl zu sein. Bitte versuchen Sie es erneut.",
           "selectboxes": "Ihre Antwort scheint keine valide Auswahl zu sein. Bitte versuchen Sie es erneut.",
@@ -102,6 +98,11 @@
           "time": "Ihre Antwort scheint keine valide Uhrzeit zu sein. Bitte versuchen Sie es erneut.",
           "url": "Ihre Antwort scheint keine valide URL zu sein. Bitte versuchen Sie es erneut."
         },
+        "notAFileMessage": "Bitte senden Sie eine Datei.",
+        "notASelectionMessage": "Bitte wählen Sie die Nummer einer der möglichen Antworten.",
+        "notATextMessage": "Bitte senden Sie eine Textnachricht.",
+        "notATextMessageWithAllowed": "Bitte senden Sie eine Textnachricht mit einem der folgenden Inhalte: {allowed}.",
+        "notTheRightFileType": "Bitte senden Sie eine Datei vom Typ {type}.",
         "stop": "Ok, kein Problem."
       }
     },

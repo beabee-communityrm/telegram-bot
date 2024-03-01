@@ -80,11 +80,7 @@
         "componentNotSupported": "\"{type}\" ist noch nicht implementiert..",
         "componentUnknown": "Unbekannter Komponententyp \"{type}\"..",
         "noActiveCallouts": "Aktuell gibt es keine offenen Aufrufe.",
-        "notAFileMessage": "Bitte sende eine Datei.",
-        "notASelectionMessage": "Bitte wähle die Nummer einer der möglichen Antworten aus.",
-        "notATextMessage": "Bitte sende eine Textnachricht.",
-        "notTheRightFileType": "Bitte sende eine Datei vom Typ {type}.",
-        "notacalloutcomponent": {
+        "notACalloutComponent": {
           "address": "Dies ist keine valide Adresse. Bitte versuche es noch einmal.",
           "checkbox": "🤔 Bitte antworte mit \"{truthy}\" oder \"{falsy}\".",
           "currency": "Dies ist kein valider Geldbetrag. Bitte versuche es noch einmal.",
@@ -92,7 +88,7 @@
           "email": "Deine Antwort scheint keine gültige E-Mail-Adresse zu sein. Bitte versuche es erneut.",
           "file": "Deine Antwort scheint keine gültige Datei zu sein. Bitte versuche es erneut.",
           "number": "Deine Antwort scheint keine gültige Nummer zu sein. Bitte versuche es erneut.",
-          "phonenumber": "Deine Antwort scheint keine gültige Telefonnummer zu sein. Bitte versuche es erneut.",
+          "phoneNumber": "Deine Antwort scheint keine gültige Telefonnummer zu sein. Bitte versuche es erneut.",
           "radio": "Deine Antwort scheint keine gültige Auswahl zu sein. Bitte versuche es erneut.",
           "select": "Deine Antwort scheint keine gültige Auswahl zu sein. Bitte versuche es erneut.",
           "selectboxes": "Deine Antwort scheint keine gültige Auswahl zu sein. Bitte versuche es erneut.",
@@ -102,6 +98,11 @@
           "time": "Deine Antwort scheint keine gültige Uhrzeit zu sein. Bitte versuche es erneut.",
           "url": "Deine Antwort scheint keine gültige URL zu sein. Bitte versuche es erneut."
         },
+        "notAFileMessage": "Bitte sende eine Datei.",
+        "notASelectionMessage": "Bitte wähle die Nummer einer der möglichen Antworten aus.",
+        "notATextMessage": "Bitte sende eine Textnachricht.",
+        "notATextMessageWithAllowed": "Bitte sende eine Textnachricht mit einem der folgenden Inhalte: {allowed}.",
+        "notTheRightFileType": "Bitte sende eine Datei vom Typ {type}.",
         "stop": "Ok, kein Problem."
       }
     },

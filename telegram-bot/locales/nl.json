@@ -80,11 +80,7 @@
         "componentNotSupported": "\"{type}\" niet geïmplementeerd..",
         "componentUnknown": "Onbekend componenttype \"{type}\"..",
         "noActiveCallouts": "Er zijn momenteel geen open oproepen.",
-        "notAFileMessage": "Stuur alstublieft een bestand.",
-        "notASelectionMessage": "Selecteer alstublieft het nummer van een van de mogelijke antwoorden.",
-        "notATextMessage": "Stuur alstublieft een tekstbericht.",
-        "notTheRightFileType": "Stuur alstublieft een bestand van het type {type}.",
-        "notacalloutcomponent": {
+        "notACalloutComponent": {
           "address": "Uw antwoord is geen geldig adres. Probeer het opnieuw.",
           "checkbox": "🤔 Antwoord alstublieft met \"{truthy}\" of \"{falsy}\".",
           "currency": "Uw antwoord is geen geldig geldbedrag. Probeer het opnieuw.",
@@ -92,7 +88,7 @@
           "email": "Uw antwoord lijkt geen geldig e-mailadres te zijn. Probeer het opnieuw.",
           "file": "Uw antwoord lijkt geen geldig bestand te zijn. Probeer het opnieuw.",
           "number": "Uw antwoord lijkt geen geldig nummer te zijn. Probeer het opnieuw.",
-          "phonenumber": "Uw antwoord lijkt geen geldig telefoonnummer te zijn. Probeer het opnieuw.",
+          "phoneNumber": "Uw antwoord lijkt geen geldig telefoonnummer te zijn. Probeer het opnieuw.",
           "radio": "Uw antwoord lijkt geen geldige keuze te zijn. Probeer het opnieuw.",
           "select": "Uw antwoord lijkt geen geldige keuze te zijn. Probeer het opnieuw.",
           "selectboxes": "Uw antwoord lijkt geen geldige keuze te zijn. Probeer het opnieuw.",
@@ -102,6 +98,11 @@
           "time": "Uw antwoord lijkt geen geldige tijd te zijn. Probeer het opnieuw.",
           "url": "Uw antwoord lijkt geen geldige URL te zijn. Probeer het opnieuw."
         },
+        "notAFileMessage": "Stuur alstublieft een bestand.",
+        "notASelectionMessage": "Selecteer alstublieft het nummer van een van de mogelijke antwoorden.",
+        "notATextMessage": "Stuur alstublieft een tekstbericht.",
+        "notATextMessageWithAllowed": "Stuur een sms-bericht met een van de volgende gegevens: {allowed}.",
+        "notTheRightFileType": "Stuur alstublieft een bestand van het type {type}.",
         "stop": "Ok, geen probleem."
       }
     },
