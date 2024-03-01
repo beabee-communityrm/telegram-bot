@@ -99,8 +99,7 @@ export class MessageRenderer {
   }
 
   public notACalloutComponentMessage(schema: CalloutComponentSchema) {
-    const tKey =
-      `bot.response.messages.notACalloutComponent.${schema.type}`;
+    const tKey = `bot.response.messages.notACalloutComponent.${schema.type}`;
     return {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey, { type: schema.type }),

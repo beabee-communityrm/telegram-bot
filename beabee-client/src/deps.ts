@@ -3,7 +3,7 @@ export type {
   CalloutResponseAnswer,
   CalloutResponseAnswerAddress,
   CalloutResponseAnswerFileUpload,
-  CalloutResponseAnswersNestable,
+  CalloutResponseAnswers,
   CalloutResponseAnswersSlide,
   ContributionPeriod,
   ContributionType,
