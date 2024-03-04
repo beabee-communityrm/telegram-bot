@@ -48,6 +48,9 @@ export class CalloutResponseEventManager extends EventManager {
     const slug = data?.[1];
     const startResponse = data?.[2] as "continue" | "cancel" === "continue";
 
+    // Remove the inline keyboard
+    await this.keyboard.removeInlineKeyboard(ctx);
+
     if (!startResponse) {
       await this.communication.send(ctx, this.messageRenderer.stop());
 
@@ -79,9 +82,6 @@ export class CalloutResponseEventManager extends EventManager {
     // Render the callout with the form
     const questions = this.calloutResponseRenderer
       .full(calloutWithForm);
-
-    // Remove the inline keyboard
-    await this.keyboard.removeInlineKeyboard(ctx);
 
     // remove loading animation
     await this.communication.answerCallbackQuery(
@@ -131,6 +131,9 @@ export class CalloutResponseEventManager extends EventManager {
     const data = ctx.callbackQuery?.data?.split(":");
     const shortSlug = data?.[1];
     const startIntro = data?.[2] as "yes" | "no" === "yes"; // This is the key, so it's not localized
+
+    // Remove the inline keyboard
+    await this.keyboard.removeInlineKeyboard(ctx);
 
     if (!shortSlug) {
       await this.communication.send(

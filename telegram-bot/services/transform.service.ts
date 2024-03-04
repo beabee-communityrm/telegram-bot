@@ -1,4 +1,4 @@
-import { Singleton } from "../deps.ts";
+import { CalloutResponseAnswerAddress, Context, Singleton } from "../deps.ts";
 
 import { ParsedResponseType, ReplayType } from "../enums/index.ts";
 import { I18nService } from "../services/i18n.service.ts";
@@ -30,8 +30,7 @@ import type {
   CalloutResponseAnswersSlide,
 } from "../deps.ts";
 import { ReplayAcceptedCalloutComponentSchema } from "../types/index.ts";
-import { Context } from "../types/grammy.ts";
-import { CalloutResponseAnswerAddress } from "../../beabee-client/src/deps.ts";
+import {} from "../../beabee-client/src/deps.ts";
 
 /**
  * Service to transform message responses

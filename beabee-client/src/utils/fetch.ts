@@ -177,6 +177,7 @@ export class Fetch {
     // If this is a GET request and there is data, add query string to url
     if (method === "GET" && data) {
       url.search = objToQueryString(data);
+      console.debug("GET", url.href);
     } else if (data) {
       if (options.dataType === "form") {
         body = new URLSearchParams(data);
