@@ -1,4 +1,4 @@
-import { Singleton } from "../deps.ts";
+import { Context, Singleton } from "../deps.ts";
 import { CalloutService } from "../services/callout.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { EventService } from "../services/event.service.ts";
@@ -11,8 +11,6 @@ import {
 } from "../constants/index.ts";
 import { EventManager } from "../core/event-manager.ts";
 
-import type { Context } from "../types/index.ts";
-
 @Singleton()
 export class CalloutResponseEventManager extends EventManager {
   constructor(
@@ -22,7 +20,6 @@ export class CalloutResponseEventManager extends EventManager {
     protected readonly messageRenderer: MessageRenderer,
     protected readonly calloutResponseRenderer: CalloutResponseRenderer,
     protected readonly transform: TransformService,
-
     protected readonly keyboard: KeyboardService,
   ) {
     super();
@@ -70,7 +67,6 @@ export class CalloutResponseEventManager extends EventManager {
       return;
     }
 
-
     console.debug(
       "onCalloutParticipateKeyboardPressed",
       data,
@@ -88,13 +84,15 @@ export class CalloutResponseEventManager extends EventManager {
     await this.keyboard.removeInlineKeyboard(ctx);
 
     // remove loading animation
-    await this.communication.answerCallbackQuery(ctx, "Disabled inline keyboard");
+    await this.communication.answerCallbackQuery(
+      ctx,
+      "Disabled inline keyboard",
+    );
 
     const responses = await this.communication.sendAndReceiveAll(
       ctx,
       questions,
     );
-
 
     const answers = this.transform.parseCalloutFormResponses(responses);
 

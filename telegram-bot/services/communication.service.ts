@@ -1,4 +1,4 @@
-import { Singleton } from "../deps.ts";
+import { Context, Message, Singleton } from "../deps.ts";
 import { ParsedResponseType, RenderType, ReplayType } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
 import { TransformService } from "./transform.service.ts";
@@ -8,13 +8,12 @@ import { getIdentifier } from "../utils/index.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
 
 import type {
-  Message,
   Render,
   RenderResponse,
   RenderResponseParsed,
   ReplayAccepted,
 } from "../types/index.ts";
-import type { Context } from "grammy/context.ts";
+import type {} from "grammy/context.ts";
 
 /**
  * Service to handle the communication with the telegram bot and the telegram user.
@@ -213,7 +212,6 @@ export class CommunicationService {
     return responses;
   }
 
-
   /**
    * Context-aware alias for `api.answerCallbackQuery`. Use this method to send answers to callback queries sent from inline keyboards. The answer will be displayed to the user as a notification at the top of the chat screen or as an alert. On success, True is returned.
    *
@@ -227,7 +225,7 @@ export class CommunicationService {
   public async answerCallbackQuery(ctx: Context, text?: string) {
     try {
       await ctx.answerCallbackQuery({
-        text
+        text,
       });
     } catch (error) {
       console.warn(

@@ -1,4 +1,4 @@
-import type { Context } from "./index.ts";
+import type { Context } from "../deps.ts";
 
 /**
  * Type to collect replies. A reply can be a message or a file.

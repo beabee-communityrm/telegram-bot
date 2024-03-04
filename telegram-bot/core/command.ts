@@ -1,6 +1,5 @@
-import type { Context } from "grammy/context.ts";
+import { BotCommand, Context } from "../deps.ts";
 import type { I18nService } from "../services/i18n.service.ts";
-import type { BotCommand } from "../types/index.ts";
 
 export abstract class Command implements BotCommand {
   /**

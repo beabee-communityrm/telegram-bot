@@ -1,9 +1,7 @@
-import { Singleton } from "alosaur/mod.ts";
+import { Context, Singleton } from "../deps.ts";
 import { SubscriberService } from "../services/subscriber.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import { Command } from "../core/index.ts";
-
-import type { Context } from "../types/index.ts";
 
 @Singleton()
 export class UnsubscribeCommand extends Command {

@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
-import { ApiError, cleanUrl, isJson, objToQueryString } from "./index.ts";
+import { cleanUrl, ClientApiError, isJson, objToQueryString } from "./index.ts";
 
 import type {
   FetchOptions,
@@ -232,7 +232,10 @@ export class Fetch {
             console.error(JSON.stringify(error, null, 2));
           }
         }
-        throw new ApiError(data.message || data.name || "Unknown error", data);
+        throw new ClientApiError(
+          data.message || data.name || "Unknown error",
+          data,
+        );
       }
       throw result;
     }

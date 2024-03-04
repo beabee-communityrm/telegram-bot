@@ -6,7 +6,6 @@ export * from "./event-telegram-bot-listener.ts";
 export * from "./event-telegram-bot.ts";
 export * from "./get-callout-data-ext.ts";
 export * from "./get-callout-data-with-ext.ts";
-export * from "./grammy.ts";
 export * from "./listener.ts";
 export * from "./network-service-map.ts";
 export * from "./network-service.ts";

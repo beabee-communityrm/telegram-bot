@@ -1,8 +1,8 @@
-import { InlineKeyboard, Keyboard, Singleton } from "../deps.ts";
+import { Context, InlineKeyboard, Keyboard, Singleton } from "../deps.ts";
 import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants/index.ts";
 import { I18nService } from "./i18n.service.ts";
 
-import type { CalloutDataExt, Context } from "../types/index.ts";
+import type { CalloutDataExt } from "../types/index.ts";
 
 /**
  * Service to create Telegram keyboard buttons
@@ -114,16 +114,16 @@ export class KeyboardService {
     keyboard.text(
       this.i18n.t("bot.keyboard.label.continue"),
     ).row()
-    .text(
-      this.i18n.t("bot.keyboard.label.cancel"),
-    );
+      .text(
+        this.i18n.t("bot.keyboard.label.cancel"),
+      );
 
     return keyboard;
   }
 
   /**
    * Remove an existing inline keyboard
-   * @param ctx 
+   * @param ctx
    */
   public async removeInlineKeyboard(ctx: Context) {
     const inlineKeyboard = new InlineKeyboard();

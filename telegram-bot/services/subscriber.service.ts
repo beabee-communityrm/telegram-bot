@@ -1,9 +1,9 @@
-import { Singleton } from "../deps.ts";
+import { Context, Singleton } from "../deps.ts";
 import { SubscriberModel } from "../models/index.ts";
 import { DatabaseService } from "./database.service.ts";
 import { getIdentifier } from "../utils/index.ts";
 
-import type { Context, Subscriber } from "../types/index.ts";
+import type { Subscriber } from "../types/index.ts";
 
 @Singleton() // See https://github.com/alosaur/alosaur/tree/master/src/injection
 export class SubscriberService {
