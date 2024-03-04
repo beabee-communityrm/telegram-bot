@@ -125,10 +125,15 @@ export class KeyboardService {
    * Remove an existing inline keyboard
    * @param ctx
    */
-  public async removeInlineKeyboard(ctx: Context) {
-    const inlineKeyboard = new InlineKeyboard();
-    await ctx.editMessageReplyMarkup({
-      reply_markup: inlineKeyboard,
-    });
+  public async removeInlineKeyboard(ctx: Context, withMessage = false) {
+    if(!withMessage) {
+      const inlineKeyboard = new InlineKeyboard();
+      await ctx.editMessageReplyMarkup({
+        reply_markup: inlineKeyboard,
+      });
+      // TODO: Add message with clicked selection?
+    } else {
+      await ctx.deleteMessage();
+    }
   }
 }
