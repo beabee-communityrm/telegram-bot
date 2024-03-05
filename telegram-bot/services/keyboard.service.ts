@@ -126,7 +126,7 @@ export class KeyboardService {
    * @param ctx
    */
   public async removeInlineKeyboard(ctx: Context, withMessage = false) {
-    if(!withMessage) {
+    if (!withMessage) {
       const inlineKeyboard = new InlineKeyboard();
       await ctx.editMessageReplyMarkup({
         reply_markup: inlineKeyboard,
