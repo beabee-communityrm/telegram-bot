@@ -10,12 +10,15 @@ import {
 } from "../renderer/index.ts";
 
 import { Command } from "../core/index.ts";
+import type { UserState } from "../types/user-state.ts";
 
 @Singleton()
 export class ShowCommand extends Command {
   key = "show";
   command = "show";
   description = `Shows you information about a specific callout`;
+
+  visibleOnStates: UserState[] = []; // Only for testing
 
   constructor(
     protected readonly callout: CalloutService,

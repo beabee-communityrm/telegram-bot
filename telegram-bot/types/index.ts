@@ -47,3 +47,4 @@ export * from "./replay-condition-text.ts";
 export * from "./replay-condition.ts";
 export * from "./replay.ts";
 export * from "./subscriber.ts";
+export * from "./user-state.ts";

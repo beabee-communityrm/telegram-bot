@@ -1,4 +1,4 @@
-import { Singleton } from "alosaur/mod.ts";
+import { Context, Singleton } from "../deps.ts";
 import { Command } from "../core/command.ts";
 import { CalloutService } from "../services/callout.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
@@ -6,13 +6,15 @@ import { KeyboardService } from "../services/keyboard.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import { CalloutRenderer } from "../renderer/index.ts";
 
-import type { Context } from "grammy/context.ts";
+import { UserState } from "../types/index.ts";
 
 @Singleton()
 export class ListCommand extends Command {
   key = "list";
   command = "list";
   description = "List active Callouts";
+
+  visibleOnStates: UserState[] = ["start"];
 
   constructor(
     protected readonly callout: CalloutService,

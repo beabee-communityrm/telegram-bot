@@ -152,7 +152,11 @@ export class TelegramService {
   protected async addCommands(Commands: { [key: string]: CommandClass }) {
     for (const Command of Object.values(Commands)) {
       const command = container.resolve(Command); // Get the Singleton instance
-      this._commands[command.command] = command;
+      // Add this command to the list of commands only if it's visible for the current user state
+      if (command.visibleOnStates.includes('start')) {
+        this._commands[command.command] = command;
+      }
+      
     }
 
     await this.initExistingCommands();
