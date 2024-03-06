@@ -6,6 +6,7 @@ import { I18nService } from "../services/i18n.service.ts";
 
 import type {
   Render,
+  RenderMarkdown,
   RenderText,
   ReplayAccepted,
   ReplayCondition,
@@ -26,7 +27,38 @@ export class MessageRenderer {
     console.debug(`${this.constructor.name} created`);
   }
 
-  public stop() {
+  /**
+   * Render a welcome message
+   * @returns
+   */
+  public welcome(): RenderMarkdown {
+    // TODO: This message should be customizable via Beabee's Content API
+    const WELCOME_MD = "*Hi\\!* _Welcome_ to [beabee](https://beabee.io/)\\.";
+
+    const result: RenderMarkdown = {
+      type: RenderType.MARKDOWN,
+      markdown: WELCOME_MD,
+      key: "welcome",
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
+    };
+    return result;
+  }
+
+  public intro(): RenderMarkdown {
+    const INTRO_MD = "This is the intro message";
+
+    const result: RenderMarkdown = {
+      type: RenderType.MARKDOWN,
+      markdown: INTRO_MD,
+      key: "intro",
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
+    };
+    return result;
+  }
+
+  public stop(): RenderText {
     const tKey = "bot.response.messages.stop";
     const result: Render = {
       type: RenderType.TEXT,
@@ -39,7 +71,7 @@ export class MessageRenderer {
     return result;
   }
 
-  public calloutNotFound() {
+  public calloutNotFound(): RenderText {
     const tKey = "bot.response.messages.calloutNotFound";
     const result: Render = {
       type: RenderType.TEXT,
@@ -87,20 +119,26 @@ export class MessageRenderer {
     };
   }
 
-  public notTheRightFileType(mimeTypes: string[]) {
+  public notTheRightFileType(mimeTypes: string[]): RenderText {
     const mimeTypesStr = getSimpleMimeTypes(mimeTypes).join(", ").replace(
       /, ([^,]*)$/,
       ` ${this.i18n.t("bot.universal.or")} $1`,
     );
+    const tKey = `bot.response.messages.notTheRightFileType`;
     return {
       type: RenderType.TEXT,
-      text: this.i18n.t("bot.response.messages.notTheRightFileType", {
+      text: this.i18n.t(tKey, {
         type: mimeTypesStr,
       }),
-    } as RenderText;
+      key: tKey,
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
+    };
   }
 
-  public notACalloutComponentMessage(schema: CalloutComponentSchema) {
+  public notACalloutComponentMessage(
+    schema: CalloutComponentSchema,
+  ): RenderText {
     const tKey = `bot.response.messages.notACalloutComponent.${schema.type}`;
     return {
       type: RenderType.TEXT,
@@ -109,6 +147,17 @@ export class MessageRenderer {
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
     } as RenderText;
+  }
+
+  public writeDoneMessage(doneText: string): RenderText {
+    const tKey = "bot.info.messages.done";
+    return {
+      type: RenderType.TEXT,
+      text: this.i18n.t(tKey, { done: doneText }),
+      key: tKey,
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
+    };
   }
 
   public notAcceptedMessage(
@@ -139,12 +188,5 @@ export class MessageRenderer {
     }
 
     throw new Error("Unknown accepted type: " + condition.type);
-  }
-
-  public writeDoneMessage(doneText: string) {
-    return {
-      type: RenderType.TEXT,
-      text: this.i18n.t("bot.info.messages.done", { done: doneText }),
-    } as RenderText;
   }
 }

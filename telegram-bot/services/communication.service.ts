@@ -32,36 +32,39 @@ export class CommunicationService {
   }
 
   /**
-   * Reply to a Telegram message or action with a single render result
+   * Reply to a Telegram message or action with a single render object
+   *
+   * @todo: Make use of https://grammy.dev/plugins/parse-mode
+   *
    * @param ctx
    * @param res
    */
-  public async send(ctx: Context, res: Render) {
-    if (res.type === RenderType.PHOTO) {
-      await ctx.replyWithMediaGroup([res.photo]);
-      if (res.keyboard) {
+  public async send(ctx: Context, render: Render) {
+    if (render.type === RenderType.PHOTO) {
+      await ctx.replyWithMediaGroup([render.photo]);
+      if (render.keyboard) {
         await ctx.reply("Please select an option", {
-          reply_markup: res.keyboard,
+          reply_markup: render.keyboard,
         });
       }
-    } else if (res.type === RenderType.MARKDOWN) {
-      await ctx.reply(res.markdown, {
+    } else if (render.type === RenderType.MARKDOWN) {
+      await ctx.reply(render.markdown, {
         parse_mode: "MarkdownV2",
-        reply_markup: res.keyboard,
+        reply_markup: render.keyboard,
       });
-    } else if (res.type === RenderType.HTML) {
-      await ctx.reply(res.html, {
+    } else if (render.type === RenderType.HTML) {
+      await ctx.reply(render.html, {
         parse_mode: "HTML",
-        reply_markup: res.keyboard,
+        reply_markup: render.keyboard,
       });
-    } else if (res.type === RenderType.TEXT) {
-      await ctx.reply(res.text, {
-        reply_markup: res.keyboard,
+    } else if (render.type === RenderType.TEXT) {
+      await ctx.reply(render.text, {
+        reply_markup: render.keyboard,
       });
-    } else if (res.type === RenderType.EMPTY) {
+    } else if (render.type === RenderType.EMPTY) {
       // Do nothing
     } else {
-      throw new Error("Unknown render type: " + (res as Render).type);
+      throw new Error("Unknown render type: " + (render as Render).type);
     }
   }
 
