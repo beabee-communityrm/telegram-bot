@@ -1,5 +1,10 @@
 import { dirname, fromFileUrl, Singleton } from "../deps.ts";
-import { readJson, readJsonSync, toCamelCase } from "../utils/index.ts";
+import {
+  escapeMd,
+  readJson,
+  readJsonSync,
+  toCamelCase,
+} from "../utils/index.ts";
 import { EventService } from "./event.service.ts";
 import { I18nEvent } from "../enums/i18n-event.ts";
 
@@ -23,7 +28,7 @@ export class I18nService {
   /**
    * Alias for translate
    */
-  t = this.translate.bind(this);
+  public t = this.translate.bind(this);
 
   get activeLang() {
     return this._activeLang;
@@ -107,26 +112,29 @@ export class I18nService {
    * @param langs The languages to load, e.g. ["en", "de"]
    * @param filePath The path to the language file, e.g. "./locales/{lang}.json"
    */
-  public translate(
+  protected translate(
     path: string,
     placeholders: { [key: string]: string } = {},
     lang: string = this._activeLang,
   ): string {
-    let translation = this.getTranslation(
+    const translation = this.getTranslation(
       path,
       lang,
       this.translations[lang],
     );
 
-    if (translation) {
-      translation = this.replacePlaceholders(translation, placeholders);
-    } else {
-      // Fallback to english
-      if (lang !== "en") {
-        return this.translate(path, placeholders, "en");
+    if (!translation) {
+      if (lang === "en") {
+        return escapeMd(`Error: Translation not found for '${path}'`);
       }
+      // Fallback to English
+      console.warn(
+        `Translation not found for '${path}' in language '${lang}', falling back to English`,
+      );
+      return this.translate(path, placeholders, "en");
     }
-    return translation ?? `Error: Translation not found for '${path}'`;
+
+    return this.replacePlaceholders(translation, placeholders);
   }
 
   /**
@@ -139,7 +147,7 @@ export class I18nService {
     path: string,
     lang: string,
     translations: Translations | string,
-  ): string {
+  ): string | null {
     if (typeof translations === "string") {
       return translations;
     }
@@ -148,6 +156,10 @@ export class I18nService {
     const _key = segments.shift() ?? "";
     const key = toCamelCase(_key);
     const nextTranslations = translations[key] || translations[_key];
+
+    if (!nextTranslations) {
+      return null;
+    }
 
     return this.getTranslation(segments.join("."), lang, nextTranslations);
   }

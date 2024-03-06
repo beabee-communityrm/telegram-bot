@@ -25,6 +25,6 @@ export class StartCommand extends Command {
   // Handle the /start command, replay with markdown formatted text: https://grammy.dev/guide/basics#sending-message-with-formatting
   async action(ctx: Context) {
     await this.communication.send(ctx, this.messageRenderer.welcome());
-    await this.communication.send(ctx, this.messageRenderer.intro());
+    await this.communication.send(ctx, await this.messageRenderer.intro());
   }
 }

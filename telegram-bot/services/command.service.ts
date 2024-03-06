@@ -3,7 +3,7 @@ import { Command } from "../core/index.ts";
 import { I18nService } from "./i18n.service.ts";
 import { BotService } from "./bot.service.ts";
 
-import type { CommandClass } from "../types/index.ts";
+import type { CommandClass, UserState } from "../types/index.ts";
 
 @Singleton()
 export class CommandService {
@@ -25,7 +25,7 @@ export class CommandService {
 
   public async initCommands() {
     const Commands = await import("../commands/index.ts");
-    await this.addCommands(Commands);
+    await this.addCommands(Commands, "start");
   }
 
   /**
@@ -81,15 +81,39 @@ export class CommandService {
    * - The class must be decorated with the @Singleton() decorator.
    * @param Commands
    */
-  protected async addCommands(Commands: { [key: string]: CommandClass }) {
+  protected async addCommands(
+    Commands: { [key: string]: CommandClass },
+    forState: UserState,
+  ) {
     for (const Command of Object.values(Commands)) {
       const command = container.resolve(Command); // Get the Singleton instance
       // Add this command to the list of commands only if it's visible for the current user state
-      if (command.visibleOnStates.includes("start")) {
+      if (command.visibleOnStates.includes(forState)) {
         this._commands[command.command] = command;
       }
     }
 
     await this.initExistingCommands();
+  }
+
+  public getActive(): Command[] {
+    return Object.values(this._commands);
+  }
+
+  public async getAllClasses(): Promise<CommandClass[]> {
+    const Commands = await import("../commands/index.ts");
+    return Object.values(Commands);
+  }
+
+  public async getAll(): Promise<Command[]> {
+    const Commands = await this.getAllClasses();
+    return Commands.map((Command) => container.resolve(Command));
+  }
+
+  public async getByState(state: UserState): Promise<Command[]> {
+    const commands = await this.getAll();
+    return commands.filter((command) =>
+      command.visibleOnStates.includes(state)
+    );
   }
 }

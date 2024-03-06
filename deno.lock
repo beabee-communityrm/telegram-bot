@@ -1,0 +1,31 @@
+{
+  "version": "3",
+  "redirects": {
+    "https://lib.deno.dev/x/grammy@^1.20/mod.ts": "https://deno.land/x/grammy@v1.21.1/mod.ts"
+  },
+  "remote": {},
+  "workspace": {
+    "dependencies": [
+      "npm:date-fns@3.3.1",
+      "npm:typeorm@0.3.17"
+    ],
+    "members": {
+      "@beabee/beabee-common": {
+        "dependencies": [
+          "npm:date-fns@3.3.1"
+        ]
+      },
+      "beabee-client": {
+        "dependencies": [
+          "npm:date-fns@3.3.1"
+        ]
+      },
+      "telegram-bot": {
+        "dependencies": [
+          "npm:date-fns@3.3.1",
+          "npm:typeorm@0.3.17"
+        ]
+      }
+    }
+  }
+}

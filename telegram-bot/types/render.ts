@@ -1,5 +1,6 @@
 import type {
   RenderEmpty,
+  RenderFormat,
   RenderHtml,
   RenderMarkdown,
   RenderPhoto,
@@ -11,4 +12,5 @@ export type Render =
   | RenderMarkdown
   | RenderPhoto
   | RenderHtml
-  | RenderText;
+  | RenderText
+  | RenderFormat;

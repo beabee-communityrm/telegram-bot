@@ -2,112 +2,113 @@
   "bot": {
     "commands": {
       "list": {
-        "command": "lijst",
-        "description": "Open oproepen tonen"
+        "command": "",
+        "description": ""
       },
       "show": {
-        "command": "tonen",
-        "description": "Details over een specifieke oproep tonen"
+        "command": "",
+        "description": ""
       },
       "start": {
-        "command": "starten",
-        "description": "De bot starten"
+        "command": "",
+        "description": ""
       },
       "subscribe": {
-        "command": "abonneren",
-        "description": "Abonneren op een oproep"
+        "command": "",
+        "description": ""
       },
       "unsubscribe": {
-        "command": "uitschrijven",
-        "description": "Uitschrijven van een oproep"
+        "command": "",
+        "description": ""
       }
     },
     "info": {
       "messages": {
-        "done": "Als u klaar bent met uw antwoord, typ dan gewoon \"{done}\".",
-        "enterAmountOfMoney": "Voer alstublieft een geldbedrag in.",
-        "enterDate": "Voer alstublieft een datum in.",
-        "enterLotsOfText": "Antwoord alstublieft met één bericht. U kunt het zo lang maken als u wilt.",
-        "enterTelephoneNumber": "Voer alstublieft een telefoonnummer in.",
-        "enterText": "Houd uw antwoord kort, bij voorkeur in één zin.",
-        "enterTime": "Voer alstublieft een tijd in. (bijv. 20:45)",
-        "enterUrl": "Voer alstublieft een webadres in. (bijv. https://www.voorbeeld.nl)",
-        "multipleAddressesAllowed": "Voer een of meer adressen in.",
-        "multipleEmailsAllowed": "U kunt een of meer e-mailadressen invoeren.",
-        "multipleNumbersAllowed": "Voer een of meer nummers in.",
-        "multipleSelectionsAllowed": "Typ alstublieft het antwoordnummer in. U kunt meerdere keuzes maken, stuur gewoon voor elk een apart bericht.",
-        "multipleValuesAllowed": "U kunt meerdere waarden invoeren door elke waarde in een apart bericht te sturen.",
-        "onlyOneAddressAllowed": "Voer alstublieft een adres in.",
-        "onlyOneEmailAllowed": "Voer alstublieft een e-mailadres in.",
-        "onlyOneNumberAllowed": "Voer alstublieft een nummer in.",
-        "onlyOneSelectionAllowed": "Kies uw keuze door het nummer in te typen of op de knop te drukken (u kunt er maar één kiezen).",
-        "onlyOneValueAllowed": "Voer alstublieft een enkele waarde in.",
-        "placeholder": "Antwoord alstublieft met iets als \"{placeholder}\".",
-        "uploadFileHere": "Stuur me alstublieft een bestand.",
-        "uploadFilesHere": "Stuur me alstublieft een of meer bestanden."
+        "done": "",
+        "enterAmountOfMoney": "",
+        "enterDate": "",
+        "enterLotsOfText": "",
+        "enterTelephoneNumber": "",
+        "enterText": "",
+        "enterTime": "",
+        "enterUrl": "",
+        "intro": "",
+        "multipleAddressesAllowed": "",
+        "multipleEmailsAllowed": "",
+        "multipleNumbersAllowed": "",
+        "multipleSelectionsAllowed": "",
+        "multipleValuesAllowed": "",
+        "onlyOneAddressAllowed": "",
+        "onlyOneEmailAllowed": "",
+        "onlyOneNumberAllowed": "",
+        "onlyOneSelectionAllowed": "",
+        "onlyOneValueAllowed": "",
+        "placeholder": "",
+        "uploadFileHere": "",
+        "uploadFilesHere": ""
       }
     },
     "keyboard": {
       "label": {
-        "cancel": "Annuleren",
-        "continue": "Doorgaan",
-        "no": "Nee",
-        "yes": "Ja"
+        "cancel": "",
+        "continue": "",
+        "no": "",
+        "yes": ""
       },
       "message": {
-        "selectDetailCallout": "❓ Over welke oproep wilt u meer informatie weergegeven krijgen? Kies een nummer"
+        "selectDetailCallout": ""
       }
     },
     "reactions": {
       "messages": {
-        "done": "Gedaan",
-        "falsy": "Nee",
-        "truthy": "Ja"
+        "done": "",
+        "falsy": "",
+        "truthy": ""
       }
     },
     "render": {
       "callout": {
         "list": {
-          "title": "Lijst van actieve oproepen"
+          "title": ""
         }
       }
     },
     "response": {
       "messages": {
-        "answerWithTruthyOrFalsy": "🤔 Antwoord alstublieft met \"{truthy}\" of \"{falsy}\".",
-        "calloutNotFound": "Sorry, ik kon deze oproep niet vinden.",
-        "calloutStartResponse": "Wilt u reageren op deze oproep?",
-        "componentNotSupported": "\"{type}\" niet geïmplementeerd..",
-        "componentUnknown": "Onbekend componenttype \"{type}\"..",
-        "noActiveCallouts": "Er zijn momenteel geen open oproepen.",
+        "answerWithTruthyOrFalsy": "",
+        "calloutNotFound": "",
+        "calloutStartResponse": "",
+        "componentNotSupported": "",
+        "componentUnknown": "",
+        "noActiveCallouts": "",
         "notACalloutComponent": {
-          "address": "Uw antwoord is geen geldig adres. Probeer het opnieuw.",
-          "checkbox": "🤔 Antwoord alstublieft met \"{truthy}\" of \"{falsy}\".",
-          "currency": "Uw antwoord is geen geldig geldbedrag. Probeer het opnieuw.",
-          "datetime": "Uw antwoord lijkt geen geldige datum te zijn. Probeer het opnieuw.",
-          "email": "Uw antwoord lijkt geen geldig e-mailadres te zijn. Probeer het opnieuw.",
-          "file": "Uw antwoord lijkt geen geldig bestand te zijn. Probeer het opnieuw.",
-          "number": "Uw antwoord lijkt geen geldig nummer te zijn. Probeer het opnieuw.",
-          "phoneNumber": "Uw antwoord lijkt geen geldig telefoonnummer te zijn. Probeer het opnieuw.",
-          "radio": "Uw antwoord lijkt geen geldige keuze te zijn. Probeer het opnieuw.",
-          "select": "Uw antwoord lijkt geen geldige keuze te zijn. Probeer het opnieuw.",
-          "selectboxes": "Uw antwoord lijkt geen geldige keuze te zijn. Probeer het opnieuw.",
-          "signature": "Uw antwoord lijkt geen geldig afbeeldingsbestand te zijn. Probeer het opnieuw.",
-          "textarea": "Uw antwoord lijkt niet te voldoen aan de regels voor toegestane tekstreacties. Probeer het opnieuw.",
-          "textfield": "Uw antwoord lijkt niet te voldoen aan de regels voor toegestane tekstreacties. Probeer het opnieuw.",
-          "time": "Uw antwoord lijkt geen geldige tijd te zijn. Probeer het opnieuw.",
-          "url": "Uw antwoord lijkt geen geldige URL te zijn. Probeer het opnieuw."
+          "address": "",
+          "checkbox": "",
+          "currency": "",
+          "datetime": "",
+          "email": "",
+          "file": "",
+          "number": "",
+          "phoneNumber": "",
+          "radio": "",
+          "select": "",
+          "selectboxes": "",
+          "signature": "",
+          "textarea": "",
+          "textfield": "",
+          "time": "",
+          "url": ""
         },
-        "notAFileMessage": "Stuur alstublieft een bestand.",
-        "notASelectionMessage": "Selecteer alstublieft het nummer van een van de mogelijke antwoorden.",
-        "notATextMessage": "Stuur alstublieft een tekstbericht.",
-        "notATextMessageWithAllowed": "Stuur een sms-bericht met een van de volgende gegevens: {allowed}.",
-        "notTheRightFileType": "Stuur alstublieft een bestand van het type {type}.",
-        "stop": "Ok, geen probleem."
+        "notAFileMessage": "",
+        "notASelectionMessage": "",
+        "notATextMessage": "",
+        "notATextMessageWithAllowed": "",
+        "notTheRightFileType": "",
+        "stop": ""
       }
     },
     "universal": {
-      "or": "of"
+      "or": ""
     }
   }
 }

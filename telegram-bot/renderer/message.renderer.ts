@@ -1,11 +1,13 @@
-import { Singleton } from "../deps.ts";
+import { bold, fmt, FormattedString, italic, Singleton } from "../deps.ts";
 import { RenderType } from "../enums/index.ts";
 import { getSimpleMimeTypes } from "../utils/index.ts";
 import { ConditionService } from "../services/condition.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
+import { CommandService } from "../services/command.service.ts";
 
 import type {
   Render,
+  RenderFormat,
   RenderMarkdown,
   RenderText,
   ReplayAccepted,
@@ -22,6 +24,7 @@ import { ParsedResponseType } from "../enums/parsed-response-type.ts";
 @Singleton()
 export class MessageRenderer {
   constructor(
+    protected readonly command: CommandService,
     protected readonly condition: ConditionService,
     protected readonly i18n: I18nService,
   ) {
@@ -46,32 +49,48 @@ export class MessageRenderer {
     return result;
   }
 
-  // /**
-  //  * Render all available commands
-  //  * @param state The current user state
-  //  **/
-  // public commands(state: UserState): RenderMarkdown {
+  /**
+   * Render all available commands
+   * @param state The current user state
+   */
+  public async commands(state: UserState): Promise<RenderFormat> {
+    const commands = await this.command.getByState(state);
 
-  //   const result: RenderMarkdown = {
-  //     type: RenderType.MARKDOWN,
-  //     markdown: ,
-  //     key: 'commands',
-  //     accepted: this.condition.replayConditionNone(),
-  //     parseType: ParsedResponseType.NONE,
-  //   };
-  //   return result;
-  // }
+    const strings: FormattedString[] = [];
+
+    for (const command of commands) {
+      strings.push(
+        fmt`${bold("/" + command.key)}: ${italic(command.description)}\n`,
+      );
+    }
+
+    const result: RenderFormat = {
+      type: RenderType.FORMAT,
+      format: strings,
+      key: "commands",
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
+    };
+
+    return result;
+  }
 
   /**
    * Render the intro message
    */
-  public intro(): RenderMarkdown {
+  public async intro(): Promise<RenderFormat> {
     const tKey = "bot.info.messages.intro";
 
-    const result: RenderMarkdown = {
-      type: RenderType.MARKDOWN,
+    const commands = fmt((await this.commands("start")).format);
+    const intro = this.i18n.t(tKey, {
+      botName: "beabee",
+      commands: commands.toString(),
+    });
+
+    const result: RenderFormat = {
+      type: RenderType.FORMAT,
       // TODO: Get the bot name from the beabee content API
-      markdown: this.i18n.t(tKey, { botName: "beabee" }),
+      format: [intro],
       key: tKey,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,

@@ -1,4 +1,4 @@
-import { Context, Message, Singleton } from "../deps.ts";
+import { Context, fmt, Message, ParseModeFlavor, Singleton } from "../deps.ts";
 import { ParsedResponseType, RenderType, ReplayType } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
 import { TransformService } from "./transform.service.ts";
@@ -40,31 +40,43 @@ export class CommunicationService {
    * @param res
    */
   public async send(ctx: Context, render: Render) {
-    if (render.type === RenderType.PHOTO) {
-      await ctx.replyWithMediaGroup([render.photo]);
-      if (render.keyboard) {
-        await ctx.reply("Please select an option", {
+    switch (render.type) {
+      case RenderType.PHOTO:
+        await ctx.replyWithMediaGroup([render.photo]);
+        if (render.keyboard) {
+          await ctx.reply("Please select an option", {
+            reply_markup: render.keyboard,
+          });
+        }
+        break;
+      case RenderType.MARKDOWN:
+        await ctx.reply(render.markdown, {
+          parse_mode: "MarkdownV2",
           reply_markup: render.keyboard,
         });
-      }
-    } else if (render.type === RenderType.MARKDOWN) {
-      await ctx.reply(render.markdown, {
-        parse_mode: "MarkdownV2",
-        reply_markup: render.keyboard,
-      });
-    } else if (render.type === RenderType.HTML) {
-      await ctx.reply(render.html, {
-        parse_mode: "HTML",
-        reply_markup: render.keyboard,
-      });
-    } else if (render.type === RenderType.TEXT) {
-      await ctx.reply(render.text, {
-        reply_markup: render.keyboard,
-      });
-    } else if (render.type === RenderType.EMPTY) {
-      // Do nothing
-    } else {
-      throw new Error("Unknown render type: " + (render as Render).type);
+        break;
+      case RenderType.HTML:
+        await ctx.reply(render.html, {
+          parse_mode: "HTML",
+          reply_markup: render.keyboard,
+        });
+        break;
+      case RenderType.TEXT:
+        await ctx.reply(render.text, {
+          reply_markup: render.keyboard,
+        });
+        break;
+      // See https://grammy.dev/plugins/parse-mode
+      case RenderType.FORMAT:
+        await (ctx as ParseModeFlavor<Context>).replyFmt(fmt(render.format), {
+          reply_markup: render.keyboard,
+        });
+        break;
+      case RenderType.EMPTY:
+        // Do nothing
+        break;
+      default:
+        throw new Error("Unknown render type: " + (render as Render).type);
     }
   }
 

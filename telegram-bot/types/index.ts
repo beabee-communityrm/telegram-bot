@@ -13,6 +13,7 @@ export * from "./nullable-properties.ts";
 export * from "./props-from.ts";
 export * from "./render-base.ts";
 export * from "./render-empty.ts";
+export * from "./render-format.ts";
 export * from "./render-html.ts";
 export * from "./render-markdown.ts";
 export * from "./render-photo.ts";
