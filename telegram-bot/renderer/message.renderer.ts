@@ -10,6 +10,7 @@ import type {
   RenderText,
   ReplayAccepted,
   ReplayCondition,
+  UserState,
 } from "../types/index.ts";
 import type { CalloutComponentSchema } from "../deps.ts";
 import { ReplayType } from "../enums/replay-type.ts";
@@ -45,13 +46,33 @@ export class MessageRenderer {
     return result;
   }
 
+  // /**
+  //  * Render all available commands
+  //  * @param state The current user state
+  //  **/
+  // public commands(state: UserState): RenderMarkdown {
+
+  //   const result: RenderMarkdown = {
+  //     type: RenderType.MARKDOWN,
+  //     markdown: ,
+  //     key: 'commands',
+  //     accepted: this.condition.replayConditionNone(),
+  //     parseType: ParsedResponseType.NONE,
+  //   };
+  //   return result;
+  // }
+
+  /**
+   * Render the intro message
+   */
   public intro(): RenderMarkdown {
-    const INTRO_MD = "This is the intro message";
+    const tKey = "bot.info.messages.intro";
 
     const result: RenderMarkdown = {
       type: RenderType.MARKDOWN,
-      markdown: INTRO_MD,
-      key: "intro",
+      // TODO: Get the bot name from the beabee content API
+      markdown: this.i18n.t(tKey, { botName: "beabee" }),
+      key: tKey,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
     };

@@ -112,13 +112,21 @@ export class I18nService {
     placeholders: { [key: string]: string } = {},
     lang: string = this._activeLang,
   ): string {
-    const translation = this.getTranslation(
+    let translation = this.getTranslation(
       path,
       lang,
       this.translations[lang],
     );
 
-    return this.replacePlaceholders(translation, placeholders);
+    if (translation) {
+      translation = this.replacePlaceholders(translation, placeholders);
+    } else {
+      // Fallback to english
+      if (lang !== "en") {
+        return this.translate(path, placeholders, "en");
+      }
+    }
+    return translation ?? `Error: Translation not found for '${path}'`;
   }
 
   /**
@@ -140,10 +148,6 @@ export class I18nService {
     const _key = segments.shift() ?? "";
     const key = toCamelCase(_key);
     const nextTranslations = translations[key] || translations[_key];
-
-    if (!nextTranslations) {
-      return `Error: Translation not found for '${path}' in language '${lang}'`;
-    }
 
     return this.getTranslation(segments.join("."), lang, nextTranslations);
   }
