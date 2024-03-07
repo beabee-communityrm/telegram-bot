@@ -13,7 +13,7 @@ import type {
   RenderResponseParsed,
   ReplayAccepted,
 } from "../types/index.ts";
-import type {} from "grammy/context.ts";
+import type { } from "grammy/context.ts";
 
 /**
  * Service to handle the communication with the telegram bot and the telegram user.
@@ -44,7 +44,7 @@ export class CommunicationService {
       case RenderType.PHOTO:
         await ctx.replyWithMediaGroup([render.photo]);
         if (render.keyboard) {
-          await ctx.reply("Please select an option", {
+          await ctx.reply("", {
             reply_markup: render.keyboard,
           });
         }
