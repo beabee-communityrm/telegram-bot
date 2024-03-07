@@ -1,5 +1,5 @@
 import { Context, Singleton } from "../deps.ts";
-import { Command } from "../core/command.ts";
+import { BaseCommand } from "../core/base.command.ts";
 import { CalloutService } from "../services/callout.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
@@ -9,15 +9,10 @@ import { CalloutRenderer } from "../renderer/index.ts";
 import { UserState } from "../types/index.ts";
 
 @Singleton()
-export class ListCommand extends Command {
+export class ListCommand extends BaseCommand {
   key = "list";
   /** /list */
   command = "list";
-  /**
-   * List active Callouts
-   * (Description is set in CommandService with a translation)
-   */
-  description = "";
 
   visibleOnStates: UserState[] = ["start"];
 

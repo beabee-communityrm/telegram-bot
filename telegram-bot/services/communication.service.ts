@@ -1,3 +1,4 @@
+import { BaseService } from "../core/index.ts";
 import { Context, fmt, Message, ParseModeFlavor, Singleton } from "../deps.ts";
 import { ParsedResponseType, RenderType, ReplayType } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
@@ -13,14 +14,14 @@ import type {
   RenderResponseParsed,
   ReplayAccepted,
 } from "../types/index.ts";
-import type { } from "grammy/context.ts";
+import type {} from "grammy/context.ts";
 
 /**
  * Service to handle the communication with the telegram bot and the telegram user.
  * This service waits for a response until a response is received that fulfils a basic condition (if there is a condition).
  */
 @Singleton()
-export class CommunicationService {
+export class CommunicationService extends BaseService {
   constructor(
     protected readonly event: EventService,
     protected readonly messageRenderer: MessageRenderer,
@@ -28,6 +29,7 @@ export class CommunicationService {
     protected readonly condition: ConditionService,
     protected readonly validation: ValidationService,
   ) {
+    super();
     console.debug(`${this.constructor.name} created`);
   }
 

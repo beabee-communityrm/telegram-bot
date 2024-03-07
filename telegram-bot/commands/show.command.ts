@@ -9,18 +9,14 @@ import {
   MessageRenderer,
 } from "../renderer/index.ts";
 
-import { Command } from "../core/index.ts";
+import { BaseCommand } from "../core/index.ts";
 import type { UserState } from "../types/user-state.ts";
 
 @Singleton()
-export class ShowCommand extends Command {
+export class ShowCommand extends BaseCommand {
   key = "show";
+  /** `/show` */
   command = "show";
-  /**
-   * Shows you information about a specific callout
-   * (Description is set in CommandService with a translation)
-   */
-  description = "";
 
   visibleOnStates: UserState[] = []; // Only for testing
 

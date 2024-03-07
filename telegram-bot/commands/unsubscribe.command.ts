@@ -1,19 +1,15 @@
 import { Context, Singleton } from "../deps.ts";
 import { SubscriberService } from "../services/subscriber.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
-import { Command } from "../core/index.ts";
+import { BaseCommand } from "../core/index.ts";
 
 import type { UserState } from "../types/user-state.ts";
 
 @Singleton()
-export class UnsubscribeCommand extends Command {
+export class UnsubscribeCommand extends BaseCommand {
   key = "unsubscribe";
+  /** `/unsubscribe` */
   command = "unsubscribe";
-  /**
-   * Unsubscribe from a Callout
-   * (Description is set in CommandService with a translation)
-   */
-  description = "";
 
   visibleOnStates: UserState[] = []; // Only for testing
 

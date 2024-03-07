@@ -1,3 +1,4 @@
+import { BaseService } from "../core/index.ts";
 import { Context, Singleton } from "../deps.ts";
 import { SubscriberModel } from "../models/index.ts";
 import { DatabaseService } from "./database.service.ts";
@@ -6,11 +7,12 @@ import { getIdentifier } from "../utils/index.ts";
 import type { Subscriber } from "../types/index.ts";
 
 @Singleton() // See https://github.com/alosaur/alosaur/tree/master/src/injection
-export class SubscriberService {
+export class SubscriberService extends BaseService {
   /**
    * @param _ DatabaseService injected to make sure the database is initialized
    */
   constructor(private readonly db: DatabaseService) {
+    super();
     console.debug(`${this.constructor.name} created`);
   }
 

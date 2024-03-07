@@ -1,3 +1,4 @@
+import { BaseService } from "../core/index.ts";
 import { container, Singleton } from "../deps.ts";
 import { I18nService } from "./i18n.service.ts";
 import { BotService } from "./bot.service.ts";
@@ -15,7 +16,7 @@ import type { EventManagerClass } from "../types/index.ts";
  * - Add event listeners using the EventManagers
  */
 @Singleton()
-export class TelegramService {
+export class TelegramService extends BaseService {
   constructor(
     protected readonly command: CommandService,
     protected readonly bot: BotService,
@@ -23,7 +24,8 @@ export class TelegramService {
     protected readonly beabeeContent: BeabeeContentService,
     protected readonly networkCommunicator: NetworkCommunicatorService,
   ) {
-    this.bootstrap().catch(console.error);
+    super();
+    // this.bootstrap().catch(console.error);
     console.debug(`${this.constructor.name} created`);
   }
 
@@ -38,7 +40,7 @@ export class TelegramService {
    * - Add event listeners
    * - Start the bot
    */
-  protected async bootstrap() {
+  public async bootstrap() {
     await this.printInfo();
     await this.waitForBeabee();
     this.networkCommunicator.startServer();
@@ -78,7 +80,8 @@ export class TelegramService {
   protected async initEventManagers() {
     const EventMangers = await import("../event-managers/index.ts");
     for (const EventManager of Object.values(EventMangers)) {
-      const eventManager = container.resolve(EventManager as EventManagerClass); // Get the Singleton instance
+      // TODO: Fix type
+      const eventManager = (EventManager as EventManagerClass).getSingleton(); // Get the Singleton instance
       eventManager.init();
     }
   }

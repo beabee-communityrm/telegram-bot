@@ -1,3 +1,4 @@
+import { BaseService } from "../core/index.ts";
 import {
   CalloutComponentType,
   calloutComponentValidator,
@@ -35,8 +36,9 @@ import { ReplayAcceptedCalloutComponentSchema } from "../types/replay-accepted-c
  * This class checks replays messages for conditions which can also be used for other things than Callouts.
  */
 @Singleton()
-export class ValidationService {
+export class ValidationService extends BaseService {
   constructor(protected readonly transform: TransformService) {
+    super();
     console.debug(`${this.constructor.name} created`);
   }
 

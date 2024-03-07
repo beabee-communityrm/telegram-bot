@@ -1,13 +1,13 @@
 import { Singleton } from "alosaur/mod.ts";
 import { EventService } from "../services/event.service.ts";
 import { TelegramService } from "../services/telegram.service.ts";
-import { EventManager } from "../core/event-manager.ts";
+import { BaseEventManager } from "../core/base.events.ts";
 import { I18nEvent } from "../enums/i18n-event.ts";
 
 import type { EventTelegramBot } from "../types/index.ts";
 
 @Singleton()
-export class I18nEventManager extends EventManager {
+export class I18nEventManager extends BaseEventManager {
   constructor(
     protected readonly event: EventService,
     protected readonly telegramService: TelegramService,

@@ -1,3 +1,4 @@
+import { BaseService } from "../core/index.ts";
 import { Context, InlineKeyboard, Keyboard, Singleton } from "../deps.ts";
 import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants/index.ts";
 import { I18nService } from "./i18n.service.ts";
@@ -8,8 +9,9 @@ import type { CalloutDataExt } from "../types/index.ts";
  * Service to create Telegram keyboard buttons
  */
 @Singleton()
-export class KeyboardService {
+export class KeyboardService extends BaseService {
   constructor(protected readonly i18n: I18nService) {
+    super();
     console.debug(`${this.constructor.name} created`);
   }
 

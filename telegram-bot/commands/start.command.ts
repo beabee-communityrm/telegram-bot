@@ -1,5 +1,5 @@
 import { Context, Singleton } from "../deps.ts";
-import { Command } from "../core/index.ts";
+import { BaseCommand } from "../core/index.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
@@ -7,14 +7,10 @@ import { MessageRenderer } from "../renderer/message.renderer.ts";
 import type { UserState } from "../types/user-state.ts";
 
 @Singleton()
-export class StartCommand extends Command {
+export class StartCommand extends BaseCommand {
   key = "start";
+  /** `/start` */
   command = "start";
-  /**
-   * Start the bot
-   * (Description is set in CommandService with a translation)
-   */
-  description = "";
 
   visibleOnStates: UserState[] = ["start"];
 

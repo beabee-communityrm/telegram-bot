@@ -1,5 +1,5 @@
+import { BaseCommand, BaseService } from "../core/index.ts";
 import { container, Singleton } from "../deps.ts";
-import { Command } from "../core/index.ts";
 import { I18nService } from "./i18n.service.ts";
 import { BotService } from "./bot.service.ts";
 
@@ -9,19 +9,20 @@ import type { CommandClass, UserState } from "../types/index.ts";
  * Service to manage Telegram Commands like `/start`
  */
 @Singleton()
-export class CommandService {
-  protected readonly _commands: { [key: string]: Command } = {};
+export class CommandService extends BaseService {
+  protected readonly _commands: { [key: string]: BaseCommand } = {};
 
   constructor(
     protected readonly bot: BotService,
     protected readonly i18n: I18nService,
   ) {
+    super();
     console.debug(`${this.constructor.name} created`);
   }
 
   public async onLocaleChange(lang: string) {
     for (const command of Object.values(this._commands)) {
-      command.changeLocale(lang);
+      command.onLocaleChange(lang);
     }
     await this.updateExistingCommands();
   }
@@ -89,7 +90,8 @@ export class CommandService {
     forState: UserState,
   ) {
     for (const Command of Object.values(Commands)) {
-      const command = container.resolve(Command); // Get the Singleton instance
+      // TODO: Fix type
+      const command = Command.getSingleton();
       // Add this command to the list of commands only if it's visible for the current user state
       if (command.visibleOnStates.includes(forState)) {
         this._commands[command.command] = command;
@@ -99,7 +101,7 @@ export class CommandService {
     await this.initExistingCommands();
   }
 
-  public getActive(): Command[] {
+  public getActive(): BaseCommand[] {
     return Object.values(this._commands);
   }
 
@@ -108,12 +110,12 @@ export class CommandService {
     return Object.values(Commands);
   }
 
-  public async getAll(): Promise<Command[]> {
+  public async getAll(): Promise<BaseCommand[]> {
     const Commands = await this.getAllClasses();
-    return Commands.map((Command) => container.resolve(Command));
+    return Commands.map((Command) => Command.getSingleton());
   }
 
-  public async getByState(state: UserState): Promise<Command[]> {
+  public async getByState(state: UserState): Promise<BaseCommand[]> {
     const commands = await this.getAll();
     return commands.filter((command) =>
       command.visibleOnStates.includes(state)

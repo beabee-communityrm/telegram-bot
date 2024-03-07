@@ -5,10 +5,10 @@ import { CalloutRenderer } from "../renderer/index.ts";
 import { EventService } from "../services/event.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
 import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants/index.ts";
-import { EventManager } from "../core/event-manager.ts";
+import { BaseEventManager } from "../core/base.events.ts";
 
 @Singleton()
-export class CalloutEventManager extends EventManager {
+export class CalloutEventManager extends BaseEventManager {
   constructor(
     protected readonly event: EventService,
     protected readonly callout: CalloutService,

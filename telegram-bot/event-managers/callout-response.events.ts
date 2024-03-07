@@ -9,10 +9,10 @@ import {
   BUTTON_CALLBACK_CALLOUT_INTRO,
   BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
 } from "../constants/index.ts";
-import { EventManager } from "../core/event-manager.ts";
+import { BaseEventManager } from "../core/base.events.ts";
 
 @Singleton()
-export class CalloutResponseEventManager extends EventManager {
+export class CalloutResponseEventManager extends BaseEventManager {
   constructor(
     protected readonly event: EventService,
     protected readonly callout: CalloutService,

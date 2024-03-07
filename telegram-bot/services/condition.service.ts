@@ -1,3 +1,4 @@
+import { BaseService } from "../core/index.ts";
 import { CalloutComponentSchema, Singleton } from "../deps.ts";
 import { ReplayType } from "../enums/index.ts";
 import { filterMimeTypesByPatterns } from "../utils/index.ts";
@@ -15,8 +16,9 @@ import type {
  * Define conditions for a replay.
  */
 @Singleton()
-export class ConditionService {
+export class ConditionService extends BaseService {
   constructor() {
+    super();
     console.debug(`${this.constructor.name} created`);
   }
 

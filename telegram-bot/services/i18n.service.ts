@@ -1,3 +1,4 @@
+import { BaseService } from "../core/index.ts";
 import { dirname, fromFileUrl, Singleton } from "../deps.ts";
 import {
   escapeMd,
@@ -20,7 +21,7 @@ interface Translations {
  * - Translate strings
  */
 @Singleton()
-export class I18nService {
+export class I18nService extends BaseService {
   protected translations: { [lang: string]: Translations } = {};
   protected _activeLang = "en";
   protected _ready = false;
@@ -35,6 +36,7 @@ export class I18nService {
   }
 
   constructor(protected readonly event: EventService) {
+    super();
     this.setActiveLangSync(this._activeLang);
     this._ready = true;
     console.debug(`${this.constructor.name} created`);

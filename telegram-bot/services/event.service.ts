@@ -1,62 +1,20 @@
-import { Singleton } from "../deps.ts";
+import { BaseService } from "../core/index.ts";
+import { Context, Singleton } from "../deps.ts";
+import { EventDispatcher } from "../utils/index.ts";
 
 import type {
   EventTelegramBot,
   EventTelegramBotListener,
-  Listener,
 } from "../types/index.ts";
-import type { Context } from "grammy/mod.ts";
-
-// deno-lint-ignore no-explicit-any
-class EventDispatcher<T = any> {
-  private listeners: { [event: string]: Listener<T>[] } = {};
-
-  /** Register a listener for a specific event */
-  public on(event: string, callback: Listener<T>): void {
-    if (!this.listeners[event]) {
-      this.listeners[event] = [];
-    }
-    this.listeners[event].push(callback);
-  }
-
-  /** Remove a listener for a specific event */
-  public off(event: string, callback: Listener<T>): void {
-    if (!this.listeners[event]) {
-      return;
-    }
-    this.listeners[event] = this.listeners[event].filter((listener) =>
-      listener !== callback
-    );
-  }
-
-  /** Dispatch an event to all registered listeners */
-  public dispatch(event: string, data: T): void {
-    if (!this.listeners[event]) {
-      return;
-    }
-    this.listeners[event].forEach((listener) => listener(data));
-    // Automatically remove listeners registered with `once`
-    this.listeners[event] = this.listeners[event].filter((listener) =>
-      !listener.once
-    );
-  }
-
-  /** Register a listener that will be removed after its first invocation */
-  public once(event: string, callback: Listener<T>): void {
-    const onceWrapper = ((data: T) => {
-      callback(data);
-      onceWrapper.once = true; // Mark for removal
-    }) as Listener<T>;
-    this.on(event, onceWrapper);
-  }
-}
 
 /**
  * Handle Telegram bot events
  * TODO: We need also a way to unsubscribe all callout response related event listeners when a user stops a callout response and for other cases.
  */
 @Singleton()
-export class EventService extends EventDispatcher {
+export class EventService extends BaseService {
+  protected _events = new EventDispatcher();
+
   constructor() {
     super();
     console.debug(`${this.constructor.name} created`);
@@ -119,7 +77,7 @@ export class EventService extends EventDispatcher {
    * @param ctx
    */
   public emit<T = Context>(eventName: string, detail: T) {
-    return this.dispatch(eventName, detail);
+    return this._events.dispatch(eventName, detail);
   }
 
   /**
@@ -131,7 +89,7 @@ export class EventService extends EventDispatcher {
     eventName: string,
     callback: EventTelegramBotListener<T>,
   ) {
-    return super.on(eventName, callback);
+    return this._events.on(eventName, callback);
   }
 
   /**
@@ -144,7 +102,7 @@ export class EventService extends EventDispatcher {
     eventName: string,
     callback: EventTelegramBotListener<T>,
   ) {
-    return super.once(eventName, callback);
+    return this._events.once(eventName, callback);
   }
 
   /**
@@ -171,7 +129,7 @@ export class EventService extends EventDispatcher {
     eventName: string,
     callback: EventTelegramBotListener<T>,
   ) {
-    return super.off(
+    return this._events.off(
       eventName,
       callback,
     );

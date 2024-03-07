@@ -1,8 +1,21 @@
-import { BotCommand, Context } from "../deps.ts";
+import { BotCommand, container, Context } from "../deps.ts";
 import type { I18nService } from "../services/i18n.service.ts";
 import type { UserState } from "../types/index.ts";
 
-export abstract class Command implements BotCommand {
+export abstract class BaseCommand implements BotCommand {
+  /**
+   * Get a singleton instance of the command.
+   * This method makes use of the [dependency injection](https://alosaur.com/docs/basics/DI#custom-di-container) container to resolve the service.
+   * @param this
+   * @returns
+   */
+  static getSingleton<T extends BaseCommand>(
+    // deno-lint-ignore no-explicit-any
+    this: new (...args: any[]) => T,
+  ): T {
+    return container.resolve(this);
+  }
+
   /**
    * Similar to `command`, but not translatable.
    * For example: "list"
@@ -16,8 +29,14 @@ export abstract class Command implements BotCommand {
   /**
    * The command description, used in the /help command or in the Telegram command list.
    * For example: "List active Callouts"
+   * This is a getter and returns the current translation of the description
    */
-  abstract description: string;
+  get description() {
+    return this.i18n.t(
+      `bot.commands.${this.key}.description`,
+      {},
+    );
+  }
 
   /**
    * Define the states where the command is visible
@@ -44,15 +63,7 @@ export abstract class Command implements BotCommand {
    * Called when the language changes.
    * @param lang The new language code.
    */
-  changeLocale(lang: string) {
-    // FIXME: This is not working on runtime
-    // this.command = this.i18n.t(`bot.commands.${this.key}.command`, {}, lang);
-    this.description = this.i18n.t(
-      `bot.commands.${this.key}.description`,
-      {},
-      lang,
-    );
-
+  onLocaleChange(lang: string) {
     console.debug(`[${this.constructor.name}] Language changed to [${lang}]`, {
       command: this.command,
       description: this.description,
