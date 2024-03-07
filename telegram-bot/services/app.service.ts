@@ -10,13 +10,10 @@ import { readJson, waitForUrl } from "../utils/index.ts";
 import type { EventManagerClass } from "../types/index.ts";
 
 /**
- * TelegramService is a Singleton service that handles the Telegram bot.
- * - Initialize the bot
- * - Add commands
- * - Add event listeners using the EventManagers
+ * AppService is the main singleton service that bootstraps the Telegram bot.
  */
 @Singleton()
-export class TelegramService extends BaseService {
+export class AppService extends BaseService {
   constructor(
     protected readonly command: CommandService,
     protected readonly bot: BotService,

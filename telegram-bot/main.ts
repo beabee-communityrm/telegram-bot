@@ -1,7 +1,7 @@
 import { load } from "std/dotenv/mod.ts";
 import { App } from "alosaur/mod.ts";
 import { CoreArea } from "./areas/core.area.ts";
-import { TelegramService } from "./services/telegram.service.ts";
+import { AppService } from "./services/app.service.ts";
 
 await load({ export: true });
 
@@ -13,8 +13,8 @@ const app = new App({
   logging: false,
 });
 
-const telegramService = TelegramService.getSingleton();
-await telegramService.bootstrap();
+const appService = AppService.getSingleton();
+await appService.bootstrap();
 
 const address = `${host}:${port}`;
 console.debug(`Listening on ${address}`);

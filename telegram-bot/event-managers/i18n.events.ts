@@ -1,6 +1,6 @@
 import { Singleton } from "alosaur/mod.ts";
 import { EventService } from "../services/event.service.ts";
-import { TelegramService } from "../services/telegram.service.ts";
+import { AppService } from "../services/app.service.ts";
 import { BaseEventManager } from "../core/base.events.ts";
 import { I18nEvent } from "../enums/i18n-event.ts";
 
@@ -10,7 +10,7 @@ import type { EventTelegramBot } from "../types/index.ts";
 export class I18nEventManager extends BaseEventManager {
   constructor(
     protected readonly event: EventService,
-    protected readonly telegramService: TelegramService,
+    protected readonly AppService: AppService,
   ) {
     super();
     console.debug(`${this.constructor.name} created`);
@@ -25,6 +25,6 @@ export class I18nEventManager extends BaseEventManager {
 
   protected onLanguageChanged(data: EventTelegramBot<string>) {
     console.debug("Language changed to: ", data);
-    this.telegramService.changeLocale(data);
+    this.AppService.changeLocale(data);
   }
 }
