@@ -1,5 +1,5 @@
 import { BaseService } from "../core/index.ts";
-import { container, Singleton } from "../deps.ts";
+import { Singleton } from "../deps.ts";
 import { I18nService } from "./i18n.service.ts";
 import { BotService } from "./bot.service.ts";
 import { CommandService } from "./command.service.ts";
