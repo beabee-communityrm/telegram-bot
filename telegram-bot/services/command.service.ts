@@ -5,6 +5,9 @@ import { BotService } from "./bot.service.ts";
 
 import type { CommandClass, UserState } from "../types/index.ts";
 
+/**
+ * Service to manage Telegram Commands like `/start`
+ */
 @Singleton()
 export class CommandService {
   protected readonly _commands: { [key: string]: Command } = {};

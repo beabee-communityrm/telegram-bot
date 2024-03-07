@@ -11,8 +11,13 @@ import { UserState } from "../types/index.ts";
 @Singleton()
 export class ListCommand extends Command {
   key = "list";
+  /** /list */
   command = "list";
-  description = "List active Callouts";
+  /**
+   * List active Callouts
+   * (Description is set in CommandService with a translation)
+   */
+  description = "";
 
   visibleOnStates: UserState[] = ["start"];
 

@@ -10,7 +10,11 @@ import type { UserState } from "../types/user-state.ts";
 export class StartCommand extends Command {
   key = "start";
   command = "start";
-  description = "Start the bot";
+  /**
+   * Start the bot
+   * (Description is set in CommandService with a translation)
+   */
+  description = "";
 
   visibleOnStates: UserState[] = ["start"];
 

@@ -1,5 +1,5 @@
 import {
-  Bot,
+  Bot as BotService,
   container,
   Context,
   hydrateReply,
@@ -11,14 +11,12 @@ await load({ export: true });
 const token = Deno.env.get("TELEGRAM_TOKEN");
 if (!token) throw new Error("TELEGRAM_TOKEN is not set");
 
-const BotService = Bot<ParseModeFlavor<Context>>;
-
-const bot = new BotService(token);
+const bot = new BotService<ParseModeFlavor<Context>>(token);
 
 // Install Grammy plugins
 bot.use(hydrateReply);
 
 // Register the bot instance for dependency injection
-container.registerInstance(BotService, bot);
+container.registerInstance(BotService<ParseModeFlavor<Context>>, bot);
 
 export { BotService };

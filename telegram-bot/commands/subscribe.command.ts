@@ -9,7 +9,11 @@ import type { UserState } from "../types/user-state.ts";
 export class SubscribeCommand extends Command {
   key = "subscribe";
   command = "subscribe";
-  description = "Subscribe a Callout";
+  /**
+   * Subscribe a Callout
+   * (Description is set in CommandService with a translation)
+   */
+  description = "";
 
   visibleOnStates: UserState[] = []; // Only for testing
 
