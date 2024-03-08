@@ -1,4 +1,4 @@
-import { ClientApiError, Context, Singleton } from "../deps.ts";
+import { ClientApiError, Singleton } from "../deps.ts";
 import { CalloutService } from "../services/callout.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
@@ -10,7 +10,7 @@ import {
 } from "../renderer/index.ts";
 
 import { BaseCommand } from "../core/index.ts";
-import type { UserState } from "../types/user-state.ts";
+import type { AppContext, UserState } from "../types/index.ts";
 
 @Singleton()
 export class ShowCommand extends BaseCommand {
@@ -33,7 +33,7 @@ export class ShowCommand extends BaseCommand {
   }
 
   // Handle the /show command
-  async action(ctx: Context) {
+  async action(ctx: AppContext) {
     console.debug("Show command called");
 
     // Get the slug from the `/show slug` message text

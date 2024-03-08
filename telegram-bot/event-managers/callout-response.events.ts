@@ -1,4 +1,4 @@
-import { Context, Singleton } from "../deps.ts";
+import { Singleton } from "../deps.ts";
 import { CalloutService } from "../services/callout.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { EventService } from "../services/event.service.ts";
@@ -10,6 +10,8 @@ import {
   BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
 } from "../constants/index.ts";
 import { BaseEventManager } from "../core/base.events.ts";
+
+import type { AppContext } from "../types/index.ts";
 
 @Singleton()
 export class CalloutResponseEventManager extends BaseEventManager {
@@ -43,7 +45,7 @@ export class CalloutResponseEventManager extends BaseEventManager {
     );
   }
 
-  protected async onCalloutParticipateKeyboardPressed(ctx: Context) {
+  protected async onCalloutParticipateKeyboardPressed(ctx: AppContext) {
     const data = ctx.callbackQuery?.data?.split(":");
     const slug = data?.[1];
     const startResponse = data?.[2] as "continue" | "cancel" === "continue";
@@ -127,7 +129,7 @@ export class CalloutResponseEventManager extends BaseEventManager {
    * Called when the user presses the "Yes" or "No" button on the callout response keyboard.
    * @param ctx
    */
-  protected async onCalloutIntroKeyboardPressed(ctx: Context) {
+  protected async onCalloutIntroKeyboardPressed(ctx: AppContext) {
     const data = ctx.callbackQuery?.data?.split(":");
     const shortSlug = data?.[1];
     const startIntro = data?.[2] as "yes" | "no" === "yes"; // This is the key, so it's not localized

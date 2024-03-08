@@ -9,12 +9,12 @@ import { getIdentifier } from "../utils/index.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
 
 import type {
+  AppContext,
   Render,
   RenderResponse,
   RenderResponseParsed,
   ReplayAccepted,
 } from "../types/index.ts";
-import type {} from "grammy/context.ts";
 
 /**
  * Service to handle the communication with the telegram bot and the telegram user.
@@ -41,7 +41,7 @@ export class CommunicationService extends BaseService {
    * @param ctx
    * @param res
    */
-  public async send(ctx: Context, render: Render) {
+  public async send(ctx: AppContext, render: Render) {
     switch (render.type) {
       case RenderType.PHOTO:
         await ctx.replyWithMediaGroup([render.photo]);
@@ -88,7 +88,7 @@ export class CommunicationService extends BaseService {
    * @param ctx
    * @returns
    */
-  public async receiveMessage(ctx: Context) {
+  public async receiveMessage(ctx: AppContext) {
     const data = await this.event.onceUserMessageAsync(getIdentifier(ctx));
     return data;
   }
@@ -99,7 +99,10 @@ export class CommunicationService extends BaseService {
    * @param render
    * @returns
    */
-  protected async acceptedUntilSpecificMessage(ctx: Context, render: Render) {
+  protected async acceptedUntilSpecificMessage(
+    ctx: AppContext,
+    render: Render,
+  ) {
     let context: Context;
     let message: Message | undefined;
     const replays: ReplayAccepted[] = [];
@@ -157,7 +160,7 @@ export class CommunicationService extends BaseService {
    * @returns
    */
   public async receive(
-    ctx: Context,
+    ctx: AppContext,
     render: Render,
   ): Promise<RenderResponseParsed<boolean>> {
     // Do not wait for a specific message
@@ -202,7 +205,7 @@ export class CommunicationService extends BaseService {
    * @param render
    * @returns
    */
-  public async sendAndReceive(ctx: Context, render: Render) {
+  public async sendAndReceive(ctx: AppContext, render: Render) {
     await this.send(ctx, render);
 
     const responses = await this.receive(ctx, render);
@@ -218,7 +221,7 @@ export class CommunicationService extends BaseService {
    * @param ctx
    * @param renders
    */
-  public async sendAndReceiveAll(ctx: Context, renders: Render[]) {
+  public async sendAndReceiveAll(ctx: AppContext, renders: Render[]) {
     const responses: RenderResponse[] = [];
     for (const render of renders) {
       const response = await this.sendAndReceive(ctx, render);
@@ -239,7 +242,7 @@ export class CommunicationService extends BaseService {
    *
    * **Official reference:** https://core.telegram.org/bots/api#answercallbackquery
    */
-  public async answerCallbackQuery(ctx: Context, text?: string) {
+  public async answerCallbackQuery(ctx: AppContext, text?: string) {
     try {
       await ctx.answerCallbackQuery({
         text,

@@ -1,7 +1,9 @@
-import { Context, Singleton } from "../deps.ts";
+import { Singleton } from "../deps.ts";
 import { EventService } from "../services/event.service.ts";
 import { BotService } from "../services/bot.service.ts";
 import { BaseEventManager } from "../core/base.events.ts";
+
+import type { AppContext } from "../types/index.ts";
 
 @Singleton()
 export class TelegramEventManager extends BaseEventManager {
@@ -27,11 +29,11 @@ export class TelegramEventManager extends BaseEventManager {
     this.bot.on("message", (ctx) => this.onMessage(ctx));
   }
 
-  protected onMessage(ctx: Context) {
+  protected onMessage(ctx: AppContext) {
     this.event.emitDetailedEvents("message", ctx);
   }
 
-  protected onCallbackQueryData(ctx: Context) {
+  protected onCallbackQueryData(ctx: AppContext) {
     if (!ctx.callbackQuery?.data) {
       // Dispatch general callback event
       this.event.emit("callback_query:data", ctx);

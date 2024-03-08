@@ -1,9 +1,9 @@
 import { BaseService } from "../core/index.ts";
-import { Context, InlineKeyboard, Keyboard, Singleton } from "../deps.ts";
+import { InlineKeyboard, Keyboard, Singleton } from "../deps.ts";
 import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants/index.ts";
 import { I18nService } from "./i18n.service.ts";
 
-import type { CalloutDataExt } from "../types/index.ts";
+import type { AppContext, CalloutDataExt } from "../types/index.ts";
 
 /**
  * Service to create Telegram keyboard buttons
@@ -127,7 +127,7 @@ export class KeyboardService extends BaseService {
    * Remove an existing inline keyboard
    * @param ctx
    */
-  public async removeInlineKeyboard(ctx: Context, withMessage = false) {
+  public async removeInlineKeyboard(ctx: AppContext, withMessage = false) {
     if (!withMessage) {
       const inlineKeyboard = new InlineKeyboard();
       await ctx.editMessageReplyMarkup({

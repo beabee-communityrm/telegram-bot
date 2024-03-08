@@ -1,9 +1,9 @@
-import { Context, Singleton } from "../deps.ts";
+import { Singleton } from "../deps.ts";
 import { SubscriberService } from "../services/subscriber.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import { BaseCommand } from "../core/index.ts";
 
-import type { UserState } from "../types/user-state.ts";
+import type { AppContext, UserState } from "../types/index.ts";
 
 @Singleton()
 export class UnsubscribeCommand extends BaseCommand {
@@ -20,7 +20,7 @@ export class UnsubscribeCommand extends BaseCommand {
     super();
   }
 
-  async action(ctx: Context) {
+  async action(ctx: AppContext) {
     this.subscriber.delete(ctx);
     await ctx.reply("You are now unsubscribed\!");
   }

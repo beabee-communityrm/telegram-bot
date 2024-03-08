@@ -1,10 +1,10 @@
 import { BaseService } from "../core/index.ts";
-import { Context, Singleton } from "../deps.ts";
+import { Singleton } from "../deps.ts";
 import { SubscriberModel } from "../models/index.ts";
 import { DatabaseService } from "./database.service.ts";
 import { getIdentifier } from "../utils/index.ts";
 
-import type { Subscriber } from "../types/index.ts";
+import type { AppContext, Subscriber } from "../types/index.ts";
 
 /**
  * Handle subscriptions to a Callout.
@@ -25,7 +25,7 @@ export class SubscriberService extends BaseService {
    * @param ctx
    * @returns
    */
-  private transformAnonymous(ctx: Context) {
+  private transformAnonymous(ctx: AppContext) {
     const id = getIdentifier(ctx);
     const subscriber = new SubscriberModel();
     subscriber.id = id;
@@ -39,7 +39,7 @@ export class SubscriberService extends BaseService {
    * @param forceAnonymous
    * @returns
    */
-  private transform(ctx: Context, forceAnonymous = false) {
+  private transform(ctx: AppContext, forceAnonymous = false) {
     if (!ctx.from || forceAnonymous) return this.transformAnonymous(ctx);
     const id = getIdentifier(ctx);
 
@@ -71,7 +71,7 @@ export class SubscriberService extends BaseService {
    * @returns
    */
   public async create(
-    ctx: Context,
+    ctx: AppContext,
   ): Promise<(SubscriberModel & Subscriber) | null> {
     const id = getIdentifier(ctx);
     if (await this.exists(id)) {
@@ -90,7 +90,7 @@ export class SubscriberService extends BaseService {
    * @param ctx
    * @returns
    */
-  public async update(ctx: Context) {
+  public async update(ctx: AppContext) {
     const data = this.transform(ctx);
     const result = await this.db.manager.update(SubscriberModel, data.id, data);
     return result;
@@ -101,7 +101,7 @@ export class SubscriberService extends BaseService {
    * @param ctx
    * @returns
    */
-  public async delete(ctx: Context) {
+  public async delete(ctx: AppContext) {
     const id = getIdentifier(ctx);
     const result = await this.db.manager.delete(SubscriberModel, id);
     return result;

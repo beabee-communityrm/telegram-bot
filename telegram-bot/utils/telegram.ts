@@ -1,9 +1,10 @@
-import type { Context, Message } from "../deps.ts";
+import type { Message } from "../deps.ts";
+import type { AppContext } from "../types/index.ts";
 
 /**
  * Extract the chat id from a context
  */
-export const getIdentifier = (ctx: Context) => {
+export const getIdentifier = (ctx: AppContext) => {
   const id = ctx.chat?.id || ctx.from?.id;
   if (!id) {
     throw new Error("No id found on context");

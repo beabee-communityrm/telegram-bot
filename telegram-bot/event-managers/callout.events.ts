@@ -1,4 +1,4 @@
-import { Context, Singleton } from "../deps.ts";
+import { Singleton } from "../deps.ts";
 import { CalloutService } from "../services/callout.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { CalloutRenderer } from "../renderer/index.ts";
@@ -6,6 +6,8 @@ import { EventService } from "../services/event.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
 import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants/index.ts";
 import { BaseEventManager } from "../core/base.events.ts";
+
+import type { AppContext } from "../types/index.ts";
 
 @Singleton()
 export class CalloutEventManager extends BaseEventManager {
@@ -30,7 +32,7 @@ export class CalloutEventManager extends BaseEventManager {
     );
   }
 
-  protected async onCalloutSelectionKeyboardPressed(ctx: Context) {
+  protected async onCalloutSelectionKeyboardPressed(ctx: AppContext) {
     const shortSlug = ctx.callbackQuery?.data?.split(":")[1];
 
     // Remove the inline keyboard

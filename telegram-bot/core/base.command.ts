@@ -1,6 +1,6 @@
-import { BotCommand, container, Context } from "../deps.ts";
+import { BotCommand, container } from "../deps.ts";
 import type { I18nService } from "../services/i18n.service.ts";
-import type { UserState } from "../types/index.ts";
+import type { AppContext, UserState } from "../types/index.ts";
 
 /**
  * Base class for all bot commands
@@ -61,7 +61,7 @@ export abstract class BaseCommand implements BotCommand {
    * The action that is executed when the command is called.
    * @param ctx The context of the Telegram message that triggered the command.
    */
-  abstract action(ctx: Context): Promise<void>;
+  abstract action(ctx: AppContext): Promise<void>;
 
   /**
    * Called when the language changes.

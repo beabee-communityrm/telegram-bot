@@ -1,9 +1,9 @@
-import { Context, Singleton } from "../deps.ts";
+import { Singleton } from "../deps.ts";
 import { SubscriberService } from "../services/subscriber.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import { BaseCommand } from "../core/index.ts";
 
-import type { UserState } from "../types/user-state.ts";
+import type { AppContext, UserState } from "../types/index.ts";
 
 @Singleton()
 export class SubscribeCommand extends BaseCommand {
@@ -20,7 +20,7 @@ export class SubscribeCommand extends BaseCommand {
     super();
   }
 
-  async action(ctx: Context) {
+  async action(ctx: AppContext) {
     this.subscriber.create(ctx);
     await ctx.reply("You are now subscribed\!");
   }

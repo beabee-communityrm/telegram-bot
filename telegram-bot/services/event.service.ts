@@ -3,6 +3,7 @@ import { Context, Singleton } from "../deps.ts";
 import { EventDispatcher } from "../utils/index.ts";
 
 import type {
+  AppContext,
   EventTelegramBot,
   EventTelegramBotListener,
 } from "../types/index.ts";
@@ -42,7 +43,7 @@ export class EventService extends BaseService {
    * @fires message
    * @fires message:user-123456789
    */
-  public emitDetailedEvents(eventName: string, ctx: Context) {
+  public emitDetailedEvents(eventName: string, ctx: AppContext) {
     const eventNameParts = eventName.split(":");
     const emittedEvents: { res: void; eventName: string }[] = [];
     let specificEventName = "";
@@ -85,7 +86,7 @@ export class EventService extends BaseService {
    * @param eventName The event name to listen for, e.g. "message"
    * @param callback The callback function to call when the event is emitted
    */
-  public on<T = Context>(
+  public on<T = AppContext>(
     eventName: string,
     callback: EventTelegramBotListener<T>,
   ) {
@@ -98,7 +99,7 @@ export class EventService extends BaseService {
    * @param callback The callback function to call when the event is emitted
    * @returns
    */
-  public once<T = Context>(
+  public once<T = AppContext>(
     eventName: string,
     callback: EventTelegramBotListener<T>,
   ) {
@@ -110,7 +111,7 @@ export class EventService extends BaseService {
    * @param eventName
    * @returns
    */
-  public onceAsync<T = Context>(
+  public onceAsync<T = AppContext>(
     eventName: string,
   ): Promise<EventTelegramBot<T>> {
     return new Promise((resolve) => {
