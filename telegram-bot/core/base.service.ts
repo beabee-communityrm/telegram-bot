@@ -1,5 +1,9 @@
 import { container } from "../deps.ts";
 
+/**
+ * Base class for all services.
+ * Any service must extend this class.
+ */
 export abstract class BaseService {
   /**
    * Get a singleton instance of the service.

@@ -6,6 +6,10 @@ import { getIdentifier } from "../utils/index.ts";
 
 import type { Subscriber } from "../types/index.ts";
 
+/**
+ * Handle subscriptions to a Callout.
+ * Just a prove of concept and not fully implemented for now and shows Shows how TypeORM can be used with Deno.
+ */
 @Singleton() // See https://github.com/alosaur/alosaur/tree/master/src/injection
 export class SubscriberService extends BaseService {
   /**

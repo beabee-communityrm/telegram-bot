@@ -1,6 +1,10 @@
 import { container } from "../deps.ts";
 import { EventService } from "../services/event.service.ts";
 
+/**
+ * Base class for all event managers.
+ * Any event manager must extend this class.
+ */
 export abstract class BaseEventManager {
   /**
    * Get a singleton instance of the event manager.

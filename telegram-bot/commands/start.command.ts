@@ -4,7 +4,7 @@ import { I18nService } from "../services/i18n.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
 
-import type { UserState, AppContext } from "../types/index.ts";
+import type { AppContext, UserState } from "../types/index.ts";
 
 @Singleton()
 export class StartCommand extends BaseCommand {
@@ -26,7 +26,7 @@ export class StartCommand extends BaseCommand {
   async action(ctx: AppContext) {
     await this.communication.send(ctx, this.messageRenderer.welcome());
     await this.communication.send(ctx, await this.messageRenderer.intro());
-    
+
     // Update the state of the user
     ctx.session.state = "start";
   }

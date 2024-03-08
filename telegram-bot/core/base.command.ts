@@ -2,6 +2,10 @@ import { BotCommand, container, Context } from "../deps.ts";
 import type { I18nService } from "../services/i18n.service.ts";
 import type { UserState } from "../types/index.ts";
 
+/**
+ * Base class for all bot commands
+ * Any command must extend this class
+ */
 export abstract class BaseCommand implements BotCommand {
   /**
    * Get a singleton instance of the command.

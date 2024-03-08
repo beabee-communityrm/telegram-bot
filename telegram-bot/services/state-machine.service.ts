@@ -1,6 +1,13 @@
 import { BaseService } from "../core/index.ts";
 import { proxy, ref, Singleton, snapshot, subscribe, watch } from "../deps.ts";
 
+/**
+ * State machine service
+ * * More or less just a injectable wrapper for [valtio](https://github.com/pmndrs/valtio) (vanillla-version)
+ * * Can be enriched with its own functionalities if needed
+ * * Used to create a proxy state object using {@link StateMachineService.create} for each chat session (sessions are handled using [Grammy's session plugin](https://grammy.dev/plugins/session))
+ * * Changes on the state (or any sub property) can be subscribed using {@link StateMachineService.subscribe}.
+ */
 @Singleton()
 export class StateMachineService extends BaseService {
   /**
