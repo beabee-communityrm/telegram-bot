@@ -13,7 +13,7 @@ import type { AppContext, Subscriber } from "../types/index.ts";
 @Singleton() // See https://github.com/alosaur/alosaur/tree/master/src/injection
 export class SubscriberService extends BaseService {
   /**
-   * @param _ DatabaseService injected to make sure the database is initialized
+   * @param db DatabaseService injected to make sure the database is initialized
    */
   constructor(private readonly db: DatabaseService) {
     super();

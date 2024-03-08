@@ -41,11 +41,13 @@ export class AppService extends BaseService {
     await this.printInfo();
     await this.waitForBeabee();
     this.networkCommunicator.startServer();
-    await this.command.initCommands();
+    await this.command.initAllCommands();
     await this.initEventManagers();
 
     // Start the bot
-    this.bot.start();
+    console.debug("Start the bot...");
+    this.bot.start(); // Do not await
+    console.debug("Bot started");
   }
 
   protected async waitForBeabee() {
@@ -75,6 +77,7 @@ export class AppService extends BaseService {
   }
 
   protected async initEventManagers() {
+    console.debug("Init event managers...");
     const EventMangers = await import("../event-managers/index.ts");
     for (const EventManager of Object.values(EventMangers)) {
       // TODO: Fix type

@@ -1,6 +1,7 @@
 import { BotCommand, container } from "../deps.ts";
+import { ChatState } from "../enums/index.ts";
 import type { I18nService } from "../services/i18n.service.ts";
-import type { AppContext, UserState } from "../types/index.ts";
+import type { AppContext } from "../types/index.ts";
 
 /**
  * Base class for all bot commands
@@ -24,7 +25,7 @@ export abstract class BaseCommand implements BotCommand {
    * Similar to `command`, but not translatable.
    * For example: "list"
    */
-  abstract key: string;
+  // abstract key: string;
   /**
    * The command name, without the leading slash.
    * For example: "list"
@@ -37,7 +38,7 @@ export abstract class BaseCommand implements BotCommand {
    */
   get description() {
     return this.i18n.t(
-      `bot.commands.${this.key}.description`,
+      `bot.commands.${this.command}.description`,
       {},
     );
   }
@@ -46,7 +47,7 @@ export abstract class BaseCommand implements BotCommand {
    * Define the states where the command is visible
    * @todo Not fully implemented yet, needs to implement the state manager first
    */
-  abstract visibleOnStates: UserState[];
+  abstract visibleOnStates: ChatState[];
 
   /**
    * The i18n service, used to translate the command name and description.

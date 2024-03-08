@@ -8,9 +8,9 @@ import { ChatState } from "../enums/index.ts";
 import type { AppContext } from "../types/index.ts";
 
 @Singleton()
-export class StartCommand extends BaseCommand {
-  /** `/start` */
-  command = "start";
+export class HelpCommand extends BaseCommand {
+  /** `/help` */
+  command = "help";
 
   visibleOnStates: ChatState[] = [ChatState.Initial, ChatState.Start];
 
@@ -22,14 +22,11 @@ export class StartCommand extends BaseCommand {
     super();
   }
 
-  // Handle the /start command, replay with markdown formatted text: https://grammy.dev/guide/basics#sending-message-with-formatting
+  // Handle the /help command
   async action(ctx: AppContext) {
+    // Use session.state to get context related help
     const session = await ctx.session;
 
-    // Update the state of the user
-    session.state = ChatState.Start;
-
-    await this.communication.send(ctx, this.messageRenderer.welcome());
     await this.communication.send(
       ctx,
       this.messageRenderer.intro(session.state),

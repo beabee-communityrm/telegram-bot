@@ -8,11 +8,19 @@ import { ChatState } from "../enums/index.ts";
 import type { AppContext } from "../types/index.ts";
 
 @Singleton()
-export class StartCommand extends BaseCommand {
-  /** `/start` */
-  command = "start";
+export class DebugCommand extends BaseCommand {
+  /** `/debug` */
+  command = "debug";
 
-  visibleOnStates: ChatState[] = [ChatState.Initial, ChatState.Start];
+  // TODO: Disable this command on production
+  visibleOnStates: ChatState[] = [
+    ChatState.CalloutAnswer,
+    ChatState.CalloutAnswered,
+    ChatState.CalloutDetails,
+    ChatState.CalloutList,
+    ChatState.Initial,
+    ChatState.Start,
+  ];
 
   constructor(
     protected readonly i18n: I18nService,
@@ -22,17 +30,11 @@ export class StartCommand extends BaseCommand {
     super();
   }
 
-  // Handle the /start command, replay with markdown formatted text: https://grammy.dev/guide/basics#sending-message-with-formatting
+  // Handle the /debug command
   async action(ctx: AppContext) {
-    const session = await ctx.session;
-
-    // Update the state of the user
-    session.state = ChatState.Start;
-
-    await this.communication.send(ctx, this.messageRenderer.welcome());
     await this.communication.send(
       ctx,
-      this.messageRenderer.intro(session.state),
+      await this.messageRenderer.debug(ctx),
     );
   }
 }

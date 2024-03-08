@@ -1,5 +1,5 @@
 import { bold, fmt, FormattedString, italic, Singleton } from "../deps.ts";
-import { RenderType } from "../enums/index.ts";
+import { ChatState, RenderType } from "../enums/index.ts";
 import { getSimpleMimeTypes } from "../utils/index.ts";
 import { ConditionService } from "../services/condition.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
@@ -12,11 +12,11 @@ import type {
   RenderText,
   ReplayAccepted,
   ReplayCondition,
-  UserState,
 } from "../types/index.ts";
 import type { CalloutComponentSchema } from "../deps.ts";
 import { ReplayType } from "../enums/replay-type.ts";
 import { ParsedResponseType } from "../enums/parsed-response-type.ts";
+import { AppContext } from "../types/app-context.ts";
 
 /**
  * Render info messages for Telegram in Markdown
@@ -53,14 +53,14 @@ export class MessageRenderer {
    * Render all available commands
    * @param state The current user state
    */
-  public async commands(state: UserState): Promise<RenderFormat> {
-    const commands = await this.command.getByState(state);
+  public commands(state: ChatState): RenderFormat {
+    const commands = this.command.getForState(state);
 
     const strings: FormattedString[] = [];
 
     for (const command of commands) {
       strings.push(
-        fmt`${bold("/" + command.key)}: ${italic(command.description)}\n`,
+        fmt`${bold("/" + command.command)}: ${italic(command.description)}\n`,
       );
     }
 
@@ -75,13 +75,34 @@ export class MessageRenderer {
     return result;
   }
 
+  public async debug(ctx: AppContext): Promise<RenderFormat> {
+    const strings: FormattedString[] = [];
+    const session = await ctx.session;
+
+    strings.push(fmt`${bold("State: ")} ${session.state}\n`);
+    if (ctx.chat) {
+      strings.push(fmt`${bold("Chat ID: ")} ${ctx.chat?.id}\n`);
+      strings.push(fmt`${bold("Chat type: ")} ${ctx.chat?.type}\n`);
+    }
+
+    // Add more debug info here if needed
+
+    return {
+      type: RenderType.FORMAT,
+      format: strings,
+      key: "debug",
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
+    };
+  }
+
   /**
    * Render the intro message
    */
-  public async intro(): Promise<RenderFormat> {
+  public intro(state: ChatState): RenderFormat {
     const tKey = "bot.info.messages.intro";
 
-    const commands = fmt((await this.commands("start")).format);
+    const commands = fmt((this.commands(state)).format);
     const intro = this.i18n.t(tKey, {
       botName: "beabee",
       commands: commands.toString(),

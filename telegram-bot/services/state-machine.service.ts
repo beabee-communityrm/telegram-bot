@@ -1,5 +1,9 @@
 import { BaseService } from "../core/index.ts";
 import { proxy, ref, Singleton, snapshot, subscribe, watch } from "../deps.ts";
+import { EventService } from "./event.service.ts";
+import { ChatState, SessionEvent } from "../enums/index.ts";
+
+import type { SessionState } from "../types/index.ts";
 
 /**
  * State machine service
@@ -10,6 +14,10 @@ import { proxy, ref, Singleton, snapshot, subscribe, watch } from "../deps.ts";
  */
 @Singleton()
 export class StateMachineService extends BaseService {
+  constructor(protected readonly event: EventService) {
+    super();
+  }
+
   /**
    * Create a new proxy state object.
    * The [proxy](https://valtio.pmnd.rs/docs/api/basic/proxy) tracks changes to the original object and all nested objects, notifying listeners when an object is modified.
@@ -18,6 +26,29 @@ export class StateMachineService extends BaseService {
    */
   public create<T extends object>(baseObject?: T): T {
     return proxy(baseObject);
+  }
+
+  /**
+   * Create a new session state object for a chat session handled by Grammy's session plugin.
+   * @returns
+   */
+  public createSession() {
+    const sessionProxy = this.create<SessionState>({
+      state: ChatState.Initial,
+      _data: this.ref({
+        ctx: null,
+      }),
+    });
+
+    // Auto-subscribe to session changes and forward them as events
+    this.subscribe(sessionProxy, (_ops) => {
+      console.debug("Session updated", sessionProxy.state, _ops);
+      const ctx = sessionProxy._data.ctx;
+      if (!ctx) return;
+      this.event.emit(SessionEvent.SESSION_CHANGED, ctx);
+    });
+
+    return sessionProxy;
   }
 
   /**
@@ -95,8 +126,4 @@ export class StateMachineService extends BaseService {
    * Any changes to the proxy object (or its child proxies) will rerun the callback.
    */
   public watch = watch;
-
-  constructor() {
-    super();
-  }
 }

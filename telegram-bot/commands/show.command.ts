@@ -8,17 +8,17 @@ import {
   CalloutResponseRenderer,
   MessageRenderer,
 } from "../renderer/index.ts";
+import { ChatState } from "../enums/index.ts";
 
 import { BaseCommand } from "../core/index.ts";
-import type { AppContext, UserState } from "../types/index.ts";
+import type { AppContext } from "../types/index.ts";
 
 @Singleton()
 export class ShowCommand extends BaseCommand {
-  key = "show";
   /** `/show` */
   command = "show";
 
-  visibleOnStates: UserState[] = []; // Only for testing
+  visibleOnStates: ChatState[] = []; // TODO: Make this for admins visible
 
   constructor(
     protected readonly callout: CalloutService,
@@ -48,6 +48,8 @@ export class ShowCommand extends BaseCommand {
       const callout = await this.callout.get(slug);
       const res = await this.calloutRenderer.callout(callout);
       await this.communication.sendAndReceiveAll(ctx, res);
+      const session = await ctx.session;
+      session.state = ChatState.CalloutDetails;
     } catch (error) {
       console.error("Error sending callout", error);
       if (error instanceof ClientApiError && error.httpCode === 404) {

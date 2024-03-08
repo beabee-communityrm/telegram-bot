@@ -1,8 +1,14 @@
-import { Bot, hydrateReply, session, Singleton } from "../deps.ts";
+import {
+  Bot,
+  hydrateReply,
+  lazySession,
+  NextFunction,
+  Singleton,
+} from "../deps.ts";
 
 import { StateMachineService } from "./state-machine.service.ts";
 
-import type { AppContext, SessionState } from "../types/index.ts";
+import type { AppContext } from "../types/index.ts";
 
 @Singleton()
 export class BotService extends Bot<AppContext> {
@@ -14,24 +20,18 @@ export class BotService extends Bot<AppContext> {
     super(token);
 
     // See https://grammy.dev/plugins/session
-    this.use(session({
-      initial: this.newSession.bind(this),
+    this.use(lazySession({
+      initial: this.stateMachine.createSession.bind(this.stateMachine),
     }));
 
     // See https://grammy.dev/plugins/parse-mode
     this.use(hydrateReply);
-  }
 
-  newSession() {
-    const session = this.stateMachine.create<SessionState>({
-      state: "initial",
+    // Custom middleware, see https://grammy.dev/guide/middleware#writing-custom-middleware
+    this.use(async (ctx: AppContext, next: NextFunction) => {
+      const session = await ctx.session;
+      session._data.ctx = ctx;
+      await next();
     });
-
-    // Just for testing
-    this.stateMachine.subscribe(session, (snapshot) => {
-      console.debug("Session updated", snapshot);
-    });
-
-    return session;
   }
 }

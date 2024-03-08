@@ -1,6 +1,7 @@
 export * from "./app-context.ts";
 export * from "./beabee-client.ts";
 export * from "./callout-data-ext.ts";
+export * from "./chat-state.ts";
 export * from "./command-class.ts";
 export * from "./event-manager-class.ts";
 export * from "./event-telegram-bot-listener.ts";
@@ -50,4 +51,3 @@ export * from "./replay-condition.ts";
 export * from "./replay.ts";
 export * from "./session-state.ts";
 export * from "./subscriber.ts";
-export * from "./user-state.ts";

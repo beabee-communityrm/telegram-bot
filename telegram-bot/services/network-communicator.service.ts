@@ -94,6 +94,7 @@ export class NetworkCommunicatorService extends BaseService {
    * Start the internal server
    */
   public startServer() {
+    console.debug("Start server...");
     const reloadRoute = new URLPattern({ pathname: "/books/:id" });
     this.server = Deno.serve({ port: 4000 }, (req: Request) => {
       const method = req.method;

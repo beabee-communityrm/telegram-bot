@@ -5,6 +5,7 @@ import { EventService } from "../services/event.service.ts";
 import { TransformService } from "../services/transform.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
 import { CalloutResponseRenderer, MessageRenderer } from "../renderer/index.ts";
+import { ChatState } from "../enums/index.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_INTRO,
   BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
@@ -49,6 +50,7 @@ export class CalloutResponseEventManager extends BaseEventManager {
     const data = ctx.callbackQuery?.data?.split(":");
     const slug = data?.[1];
     const startResponse = data?.[2] as "continue" | "cancel" === "continue";
+    const session = await ctx.session;
 
     // Remove the inline keyboard
     await this.keyboard.removeInlineKeyboard(ctx);
@@ -81,6 +83,9 @@ export class CalloutResponseEventManager extends BaseEventManager {
 
     const calloutWithForm = await this.callout.get(slug, ["form"]);
 
+    // Set the session state
+    session.state = ChatState.CalloutAnswer;
+
     // Render the callout with the form
     const questions = this.calloutResponseRenderer
       .full(calloutWithForm);
@@ -99,6 +104,9 @@ export class CalloutResponseEventManager extends BaseEventManager {
     const answers = this.transform.parseCalloutFormResponses(responses);
 
     // TODO: Show summary of answers here
+
+    // Set the session state
+    session.state = ChatState.CalloutAnswered;
 
     console.debug(
       "Got answers",

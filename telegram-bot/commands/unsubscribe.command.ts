@@ -2,16 +2,16 @@ import { Singleton } from "../deps.ts";
 import { SubscriberService } from "../services/subscriber.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import { BaseCommand } from "../core/index.ts";
+import { ChatState } from "../enums/index.ts";
 
-import type { AppContext, UserState } from "../types/index.ts";
+import type { AppContext } from "../types/index.ts";
 
 @Singleton()
 export class UnsubscribeCommand extends BaseCommand {
-  key = "unsubscribe";
   /** `/unsubscribe` */
   command = "unsubscribe";
 
-  visibleOnStates: UserState[] = []; // Only for testing
+  visibleOnStates: ChatState[] = []; // TODO: Make this for admins visible
 
   constructor(
     protected readonly subscriber: SubscriberService,
