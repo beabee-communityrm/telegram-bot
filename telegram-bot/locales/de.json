@@ -1,6 +1,18 @@
 {
   "bot": {
     "commands": {
+      "cancel": {
+        "command": "abbrechen",
+        "description": "Bricht deinen aktuellen Vorgang ab"
+      },
+      "debug": {
+        "command": "",
+        "description": "Debug-Informationen anzeigen"
+      },
+      "help": {
+        "command": "hilfe",
+        "description": "Hilfemeldung anzeigen"
+      },
       "list": {
         "command": "auflisten",
         "description": "Offene Aufrufe anzeigen"
@@ -24,6 +36,10 @@
     },
     "info": {
       "messages": {
+        "cancel": {
+          "successful": "Vorgang erfolgreich abgebrochen",
+          "unsuccessful": "Du hast nichts, was du abbrechen könntest"
+        },
         "done": "Wenn Sie mit Ihrer Antwort fertig sind, tippen Sie einfach \"{done}\".",
         "enterAmountOfMoney": "Bitte geben Sie einen Geldbetrag ein.",
         "enterDate": "Bitte geben Sie ein Datum ein.",

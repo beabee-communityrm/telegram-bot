@@ -39,7 +39,7 @@ export class ListCommand extends BaseCommand {
     // Update the state
     session.state = ChatState.CalloutList;
     const callouts = await this.callout.list();
-    const res = this.calloutRenderer.listItems(callouts);
-    await this.communication.sendAndReceiveAll(ctx, res);
+    const render = this.calloutRenderer.listItems(callouts);
+    await this.communication.sendAndReceiveAll(ctx, render);
   }
 }

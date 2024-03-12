@@ -1,6 +1,18 @@
 {
   "bot": {
     "commands": {
+      "cancel": {
+        "command": "",
+        "description": ""
+      },
+      "debug": {
+        "command": "",
+        "description": ""
+      },
+      "help": {
+        "command": "",
+        "description": ""
+      },
       "list": {
         "command": "",
         "description": ""
@@ -24,6 +36,10 @@
     },
     "info": {
       "messages": {
+        "cancel": {
+          "successful": "",
+          "unsuccessful": ""
+        },
         "done": "",
         "enterAmountOfMoney": "",
         "enterDate": "",

@@ -176,6 +176,19 @@ export class MessageRenderer {
     };
   }
 
+  public cancelMessage(successful: boolean): RenderText {
+    const tKey = successful
+      ? "bot.info.messages.cancel.successful"
+      : "bot.info.messages.cancel.unsuccessful";
+    return {
+      type: RenderType.TEXT,
+      text: this.i18n.t(tKey),
+      key: tKey,
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
+    };
+  }
+
   public notAFileMessage(): RenderText {
     const tKey = "bot.response.messages.notAFileMessage";
     return {

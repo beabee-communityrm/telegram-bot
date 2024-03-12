@@ -1,3 +1,4 @@
+export * from "./cancel.command.ts";
 export * from "./debug.command.ts";
 export * from "./help.command.ts";
 export * from "./list.command.ts";

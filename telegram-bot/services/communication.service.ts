@@ -48,16 +48,17 @@ export class CommunicationService extends BaseService {
    * @param res
    */
   public async send(ctx: AppContext, render: Render) {
+    const markup = render.keyboard || (render.removeKeyboard
+      ? { remove_keyboard: true as true }
+      : undefined);
 
-    const markup = render.keyboard || render.removeKeyboard ? { remove_keyboard: true as true } : undefined;
+    console.debug("Render markup: ", markup)
 
     switch (render.type) {
       case RenderType.PHOTO:
-        await ctx.replyWithMediaGroup([render.photo]);
+        await ctx.replyWithMediaGroup([render.photo], {});
         if (render.keyboard) {
-          await ctx.reply("", {
-            reply_markup: markup
-          });
+          // TODO: Send keyboard
         }
         break;
       case RenderType.MARKDOWN:

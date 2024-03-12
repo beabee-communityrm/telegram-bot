@@ -24,8 +24,6 @@ export class SessionEventManager extends BaseEventManager {
   }
 
   protected async onSessionChanged(data: EventTelegramBot) {
-    const session = await data.session;
-    console.debug("Session changed to: ", session.state);
-    this.command.onSessionChanged(data);
+    await this.command.onSessionChanged(data);
   }
 }

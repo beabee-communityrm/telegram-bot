@@ -139,5 +139,4 @@ export class KeyboardService extends BaseService {
 
     return await ctx.deleteMessage();
   }
-
 }

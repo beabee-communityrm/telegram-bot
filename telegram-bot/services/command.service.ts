@@ -44,7 +44,10 @@ export class CommandService extends BaseService {
   public async onSessionChanged(ctx: AppContext) {
     const session = await ctx.session;
 
-    console.debug("Session changed", ctx.chat?.id, session);
+    console.debug(`Session for chat ID "${ctx.chat?.id}" changed:`, {
+      ...session,
+      _data: "<hidden>",
+    });
 
     if (!ctx.chat?.id) {
       console.warn("No chat id found");
@@ -159,10 +162,16 @@ export class CommandService extends BaseService {
 
   public getForState(state: ChatState): BaseCommand[] {
     const commands = this.getAllRegistered();
-    return commands.filter((command) =>
+    return commands.filter((command) => {
       // If the command has no visible states, it is visible in all states
       // Otherwise, check if the state is included in the visible states
-      command.visibleOnStates.length === 0 || command.visibleOnStates.includes(state)
-    );
+      if (
+        command.visibleOnStates.length === 0 ||
+        command.visibleOnStates.includes(state)
+      ) {
+        return true;
+      }
+      return false;
+    });
   }
 }

@@ -1,6 +1,18 @@
 {
   "bot": {
     "commands": {
+      "cancel": {
+        "command": "cancel",
+        "description": "Cancels your current process"
+      },
+      "debug": {
+        "command": "debug",
+        "description": "Display debug information"
+      },
+      "help": {
+        "command": "help",
+        "description": "Display help message"
+      },
       "list": {
         "command": "list",
         "description": "Show open callouts"
@@ -24,6 +36,10 @@
     },
     "info": {
       "messages": {
+        "cancel": {
+          "successful": "Process successfully cancelled",
+          "unsuccessful": "You have nothing you can cancel"
+        },
         "done": "When you are finished with your response, just type \"{done}\".",
         "enterAmountOfMoney": "Please enter an amount of money.",
         "enterDate": "Please enter a date.",
