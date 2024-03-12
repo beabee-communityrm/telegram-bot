@@ -48,36 +48,39 @@ export class CommunicationService extends BaseService {
    * @param res
    */
   public async send(ctx: AppContext, render: Render) {
+
+    const markup = render.keyboard || render.removeKeyboard ? { remove_keyboard: true as true } : undefined;
+
     switch (render.type) {
       case RenderType.PHOTO:
         await ctx.replyWithMediaGroup([render.photo]);
         if (render.keyboard) {
           await ctx.reply("", {
-            reply_markup: render.keyboard,
+            reply_markup: markup
           });
         }
         break;
       case RenderType.MARKDOWN:
         await ctx.reply(render.markdown, {
           parse_mode: "MarkdownV2",
-          reply_markup: render.keyboard,
+          reply_markup: markup,
         });
         break;
       case RenderType.HTML:
         await ctx.reply(render.html, {
           parse_mode: "HTML",
-          reply_markup: render.keyboard,
+          reply_markup: markup,
         });
         break;
       case RenderType.TEXT:
         await ctx.reply(render.text, {
-          reply_markup: render.keyboard,
+          reply_markup: markup,
         });
         break;
       // See https://grammy.dev/plugins/parse-mode
       case RenderType.FORMAT:
         await (ctx as ParseModeFlavor<Context>).replyFmt(fmt(render.format), {
-          reply_markup: render.keyboard,
+          reply_markup: markup,
         });
         break;
       case RenderType.EMPTY:

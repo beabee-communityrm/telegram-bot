@@ -1,4 +1,6 @@
 export enum ChatState {
+  /** A chat should never have this state, it is used to hide commands */
+  None = "none",
   /** The user has not yet seen the welcome message */
   Initial = "initial",
   /** The user has just started the bot and seen the welcome message */

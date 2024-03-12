@@ -18,7 +18,7 @@ export class ShowCommand extends BaseCommand {
   /** `/show` */
   command = "show";
 
-  visibleOnStates: ChatState[] = []; // TODO: Make this for admins visible
+  visibleOnStates: ChatState[] = [ChatState.None]; // TODO: Make this for admins visible
 
   constructor(
     protected readonly callout: CalloutService,

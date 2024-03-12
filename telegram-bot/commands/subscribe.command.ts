@@ -11,7 +11,7 @@ export class SubscribeCommand extends BaseCommand {
   /** `/subscribe` */
   command = "subscribe";
 
-  visibleOnStates: ChatState[] = []; // TODO: Make this for admins visible
+  visibleOnStates: ChatState[] = [ChatState.None]; // TODO: Make this for admins visible
 
   constructor(
     protected readonly subscriber: SubscriberService,

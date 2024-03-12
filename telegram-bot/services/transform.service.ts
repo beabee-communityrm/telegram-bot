@@ -35,7 +35,6 @@ import type {
   CalloutResponseAnswersSlide,
 } from "../deps/index.ts";
 import { ReplayAcceptedCalloutComponentSchema } from "../types/index.ts";
-import {} from "../../beabee-client/src/deps/index.ts";
 
 /**
  * Service to transform message responses

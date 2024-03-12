@@ -51,6 +51,7 @@ export class MessageRenderer {
       key: "welcome",
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
     return result;
   }

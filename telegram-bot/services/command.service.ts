@@ -93,14 +93,22 @@ export class CommandService extends BaseService {
 
   /**
    * Update the commands.
+   * @param options The options
    * @returns
    */
   protected async updateCommands(options: {
+    /** The commands to update, if no commands are provided, all currently commands are updated */
     commands?: BotCommand[];
+    /** The scope of the commands, if no scope is provided, the commands are global for all chats */
     scope?: BotCommandScope;
+    /** Force the update */
     force?: boolean;
   } = {}) {
-    console.debug("Update commands...");
+    console.debug("Update commands...", {
+      scope: options.scope,
+      force: options.force,
+      commands: options.commands?.map((c) => c.command),
+    });
     // Set updates
     const commands = options.commands?.map((command) => ({
       command: command.command,
@@ -152,7 +160,9 @@ export class CommandService extends BaseService {
   public getForState(state: ChatState): BaseCommand[] {
     const commands = this.getAllRegistered();
     return commands.filter((command) =>
-      command.visibleOnStates.includes(state)
+      // If the command has no visible states, it is visible in all states
+      // Otherwise, check if the state is included in the visible states
+      command.visibleOnStates.length === 0 || command.visibleOnStates.includes(state)
     );
   }
 }

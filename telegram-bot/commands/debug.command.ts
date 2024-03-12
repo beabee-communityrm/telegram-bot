@@ -13,14 +13,7 @@ export class DebugCommand extends BaseCommand {
   command = "debug";
 
   // TODO: Disable this command on production
-  visibleOnStates: ChatState[] = [
-    ChatState.CalloutAnswer,
-    ChatState.CalloutAnswered,
-    ChatState.CalloutDetails,
-    ChatState.CalloutList,
-    ChatState.Initial,
-    ChatState.Start,
-  ];
+  visibleOnStates: ChatState[] = []; // Visible in all states
 
   constructor(
     protected readonly i18n: I18nService,

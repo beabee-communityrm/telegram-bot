@@ -39,8 +39,7 @@ export abstract class BaseCommand implements BotCommand {
   }
 
   /**
-   * Define the states where the command is visible
-   * @todo Not fully implemented yet, needs to implement the state manager first
+   * Define the states where the command is visible. Leave empty to make it visible in all states.
    */
   abstract visibleOnStates: ChatState[];
 

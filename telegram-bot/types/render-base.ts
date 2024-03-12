@@ -24,6 +24,11 @@ export interface RenderBase {
   keyboard?: InlineKeyboard | Keyboard;
 
   /**
+   * Remove the custom keyboard after the user has replied.
+   */
+  removeKeyboard?: boolean;
+
+  /**
    * Define the types of the replay you are accepting.
    */
   accepted: ReplayCondition;

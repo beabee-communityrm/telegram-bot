@@ -112,13 +112,14 @@ export class KeyboardService extends BaseService {
    * Create a keyboard with Continue and Cancel buttons.
    */
   public continueCancel() {
-    const keyboard = new Keyboard();
-    keyboard.text(
-      this.i18n.t("bot.keyboard.label.continue"),
-    ).row()
+    const keyboard = new Keyboard()
+      .text(
+        this.i18n.t("bot.keyboard.label.continue"),
+      )
+      .row()
       .text(
         this.i18n.t("bot.keyboard.label.cancel"),
-      );
+      ).oneTime();
 
     return keyboard;
   }
@@ -128,14 +129,15 @@ export class KeyboardService extends BaseService {
    * @param ctx
    */
   public async removeInlineKeyboard(ctx: AppContext, withMessage = false) {
+    // Do not delete keyboard message?
     if (!withMessage) {
       const inlineKeyboard = new InlineKeyboard();
-      await ctx.editMessageReplyMarkup({
+      return await ctx.editMessageReplyMarkup({
         reply_markup: inlineKeyboard,
       });
-      // TODO: Add message with clicked selection?
-    } else {
-      await ctx.deleteMessage();
     }
+
+    return await ctx.deleteMessage();
   }
+
 }
