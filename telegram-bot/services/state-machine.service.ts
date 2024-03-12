@@ -8,6 +8,7 @@ import {
   watch,
 } from "../deps/index.ts";
 import { EventService } from "./event.service.ts";
+import { KeyboardService } from "./keyboard.service.ts";
 import { ChatState, SessionEvent } from "../enums/index.ts";
 
 import type { SessionState } from "../types/index.ts";
@@ -21,7 +22,10 @@ import type { SessionState } from "../types/index.ts";
  */
 @Singleton()
 export class StateMachineService extends BaseService {
-  constructor(protected readonly event: EventService) {
+  constructor(
+    protected readonly event: EventService,
+    protected readonly keyboard: KeyboardService,
+  ) {
     super();
   }
 
@@ -44,6 +48,7 @@ export class StateMachineService extends BaseService {
       state: ChatState.Initial,
       _data: this.ref({
         ctx: null,
+        abortController: null,
       }),
     });
 
@@ -56,6 +61,30 @@ export class StateMachineService extends BaseService {
     });
 
     return sessionProxy;
+  }
+
+  /**
+   * Set the state of a session
+   * @param session The session to set the state for
+   * @param newState The new state
+   * @param cancellable If the state change should be cancellable
+   * @returns The abort signal if the state change is cancellable, otherwise null
+   */
+  public setSessionState(
+    session: SessionState,
+    newState: ChatState,
+    cancellable: boolean,
+  ) {
+    session.state = newState;
+    session._data.abortController = cancellable ? new AbortController() : null;
+    return session._data.abortController?.signal ?? null;
+  }
+
+  public cancelSessionState(session: SessionState) {
+    session.state = ChatState.Start;
+    if (session._data.abortController) {
+      session._data.abortController.abort();
+    }
   }
 
   /**

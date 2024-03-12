@@ -48,11 +48,10 @@ export class CommunicationService extends BaseService {
    * @param res
    */
   public async send(ctx: AppContext, render: Render) {
-    const markup = render.keyboard || (render.removeKeyboard
-      ? { remove_keyboard: true as true }
-      : undefined);
+    const markup = render.keyboard ||
+      (render.removeKeyboard ? { remove_keyboard: true as true } : undefined);
 
-    console.debug("Render markup: ", markup)
+    console.debug("Render markup: ", markup);
 
     switch (render.type) {
       case RenderType.PHOTO:
@@ -231,9 +230,16 @@ export class CommunicationService extends BaseService {
    * @param ctx
    * @param renders
    */
-  public async sendAndReceiveAll(ctx: AppContext, renders: Render[]) {
+  public async sendAndReceiveAll(
+    ctx: AppContext,
+    renders: Render[],
+    signal: AbortSignal | null,
+  ) {
     const responses: RenderResponse[] = [];
     for (const render of renders) {
+      if (signal?.aborted) {
+        return signal;
+      }
       const response = await this.sendAndReceive(ctx, render);
       if (response) {
         responses.push(response);

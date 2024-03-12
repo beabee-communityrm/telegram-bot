@@ -3,6 +3,7 @@ import { CalloutService } from "../services/callout.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
+import { StateMachineService } from "../services/state-machine.service.ts";
 import {
   CalloutRenderer,
   CalloutResponseRenderer,
@@ -28,6 +29,7 @@ export class ShowCommand extends BaseCommand {
     protected readonly calloutRenderer: CalloutRenderer,
     protected readonly calloutResponseRenderer: CalloutResponseRenderer,
     protected readonly i18n: I18nService,
+    protected readonly stateMachine: StateMachineService,
   ) {
     super();
   }
@@ -45,11 +47,17 @@ export class ShowCommand extends BaseCommand {
     }
 
     try {
-      const callout = await this.callout.get(slug);
-      const res = await this.calloutRenderer.callout(callout);
-      await this.communication.sendAndReceiveAll(ctx, res);
       const session = await ctx.session;
-      session.state = ChatState.CalloutDetails;
+      const callout = await this.callout.get(slug);
+      const render = await this.calloutRenderer.calloutDetails(callout);
+
+      const signal = this.stateMachine.setSessionState(
+        session,
+        ChatState.CalloutDetails,
+        true,
+      );
+
+      await this.communication.sendAndReceiveAll(ctx, render, signal);
     } catch (error) {
       console.error("Error sending callout", error);
       if (error instanceof ClientApiError && error.httpCode === 404) {

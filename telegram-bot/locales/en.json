@@ -37,6 +37,7 @@
     "info": {
       "messages": {
         "cancel": {
+          "cancelled": "The process has already been cancelled",
           "successful": "Process successfully cancelled",
           "unsuccessful": "You have nothing you can cancel"
         },

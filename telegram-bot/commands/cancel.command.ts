@@ -2,6 +2,7 @@ import { Singleton } from "../deps/index.ts";
 import { BaseCommand } from "../core/index.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
+import { StateMachineService } from "../services/state-machine.service.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
 import { ChatState } from "../enums/index.ts";
 
@@ -19,6 +20,7 @@ export class CancelCommand extends BaseCommand {
     protected readonly i18n: I18nService,
     protected readonly communication: CommunicationService,
     protected readonly messageRenderer: MessageRenderer,
+    protected readonly stateMachine: StateMachineService,
   ) {
     super();
   }
@@ -26,47 +28,30 @@ export class CancelCommand extends BaseCommand {
   // Handle the /cancel command
   async action(ctx: AppContext) {
     const session = await ctx.session;
+    const abortController = session._data.abortController;
 
-    switch (session.state) {
-      case ChatState.Initial:
-      case ChatState.Start:
-      case ChatState.None:
-        session.state = ChatState.Start;
-        return await this.communication.send(
+    if (abortController) {
+      // Already cancelled
+      if (abortController.signal.aborted) {
+        await this.communication.send(
           ctx,
-          this.messageRenderer.cancelMessage(false),
+          this.messageRenderer.cancelCancelledMessage(),
         );
+      } else {
+        // Successful cancellation
+        await this.communication.send(
+          ctx,
+          this.messageRenderer.cancelSuccessfulMessage(),
+        );
+      }
+    } else {
+      // Nothing to cancel
+      return await this.communication.send(
+        ctx,
+        this.messageRenderer.cancelUnsuccessfulMessage(),
+      );
     }
 
-    switch (session.state) {
-      case ChatState.CalloutAnswer:
-        console.debug(
-          "TODO: Canceling callout answer by watching state changes",
-        );
-        break;
-      case ChatState.CalloutAnswered:
-        console.debug(
-          "TODO: Canceling callout answered by watching state changes",
-        );
-        break;
-      case ChatState.CalloutDetails:
-        console.debug(
-          "TODO: Canceling callout details by watching state changes",
-        );
-        break;
-      case ChatState.CalloutList:
-        console.debug("TODO: Canceling callout list by watching state changes");
-        break;
-      default:
-        throw new Error("Invalid state: " + session.state);
-    }
-
-    // Reset state
-    session.state = ChatState.Start;
-
-    return await this.communication.send(
-      ctx,
-      this.messageRenderer.cancelMessage(true),
-    );
+    this.stateMachine.cancelSessionState(session);
   }
 }

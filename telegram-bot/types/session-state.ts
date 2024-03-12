@@ -8,5 +8,7 @@ export interface SessionState {
   _data: {
     /** Reverse reference to the context */
     ctx: AppContext | null;
+
+    abortController: AbortController | null;
   };
 }

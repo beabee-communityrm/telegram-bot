@@ -37,6 +37,7 @@
     "info": {
       "messages": {
         "cancel": {
+          "cancelled": "Der Vorgang wurde bereits abgebrochen",
           "successful": "Vorgang erfolgreich abgebrochen",
           "unsuccessful": "Du hast nichts, was du abbrechen könntest"
         },

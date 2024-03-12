@@ -7,6 +7,7 @@ import {
 } from "../deps/index.ts";
 import { I18nService } from "./i18n.service.ts";
 import { BotService } from "./bot.service.ts";
+import { StateMachineService } from "./state-machine.service.ts";
 import { ChatState } from "../enums/index.ts";
 
 import type { CommandClass } from "../types/index.ts";
@@ -23,6 +24,7 @@ export class CommandService extends BaseService {
   constructor(
     protected readonly bot: BotService,
     protected readonly i18n: I18nService,
+    protected readonly stateMachine: StateMachineService,
   ) {
     super();
     console.debug(`${this.constructor.name} created`);
@@ -52,6 +54,13 @@ export class CommandService extends BaseService {
     if (!ctx.chat?.id) {
       console.warn("No chat id found");
       return;
+    }
+
+    if (session.state === ChatState.Start) {
+      // Cancel old process for the case there is one
+      this.stateMachine.cancelSessionState(
+        session,
+      );
     }
 
     const scope: BotCommandScopeChat = {

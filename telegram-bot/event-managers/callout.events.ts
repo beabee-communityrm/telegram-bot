@@ -4,8 +4,10 @@ import { CommunicationService } from "../services/communication.service.ts";
 import { CalloutRenderer } from "../renderer/index.ts";
 import { EventService } from "../services/event.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
+import { StateMachineService } from "../services/state-machine.service.ts";
 import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants/index.ts";
 import { BaseEventManager } from "../core/base.events.ts";
+import { ChatState } from "../enums/index.ts";
 
 import type { AppContext } from "../types/index.ts";
 
@@ -17,6 +19,7 @@ export class CalloutEventManager extends BaseEventManager {
     protected readonly communication: CommunicationService,
     protected readonly calloutRenderer: CalloutRenderer,
     protected readonly keyboard: KeyboardService,
+    protected readonly stateMachine: StateMachineService,
   ) {
     super();
     console.debug(`${this.constructor.name} created`);
@@ -34,6 +37,7 @@ export class CalloutEventManager extends BaseEventManager {
 
   protected async onCalloutSelectionKeyboardPressed(ctx: AppContext) {
     const shortSlug = ctx.callbackQuery?.data?.split(":")[1];
+    const session = await ctx.session;
 
     // Remove the inline keyboard
     await this.keyboard.removeInlineKeyboard(ctx);
@@ -56,15 +60,20 @@ export class CalloutEventManager extends BaseEventManager {
     try {
       const callout = await this.callout.get(slug);
 
-      const calloutFormRender = await this.calloutRenderer.callout(
+      const calloutFormRender = await this.calloutRenderer.calloutDetails(
         callout,
       );
-      await this.communication.sendAndReceiveAll(ctx, calloutFormRender);
+
+      const signal = this.stateMachine.setSessionState(
+        session,
+        ChatState.CalloutDetails,
+        true,
+      );
+
+      await this.communication.sendAndReceiveAll(ctx, calloutFormRender, signal);
     } catch (error) {
       console.error("Error sending callout", error);
       await ctx.reply("Error sending callout");
     }
-
-    await this.communication.answerCallbackQuery(ctx); // remove loading animation
   }
 }

@@ -49,9 +49,8 @@ export class MessageRenderer {
       type: RenderType.MARKDOWN,
       markdown: WELCOME_MD,
       key: "welcome",
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
       removeKeyboard: true,
+      ...this.noResponse(),
     };
     return result;
   }
@@ -75,8 +74,7 @@ export class MessageRenderer {
       type: RenderType.FORMAT,
       format: strings,
       key: "commands",
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     };
 
     return result;
@@ -90,6 +88,11 @@ export class MessageRenderer {
     if (ctx.chat) {
       strings.push(fmt`${bold("Chat ID: ")} ${ctx.chat?.id}\n`);
       strings.push(fmt`${bold("Chat type: ")} ${ctx.chat?.type}\n`);
+      if (!session._data.abortController) {
+        strings.push(fmt`${bold("AbortController: ")} null\n`);
+      } else {
+        strings.push(fmt`${bold("AbortController: ")} ${session._data.abortController.signal.aborted ? "aborted" : "not aborted"}\n`);
+      }
     }
 
     // Add more debug info here if needed
@@ -98,6 +101,12 @@ export class MessageRenderer {
       type: RenderType.FORMAT,
       format: strings,
       key: "debug",
+      ...this.noResponse(),
+    };
+  }
+
+  protected noResponse() {
+    return {
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
     };
@@ -120,8 +129,7 @@ export class MessageRenderer {
       // TODO: Get the bot name from the beabee content API
       format: [intro],
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     };
     return result;
   }
@@ -132,8 +140,7 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     };
 
     return result;
@@ -145,8 +152,7 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     };
 
     return result;
@@ -160,8 +166,7 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey, { allowed: texts.join(", ") }),
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     };
   }
 
@@ -171,21 +176,49 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     };
   }
 
-  public cancelMessage(successful: boolean): RenderText {
-    const tKey = successful
-      ? "bot.info.messages.cancel.successful"
-      : "bot.info.messages.cancel.unsuccessful";
+  /**
+   * Cancel successful message
+   * @returns
+   */
+  public cancelSuccessfulMessage(): RenderText {
+    const tKey = "bot.info.messages.cancel.successful";
     return {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
+    };
+  }
+
+  /**
+   * Cancel unsuccessful message
+   * @returns
+   */
+  public cancelUnsuccessfulMessage(): RenderText {
+    const tKey = "bot.info.messages.cancel.unsuccessful";
+    return {
+      type: RenderType.TEXT,
+      text: this.i18n.t(tKey),
+      key: tKey,
+      ...this.noResponse(),
+    };
+  }
+
+  /**
+   * Already cancelled message
+   * @returns
+   */
+  public cancelCancelledMessage(): RenderText {
+    const tKey = "bot.info.messages.cancel.cancelled";
+    return {
+      type: RenderType.TEXT,
+      text: this.i18n.t(tKey),
+      key: tKey,
+      ...this.noResponse(),
     };
   }
 
@@ -195,8 +228,7 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     };
   }
 
@@ -212,8 +244,7 @@ export class MessageRenderer {
         type: mimeTypesStr,
       }),
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     };
   }
 
@@ -225,8 +256,7 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey, { type: schema.type }),
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     } as RenderText;
   }
 
@@ -236,8 +266,7 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey, { done: doneText }),
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     };
   }
 

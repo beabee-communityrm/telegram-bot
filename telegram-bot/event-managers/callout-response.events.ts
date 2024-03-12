@@ -4,7 +4,9 @@ import { CommunicationService } from "../services/communication.service.ts";
 import { EventService } from "../services/event.service.ts";
 import { TransformService } from "../services/transform.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
+import { StateMachineService } from "../services/state-machine.service.ts";
 import { CalloutResponseRenderer, MessageRenderer } from "../renderer/index.ts";
+import { CancelCommand } from "../commands/cancel.command.ts";
 import { ChatState } from "../enums/index.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_INTRO,
@@ -24,6 +26,8 @@ export class CalloutResponseEventManager extends BaseEventManager {
     protected readonly calloutResponseRenderer: CalloutResponseRenderer,
     protected readonly transform: TransformService,
     protected readonly keyboard: KeyboardService,
+    protected readonly stateMachine: StateMachineService,
+    protected readonly cancel: CancelCommand,
   ) {
     super();
     console.debug(`${this.constructor.name} created`);
@@ -83,9 +87,6 @@ export class CalloutResponseEventManager extends BaseEventManager {
 
     const calloutWithForm = await this.callout.get(slug, ["form"]);
 
-    // Set the session state
-    session.state = ChatState.CalloutAnswer;
-
     // Render the callout with the form
     const questions = this.calloutResponseRenderer
       .full(calloutWithForm);
@@ -96,17 +97,32 @@ export class CalloutResponseEventManager extends BaseEventManager {
       "Disabled inline keyboard",
     );
 
+    const abortSignal = this.stateMachine.setSessionState(
+      session,
+      ChatState.CalloutAnswer,
+      true,
+    );
+
+    // Wait for all responses
     const responses = await this.communication.sendAndReceiveAll(
       ctx,
       questions,
+      abortSignal,
     );
+
+    if (responses instanceof AbortSignal) {
+      return;
+    }
 
     const answers = this.transform.parseCalloutFormResponses(responses);
 
     // TODO: Show summary of answers here
 
-    // Set the session state
-    session.state = ChatState.CalloutAnswered;
+    this.stateMachine.setSessionState(
+      session,
+      ChatState.CalloutAnswered,
+      false,
+    );
 
     console.debug(
       "Got answers",
@@ -114,6 +130,7 @@ export class CalloutResponseEventManager extends BaseEventManager {
     );
 
     try {
+      // TODO: Ask for contact details if callout requires it
       const response = await this.callout.createResponse(slug, {
         answers,
         guestName: ctx.from?.username,
@@ -164,7 +181,10 @@ export class CalloutResponseEventManager extends BaseEventManager {
     }
 
     if (!startIntro) {
+      // TODO: Duplicate stop message
       await this.communication.send(ctx, this.messageRenderer.stop());
+      // Forward cancel to the cancel command
+      await this.cancel.action(ctx);
       return;
     }
 

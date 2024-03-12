@@ -2,7 +2,7 @@ import { Singleton } from "../deps/index.ts";
 import { BaseCommand } from "../core/index.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
-import { KeyboardService } from "../services/keyboard.service.ts";
+import { StateMachineService } from "../services/state-machine.service.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
 import { ChatState } from "../enums/index.ts";
 
@@ -19,7 +19,7 @@ export class StartCommand extends BaseCommand {
     protected readonly i18n: I18nService,
     protected readonly communication: CommunicationService,
     protected readonly messageRenderer: MessageRenderer,
-    protected readonly keyboard: KeyboardService,
+    protected readonly stateMachine: StateMachineService,
   ) {
     super();
   }
@@ -28,8 +28,7 @@ export class StartCommand extends BaseCommand {
   async action(ctx: AppContext) {
     const session = await ctx.session;
 
-    // Update the state of the user
-    session.state = ChatState.Start;
+    this.stateMachine.setSessionState(session, ChatState.Start, false);
 
     await this.communication.send(ctx, this.messageRenderer.welcome());
     await this.communication.send(
