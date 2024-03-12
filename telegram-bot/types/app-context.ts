@@ -1,4 +1,8 @@
-import type { Context, LazySessionFlavor, ParseModeFlavor } from "../deps.ts";
+import type {
+  Context,
+  LazySessionFlavor,
+  ParseModeFlavor,
+} from "../deps/index.ts";
 import type { SessionState } from "./index.ts";
 
 /**

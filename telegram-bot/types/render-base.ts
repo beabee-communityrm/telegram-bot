@@ -1,6 +1,6 @@
 import type { ParsedResponseType, RenderType } from "../enums/index.ts";
 import type { ReplayCondition } from "./index.ts";
-import type { InlineKeyboard, Keyboard } from "../deps.ts";
+import type { InlineKeyboard, Keyboard } from "../deps/index.ts";
 
 export interface RenderBase {
   /**

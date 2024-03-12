@@ -1,4 +1,4 @@
-import { Singleton } from "../deps.ts";
+import { Singleton } from "../deps/index.ts";
 import { EventService } from "../services/event.service.ts";
 import { BotService } from "../services/bot.service.ts";
 import { BaseEventManager } from "../core/base.events.ts";

@@ -1,4 +1,4 @@
-import { Controller, Get, NotFoundError, Param } from "alosaur/mod.ts";
+import { Controller, Get, NotFoundError, Param } from "../deps/index.ts";
 import { I18nService } from "../services/i18n.service.ts";
 
 /**

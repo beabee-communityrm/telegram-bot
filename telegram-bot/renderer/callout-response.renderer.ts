@@ -13,7 +13,7 @@ import {
   isCalloutComponentOfBaseType,
   isCalloutComponentOfType,
   Singleton,
-} from "../deps.ts";
+} from "../deps/index.ts";
 import {
   calloutComponentTypeToParsedResponseType,
   createCalloutGroupKey,
@@ -36,7 +36,7 @@ import type {
   Render,
   RenderMarkdown,
 } from "../types/index.ts";
-import { CalloutComponentInputSignatureSchema } from "../deps.ts";
+import { CalloutComponentInputSignatureSchema } from "../deps/index.ts";
 
 /**
  * Render callout responses for Telegram in Markdown

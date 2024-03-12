@@ -1,4 +1,4 @@
-import { Singleton } from "../deps.ts";
+import { Singleton } from "../deps/index.ts";
 import { CalloutService } from "../services/callout.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { CalloutRenderer } from "../renderer/index.ts";

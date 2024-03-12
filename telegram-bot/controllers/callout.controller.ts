@@ -1,4 +1,4 @@
-import { Controller, Get } from "alosaur/mod.ts";
+import { Controller, Get } from "../deps/index.ts";
 import { SubscriberService } from "../services/subscriber.service.ts";
 import { BotService } from "../services/bot.service.ts";
 

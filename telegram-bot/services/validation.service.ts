@@ -5,7 +5,7 @@ import {
   Context,
   Message,
   Singleton,
-} from "../deps.ts";
+} from "../deps/index.ts";
 import { RelayAcceptedFileType, ReplayType } from "../enums/index.ts";
 import {
   extractNumbers,

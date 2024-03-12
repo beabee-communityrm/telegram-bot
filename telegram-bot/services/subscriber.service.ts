@@ -1,5 +1,5 @@
 import { BaseService } from "../core/index.ts";
-import { Singleton } from "../deps.ts";
+import { Singleton } from "../deps/index.ts";
 import { SubscriberModel } from "../models/index.ts";
 import { DatabaseService } from "./database.service.ts";
 import { getIdentifier } from "../utils/index.ts";

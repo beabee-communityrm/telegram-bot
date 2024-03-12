@@ -1,4 +1,4 @@
-import { ClientApiError, Singleton } from "../deps.ts";
+import { ClientApiError, Singleton } from "../deps/index.ts";
 import { CalloutService } from "../services/callout.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";

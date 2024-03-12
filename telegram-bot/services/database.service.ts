@@ -1,5 +1,5 @@
 import { BaseService } from "../core/index.ts";
-import { container, DataSource, Singleton } from "../deps.ts";
+import { container, DataSource, Singleton } from "../deps/index.ts";
 import { SubscriberModel } from "../models/index.ts";
 import { nodeSqlite3 } from "../utils/node-sqlite3/index.ts";
 

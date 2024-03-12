@@ -1,5 +1,5 @@
 import { BaseService } from "../core/index.ts";
-import { ContentClient, Singleton } from "../deps.ts";
+import { ContentClient, Singleton } from "../deps/index.ts";
 
 import type { Content, ContentId } from "../types/index.ts";
 

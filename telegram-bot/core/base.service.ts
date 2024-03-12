@@ -1,4 +1,4 @@
-import { container } from "../deps.ts";
+import { container } from "../deps/index.ts";
 
 /**
  * Base class for all services.

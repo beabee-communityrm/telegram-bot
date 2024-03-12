@@ -1,5 +1,5 @@
 import { BaseService } from "../core/index.ts";
-import { djwt, Singleton } from "../deps.ts";
+import { djwt, Singleton } from "../deps/index.ts";
 import { createSecretKeyFromSecret, extractToken } from "../utils/index.ts";
 import { EventService } from "./event.service.ts";
 import { NetworkCommunicatorEvents } from "../enums/index.ts";

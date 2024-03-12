@@ -1,4 +1,4 @@
-import { Singleton } from "alosaur/mod.ts";
+import { Singleton } from "../deps/index.ts";
 import { EventService } from "../services/event.service.ts";
 import { BeabeeContentService } from "../services/beabee-content.service.ts";
 import { I18nService } from "../services/i18n.service.ts";

@@ -1,5 +1,5 @@
 import { BaseService } from "../core/index.ts";
-import { InlineKeyboard, Keyboard, Singleton } from "../deps.ts";
+import { InlineKeyboard, Keyboard, Singleton } from "../deps/index.ts";
 import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants/index.ts";
 import { I18nService } from "./i18n.service.ts";
 

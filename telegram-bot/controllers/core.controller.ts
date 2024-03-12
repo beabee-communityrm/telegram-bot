@@ -1,4 +1,4 @@
-import { Controller, Get } from "alosaur/mod.ts";
+import { Controller, Get } from "../deps/index.ts";
 
 @Controller()
 export class CoreController {

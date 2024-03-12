@@ -1,4 +1,4 @@
-import type { Message } from "../deps.ts";
+import type { Message } from "../deps/index.ts";
 import type { AppContext } from "../types/index.ts";
 
 /**

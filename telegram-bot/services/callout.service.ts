@@ -4,7 +4,7 @@ import {
   CalloutResponseClient,
   ItemStatus,
   Singleton,
-} from "../deps.ts";
+} from "../deps/index.ts";
 import {
   isCalloutGroupKey,
   splitCalloutGroupKey,
@@ -23,7 +23,10 @@ import type {
   GetCalloutWith,
 } from "../types/index.ts";
 
-import type { CalloutComponentNestableSchema, Paginated } from "../deps.ts";
+import type {
+  CalloutComponentNestableSchema,
+  Paginated,
+} from "../deps/index.ts";
 
 const CALLOUTS_ACTIVE_QUERY: GetCalloutsQuery = {
   rules: {

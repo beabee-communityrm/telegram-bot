@@ -1,6 +1,5 @@
-import type { Context } from "grammy/mod.ts";
-import type { EventTelegramBot } from "./index.ts";
+import type { AppContext, EventTelegramBot } from "./index.ts";
 
-export interface EventTelegramBotListener<T = Context> {
+export interface EventTelegramBotListener<T = AppContext> {
   (evt: EventTelegramBot<T>): void | Promise<void>;
 }

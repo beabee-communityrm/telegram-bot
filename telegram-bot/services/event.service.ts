@@ -1,5 +1,5 @@
 import { BaseService } from "../core/index.ts";
-import { Context, Singleton } from "../deps.ts";
+import { Context, Singleton } from "../deps/index.ts";
 import { EventDispatcher } from "../utils/index.ts";
 
 import type {

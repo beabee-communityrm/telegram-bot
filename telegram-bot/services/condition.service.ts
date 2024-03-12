@@ -1,5 +1,5 @@
 import { BaseService } from "../core/index.ts";
-import { CalloutComponentSchema, Singleton } from "../deps.ts";
+import { CalloutComponentSchema, Singleton } from "../deps/index.ts";
 import { ReplayType } from "../enums/index.ts";
 import { filterMimeTypesByPatterns } from "../utils/index.ts";
 

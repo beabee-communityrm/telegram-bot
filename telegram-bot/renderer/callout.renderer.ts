@@ -1,6 +1,5 @@
-import { Singleton } from "alosaur/mod.ts";
+import { InputFile, InputMediaBuilder, Singleton } from "../deps/index.ts";
 import { downloadImage, escapeMd } from "../utils/index.ts";
-import { InputFile, InputMediaBuilder } from "grammy/mod.ts";
 import { ParsedResponseType, RenderType } from "../enums/index.ts";
 import { BUTTON_CALLBACK_CALLOUT_INTRO } from "../constants/index.ts";
 
@@ -14,7 +13,7 @@ import type {
   Render,
 } from "../types/index.ts";
 
-import type { Paginated } from "../deps.ts";
+import type { Paginated } from "../deps/index.ts";
 
 /**
  * Render callouts for Telegram in Markdown

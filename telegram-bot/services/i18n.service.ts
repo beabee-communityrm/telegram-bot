@@ -1,5 +1,5 @@
 import { BaseService } from "../core/index.ts";
-import { dirname, fromFileUrl, Singleton } from "../deps.ts";
+import { dirname, fromFileUrl, Singleton } from "../deps/index.ts";
 import {
   escapeMd,
   readJson,

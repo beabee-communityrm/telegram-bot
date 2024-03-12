@@ -1,4 +1,4 @@
-import { container } from "../deps.ts";
+import { container } from "../deps/index.ts";
 import { EventService } from "../services/event.service.ts";
 
 /**

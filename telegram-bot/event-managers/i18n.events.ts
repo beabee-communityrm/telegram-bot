@@ -1,4 +1,4 @@
-import { Singleton } from "alosaur/mod.ts";
+import { Singleton } from "../deps/index.ts";
 import { EventService } from "../services/event.service.ts";
 import { AppService } from "../services/app.service.ts";
 import { BaseEventManager } from "../core/base.events.ts";

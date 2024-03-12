@@ -1,5 +1,12 @@
 import { BaseService } from "../core/index.ts";
-import { proxy, ref, Singleton, snapshot, subscribe, watch } from "../deps.ts";
+import {
+  proxy,
+  ref,
+  Singleton,
+  snapshot,
+  subscribe,
+  watch,
+} from "../deps/index.ts";
 import { EventService } from "./event.service.ts";
 import { ChatState, SessionEvent } from "../enums/index.ts";
 

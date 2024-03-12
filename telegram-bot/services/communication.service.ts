@@ -1,5 +1,11 @@
 import { BaseService } from "../core/index.ts";
-import { Context, fmt, Message, ParseModeFlavor, Singleton } from "../deps.ts";
+import {
+  Context,
+  fmt,
+  Message,
+  ParseModeFlavor,
+  Singleton,
+} from "../deps/index.ts";
 import { ParsedResponseType, RenderType, ReplayType } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
 import { TransformService } from "./transform.service.ts";

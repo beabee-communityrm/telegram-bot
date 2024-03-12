@@ -1,6 +1,6 @@
 import type { ReplayAcceptedBase } from "./index.ts";
 import type { ReplayType } from "../enums/index.ts";
-import type { CalloutResponseAnswer } from "../deps.ts";
+import type { CalloutResponseAnswer } from "../deps/index.ts";
 
 export interface ReplayAcceptedCalloutComponentSchema
   extends ReplayAcceptedBase {

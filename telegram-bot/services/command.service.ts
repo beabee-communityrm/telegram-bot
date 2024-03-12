@@ -4,7 +4,7 @@ import {
   BotCommandScope,
   BotCommandScopeChat,
   Singleton,
-} from "../deps.ts";
+} from "../deps/index.ts";
 import { I18nService } from "./i18n.service.ts";
 import { BotService } from "./bot.service.ts";
 import { ChatState } from "../enums/index.ts";

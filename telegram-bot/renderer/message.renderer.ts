@@ -1,4 +1,10 @@
-import { bold, fmt, FormattedString, italic, Singleton } from "../deps.ts";
+import {
+  bold,
+  fmt,
+  FormattedString,
+  italic,
+  Singleton,
+} from "../deps/index.ts";
 import { ChatState, RenderType } from "../enums/index.ts";
 import { getSimpleMimeTypes } from "../utils/index.ts";
 import { ConditionService } from "../services/condition.service.ts";
@@ -13,7 +19,7 @@ import type {
   ReplayAccepted,
   ReplayCondition,
 } from "../types/index.ts";
-import type { CalloutComponentSchema } from "../deps.ts";
+import type { CalloutComponentSchema } from "../deps/index.ts";
 import { ReplayType } from "../enums/replay-type.ts";
 import { ParsedResponseType } from "../enums/parsed-response-type.ts";
 import { AppContext } from "../types/app-context.ts";

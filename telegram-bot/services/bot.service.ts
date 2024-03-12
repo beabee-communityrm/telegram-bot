@@ -4,7 +4,7 @@ import {
   lazySession,
   NextFunction,
   Singleton,
-} from "../deps.ts";
+} from "../deps/index.ts";
 
 import { StateMachineService } from "./state-machine.service.ts";
 

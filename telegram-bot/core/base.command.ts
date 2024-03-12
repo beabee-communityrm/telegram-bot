@@ -1,4 +1,4 @@
-import { BotCommand, container } from "../deps.ts";
+import { BotCommand, container } from "../deps/index.ts";
 import { ChatState } from "../enums/index.ts";
 import type { I18nService } from "../services/i18n.service.ts";
 import type { AppContext } from "../types/index.ts";
@@ -21,11 +21,6 @@ export abstract class BaseCommand implements BotCommand {
     return container.resolve(this);
   }
 
-  /**
-   * Similar to `command`, but not translatable.
-   * For example: "list"
-   */
-  // abstract key: string;
   /**
    * The command name, without the leading slash.
    * For example: "list"

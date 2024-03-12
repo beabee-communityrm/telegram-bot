@@ -1,4 +1,4 @@
-import { Singleton } from "../deps.ts";
+import { Singleton } from "../deps/index.ts";
 import { SubscriberService } from "../services/subscriber.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import { BaseCommand } from "../core/index.ts";
