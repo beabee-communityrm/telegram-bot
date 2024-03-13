@@ -3,12 +3,15 @@ import {
   fmt,
   FormattedString,
   italic,
+  link,
   Singleton,
 } from "../deps/index.ts";
 import { ChatState, RenderType } from "../enums/index.ts";
 import { getSimpleMimeTypes } from "../utils/index.ts";
 import { ConditionService } from "../services/condition.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
+import { BotService } from "../services/bot.service.ts";
+import { BeabeeContentService } from "../services/beabee-content.service.ts";
 import { CommandService } from "../services/command.service.ts";
 
 import type {
@@ -33,6 +36,8 @@ export class MessageRenderer {
     protected readonly command: CommandService,
     protected readonly condition: ConditionService,
     protected readonly i18n: I18nService,
+    protected readonly bot: BotService,
+    protected readonly beabeeContent: BeabeeContentService,
   ) {
     console.debug(`${this.constructor.name} created`);
   }
@@ -80,17 +85,16 @@ export class MessageRenderer {
     return result;
   }
 
-
   /**
    * Render a message that the command is not usable
    * @returns The render object
    */
   public commandNotUsable(command: BotCommand, state: ChatState) {
-    const tKey = 'bot.info.messages.command.notUsable'
+    const tKey = "bot.info.messages.command.notUsable";
     const result: Render = {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey, {
-        command: '/' + command.command,
+        command: "/" + command.command,
         state,
       }),
       key: tKey,
@@ -112,10 +116,11 @@ export class MessageRenderer {
         strings.push(fmt`${bold("AbortController: ")} null\n`);
       } else {
         strings.push(
-          fmt`${bold("AbortController: ")} ${session._data.abortController.signal.aborted
-            ? "aborted"
-            : "not aborted"
-            }\n`,
+          fmt`${bold("AbortController: ")} ${
+            session._data.abortController.signal.aborted
+              ? "aborted"
+              : "not aborted"
+          }\n`,
         );
       }
     }
@@ -138,20 +143,57 @@ export class MessageRenderer {
   }
 
   /**
-   * Render the intro message
+   * Render the help message
    */
-  public intro(state: ChatState): RenderFormat {
-    const tKey = "bot.info.messages.intro";
+  public async help(state: ChatState): Promise<RenderFormat> {
+    const tKey = "bot.info.messages.help";
+
+    const content = await this.beabeeContent.get("general");
 
     const commands = fmt((this.commands(state)).format);
     const intro = this.i18n.t(tKey, {
-      botName: "beabee",
+      botFirstName: this.bot.botInfo.first_name,
+      botLastName: this.bot.botInfo.last_name || "Error: last_name not set",
+      botUsername: this.bot.botInfo.username,
+      organisationName: link(content.organisationName, content.siteUrl),
+      siteUrl: content.siteUrl,
+      supportEmail: content.supportEmail,
+      privacyLink: content.privacyLink || "Error: privacyLink not set",
+      termsLink: content.termsLink || "Error: termsLink not set",
+      impressumLink: content.impressumLink || "Error: impressumLink not set",
       commands: commands.toString(),
     });
 
     const result: RenderFormat = {
       type: RenderType.FORMAT,
-      // TODO: Get the bot name from the beabee content API
+      format: [intro],
+      key: tKey,
+      ...this.noResponse(),
+    };
+    return result;
+  }
+
+  public async continueHelp(state: ChatState): Promise<RenderFormat> {
+    const tKey = "bot.info.messages.helpContinue";
+
+    const content = await this.beabeeContent.get("general");
+
+    const commands = fmt((this.commands(state)).format);
+    const intro = this.i18n.t(tKey, {
+      botFirstName: this.bot.botInfo.first_name,
+      botLastName: this.bot.botInfo.last_name || "Error: last_name not set",
+      botUsername: this.bot.botInfo.username,
+      organisationName: link(content.organisationName, content.siteUrl),
+      siteUrl: content.siteUrl,
+      supportEmail: content.supportEmail,
+      privacyLink: content.privacyLink || "Error: privacyLink not set",
+      termsLink: content.termsLink || "Error: termsLink not set",
+      impressumLink: content.impressumLink || "Error: impressumLink not set",
+      commands: commands.toString(),
+    });
+
+    const result: RenderFormat = {
+      type: RenderType.FORMAT,
       format: [intro],
       key: tKey,
       ...this.noResponse(),
@@ -209,8 +251,8 @@ export class MessageRenderer {
    * Cancel successful message
    * @returns
    */
-  public cancelSuccessfulMessage(): RenderText {
-    const tKey = "bot.info.messages.cancel.successful";
+  public resetSuccessfulMessage(): RenderText {
+    const tKey = "bot.info.messages.reset.successful";
     return {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
@@ -223,8 +265,8 @@ export class MessageRenderer {
    * Cancel unsuccessful message
    * @returns
    */
-  public cancelUnsuccessfulMessage(): RenderText {
-    const tKey = "bot.info.messages.cancel.unsuccessful";
+  public resetUnsuccessfulMessage(): RenderText {
+    const tKey = "bot.info.messages.reset.unsuccessful";
     return {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
@@ -237,8 +279,8 @@ export class MessageRenderer {
    * Already cancelled message
    * @returns
    */
-  public cancelCancelledMessage(): RenderText {
-    const tKey = "bot.info.messages.cancel.cancelled";
+  public resetCancelledMessage(): RenderText {
+    const tKey = "bot.info.messages.reset.cancelled";
     return {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),

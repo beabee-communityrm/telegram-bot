@@ -1,10 +1,6 @@
 {
   "bot": {
     "commands": {
-      "cancel": {
-        "command": "abbrechen",
-        "description": "Bricht deinen aktuellen Vorgang ab"
-      },
       "debug": {
         "command": "",
         "description": "Debug-Informationen anzeigen"
@@ -16,6 +12,10 @@
       "list": {
         "command": "auflisten",
         "description": "Offene Aufrufe anzeigen"
+      },
+      "reset": {
+        "command": "abbrechen",
+        "description": "Springe zurück an den Anfang und breche deinen aktuellen Vorgang ab"
       },
       "show": {
         "command": "zeigen",
@@ -36,11 +36,6 @@
     },
     "info": {
       "messages": {
-        "cancel": {
-          "cancelled": "Der Vorgang wurde bereits abgebrochen",
-          "successful": "Vorgang erfolgreich abgebrochen",
-          "unsuccessful": "Du hast nichts, was du abbrechen könntest"
-        },
         "command": {
           "notUsable": "Du kannst den Befehl {command} hier nicht verwenden"
         },
@@ -52,7 +47,8 @@
         "enterText": "Bitte halten Sie Ihre Antwort kurz, idealerweise in einem Satz.",
         "enterTime": "Bitte geben Sie eine Zeit ein. (z.B. 20:45)",
         "enterUrl": "Bitte geben Sie eine Webadresse ein. (z.B. https://www.beispiel.de)",
-        "intro": "Hallo! Ich bin der {botName} Bot. Ich kann dir eine Reihe von offenen Callouts zeigen, an denen du hier auf Telegram teilnehmen kannst. Du kannst die folgenden Befehle verwenden, um dies zu tun, wähle sie einfach im Menü aus oder schreibe sie mir direkt:\n\n{commands}",
+        "help": "Über den Telegram-Chat kannst du an den laufenden Umfragen von {organisationName} teilnehmen.\nDu kannst die Liste der offenen Umfragen einsehen und auswählen, an welchen du teilnehmen möchtest.\n\n{commands}",
+        "helpContinue": "Jetzt kannst du die Liste der offenen Umfragen überprüfen und eine andere auswählen, an der du teilnehmen möchten.\n\n{commands}",
         "multipleAddressesAllowed": "Geben Sie eine oder mehrere Adressen ein.",
         "multipleEmailsAllowed": "Sie können eine oder mehrere E-Mail-Adressen eingeben.",
         "multipleNumbersAllowed": "Geben Sie eine oder mehrere Zahlen ein.",
@@ -64,6 +60,11 @@
         "onlyOneSelectionAllowed": "Bitte wählen Sie Ihre Wahl, indem Sie deren Nummer eingeben oder deren Knopf drücken (Sie können nur eine auswählen).",
         "onlyOneValueAllowed": "Bitte geben Sie einen einzigen Wert ein.",
         "placeholder": "Bitte antworten Sie mit etwas wie \"{placeholder}\".",
+        "reset": {
+          "cancelled": "Der Vorgang wurde bereits abgebrochen",
+          "successful": "Vorgang erfolgreich abgebrochen, du bist nun wieder am Anfang",
+          "unsuccessful": "Du bist nun wieder am Anfang"
+        },
         "uploadFileHere": "Bitte senden Sie mir eine Datei.",
         "uploadFilesHere": "Bitte senden Sie mir eine oder mehrere Dateien."
       }

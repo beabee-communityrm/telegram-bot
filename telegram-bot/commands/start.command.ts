@@ -13,7 +13,7 @@ export class StartCommand extends BaseCommand {
   /** `/start` */
   command = "start";
 
-  visibleOnStates: ChatState[] = [ChatState.Initial, ChatState.Start];
+  visibleOnStates: ChatState[] = [ChatState.Initial];
 
   constructor(
     protected readonly i18n: I18nService,
@@ -37,7 +37,7 @@ export class StartCommand extends BaseCommand {
     await this.communication.send(ctx, this.messageRenderer.welcome());
     await this.communication.send(
       ctx,
-      this.messageRenderer.intro(session.state),
+      await this.messageRenderer.help(session.state),
     );
 
     return successful;

@@ -1,5 +1,10 @@
 import { BaseService } from "../core/index.ts";
-import { dirname, fromFileUrl, Singleton } from "../deps/index.ts";
+import {
+  dirname,
+  FormattedString,
+  fromFileUrl,
+  Singleton,
+} from "../deps/index.ts";
 import {
   escapeMd,
   readJson,
@@ -116,7 +121,7 @@ export class I18nService extends BaseService {
    */
   protected translate(
     path: string,
-    placeholders: { [key: string]: string } = {},
+    placeholders: { [key: string]: FormattedString | string } = {},
     lang: string = this._activeLang,
   ): string {
     const translation = this.getTranslation(
@@ -173,12 +178,12 @@ export class I18nService extends BaseService {
    */
   protected replacePlaceholders(
     translation: string,
-    placeholders: { [key: string]: string },
+    placeholders: { [key: string]: FormattedString | string },
   ): string {
     return Object.keys(placeholders).reduce((acc, key) => {
       // Allow whitespace in placeholders between curly braces
       const regex = new RegExp(`\\{\\s*${key}\\s*\\}`, "g");
-      return acc.replaceAll(regex, placeholders[key]);
+      return acc.replaceAll(regex, placeholders[key].toString());
     }, translation);
   }
 }

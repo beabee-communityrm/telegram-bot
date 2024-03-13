@@ -15,7 +15,7 @@ export class ListCommand extends BaseCommand {
   /** /list */
   command = "list";
 
-  visibleOnStates: ChatState[] = [ChatState.Start];
+  visibleOnStates: ChatState[] = [ChatState.Start, ChatState.CalloutAnswered];
 
   constructor(
     protected readonly callout: CalloutService,

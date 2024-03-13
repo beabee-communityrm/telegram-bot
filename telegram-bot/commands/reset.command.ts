@@ -9,12 +9,13 @@ import { ChatState } from "../enums/index.ts";
 import type { AppContext } from "../types/index.ts";
 
 @Singleton()
-export class CancelCommand extends BaseCommand {
-  /** `/cancel` */
-  command = "cancel";
+export class ResetCommand extends BaseCommand {
+  /** `/reset` */
+  command = "reset";
 
   // TODO: Disable this command on production
   visibleOnStates: ChatState[] = [
+    ChatState.Start,
     ChatState.CalloutAnswer,
     ChatState.CalloutAnswered,
     ChatState.CalloutDetails,
@@ -30,7 +31,7 @@ export class CancelCommand extends BaseCommand {
     super();
   }
 
-  // Handle the /cancel command
+  // Handle the /reset command
   async action(ctx: AppContext) {
     // Always allow this command to reset the state even if an error occurs, so we not use `this.checkAction` here
     const session = await ctx.session;
@@ -41,23 +42,31 @@ export class CancelCommand extends BaseCommand {
       if (abortController.signal.aborted) {
         await this.communication.send(
           ctx,
-          this.messageRenderer.cancelCancelledMessage(),
+          this.messageRenderer.resetCancelledMessage(),
         );
       } else {
         // Successful cancellation
         await this.communication.send(
           ctx,
-          this.messageRenderer.cancelSuccessfulMessage(),
+          this.messageRenderer.resetSuccessfulMessage(),
         );
       }
     } else {
       // Nothing to cancel
       await this.communication.send(
         ctx,
-        this.messageRenderer.cancelUnsuccessfulMessage(),
+        this.messageRenderer.resetUnsuccessfulMessage(),
       );
     }
 
-    return this.stateMachine.cancelSessionState(session);
+    const successful = this.stateMachine.resetSessionState(session);
+
+    // Use this after the reset to show the right help message for the current state
+    await this.communication.send(
+      ctx,
+      await this.messageRenderer.continueHelp(session.state),
+    );
+
+    return successful;
   }
 }

@@ -1,10 +1,6 @@
 {
   "bot": {
     "commands": {
-      "cancel": {
-        "command": "",
-        "description": ""
-      },
       "debug": {
         "command": "",
         "description": ""
@@ -14,6 +10,10 @@
         "description": ""
       },
       "list": {
+        "command": "",
+        "description": ""
+      },
+      "reset": {
         "command": "",
         "description": ""
       },
@@ -36,11 +36,6 @@
     },
     "info": {
       "messages": {
-        "cancel": {
-          "cancelled": "",
-          "successful": "",
-          "unsuccessful": ""
-        },
         "command": {
           "notUsable": ""
         },
@@ -52,7 +47,8 @@
         "enterText": "",
         "enterTime": "",
         "enterUrl": "",
-        "intro": "",
+        "help": "",
+        "helpContinue": "",
         "multipleAddressesAllowed": "",
         "multipleEmailsAllowed": "",
         "multipleNumbersAllowed": "",
@@ -64,6 +60,11 @@
         "onlyOneSelectionAllowed": "",
         "onlyOneValueAllowed": "",
         "placeholder": "",
+        "reset": {
+          "cancelled": "",
+          "successful": "",
+          "unsuccessful": ""
+        },
         "uploadFileHere": "",
         "uploadFilesHere": ""
       }

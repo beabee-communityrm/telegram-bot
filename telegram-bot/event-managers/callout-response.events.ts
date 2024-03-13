@@ -6,7 +6,7 @@ import { TransformService } from "../services/transform.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
 import { StateMachineService } from "../services/state-machine.service.ts";
 import { CalloutResponseRenderer, MessageRenderer } from "../renderer/index.ts";
-import { CancelCommand } from "../commands/cancel.command.ts";
+import { ResetCommand } from "../commands/reset.command.ts";
 import { ChatState } from "../enums/index.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_INTRO,
@@ -27,7 +27,7 @@ export class CalloutResponseEventManager extends BaseEventManager {
     protected readonly transform: TransformService,
     protected readonly keyboard: KeyboardService,
     protected readonly stateMachine: StateMachineService,
-    protected readonly cancel: CancelCommand,
+    protected readonly cancel: ResetCommand,
   ) {
     super();
     console.debug(`${this.constructor.name} created`);
@@ -116,8 +116,6 @@ export class CalloutResponseEventManager extends BaseEventManager {
 
     const answers = this.transform.parseCalloutFormResponses(responses);
 
-    // TODO: Show summary of answers here
-
     this.stateMachine.setSessionState(
       session,
       ChatState.CalloutAnswered,
@@ -141,12 +139,28 @@ export class CalloutResponseEventManager extends BaseEventManager {
         "Created response",
         response,
       );
+
+      await this.communication.send(
+        ctx,
+        await this.messageRenderer.continueHelp(session.state),
+      );
     } catch (error) {
       console.error(
         `Failed to create response`,
         error,
       );
+
+      // TODO: Send error message to the chat
+
+      return;
     }
+
+    // TODO: Send success message and a summary of answers to the chat
+
+    await this.communication.send(
+      ctx,
+      await this.messageRenderer.continueHelp(session.state),
+    );
   }
 
   /**

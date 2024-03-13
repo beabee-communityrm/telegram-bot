@@ -81,13 +81,16 @@ export class StateMachineService extends BaseService {
   }
 
   /**
-   * Cancel the state of a session
-   * @param session The session to cancel the state for
+   * Reset the state of a session to `ChatState.Start`
+   * @param session The session to reset the state for
    * @returns True if the state was cancelled, false otherwise
    */
-  public cancelSessionState(session: SessionState) {
+  public resetSessionState(session: SessionState) {
     session.state = ChatState.Start;
-    if (session._data.abortController && !session._data.abortController.signal.aborted) {
+    if (
+      session._data.abortController &&
+      !session._data.abortController.signal.aborted
+    ) {
       session._data.abortController.abort();
       return true;
     }

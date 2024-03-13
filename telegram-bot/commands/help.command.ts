@@ -12,7 +12,7 @@ export class HelpCommand extends BaseCommand {
   /** `/help` */
   command = "help";
 
-  visibleOnStates: ChatState[] = [ChatState.Initial, ChatState.Start];
+  visibleOnStates: ChatState[] = []; // Visible on all states
 
   constructor(
     protected readonly i18n: I18nService,
@@ -33,7 +33,7 @@ export class HelpCommand extends BaseCommand {
 
     await this.communication.send(
       ctx,
-      this.messageRenderer.intro(session.state),
+      await this.messageRenderer.help(session.state),
     );
 
     return successful;
