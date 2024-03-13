@@ -25,8 +25,12 @@ export class StartCommand extends BaseCommand {
   }
 
   // Handle the /start command, replay with markdown formatted text: https://grammy.dev/guide/basics#sending-message-with-formatting
-  async action(ctx: AppContext) {
+  async action(ctx: AppContext): Promise<boolean> {
     const session = await ctx.session;
+    const successful = await this.checkAction(ctx);
+    if (!successful) {
+      return false;
+    }
 
     this.stateMachine.setSessionState(session, ChatState.Start, false);
 
@@ -35,5 +39,7 @@ export class StartCommand extends BaseCommand {
       ctx,
       this.messageRenderer.intro(session.state),
     );
+
+    return successful;
   }
 }

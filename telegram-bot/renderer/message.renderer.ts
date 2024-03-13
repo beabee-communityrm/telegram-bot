@@ -19,7 +19,7 @@ import type {
   ReplayAccepted,
   ReplayCondition,
 } from "../types/index.ts";
-import type { CalloutComponentSchema } from "../deps/index.ts";
+import type { BotCommand, CalloutComponentSchema } from "../deps/index.ts";
 import { ReplayType } from "../enums/replay-type.ts";
 import { ParsedResponseType } from "../enums/parsed-response-type.ts";
 import { AppContext } from "../types/app-context.ts";
@@ -80,6 +80,26 @@ export class MessageRenderer {
     return result;
   }
 
+
+  /**
+   * Render a message that the command is not usable
+   * @returns The render object
+   */
+  public commandNotUsable(command: BotCommand, state: ChatState) {
+    const tKey = 'bot.info.messages.command.notUsable'
+    const result: Render = {
+      type: RenderType.TEXT,
+      text: this.i18n.t(tKey, {
+        command: '/' + command.command,
+        state,
+      }),
+      key: tKey,
+      ...this.noResponse(),
+    };
+
+    return result;
+  }
+
   public async debug(ctx: AppContext): Promise<RenderFormat> {
     const strings: FormattedString[] = [];
     const session = await ctx.session;
@@ -91,7 +111,12 @@ export class MessageRenderer {
       if (!session._data.abortController) {
         strings.push(fmt`${bold("AbortController: ")} null\n`);
       } else {
-        strings.push(fmt`${bold("AbortController: ")} ${session._data.abortController.signal.aborted ? "aborted" : "not aborted"}\n`);
+        strings.push(
+          fmt`${bold("AbortController: ")} ${session._data.abortController.signal.aborted
+            ? "aborted"
+            : "not aborted"
+            }\n`,
+        );
       }
     }
 

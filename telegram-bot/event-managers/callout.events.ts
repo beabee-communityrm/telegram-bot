@@ -70,7 +70,11 @@ export class CalloutEventManager extends BaseEventManager {
         true,
       );
 
-      await this.communication.sendAndReceiveAll(ctx, calloutFormRender, signal);
+      await this.communication.sendAndReceiveAll(
+        ctx,
+        calloutFormRender,
+        signal,
+      );
     } catch (error) {
       console.error("Error sending callout", error);
       await ctx.reply("Error sending callout");

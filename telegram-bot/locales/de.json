@@ -41,6 +41,9 @@
           "successful": "Vorgang erfolgreich abgebrochen",
           "unsuccessful": "Du hast nichts, was du abbrechen könntest"
         },
+        "command": {
+          "notUsable": "Du kannst den Befehl {command} hier nicht verwenden"
+        },
         "done": "Wenn Sie mit Ihrer Antwort fertig sind, tippen Sie einfach \"{done}\".",
         "enterAmountOfMoney": "Bitte geben Sie einen Geldbetrag ein.",
         "enterDate": "Bitte geben Sie ein Datum ein.",

@@ -36,14 +36,18 @@ export class ShowCommand extends BaseCommand {
 
   // Handle the /show command
   async action(ctx: AppContext) {
-    console.debug("Show command called");
+    let successful = await this.checkAction(ctx);
+    if (!successful) {
+      return false;
+    }
 
     // Get the slug from the `/show slug` message text
     const slug = ctx.message?.text?.split(" ")[1];
 
     if (!slug) {
       await ctx.reply("Please specify a callout slug. E.g. `/show my-callout`");
-      return;
+      successful = false;
+      return successful;
     }
 
     try {
@@ -60,12 +64,15 @@ export class ShowCommand extends BaseCommand {
       await this.communication.sendAndReceiveAll(ctx, render, signal);
     } catch (error) {
       console.error("Error sending callout", error);
+      successful = false;
       if (error instanceof ClientApiError && error.httpCode === 404) {
         await ctx.reply(`Callout with slug "${slug}" not found.`);
-        return;
+        return successful;
       }
       await ctx.reply(`Error sending callout slug "${slug}": ${error.message}`);
-      return;
+      return successful;
     }
+
+    return successful;
   }
 }

@@ -35,8 +35,9 @@ export class CalloutRenderer {
    * @returns
    */
   protected startResponseKeyboard(callout: CalloutDataExt) {
-    const keyboardMessageMd = `_${escapeMd(this.i18n.t("bot.response.messages.calloutStartResponse"))
-      }_`;
+    const keyboardMessageMd = `_${
+      escapeMd(this.i18n.t("bot.response.messages.calloutStartResponse"))
+    }_`;
     const yesNoKeyboard = this.keyboard.yesNo(
       `${BUTTON_CALLBACK_CALLOUT_INTRO}:${callout.shortSlug}`,
     );
@@ -93,8 +94,9 @@ export class CalloutRenderer {
       return [listResult];
     }
 
-    listResult.markdown = `*${escapeMd(this.i18n.t("bot.render.callout.list.title"))
-      }*\n\n`;
+    listResult.markdown = `*${
+      escapeMd(this.i18n.t("bot.render.callout.list.title"))
+    }*\n\n`;
     let p = 1;
     for (const callout of callouts.items) {
       listResult.markdown += `${this.listItem(callout, `${p}.`).markdown}`;
@@ -102,8 +104,9 @@ export class CalloutRenderer {
     }
 
     const keyboard = this.keyboard.calloutSelection(callouts.items);
-    const keyboardMessageMd = `_${escapeMd(this.i18n.t("bot.keyboard.message.select-detail-callout"))
-      }_`;
+    const keyboardMessageMd = `_${
+      escapeMd(this.i18n.t("bot.keyboard.message.select-detail-callout"))
+    }_`;
 
     const keyboardResult: Render = {
       key: "callout:list:keyboard",

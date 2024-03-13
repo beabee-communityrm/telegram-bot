@@ -24,6 +24,10 @@ export class HelpCommand extends BaseCommand {
 
   // Handle the /help command
   async action(ctx: AppContext) {
+    const successful = await this.checkAction(ctx);
+    if (!successful) {
+      return false;
+    }
     // Use session.state to get context related help
     const session = await ctx.session;
 
@@ -31,5 +35,7 @@ export class HelpCommand extends BaseCommand {
       ctx,
       this.messageRenderer.intro(session.state),
     );
+
+    return successful;
   }
 }

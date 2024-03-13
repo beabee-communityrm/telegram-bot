@@ -14,7 +14,12 @@ export class CancelCommand extends BaseCommand {
   command = "cancel";
 
   // TODO: Disable this command on production
-  visibleOnStates: ChatState[] = [];
+  visibleOnStates: ChatState[] = [
+    ChatState.CalloutAnswer,
+    ChatState.CalloutAnswered,
+    ChatState.CalloutDetails,
+    ChatState.CalloutList,
+  ];
 
   constructor(
     protected readonly i18n: I18nService,
@@ -27,6 +32,7 @@ export class CancelCommand extends BaseCommand {
 
   // Handle the /cancel command
   async action(ctx: AppContext) {
+    // Always allow this command to reset the state even if an error occurs, so we not use `this.checkAction` here
     const session = await ctx.session;
     const abortController = session._data.abortController;
 
@@ -46,12 +52,12 @@ export class CancelCommand extends BaseCommand {
       }
     } else {
       // Nothing to cancel
-      return await this.communication.send(
+      await this.communication.send(
         ctx,
         this.messageRenderer.cancelUnsuccessfulMessage(),
       );
     }
 
-    this.stateMachine.cancelSessionState(session);
+    return this.stateMachine.cancelSessionState(session);
   }
 }

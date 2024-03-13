@@ -41,6 +41,9 @@
           "successful": "",
           "unsuccessful": ""
         },
+        "command": {
+          "notUsable": ""
+        },
         "done": "",
         "enterAmountOfMoney": "",
         "enterDate": "",

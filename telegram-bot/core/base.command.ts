@@ -1,7 +1,9 @@
 import { BotCommand, container } from "../deps/index.ts";
-import { ChatState } from "../enums/index.ts";
+import type { ChatState } from "../enums/index.ts";
 import type { I18nService } from "../services/i18n.service.ts";
-import type { AppContext } from "../types/index.ts";
+import type { CommunicationService } from "../services/communication.service.ts";
+import type { MessageRenderer } from "../renderer/message.renderer.ts";
+import type { AppContext, SessionState } from "../types/index.ts";
 
 /**
  * Base class for all bot commands
@@ -48,15 +50,53 @@ export abstract class BaseCommand implements BotCommand {
    */
   protected abstract readonly i18n: I18nService;
 
+  /**
+   * The message renderer, used to render the messages.
+   */
+  protected abstract readonly messageRenderer: MessageRenderer;
+
+  /**
+   * The communication service, used to send messages to the chat.
+   */
+  protected abstract readonly communication: CommunicationService
+
   constructor() {
     console.debug(`${this.constructor.name} created`);
   }
 
   /**
+   * Check if the command is usable in the current state
+   * @param session The current session
+   * @returns True if the command is usable, false otherwise
+   */
+  public isCommandUsable(session: SessionState): boolean {
+    return this.visibleOnStates.length === 0 || this.visibleOnStates.includes(session.state);
+  }
+
+  /**
+   * Check if the command is usable in the current state. otherwise send an error message an return `false`
+   * @param ctx The context of the Telegram message that triggered the command.
+   * @returns True if the action can be executed, false otherwise
+   */
+  protected async checkAction(ctx: AppContext): Promise<boolean> {
+    const session = await ctx.session;
+
+    if (!this.isCommandUsable(session)) {
+      this.communication.send(ctx, this.messageRenderer.commandNotUsable(this, session.state));
+
+      // TODO: send error message
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
    * The action that is executed when the command is called.
    * @param ctx The context of the Telegram message that triggered the command.
+   * @returns True if the command was executed successfully, false otherwise.
    */
-  abstract action(ctx: AppContext): Promise<void>;
+  abstract action(ctx: AppContext): Promise<boolean>
 
   /**
    * Called when the language changes.

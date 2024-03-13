@@ -32,10 +32,9 @@ export class ListCommand extends BaseCommand {
   // Handle the /list command
   public async action(ctx: AppContext) {
     const session = await ctx.session;
-
-    if (session.state === ChatState.CalloutAnswer) {
-      // TODO: send error message
-      return;
+    const successful = await this.checkAction(ctx);
+    if (!successful) {
+      return false;
     }
 
     const signal = this.stateMachine.setSessionState(
@@ -47,5 +46,6 @@ export class ListCommand extends BaseCommand {
     const callouts = await this.callout.list();
     const render = this.calloutRenderer.listItems(callouts);
     await this.communication.sendAndReceiveAll(ctx, render, signal);
+    return successful;
   }
 }

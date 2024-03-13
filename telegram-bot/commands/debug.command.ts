@@ -25,9 +25,14 @@ export class DebugCommand extends BaseCommand {
 
   // Handle the /debug command
   async action(ctx: AppContext) {
+    const successful = await this.checkAction(ctx);
+    if (!successful) {
+      return false;
+    }
     await this.communication.send(
       ctx,
       await this.messageRenderer.debug(ctx),
     );
+    return successful;
   }
 }
