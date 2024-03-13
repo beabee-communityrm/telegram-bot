@@ -32,6 +32,7 @@
         "enterText": "Bitte halte deine Antwort kurz, idealerweise in einem Satz.",
         "enterTime": "Bitte gib eine Zeit ein. (z.B. 20:45)",
         "enterUrl": "Bitte gib eine Webadresse ein. (z.B. https://www.beispiel.de)",
+        "intro": "Guten Tag! Ich bin der {botName} Bot. Ich kann Ihnen eine Reihe von offenen Callouts zeigen, an denen Sie hier auf Telegram teilnehmen können. Sie können die folgenden Befehle verwenden, um dies zu tun, wählen Sie sie einfach im Menü aus oder schreiben Sie sie mir direkt:\n\n{commands}",
         "multipleAddressesAllowed": "Gib eine oder mehrere Adressen ein.",
         "multipleEmailsAllowed": "Du kannst eine oder mehrere E-Mail-Adressen eingeben.",
         "multipleNumbersAllowed": "Gib eine oder mehrere Zahlen ein.",

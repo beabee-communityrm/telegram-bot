@@ -32,6 +32,7 @@
         "enterText": "Please keep your response brief, ideally in one sentence.",
         "enterTime": "Please enter a time. (e.g. 20:45)",
         "enterUrl": "Please enter a web address. (e.g. https://www.beabee.io)",
+        "intro": "Hi! I'm the {botName} bot. I can show you a set of open callouts that you can take part in, right here on Telegram. You can use the following commands to do this, simply select them in the menu or write them to me directly:\n\n{commands}",
         "multipleAddressesAllowed": "Enter one or more addresses.",
         "multipleEmailsAllowed": "You can enter one or more e-mail addresses.",
         "multipleNumbersAllowed": "Enter one or more numbers.",

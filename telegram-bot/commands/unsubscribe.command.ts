@@ -3,11 +3,19 @@ import { SubscriberService } from "../services/subscriber.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import { Command } from "../core/index.ts";
 
+import type { UserState } from "../types/user-state.ts";
+
 @Singleton()
 export class UnsubscribeCommand extends Command {
   key = "unsubscribe";
   command = "unsubscribe";
-  description = "Unsubscribe from a Callout";
+  /**
+   * Unsubscribe from a Callout
+   * (Description is set in CommandService with a translation)
+   */
+  description = "";
+
+  visibleOnStates: UserState[] = []; // Only for testing
 
   constructor(
     protected readonly subscriber: SubscriberService,

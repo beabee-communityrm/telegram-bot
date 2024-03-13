@@ -11,7 +11,7 @@ COPY . .
 WORKDIR /app/telegram-bot
 
 # Download the dependencies
-RUN deno cache main.ts --config deno.jsonc
+RUN deno cache main.ts --config deno.json
 
 # Compile the bot
 # RUN deno task compile

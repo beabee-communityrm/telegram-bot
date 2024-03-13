@@ -1,4 +1,4 @@
-import { Context, Message, Singleton } from "../deps.ts";
+import { Context, fmt, Message, ParseModeFlavor, Singleton } from "../deps.ts";
 import { ParsedResponseType, RenderType, ReplayType } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
 import { TransformService } from "./transform.service.ts";
@@ -13,7 +13,7 @@ import type {
   RenderResponseParsed,
   ReplayAccepted,
 } from "../types/index.ts";
-import type {} from "grammy/context.ts";
+import type { } from "grammy/context.ts";
 
 /**
  * Service to handle the communication with the telegram bot and the telegram user.
@@ -32,36 +32,51 @@ export class CommunicationService {
   }
 
   /**
-   * Reply to a Telegram message or action with a single render result
+   * Reply to a Telegram message or action with a single render object
+   *
+   * @todo: Make use of https://grammy.dev/plugins/parse-mode
+   *
    * @param ctx
    * @param res
    */
-  public async send(ctx: Context, res: Render) {
-    if (res.type === RenderType.PHOTO) {
-      await ctx.replyWithMediaGroup([res.photo]);
-      if (res.keyboard) {
-        await ctx.reply("Please select an option", {
-          reply_markup: res.keyboard,
+  public async send(ctx: Context, render: Render) {
+    switch (render.type) {
+      case RenderType.PHOTO:
+        await ctx.replyWithMediaGroup([render.photo]);
+        if (render.keyboard) {
+          await ctx.reply("", {
+            reply_markup: render.keyboard,
+          });
+        }
+        break;
+      case RenderType.MARKDOWN:
+        await ctx.reply(render.markdown, {
+          parse_mode: "MarkdownV2",
+          reply_markup: render.keyboard,
         });
-      }
-    } else if (res.type === RenderType.MARKDOWN) {
-      await ctx.reply(res.markdown, {
-        parse_mode: "MarkdownV2",
-        reply_markup: res.keyboard,
-      });
-    } else if (res.type === RenderType.HTML) {
-      await ctx.reply(res.html, {
-        parse_mode: "HTML",
-        reply_markup: res.keyboard,
-      });
-    } else if (res.type === RenderType.TEXT) {
-      await ctx.reply(res.text, {
-        reply_markup: res.keyboard,
-      });
-    } else if (res.type === RenderType.EMPTY) {
-      // Do nothing
-    } else {
-      throw new Error("Unknown render type: " + (res as Render).type);
+        break;
+      case RenderType.HTML:
+        await ctx.reply(render.html, {
+          parse_mode: "HTML",
+          reply_markup: render.keyboard,
+        });
+        break;
+      case RenderType.TEXT:
+        await ctx.reply(render.text, {
+          reply_markup: render.keyboard,
+        });
+        break;
+      // See https://grammy.dev/plugins/parse-mode
+      case RenderType.FORMAT:
+        await (ctx as ParseModeFlavor<Context>).replyFmt(fmt(render.format), {
+          reply_markup: render.keyboard,
+        });
+        break;
+      case RenderType.EMPTY:
+        // Do nothing
+        break;
+      default:
+        throw new Error("Unknown render type: " + (render as Render).type);
     }
   }
 

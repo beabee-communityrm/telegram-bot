@@ -1,14 +1,18 @@
-import { Singleton } from "../deps.ts";
+import { bold, fmt, FormattedString, italic, Singleton } from "../deps.ts";
 import { RenderType } from "../enums/index.ts";
 import { getSimpleMimeTypes } from "../utils/index.ts";
 import { ConditionService } from "../services/condition.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
+import { CommandService } from "../services/command.service.ts";
 
 import type {
   Render,
+  RenderFormat,
+  RenderMarkdown,
   RenderText,
   ReplayAccepted,
   ReplayCondition,
+  UserState,
 } from "../types/index.ts";
 import type { CalloutComponentSchema } from "../deps.ts";
 import { ReplayType } from "../enums/replay-type.ts";
@@ -20,13 +24,81 @@ import { ParsedResponseType } from "../enums/parsed-response-type.ts";
 @Singleton()
 export class MessageRenderer {
   constructor(
+    protected readonly command: CommandService,
     protected readonly condition: ConditionService,
     protected readonly i18n: I18nService,
   ) {
     console.debug(`${this.constructor.name} created`);
   }
 
-  public stop() {
+  /**
+   * Render a welcome message
+   * @returns
+   */
+  public welcome(): RenderMarkdown {
+    // TODO: This message should be customizable via Beabee's Content API
+    const WELCOME_MD = "*Hi\\!* _Welcome_ to [beabee](https://beabee.io/)\\.";
+
+    const result: RenderMarkdown = {
+      type: RenderType.MARKDOWN,
+      markdown: WELCOME_MD,
+      key: "welcome",
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
+    };
+    return result;
+  }
+
+  /**
+   * Render all available commands
+   * @param state The current user state
+   */
+  public async commands(state: UserState): Promise<RenderFormat> {
+    const commands = await this.command.getByState(state);
+
+    const strings: FormattedString[] = [];
+
+    for (const command of commands) {
+      strings.push(
+        fmt`${bold("/" + command.key)}: ${italic(command.description)}\n`,
+      );
+    }
+
+    const result: RenderFormat = {
+      type: RenderType.FORMAT,
+      format: strings,
+      key: "commands",
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
+    };
+
+    return result;
+  }
+
+  /**
+   * Render the intro message
+   */
+  public async intro(): Promise<RenderFormat> {
+    const tKey = "bot.info.messages.intro";
+
+    const commands = fmt((await this.commands("start")).format);
+    const intro = this.i18n.t(tKey, {
+      botName: "beabee",
+      commands: commands.toString(),
+    });
+
+    const result: RenderFormat = {
+      type: RenderType.FORMAT,
+      // TODO: Get the bot name from the beabee content API
+      format: [intro],
+      key: tKey,
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
+    };
+    return result;
+  }
+
+  public stop(): RenderText {
     const tKey = "bot.response.messages.stop";
     const result: Render = {
       type: RenderType.TEXT,
@@ -39,7 +111,7 @@ export class MessageRenderer {
     return result;
   }
 
-  public calloutNotFound() {
+  public calloutNotFound(): RenderText {
     const tKey = "bot.response.messages.calloutNotFound";
     const result: Render = {
       type: RenderType.TEXT,
@@ -87,20 +159,26 @@ export class MessageRenderer {
     };
   }
 
-  public notTheRightFileType(mimeTypes: string[]) {
+  public notTheRightFileType(mimeTypes: string[]): RenderText {
     const mimeTypesStr = getSimpleMimeTypes(mimeTypes).join(", ").replace(
       /, ([^,]*)$/,
       ` ${this.i18n.t("bot.universal.or")} $1`,
     );
+    const tKey = `bot.response.messages.notTheRightFileType`;
     return {
       type: RenderType.TEXT,
-      text: this.i18n.t("bot.response.messages.notTheRightFileType", {
+      text: this.i18n.t(tKey, {
         type: mimeTypesStr,
       }),
-    } as RenderText;
+      key: tKey,
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
+    };
   }
 
-  public notACalloutComponentMessage(schema: CalloutComponentSchema) {
+  public notACalloutComponentMessage(
+    schema: CalloutComponentSchema,
+  ): RenderText {
     const tKey = `bot.response.messages.notACalloutComponent.${schema.type}`;
     return {
       type: RenderType.TEXT,
@@ -109,6 +187,17 @@ export class MessageRenderer {
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
     } as RenderText;
+  }
+
+  public writeDoneMessage(doneText: string): RenderText {
+    const tKey = "bot.info.messages.done";
+    return {
+      type: RenderType.TEXT,
+      text: this.i18n.t(tKey, { done: doneText }),
+      key: tKey,
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
+    };
   }
 
   public notAcceptedMessage(
@@ -139,12 +228,5 @@ export class MessageRenderer {
     }
 
     throw new Error("Unknown accepted type: " + condition.type);
-  }
-
-  public writeDoneMessage(doneText: string) {
-    return {
-      type: RenderType.TEXT,
-      text: this.i18n.t("bot.info.messages.done", { done: doneText }),
-    } as RenderText;
   }
 }

@@ -36,13 +36,16 @@
     "deno.disablePaths": [
       "./beabee-client/test/web",
       "./beabee-client/test/node",
-      "./beabee-client/out",
+      "./beabee-client/dist",
+      "./beabee-client/deno_cache",
       "./beabee-client/node_modules",
       "./beabee-client/jest.config.web.js",
       "./beabee-client/jest.config.node.js",
       "./beabee-common/dist",
       "./beabee-common/test/node",
-      "./beabee-common/jest.config.js"
+      "./beabee-common/node_modules",
+      "./beabee-common/jest.config.js",
+      "./beabee-common/.vscode"
     ],
     "editor.defaultFormatter": "denoland.vscode-deno",
     "editor.formatOnSave": true,
