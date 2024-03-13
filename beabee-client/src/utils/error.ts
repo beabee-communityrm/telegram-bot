@@ -1,13 +1,13 @@
-import type { ApiErrorData } from "../types/index.ts";
+import type { ClientApiErrorData } from "../types/index.ts";
 
-export class ApiError extends Error implements ApiErrorData {
+export class ClientApiError extends Error implements ClientApiErrorData {
   code?: string;
   errors?: {
     [key: string]: unknown;
   };
   httpCode?: number;
 
-  constructor(message: string, data: ApiErrorData = {}) {
+  constructor(message: string, data: ClientApiErrorData = {}) {
     super(message);
     this.code = data.code;
     this.errors = data.errors;

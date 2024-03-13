@@ -1,9 +1,7 @@
-import { Singleton } from "alosaur/mod.ts";
+import { Context, Singleton } from "../deps.ts";
 import { EventService } from "../services/event.service.ts";
 import { TelegramService } from "../services/telegram.service.ts";
 import { EventManager } from "../core/event-manager.ts";
-
-import type { Context } from "../types/index.ts";
 
 @Singleton()
 export class TelegramEventManager extends EventManager {

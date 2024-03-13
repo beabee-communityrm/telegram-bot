@@ -17,14 +17,14 @@ export class NetworkCommunicatorEventManager extends EventManager {
   }
 
   public init() {
-    this.event.on(
+    this.event.on<unknown>(
       NetworkCommunicatorEvents.RELOAD,
-      (event) => this.onReload(event),
+      (data) => this.onReload(data),
     );
   }
 
   protected async onReload(
-    _: CustomEvent,
+    _: unknown,
   ) {
     const beabeeGeneralContent = await this.beabeeContent.get("general");
 

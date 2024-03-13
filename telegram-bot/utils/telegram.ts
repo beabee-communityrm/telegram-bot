@@ -1,4 +1,4 @@
-import type { Context, Message } from "../types/index.ts";
+import type { Context, Message } from "../deps.ts";
 
 /**
  * Extract the chat id from a context

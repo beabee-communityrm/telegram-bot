@@ -1,12 +1,11 @@
-import { Singleton } from "alosaur/mod.ts";
+import { Context, Singleton } from "../deps.ts";
 import { CalloutService } from "../services/callout.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { CalloutRenderer } from "../renderer/index.ts";
 import { EventService } from "../services/event.service.ts";
+import { KeyboardService } from "../services/keyboard.service.ts";
 import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants/index.ts";
 import { EventManager } from "../core/event-manager.ts";
-
-import type { Context } from "../types/index.ts";
 
 @Singleton()
 export class CalloutEventManager extends EventManager {
@@ -15,6 +14,7 @@ export class CalloutEventManager extends EventManager {
     protected readonly callout: CalloutService,
     protected readonly communication: CommunicationService,
     protected readonly calloutRenderer: CalloutRenderer,
+    protected readonly keyboard: KeyboardService,
   ) {
     super();
     console.debug(`${this.constructor.name} created`);
@@ -25,13 +25,16 @@ export class CalloutEventManager extends EventManager {
     this.event.on(
       `callback_query:data:${BUTTON_CALLBACK_SHOW_CALLOUT}`,
       (event) => {
-        this.onCalloutSelectionKeyboardPressed(event.detail);
+        this.onCalloutSelectionKeyboardPressed(event);
       },
     );
   }
 
   protected async onCalloutSelectionKeyboardPressed(ctx: Context) {
     const shortSlug = ctx.callbackQuery?.data?.split(":")[1];
+
+    // Remove the inline keyboard
+    await this.keyboard.removeInlineKeyboard(ctx);
 
     const noSlugMessage =
       "This button has not a callout slug associated with it";
@@ -50,7 +53,6 @@ export class CalloutEventManager extends EventManager {
 
     try {
       const callout = await this.callout.get(slug);
-      console.debug("Got callout", callout);
 
       const calloutFormRender = await this.calloutRenderer.callout(
         callout,
@@ -61,6 +63,6 @@ export class CalloutEventManager extends EventManager {
       await ctx.reply("Error sending callout");
     }
 
-    await ctx.answerCallbackQuery(); // remove loading animation
+    await this.communication.answerCallbackQuery(ctx); // remove loading animation
   }
 }

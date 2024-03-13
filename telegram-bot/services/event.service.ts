@@ -3,18 +3,62 @@ import { Singleton } from "../deps.ts";
 import type {
   EventTelegramBot,
   EventTelegramBotListener,
+  Listener,
 } from "../types/index.ts";
 import type { Context } from "grammy/mod.ts";
+
+// deno-lint-ignore no-explicit-any
+class EventDispatcher<T = any> {
+  private listeners: { [event: string]: Listener<T>[] } = {};
+
+  /** Register a listener for a specific event */
+  public on(event: string, callback: Listener<T>): void {
+    if (!this.listeners[event]) {
+      this.listeners[event] = [];
+    }
+    this.listeners[event].push(callback);
+  }
+
+  /** Remove a listener for a specific event */
+  public off(event: string, callback: Listener<T>): void {
+    if (!this.listeners[event]) {
+      return;
+    }
+    this.listeners[event] = this.listeners[event].filter((listener) =>
+      listener !== callback
+    );
+  }
+
+  /** Dispatch an event to all registered listeners */
+  public dispatch(event: string, data: T): void {
+    if (!this.listeners[event]) {
+      return;
+    }
+    this.listeners[event].forEach((listener) => listener(data));
+    // Automatically remove listeners registered with `once`
+    this.listeners[event] = this.listeners[event].filter((listener) =>
+      !listener.once
+    );
+  }
+
+  /** Register a listener that will be removed after its first invocation */
+  public once(event: string, callback: Listener<T>): void {
+    const onceWrapper = ((data: T) => {
+      callback(data);
+      onceWrapper.once = true; // Mark for removal
+    }) as Listener<T>;
+    this.on(event, onceWrapper);
+  }
+}
 
 /**
  * Handle Telegram bot events
  * TODO: We need also a way to unsubscribe all callout response related event listeners when a user stops a callout response and for other cases.
  */
 @Singleton()
-export class EventService {
-  protected events = new EventTarget();
-
+export class EventService extends EventDispatcher {
   constructor() {
+    super();
     console.debug(`${this.constructor.name} created`);
   }
 
@@ -42,7 +86,7 @@ export class EventService {
    */
   public emitDetailedEvents(eventName: string, ctx: Context) {
     const eventNameParts = eventName.split(":");
-    const emittedEvents: { res: boolean; eventName: string }[] = [];
+    const emittedEvents: { res: void; eventName: string }[] = [];
     let specificEventName = "";
     for (const eventNamePart of eventNameParts) {
       specificEventName += specificEventName.length
@@ -75,9 +119,7 @@ export class EventService {
    * @param ctx
    */
   public emit<T = Context>(eventName: string, detail: T) {
-    return this.events.dispatchEvent(
-      new CustomEvent(eventName, { detail }),
-    );
+    return this.dispatch(eventName, detail);
   }
 
   /**
@@ -89,7 +131,7 @@ export class EventService {
     eventName: string,
     callback: EventTelegramBotListener<T>,
   ) {
-    return this.events.addEventListener(eventName, callback as EventListener);
+    return super.on(eventName, callback);
   }
 
   /**
@@ -102,9 +144,7 @@ export class EventService {
     eventName: string,
     callback: EventTelegramBotListener<T>,
   ) {
-    return this.events.addEventListener(eventName, callback as EventListener, {
-      once: true,
-    });
+    return super.once(eventName, callback);
   }
 
   /**
@@ -131,9 +171,9 @@ export class EventService {
     eventName: string,
     callback: EventTelegramBotListener<T>,
   ) {
-    return this.events.removeEventListener(
+    return super.off(
       eventName,
-      callback as EventListener,
+      callback,
     );
   }
 

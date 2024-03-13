@@ -1,6 +1,6 @@
-import type { Context } from "grammy/context.ts";
+import { BotCommand, Context } from "../deps.ts";
 import type { I18nService } from "../services/i18n.service.ts";
-import type { BotCommand } from "../types/index.ts";
+import type { UserState } from "../types/index.ts";
 
 export abstract class Command implements BotCommand {
   /**
@@ -18,6 +18,12 @@ export abstract class Command implements BotCommand {
    * For example: "List active Callouts"
    */
   abstract description: string;
+
+  /**
+   * Define the states where the command is visible
+   * @todo Not fully implemented yet, needs to implement the state manager first
+   */
+  abstract visibleOnStates: UserState[];
 
   /**
    * The i18n service, used to translate the command name and description.

@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
-import { ApiError, cleanUrl, isJson, objToQueryString } from "./index.ts";
+import { cleanUrl, ClientApiError, isJson, objToQueryString } from "./index.ts";
 
 import type {
   FetchOptions,
@@ -177,8 +177,7 @@ export class Fetch {
     // If this is a GET request and there is data, add query string to url
     if (method === "GET" && data) {
       url.search = objToQueryString(data);
-      console.debug("GET", url);
-      console.debug("GET", url.search);
+      console.debug("GET", url.href);
     } else if (data) {
       if (options.dataType === "form") {
         body = new URLSearchParams(data);
@@ -234,7 +233,10 @@ export class Fetch {
             console.error(JSON.stringify(error, null, 2));
           }
         }
-        throw new ApiError(data.message || data.name || "Unknown error", data);
+        throw new ClientApiError(
+          data.message || data.name || "Unknown error",
+          data,
+        );
       }
       throw result;
     }

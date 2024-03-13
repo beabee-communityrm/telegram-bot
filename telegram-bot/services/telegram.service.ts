@@ -1,11 +1,12 @@
-import { Bot, container, Singleton } from "../deps.ts";
-import { Command } from "../core/index.ts";
+import { container, Singleton } from "../deps.ts";
 import { I18nService } from "./i18n.service.ts";
+import { BotService } from "./bot.service.ts";
+import { CommandService } from "./command.service.ts";
 import { NetworkCommunicatorService } from "./network-communicator.service.ts";
 import { BeabeeContentService } from "./beabee-content.service.ts";
 import { readJson, waitForUrl } from "../utils/index.ts";
 
-import type { CommandClass, EventManagerClass } from "../types/index.ts";
+import type { EventManagerClass } from "../types/index.ts";
 
 /**
  * TelegramService is a Singleton service that handles the Telegram bot.
@@ -15,28 +16,19 @@ import type { CommandClass, EventManagerClass } from "../types/index.ts";
  */
 @Singleton()
 export class TelegramService {
-  bot: Bot;
-
-  protected readonly _commands: { [key: string]: Command } = {};
-
   constructor(
+    protected readonly command: CommandService,
+    protected readonly bot: BotService,
     protected readonly i18n: I18nService,
     protected readonly beabeeContent: BeabeeContentService,
     protected readonly networkCommunicator: NetworkCommunicatorService,
   ) {
-    const token = Deno.env.get("TELEGRAM_TOKEN");
-    if (!token) throw new Error("TELEGRAM_TOKEN is not set");
-    this.bot = new Bot(token);
-
     this.bootstrap().catch(console.error);
     console.debug(`${this.constructor.name} created`);
   }
 
   public async changeLocale(lang: string) {
-    for (const command of Object.values(this._commands)) {
-      command.changeLocale(lang);
-    }
-    await this.updateExistingCommands();
+    await this.command.onLocaleChange(lang);
   }
 
   /**
@@ -50,7 +42,7 @@ export class TelegramService {
     await this.printInfo();
     await this.waitForBeabee();
     this.networkCommunicator.startServer();
-    await this.initCommands();
+    await this.command.initCommands();
     await this.initEventManagers();
 
     // Start the bot
@@ -89,72 +81,5 @@ export class TelegramService {
       const eventManager = container.resolve(EventManager as EventManagerClass); // Get the Singleton instance
       eventManager.init();
     }
-  }
-
-  protected async initCommands() {
-    const Commands = await import("../commands/index.ts");
-    await this.addCommands(Commands);
-  }
-
-  /**
-   * Initialize the commands.
-   * @returns
-   */
-  protected async initExistingCommands() {
-    const commands = Object.values(this._commands);
-
-    if (commands.length === 0) {
-      console.warn("No commands found");
-      return;
-    }
-
-    await this.bot.api.deleteMyCommands();
-
-    for (const command of commands) {
-      this.bot.command(command.command, command.action.bind(command));
-    }
-
-    await this.bot.api.setMyCommands(
-      commands.map((command) => ({
-        command: command.command,
-        description: command.description,
-      })),
-    );
-  }
-
-  /**
-   * Update the commands.
-   * @returns
-   */
-  protected async updateExistingCommands() {
-    const commands = Object.values(this._commands);
-
-    if (commands.length === 0) {
-      console.warn("No commands found");
-      return;
-    }
-
-    await this.bot.api.setMyCommands(
-      commands.map((command) => ({
-        command: command.command,
-        description: command.description,
-      })),
-    );
-  }
-
-  /**
-   * Register new commands to the bot.
-   * To define a new command, create a new class in the commands folder:
-   * - The class must implement the Command interface.
-   * - The class must be decorated with the @Singleton() decorator.
-   * @param Commands
-   */
-  protected async addCommands(Commands: { [key: string]: CommandClass }) {
-    for (const Command of Object.values(Commands)) {
-      const command = container.resolve(Command); // Get the Singleton instance
-      this._commands[command.command] = command;
-    }
-
-    await this.initExistingCommands();
   }
 }

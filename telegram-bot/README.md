@@ -66,7 +66,7 @@ const i18n = container.resolve(I18nService); // Get the Singleton instance of I1
 const translated = i18n.t("bot.info.messages.placeholder", { placeholder: "Hello World!" }
 ```
 
-### Testing
+### Run tests
 
 Just run `deno test` in the project root directory.
 
@@ -78,7 +78,7 @@ To lint the project, run `deno lint` in the project root directory.
 
 To format the project, run `deno fmt` in the project root directory.
 
-## Running the Bot
+### Running the Bot
 
 To view the list of available commands, refer to the `deno.json` file. For
 running the bot in development mode, execute the following command:
@@ -93,7 +93,7 @@ For running the bot in production mode, execute the following command:
 deno task start
 ```
 
-## Project Structure
+### Project Structure
 
 The project is organized into several main folders, each containing specific
 parts of the application:
@@ -127,7 +127,7 @@ parts of the application:
 - `utils`: Contains helper functions, such as `escapeMd` to escape Telegram
   Markdown V2 characters, and more.
 
-## Docker
+### Docker
 
 To build the Docker image, you can use the following command:
 
@@ -143,6 +143,32 @@ deno task docker:start
 
 This assumes that your application is listening on port 8080. If it's listening
 on a different port, replace `8080:8080` with `<your port>:<your port>`.
+
+### Test the bot
+
+Open Telegram on your phone and search for your bot. You should be able to
+interact with it using the commands defined in `./commands/...`.
+
+Unfortunately, not all bot interactions work as well with the web / desktop
+version of Telegram as they do on the smartphone. To be able to test the bot on
+the desktop anyway, we recommend [Waydroid](https://waydro.id/) under Linux. On
+Windows you can try to use the
+[Windows Subsystem for Android](https://learn.microsoft.com/de-de/windows/android/wsa/).
+On MacOS and Windows you can also use the
+[BlueStacks Android-Emulator](https://www.bluestacks.com).
+
+> We have only tested Waydroid ourselves, please let us know which solution
+> works best on Windows and MacOS.
+
+#### Waydroid
+
+To install Waydroid follow the instructions on the
+[Waydroid Webside](https://waydro.id/). On the first start of Waydroid you will
+be asked for links for System OTA and Vendor OTA and the Android Type. Use the
+System OTA and Vendor OTA links recommended by Waydroid and the Android Type
+`GAPPS` to be able to use the Google Play Store. To do this, you also need to
+[sign your Waydroid](https://docs.waydro.id/faq/google-play-certification).
+Telegram can then be installed via Google Play Store.
 
 ### Contributing
 

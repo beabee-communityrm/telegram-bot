@@ -1,4 +1,4 @@
-import { Singleton } from "alosaur/mod.ts";
+import { ClientApiError, Context, Singleton } from "../deps.ts";
 import { CalloutService } from "../services/callout.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
@@ -8,16 +8,21 @@ import {
   CalloutResponseRenderer,
   MessageRenderer,
 } from "../renderer/index.ts";
-import { ApiError } from "../deps.ts";
-import { Command } from "../core/index.ts";
 
-import type { Context } from "../types/index.ts";
+import { Command } from "../core/index.ts";
+import type { UserState } from "../types/user-state.ts";
 
 @Singleton()
 export class ShowCommand extends Command {
   key = "show";
   command = "show";
-  description = `Shows you information about a specific callout`;
+  /**
+   * Shows you information about a specific callout
+   * (Description is set in CommandService with a translation)
+   */
+  description = "";
+
+  visibleOnStates: UserState[] = []; // Only for testing
 
   constructor(
     protected readonly callout: CalloutService,
@@ -45,13 +50,11 @@ export class ShowCommand extends Command {
 
     try {
       const callout = await this.callout.get(slug);
-      console.debug("Got callout", callout);
-
       const res = await this.calloutRenderer.callout(callout);
       await this.communication.sendAndReceiveAll(ctx, res);
     } catch (error) {
       console.error("Error sending callout", error);
-      if (error instanceof ApiError && error.httpCode === 404) {
+      if (error instanceof ClientApiError && error.httpCode === 404) {
         await ctx.reply(`Callout with slug "${slug}" not found.`);
         return;
       }

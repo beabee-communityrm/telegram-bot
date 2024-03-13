@@ -71,9 +71,6 @@ export class CalloutClient extends BaseClient {
       "/",
       { with: _with, ...query },
     );
-
-    console.debug("Got callouts", data);
-
     const items = data.items.map((item) => this.deserialize(item));
     const callouts: Paginated<GetCalloutDataWith<With>> = {
       ...data,

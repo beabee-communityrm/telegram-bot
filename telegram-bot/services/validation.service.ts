@@ -1,6 +1,8 @@
 import {
   CalloutComponentType,
   calloutComponentValidator,
+  Context,
+  Message,
   Singleton,
 } from "../deps.ts";
 import { RelayAcceptedFileType, ReplayType } from "../enums/index.ts";
@@ -15,7 +17,6 @@ import {
 import { TransformService } from "./transform.service.ts";
 
 import type {
-  Message,
   ReplayAccepted,
   ReplayAcceptedFile,
   ReplayAcceptedNone,
@@ -27,7 +28,6 @@ import type {
   ReplayConditionSelection,
   ReplayConditionText,
 } from "../types/index.ts";
-import type { Context } from "../types/grammy.ts";
 import { ReplayAcceptedCalloutComponentSchema } from "../types/replay-accepted-callout-component-schema.ts";
 
 /**

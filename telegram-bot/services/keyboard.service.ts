@@ -1,4 +1,4 @@
-import { InlineKeyboard, Singleton } from "../deps.ts";
+import { Context, InlineKeyboard, Keyboard, Singleton } from "../deps.ts";
 import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants/index.ts";
 import { I18nService } from "./i18n.service.ts";
 
@@ -86,14 +86,14 @@ export class KeyboardService {
   }
 
   /**
-   * Create a keyboard with Continue and Cancel buttons.
+   * Create a inline keyboard with Continue and Cancel buttons.
    *
    * To respond to the button press, listen for the `callback_query:data:continue` and `callback_query:data:cancel` events using the EventService.
    * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `callback_query:data:callout-respond:continue`.
    *
    * @param prefix A prefix to add to the button data, e.g. "callout-respond"
    */
-  public continueCancel(prefix = "") {
+  public inlineContinueCancel(prefix = "") {
     const inlineKeyboard = new InlineKeyboard();
     inlineKeyboard.text(
       this.i18n.t("bot.keyboard.label.continue"),
@@ -104,5 +104,36 @@ export class KeyboardService {
       prefix ? `${prefix}:cancel` : `cancel`,
     );
     return inlineKeyboard;
+  }
+
+  /**
+   * Create a keyboard with Continue and Cancel buttons.
+   */
+  public continueCancel() {
+    const keyboard = new Keyboard();
+    keyboard.text(
+      this.i18n.t("bot.keyboard.label.continue"),
+    ).row()
+      .text(
+        this.i18n.t("bot.keyboard.label.cancel"),
+      );
+
+    return keyboard;
+  }
+
+  /**
+   * Remove an existing inline keyboard
+   * @param ctx
+   */
+  public async removeInlineKeyboard(ctx: Context, withMessage = false) {
+    if (!withMessage) {
+      const inlineKeyboard = new InlineKeyboard();
+      await ctx.editMessageReplyMarkup({
+        reply_markup: inlineKeyboard,
+      });
+      // TODO: Add message with clicked selection?
+    } else {
+      await ctx.deleteMessage();
+    }
   }
 }
