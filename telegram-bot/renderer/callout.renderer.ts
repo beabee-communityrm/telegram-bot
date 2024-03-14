@@ -34,7 +34,9 @@ export class CalloutRenderer {
    * @param callout
    * @returns
    */
-  protected startResponseKeyboard(callout: CalloutDataExt) {
+  protected startResponseKeyboard(
+    callout: CalloutDataExt,
+  ): Render {
     const keyboardMessageMd = `_${
       escapeMd(this.i18n.t("bot.response.messages.calloutStartResponse"))
     }_`;
@@ -78,7 +80,9 @@ export class CalloutRenderer {
    * @param callouts
    * @returns
    */
-  public listItems(callouts: Paginated<GetCalloutDataExt>) {
+  public listItems(
+    callouts: Paginated<GetCalloutDataExt>,
+  ) {
     const listResult: Render = {
       key: "callout:list",
       type: RenderType.MARKDOWN,

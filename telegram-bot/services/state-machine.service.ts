@@ -49,6 +49,7 @@ export class StateMachineService extends BaseService {
       _data: this.ref({
         ctx: null,
         abortController: null,
+        latestKeyboard: null,
       }),
     });
 

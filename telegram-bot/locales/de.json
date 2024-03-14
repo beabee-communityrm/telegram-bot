@@ -37,7 +37,7 @@
     "info": {
       "messages": {
         "command": {
-          "notUsable": "Sie können den Befehl {command} hier nicht verwenden"
+          "notUsable": "Der Befehl {command} kann hier nicht verwendet werden. Wenn Sie glauben, dass es sich um einen Fehler handelt, verwenden Sie bitte den Befehl /reset."
         },
         "done": "Wenn Sie mit Ihrer Antwort fertig sind, tippen Sie einfach \"{done}\".",
         "enterAmountOfMoney": "Bitte geben Sie einen Geldbetrag ein.",

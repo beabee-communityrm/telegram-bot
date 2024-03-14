@@ -72,6 +72,7 @@ export class KeyboardService extends BaseService {
    * To respond to the button press, listen for the `callback_query:data:yes` and `callback_query:data:no` events using the EventService.
    * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `callback_query:data:callout-respond:yes`.
    *
+   * @param ctx The chat context
    * @param prefix A prefix to add to the button data, e.g. "callout-respond"
    */
   public yesNo(prefix = "") {
@@ -93,6 +94,7 @@ export class KeyboardService extends BaseService {
    * To respond to the button press, listen for the `callback_query:data:continue` and `callback_query:data:cancel` events using the EventService.
    * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `callback_query:data:callout-respond:continue`.
    *
+   * @param ctx The chat context
    * @param prefix A prefix to add to the button data, e.g. "callout-respond"
    */
   public inlineContinueCancel(prefix = "") {
@@ -138,5 +140,27 @@ export class KeyboardService extends BaseService {
     }
 
     return await ctx.deleteMessage();
+  }
+
+  public async removeLastInlineKeyboard(ctx: AppContext) {
+    const session = await ctx.session;
+    if (!session) {
+      throw new Error("ctx with a session is required when once is true");
+    }
+    const inlineKeyboardData = session._data.latestKeyboard;
+    if (!inlineKeyboardData || !Object.keys(inlineKeyboardData).length) {
+      console.debug("No inline keyboard to remove");
+      return;
+    }
+
+    if (inlineKeyboardData.message_id && inlineKeyboardData.chat_id) {
+      await ctx.api.editMessageReplyMarkup(
+        inlineKeyboardData.chat_id,
+        inlineKeyboardData.message_id,
+        {
+          reply_markup: new InlineKeyboard(),
+        },
+      );
+    }
   }
 }

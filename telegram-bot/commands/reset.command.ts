@@ -3,6 +3,7 @@ import { BaseCommand } from "../core/index.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { StateMachineService } from "../services/state-machine.service.ts";
+import { KeyboardService } from "../services/keyboard.service.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
 import { ChatState } from "../enums/index.ts";
 
@@ -27,6 +28,7 @@ export class ResetCommand extends BaseCommand {
     protected readonly communication: CommunicationService,
     protected readonly messageRenderer: MessageRenderer,
     protected readonly stateMachine: StateMachineService,
+    protected readonly keyboard: KeyboardService,
   ) {
     super();
   }
@@ -58,6 +60,8 @@ export class ResetCommand extends BaseCommand {
         this.messageRenderer.resetUnsuccessfulMessage(),
       );
     }
+
+    this.keyboard.removeLastInlineKeyboard(ctx);
 
     const successful = this.stateMachine.resetSessionState(session);
 

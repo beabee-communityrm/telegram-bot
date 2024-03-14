@@ -8,7 +8,17 @@ export interface SessionState {
   _data: {
     /** Reverse reference to the context */
     ctx: AppContext | null;
-
+    /** Used to cancel any current task */
     abortController: AbortController | null;
+    /** The latest inline keyboard that was sent to the user */
+    latestKeyboard: {
+      message_id: number;
+      chat_id: number;
+      /**
+       * Type of the keyboard, currently unused.
+       * inline - InlineKeyboard
+       */
+      type: "inline";
+    } | null;
   };
 }

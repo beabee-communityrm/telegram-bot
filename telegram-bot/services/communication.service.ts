@@ -21,6 +21,7 @@ import type {
   RenderResponseParsed,
   ReplayAccepted,
 } from "../types/index.ts";
+import { InlineKeyboard } from "../deps/grammy.ts";
 
 /**
  * Service to handle the communication with the telegram bot and the telegram user.
@@ -53,41 +54,61 @@ export class CommunicationService extends BaseService {
 
     console.debug("Render markup: ", markup);
 
+    let message: Message.TextMessage | undefined;
+
     switch (render.type) {
       case RenderType.PHOTO:
         await ctx.replyWithMediaGroup([render.photo], {});
         if (render.keyboard) {
-          // TODO: Send keyboard
+          message = await ctx.reply("", {
+            reply_markup: markup,
+          });
         }
         break;
       case RenderType.MARKDOWN:
-        await ctx.reply(render.markdown, {
+        message = await ctx.reply(render.markdown, {
           parse_mode: "MarkdownV2",
           reply_markup: markup,
         });
         break;
       case RenderType.HTML:
-        await ctx.reply(render.html, {
+        message = await ctx.reply(render.html, {
           parse_mode: "HTML",
           reply_markup: markup,
         });
         break;
       case RenderType.TEXT:
-        await ctx.reply(render.text, {
+        message = await ctx.reply(render.text, {
           reply_markup: markup,
         });
         break;
       // See https://grammy.dev/plugins/parse-mode
       case RenderType.FORMAT:
-        await (ctx as ParseModeFlavor<Context>).replyFmt(fmt(render.format), {
-          reply_markup: markup,
-        });
+        message = await (ctx as ParseModeFlavor<Context>).replyFmt(
+          fmt(render.format),
+          {
+            reply_markup: markup,
+          },
+        );
         break;
       case RenderType.EMPTY:
         // Do nothing
         break;
       default:
         throw new Error("Unknown render type: " + (render as Render).type);
+    }
+
+    // Store latest sended keyboard
+    // TODO: Move this to KeyboardService or StateMachineService
+    if (
+      render.keyboard && message && render.keyboard instanceof InlineKeyboard
+    ) {
+      const session = await ctx.session;
+      session._data.latestKeyboard = {
+        message_id: message.message_id,
+        chat_id: message.chat.id,
+        type: "inline",
+      };
     }
   }
 
