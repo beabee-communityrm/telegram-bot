@@ -1,13 +1,15 @@
-import { Context, Singleton } from "../deps.ts";
+import { Singleton } from "../deps/index.ts";
 import { EventService } from "../services/event.service.ts";
-import { TelegramService } from "../services/telegram.service.ts";
-import { EventManager } from "../core/event-manager.ts";
+import { BotService } from "../services/bot.service.ts";
+import { BaseEventManager } from "../core/base.events.ts";
+
+import type { AppContext } from "../types/index.ts";
 
 @Singleton()
-export class TelegramEventManager extends EventManager {
+export class TelegramEventManager extends BaseEventManager {
   constructor(
     protected readonly event: EventService,
-    protected readonly telegramService: TelegramService,
+    protected readonly bot: BotService,
   ) {
     super();
     console.debug(`${this.constructor.name} created`);
@@ -18,20 +20,20 @@ export class TelegramEventManager extends EventManager {
    */
   public init() {
     // Forward callback query data, e.g. Telegram keyboard button presses
-    this.telegramService.bot.on(
+    this.bot.on(
       "callback_query:data",
       (ctx) => this.onCallbackQueryData(ctx),
     );
 
     // Forward normale messages from the bot
-    this.telegramService.bot.on("message", (ctx) => this.onMessage(ctx));
+    this.bot.on("message", (ctx) => this.onMessage(ctx));
   }
 
-  protected onMessage(ctx: Context) {
+  protected onMessage(ctx: AppContext) {
     this.event.emitDetailedEvents("message", ctx);
   }
 
-  protected onCallbackQueryData(ctx: Context) {
+  protected onCallbackQueryData(ctx: AppContext) {
     if (!ctx.callbackQuery?.data) {
       // Dispatch general callback event
       this.event.emit("callback_query:data", ctx);

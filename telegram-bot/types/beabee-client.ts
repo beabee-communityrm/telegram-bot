@@ -7,4 +7,4 @@ export type {
   GetCalloutDataWith,
   GetCalloutsQuery,
   GetCalloutWith,
-} from "../deps.ts";
+} from "../deps/index.ts";

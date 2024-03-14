@@ -1,6 +1,6 @@
 import { ReplayConditionBase } from "./index.ts";
 import type { ReplayType } from "../enums/index.ts";
-import type { CalloutComponentSchema } from "../deps.ts";
+import type { CalloutComponentSchema } from "../deps/index.ts";
 
 /**
  * Accept or wait for a callout answer replay.

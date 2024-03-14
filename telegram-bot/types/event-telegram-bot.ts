@@ -1,3 +1,3 @@
-import type { Context } from "grammy/mod.ts";
+import type { AppContext } from "./index.ts";
 
-export type EventTelegramBot<T = Context> = T;
+export type EventTelegramBot<T = AppContext> = T;

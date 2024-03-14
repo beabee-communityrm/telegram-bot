@@ -1,5 +1,5 @@
 import type { RenderResponseParsedBase } from "./index.ts";
-import { CalloutResponseAnswer } from "../deps.ts";
+import { CalloutResponseAnswer } from "../deps/index.ts";
 import type { ParsedResponseType } from "../enums/index.ts";
 
 export interface RenderResponseParsedCalloutComponent<

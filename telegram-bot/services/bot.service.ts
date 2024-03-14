@@ -1,22 +1,37 @@
 import {
-  Bot as BotService,
-  container,
-  Context,
+  Bot,
   hydrateReply,
-  ParseModeFlavor,
-} from "../deps.ts";
-import { load } from "std/dotenv/mod.ts";
+  lazySession,
+  NextFunction,
+  Singleton,
+} from "../deps/index.ts";
 
-await load({ export: true });
-const token = Deno.env.get("TELEGRAM_TOKEN");
-if (!token) throw new Error("TELEGRAM_TOKEN is not set");
+import { StateMachineService } from "./state-machine.service.ts";
 
-const bot = new BotService<ParseModeFlavor<Context>>(token);
+import type { AppContext } from "../types/index.ts";
 
-// Install Grammy plugins
-bot.use(hydrateReply);
+@Singleton()
+export class BotService extends Bot<AppContext> {
+  constructor(
+    protected readonly stateMachine: StateMachineService,
+  ) {
+    const token = Deno.env.get("TELEGRAM_TOKEN");
+    if (!token) throw new Error("TELEGRAM_TOKEN is not set");
+    super(token);
 
-// Register the bot instance for dependency injection
-container.registerInstance(BotService<ParseModeFlavor<Context>>, bot);
+    // See https://grammy.dev/plugins/session
+    this.use(lazySession({
+      initial: this.stateMachine.createSession.bind(this.stateMachine),
+    }));
 
-export { BotService };
+    // See https://grammy.dev/plugins/parse-mode
+    this.use(hydrateReply);
+
+    // Custom middleware, see https://grammy.dev/guide/middleware#writing-custom-middleware
+    this.use(async (ctx: AppContext, next: NextFunction) => {
+      const session = await ctx.session;
+      session._data.ctx = ctx;
+      await next();
+    });
+  }
+}

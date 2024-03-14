@@ -1,6 +1,6 @@
 import type { ParsedResponseType, RenderType } from "../enums/index.ts";
 import type { ReplayCondition } from "./index.ts";
-import type { InlineKeyboard, Keyboard } from "../deps.ts";
+import type { InlineKeyboard, Keyboard } from "../deps/index.ts";
 
 export interface RenderBase {
   /**
@@ -22,6 +22,11 @@ export interface RenderBase {
    * Define this to show a keyboard to the user
    */
   keyboard?: InlineKeyboard | Keyboard;
+
+  /**
+   * Remove the custom keyboard after the user has replied.
+   */
+  removeKeyboard?: boolean;
 
   /**
    * Define the types of the replay you are accepting.

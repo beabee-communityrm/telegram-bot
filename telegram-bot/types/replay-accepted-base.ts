@@ -1,5 +1,5 @@
 import type { ReplayType } from "../enums/index.ts";
-import type { Context } from "../deps.ts";
+import type { Context } from "../deps/index.ts";
 
 export interface ReplayAcceptedBase {
   /** The type of the replay. */

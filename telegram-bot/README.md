@@ -107,6 +107,9 @@ parts of the application:
   event manger.
 - `data`: Contains data which can be persisted in docker volumes such the
   `database.sql`.
+- `deps`: In Deno it is common to import all dependencies in a central deps.ts
+  file, we want to follow this but due to many dependencies we have split them
+  cleanly in this folder.
 - `renderer`: Includes classes for rendering Markdown texts, including
   `CalloutRenderer`, `MessageRenderer`, `CalloutResponseRenderer` and more.
 - `enums`: Contains enums used throughout the application.
@@ -115,6 +118,7 @@ parts of the application:
   events triggered throughout the application. The organization of this folder
   allows for a clear and efficient handling of the event-driven aspects of the
   application.
+- `locales`: Contains the locale data for the application.
 - `models`: Contains classes representing various models used throughout the
   application using `typeorm`.
 - `renderer`: Contains classes for rendering Markdown texts, including

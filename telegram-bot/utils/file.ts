@@ -1,5 +1,5 @@
 import { getFilenameFromUrl } from "./index.ts";
-import { mediaTypes, parseJsonc } from "../deps.ts";
+import { mediaTypes, parseJsonc } from "../deps/index.ts";
 
 export const mimeTypeNames = Object.keys(mediaTypes.db);
 

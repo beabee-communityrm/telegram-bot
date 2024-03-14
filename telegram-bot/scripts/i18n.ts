@@ -9,7 +9,7 @@ import {
   MarkdownIt,
   MarkdownRenderer,
   sheets_v4,
-} from "../deps.ts";
+} from "../deps/index.ts";
 
 interface LocaleData {
   [key: string]: LocaleEntry;

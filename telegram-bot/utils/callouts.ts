@@ -3,9 +3,9 @@
 import { CALLOUT_RESPONSE_GROUP_KEY_SEPARATOR } from "../constants/index.ts";
 import { ParsedResponseType } from "../enums/index.ts";
 
-import { CalloutComponentType } from "../deps.ts";
+import { CalloutComponentType } from "../deps/index.ts";
 
-import type { CalloutComponentSchema } from "../deps.ts";
+import type { CalloutComponentSchema } from "../deps/index.ts";
 
 export const createCalloutGroupKey = (key: string, prefix: string) => {
   return prefix + CALLOUT_RESPONSE_GROUP_KEY_SEPARATOR + key;

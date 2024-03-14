@@ -1,4 +1,5 @@
-import { dirname, fromFileUrl, Singleton } from "../deps.ts";
+import { BaseService } from "../core/index.ts";
+import { dirname, fromFileUrl, Singleton } from "../deps/index.ts";
 import {
   escapeMd,
   readJson,
@@ -20,7 +21,7 @@ interface Translations {
  * - Translate strings
  */
 @Singleton()
-export class I18nService {
+export class I18nService extends BaseService {
   protected translations: { [lang: string]: Translations } = {};
   protected _activeLang = "en";
   protected _ready = false;
@@ -35,6 +36,7 @@ export class I18nService {
   }
 
   constructor(protected readonly event: EventService) {
+    super();
     this.setActiveLangSync(this._activeLang);
     this._ready = true;
     console.debug(`${this.constructor.name} created`);
@@ -115,9 +117,14 @@ export class I18nService {
   protected translate(
     path: string,
     placeholders: { [key: string]: string } = {},
-    lang: string = this._activeLang,
+    options: {
+      lang?: string;
+      escapeMd?: boolean;
+    } = {},
   ): string {
-    const translation = this.getTranslation(
+    const lang = options.lang || this._activeLang;
+    const doEscapeMd = options.escapeMd ?? false;
+    let translation = this.getTranslation(
       path,
       lang,
       this.translations[lang],
@@ -131,10 +138,14 @@ export class I18nService {
       console.warn(
         `Translation not found for '${path}' in language '${lang}', falling back to English`,
       );
-      return this.translate(path, placeholders, "en");
+      return this.translate(path, placeholders, { ...options, lang: "en" });
     }
 
-    return this.replacePlaceholders(translation, placeholders);
+    if (doEscapeMd) {
+      translation = escapeMd(translation);
+    }
+
+    return this.replacePlaceholders(translation, placeholders, options);
   }
 
   /**
@@ -172,11 +183,17 @@ export class I18nService {
   protected replacePlaceholders(
     translation: string,
     placeholders: { [key: string]: string },
+    options: {
+      escapeMd?: boolean;
+    } = {},
   ): string {
     return Object.keys(placeholders).reduce((acc, key) => {
       // Allow whitespace in placeholders between curly braces
-      const regex = new RegExp(`\\{\\s*${key}\\s*\\}`, "g");
-      return acc.replaceAll(regex, placeholders[key]);
+      const regexStr = options.escapeMd
+        ? `\\\\{\\s*${key}\\s*\\\\}`
+        : `\\{\\s*${key}\\s*\\}`;
+      const regex = new RegExp(regexStr, "g");
+      return acc.replaceAll(regex, placeholders[key].toString());
     }, translation);
   }
 }

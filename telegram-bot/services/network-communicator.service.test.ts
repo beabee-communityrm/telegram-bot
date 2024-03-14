@@ -1,4 +1,4 @@
-import { djwt } from "../deps.ts";
+import { djwt } from "../deps/index.ts";
 import { createSecretKeyFromSecret } from "../utils/auth.ts";
 import jsonwebtoken from "npm:jsonwebtoken";
 import { assertEquals } from "std/assert/mod.ts";

@@ -1,6 +1,9 @@
-import { Controller, Get, NotFoundError, Param } from "alosaur/mod.ts";
+import { Controller, Get, NotFoundError, Param } from "../deps/index.ts";
 import { I18nService } from "../services/i18n.service.ts";
 
+/**
+ * Example controller that can be used in the browser creating GET requests for testing
+ */
 @Controller("/i18n")
 export class I18nController {
   constructor(

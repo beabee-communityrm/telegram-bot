@@ -1,5 +1,6 @@
 export * from "./auth.ts";
 export * from "./callouts.ts";
+export * from "./event-dispatcher.ts";
 export * from "./file.test.ts";
 export * from "./file.ts";
 export * from "./html.test.ts";
