@@ -191,7 +191,7 @@ export class TransformService extends BaseService {
     return texts;
   }
 
-  // TODO: Use CalloutComponentInputAdressSchema as return type
+  // TODO: Use CalloutComponentInputAddressSchema as return type
   public parseResponseCalloutComponentAddress(
     context: Context,
   ): CalloutResponseAnswerAddress {
@@ -211,7 +211,7 @@ export class TransformService extends BaseService {
     return address;
   }
 
-  // TODO: Use CalloutComponentInputAdressSchema as return type
+  // TODO: Use CalloutComponentInputAddressSchema as return type
   public parseResponsesCalloutComponentAddress(
     contexts: Context[],
   ): CalloutResponseAnswerAddress[] {
@@ -264,6 +264,14 @@ export class TransformService extends BaseService {
     replay: ReplayAccepted,
     render: Render,
   ): RenderResponseParsed<false>["data"] {
+    // Check if message was skipped
+    if (replay?.isSkip) {
+      if (render.accepted.required) {
+        throw new Error("Skip message is not allowed");
+      }
+      return this.responseNone();
+    }
+
     switch (render.parseType) {
       case ParsedResponseType.CALLOUT_COMPONENT:
         if (replay.type !== ReplayType.CALLOUT_COMPONENT_SCHEMA) {
@@ -376,7 +384,9 @@ export class TransformService extends BaseService {
       > = {};
       for (const response of responses) {
         const [_, key] = splitCalloutGroupKey(response.render.key);
-        slideAnswers[key] = response.responses.data;
+        slideAnswers[key] = response.responses.type === ParsedResponseType.NONE
+          ? undefined
+          : response.responses.data;
       }
       answers[slideId] = slideAnswers;
     }

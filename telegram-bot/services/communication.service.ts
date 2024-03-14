@@ -1,11 +1,5 @@
 import { BaseService } from "../core/index.ts";
-import {
-  Context,
-  fmt,
-  Message,
-  ParseModeFlavor,
-  Singleton,
-} from "../deps/index.ts";
+import { fmt, Message, ParseModeFlavor, Singleton } from "../deps/index.ts";
 import { ParsedResponseType, RenderType, ReplayType } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
 import { TransformService } from "./transform.service.ts";
@@ -52,8 +46,6 @@ export class CommunicationService extends BaseService {
     const markup = render.keyboard ||
       (render.removeKeyboard ? { remove_keyboard: true as true } : undefined);
 
-    console.debug("Render markup: ", markup);
-
     let message: Message.TextMessage | undefined;
 
     switch (render.type) {
@@ -84,7 +76,7 @@ export class CommunicationService extends BaseService {
         break;
       // See https://grammy.dev/plugins/parse-mode
       case RenderType.FORMAT:
-        message = await (ctx as ParseModeFlavor<Context>).replyFmt(
+        message = await (ctx as ParseModeFlavor<AppContext>).replyFmt(
           fmt(render.format),
           {
             reply_markup: markup,
@@ -133,7 +125,7 @@ export class CommunicationService extends BaseService {
     ctx: AppContext,
     render: Render,
   ) {
-    let context: Context;
+    let context: AppContext;
     let message: Message | undefined;
     const replays: ReplayAccepted[] = [];
 
@@ -168,17 +160,22 @@ export class CommunicationService extends BaseService {
         continue;
       }
 
-      if (render.accepted.multiple) {
-        // Do not store the done message
-        if (!replayAccepted.isDone) {
-          replays.push(replayAccepted);
-        }
-      } else {
-        replays.push(replayAccepted);
-        // Stop collecting messages if only one message is accepted
-        replayAccepted.isDone = true;
+      if (replayAccepted.isDone) {
+        // Return what we have
+        return replays;
       }
-    } while (!replayAccepted?.isDone);
+
+      if (replayAccepted.isSkip) {
+        // Only return the skip message
+        return [replayAccepted];
+      }
+
+      replays.push(replayAccepted);
+
+      if (!render.accepted.multiple) {
+        return replays;
+      }
+    } while (!replayAccepted?.isDone && !replayAccepted?.isSkip);
 
     return replays;
   }
@@ -193,7 +190,7 @@ export class CommunicationService extends BaseService {
     ctx: AppContext,
     render: Render,
   ): Promise<RenderResponseParsed<boolean>> {
-    // Do not wait for a specific message
+    // Do not wait for any specific message
     if (!render.accepted || render.accepted.type === ReplayType.NONE) {
       return {
         type: ParsedResponseType.NONE,

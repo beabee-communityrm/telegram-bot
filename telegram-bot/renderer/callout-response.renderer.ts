@@ -76,7 +76,7 @@ export class CalloutResponseRenderer {
       type: RenderType.MARKDOWN,
       accepted: this.condition.replayConditionNone(),
       markdown: `*${escapeMd(component.label)}*`,
-      parseType: calloutComponentTypeToParsedResponseType(component),
+      parseType: ParsedResponseType.NONE,
     };
 
     return result;
@@ -95,7 +95,7 @@ export class CalloutResponseRenderer {
       type: RenderType.MARKDOWN,
       accepted: this.condition.replayConditionNone(),
       markdown: `${escapeMd(component.description)}`,
-      parseType: calloutComponentTypeToParsedResponseType(component),
+      parseType: ParsedResponseType.NONE,
     };
 
     return result;
@@ -111,7 +111,7 @@ export class CalloutResponseRenderer {
       type: RenderType.MARKDOWN,
       accepted: this.condition.replayConditionNone(),
       markdown: ``,
-      parseType: calloutComponentTypeToParsedResponseType(input),
+      parseType: ParsedResponseType.NONE,
     };
 
     const placeholder = input.placeholder as string | undefined;
@@ -128,29 +128,58 @@ export class CalloutResponseRenderer {
   }
 
   protected multipleMd(component: CalloutComponentSchema, prefix: string) {
-    const doneMessage = this.i18n.t("bot.reactions.messages.done");
     const multiple = this.isMultiple(component);
+    const required = component.validate?.required || false;
     const result: Render = {
       key: createCalloutGroupKey(component.key, prefix),
       type: RenderType.MARKDOWN,
-      accepted: this.condition.replayConditionNone(multiple),
+      accepted: this.condition.replayConditionNone(multiple, required),
       markdown: ``,
-      parseType: calloutComponentTypeToParsedResponseType(component),
+      parseType: ParsedResponseType.NONE,
     };
     if (multiple) {
       result.markdown += `_${
         escapeMd(
-          `${this.i18n.t("bot.info.messages.multiple-values-allowed")}\n\n${
-            this.messageRenderer.writeDoneMessage(doneMessage).text
+          `${this.i18n.t("bot.info.messages.multipleValuesAllowed")}\n\n${
+            this.messageRenderer.writeDoneMessage(
+              this.i18n.t("bot.reactions.messages.done"),
+            ).text
           }`,
         )
       }_`;
     } else {
       result.markdown += `_${
         escapeMd(
-          `${this.i18n.t("bot.info.messages.only-one-value-allowed")}\n\n${
-            this.messageRenderer.writeDoneMessage(doneMessage).text
-          }`,
+          `${this.i18n.t("bot.info.messages.onlyOneValueAllowed")}`,
+        )
+      }_`;
+    }
+
+    return result;
+  }
+
+  protected requiredMd(component: CalloutComponentSchema, prefix: string) {
+    const multiple = this.isMultiple(component);
+    const required = component.validate?.required || false;
+    const result: Render = {
+      key: createCalloutGroupKey(component.key, prefix),
+      type: RenderType.MARKDOWN,
+      accepted: this.condition.replayConditionNone(multiple, required),
+      markdown: ``,
+      parseType: ParsedResponseType.NONE,
+    };
+    if (required) {
+      result.markdown += `_${
+        escapeMd(
+          `${this.i18n.t("bot.info.messages.answerIsRequired")}\n\n`,
+        )
+      }_`;
+    } else {
+      result.markdown += `_${
+        escapeMd(
+          this.messageRenderer.writeSkipMessage(
+            this.i18n.t("bot.reactions.messages.skip"),
+          ).text,
         )
       }_`;
     }
@@ -168,13 +197,16 @@ export class CalloutResponseRenderer {
   ) {
     // Selectboxes are always multiple
     const multiple = this.isMultiple(selectable);
+    const required = selectable.validate?.required || false;
     const result: Render = {
       key: createCalloutGroupKey(selectable.key, prefix),
       type: RenderType.MARKDOWN,
       accepted: this.condition.replayConditionSelection(
         multiple,
+        required,
         this.selectValuesToValueLabelPairs(selectable.values),
         multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
+        !required ? [this.i18n.t("bot.reactions.messages.skip")] : [],
       ),
       markdown: ``,
       parseType: calloutComponentTypeToParsedResponseType(selectable),
@@ -201,13 +233,17 @@ export class CalloutResponseRenderer {
   ) {
     // TODO: Is a dropdown never multiple?
     const multiple = this.isMultiple(select);
+    const required = select.validate?.required || false;
     const result: Render = {
       key: createCalloutGroupKey(select.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
       accepted: this.condition.replayConditionSelection(
         multiple,
+        required,
         this.selectValuesToValueLabelPairs(select.data.values),
+        multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
+        !required ? [this.i18n.t("bot.reactions.messages.skip")] : [],
       ), // Wait for index which is a text message
       parseType: calloutComponentTypeToParsedResponseType(select),
     };
@@ -228,14 +264,17 @@ export class CalloutResponseRenderer {
    */
   protected baseComponent(base: CalloutComponentSchema, prefix: string) {
     const multiple = this.isMultiple(base);
+    const required = base.validate?.required || false;
     const result: Render = {
       key: createCalloutGroupKey(base.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
-      accepted: this.condition.replayConditionCalloutConponent(
+      accepted: this.condition.replayConditionCalloutComponent(
         multiple,
+        required,
         base,
         multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
+        !required ? [this.i18n.t("bot.reactions.messages.skip")] : [],
       ),
       parseType: ParsedResponseType.CALLOUT_COMPONENT,
     };
@@ -267,6 +306,7 @@ export class CalloutResponseRenderer {
     prefix: string,
   ) {
     const multiple = this.isMultiple(file);
+    const required = file.validate?.required || false;
     const result = this.baseComponent(file, prefix);
     result.markdown += `\n\n`;
 
@@ -280,17 +320,18 @@ export class CalloutResponseRenderer {
 
     result.accepted = this.condition.replayConditionFilePattern(
       multiple,
+      required,
       file.filePattern || file.type === "signature" ? "image/*" : "",
       multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
+      !required ? [this.i18n.t("bot.reactions.messages.skip")] : [],
     );
 
     if (file.placeholder) {
       result.markdown += `\n\n${this.placeholderMd(file, prefix).markdown}`;
     }
 
-    if (multiple) {
-      result.markdown += `\n\n${this.multipleMd(file, prefix).markdown}`;
-    }
+    result.markdown += `\n\n${this.multipleMd(file, prefix).markdown}`;
+    result.markdown += `\n\n${this.requiredMd(file, prefix).markdown}`;
 
     return result;
   }
@@ -325,7 +366,10 @@ export class CalloutResponseRenderer {
       key: createCalloutGroupKey(content.key, prefix),
       type: RenderType.HTML,
       html,
-      accepted: this.condition.replayConditionNone(false),
+      accepted: this.condition.replayConditionNone(
+        false,
+        false,
+      ),
       parseType: ParsedResponseType.NONE,
     };
 
@@ -343,6 +387,9 @@ export class CalloutResponseRenderer {
     const truthyMessage = this.i18n.t("bot.reactions.messages.truthy");
     const falsyMessage = this.i18n.t("bot.reactions.messages.falsy");
     const doneMessage = this.i18n.t("bot.reactions.messages.done");
+    const skipMessage = this.i18n.t("bot.reactions.messages.skip");
+    const multiple = result.accepted.multiple;
+    const required = result.accepted.required;
 
     result.markdown += `_${
       escapeMd(
@@ -354,18 +401,19 @@ export class CalloutResponseRenderer {
     }_`;
 
     result.accepted = this.condition.replayConditionText(
-      result.accepted.multiple,
+      multiple,
+      required,
       [truthyMessage, falsyMessage],
-      result.accepted.multiple ? [doneMessage] : [],
+      multiple ? [doneMessage] : [],
+      !required ? [skipMessage] : [],
     );
 
     if (input.placeholder) {
       result.markdown += `\n\n${this.placeholderMd(input, prefix).markdown}`;
     }
 
-    if (input.multiple) {
-      result.markdown += `\n\n${this.multipleMd(input, prefix).markdown}`;
-    }
+    result.markdown += `\n\n${this.multipleMd(input, prefix).markdown}`;
+    result.markdown += `\n\n${this.requiredMd(input, prefix).markdown}`;
 
     return result;
   }
@@ -483,9 +531,8 @@ export class CalloutResponseRenderer {
       result.markdown += `\n\n${this.placeholderMd(input, prefix).markdown}`;
     }
 
-    if (input.multiple) {
-      result.markdown += `\n\n${this.multipleMd(input, prefix).markdown}`;
-    }
+    result.markdown += `\n\n${this.multipleMd(input, prefix).markdown}`;
+    result.markdown += `\n\n${this.requiredMd(input, prefix).markdown}`;
 
     return result;
   }
@@ -507,6 +554,7 @@ export class CalloutResponseRenderer {
       ...result.accepted,
       ...this.condition.replayConditionSelection(
         result.accepted.multiple,
+        result.accepted.required,
         this.selectValuesToValueLabelPairs(select.data.values),
       ),
     };
@@ -534,13 +582,18 @@ export class CalloutResponseRenderer {
     const result = this.baseComponent(selectable, prefix);
     result.parseType = ParsedResponseType.SELECTION;
     const multiple = result.accepted.multiple;
+    const required = result.accepted.required;
+    const doneMessage = this.i18n.t("bot.reactions.messages.done");
+    const skipMessage = this.i18n.t("bot.reactions.messages.skip");
 
     result.accepted = {
       ...result.accepted,
       ...this.condition.replayConditionSelection(
         multiple,
+        selectable.validate?.required || false,
         this.selectValuesToValueLabelPairs(selectable.values),
-        multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
+        multiple ? [doneMessage] : [],
+        !required ? [skipMessage] : [],
       ),
     };
 
@@ -673,7 +726,10 @@ export class CalloutResponseRenderer {
         prefix,
       ),
       type: RenderType.MARKDOWN,
-      accepted: this.condition.replayConditionAny(multiple),
+      accepted: this.condition.replayConditionAny(
+        multiple,
+        (component as CalloutComponentSchema).validate?.required || false,
+      ),
       markdown: this.i18n.t("bot.response.messages.componentUnknown", {
         type: (component as CalloutComponentSchema).type || "undefined",
       }),

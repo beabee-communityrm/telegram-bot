@@ -36,6 +36,7 @@
     },
     "info": {
       "messages": {
+        "answerIsRequired": "Eine Antwort ist hier erforderlich und kann nicht übersprungen werden.",
         "command": {
           "notUsable": "Das Kommando {command} kann hier nicht verwendet werden. Wenn du glaubst, dass es sich um einen Fehler handelt, verwende bitte den Befehl /reset."
         },
@@ -65,6 +66,7 @@
           "successful": "Vorgang erfolgreich abgebrochen, du bist nun wieder am Anfang",
           "unsuccessful": "Du bist nun wieder am Anfang"
         },
+        "skip": "Diese Frage kann übersprungen werden, antworte dafür einfach mit \"{skip}\".",
         "uploadFileHere": "Bitte sende mir eine Datei.",
         "uploadFilesHere": "Bitte sende mir eine oder mehrere Dateien."
       }
@@ -84,6 +86,7 @@
       "messages": {
         "done": "Erledigt",
         "falsy": "Nein",
+        "skip": "Überspringe",
         "truthy": "Ja"
       }
     },

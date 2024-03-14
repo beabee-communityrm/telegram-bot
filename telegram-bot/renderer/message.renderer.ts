@@ -317,11 +317,21 @@ export class MessageRenderer {
     } as RenderText;
   }
 
-  public writeDoneMessage(doneText: string): RenderText {
+  public writeDoneMessage(skipText: string): RenderText {
     const tKey = "bot.info.messages.done";
     return {
       type: RenderType.TEXT,
-      text: this.i18n.t(tKey, { done: doneText }),
+      text: this.i18n.t(tKey, { done: skipText }),
+      key: tKey,
+      ...this.noResponse(),
+    };
+  }
+
+  public writeSkipMessage(skipText: string): RenderText {
+    const tKey = "bot.info.messages.skip";
+    return {
+      type: RenderType.TEXT,
+      text: this.i18n.t(tKey, { skip: skipText }),
       key: tKey,
       ...this.noResponse(),
     };

@@ -23,29 +23,49 @@ export class ConditionService extends BaseService {
   }
 
   /** No replay / answer is expected */
-  public replayConditionNone(multiple = false): ReplayConditionNone {
+  public replayConditionNone(
+    multiple = false,
+    required = false,
+  ): ReplayConditionNone {
     return {
       type: ReplayType.NONE,
       multiple,
+      required,
       doneTexts: [],
+      skipTexts: [],
     };
+  }
+
+  protected validateArgs(
+    multiple: boolean,
+    required: boolean,
+    doneTexts: string[] = [],
+    skipTexts: string[] = [],
+  ) {
+    if (multiple && !doneTexts.length) {
+      throw new Error("Multiple condition must have done texts");
+    }
+
+    if (!required && !skipTexts.length) {
+      throw new Error("Optional condition must have skip texts");
+    }
   }
 
   /** Any replay / answer is expected */
   public replayConditionAny(
     multiple: boolean,
+    required: boolean,
     doneTexts: string[] = [],
+    skipTexts: string[] = [],
   ): ReplayConditionAny {
     const result: ReplayConditionAny = {
       type: ReplayType.ANY,
       multiple,
+      required,
       doneTexts,
+      skipTexts,
     };
-
-    if (multiple && !doneTexts.length) {
-      throw new Error("Multiple condition must have done texts");
-    }
-
+    this.validateArgs(multiple, required, doneTexts, skipTexts);
     return result;
   }
 
@@ -56,20 +76,20 @@ export class ConditionService extends BaseService {
    */
   public replayConditionText(
     multiple: boolean,
+    required: boolean,
     texts?: string[],
     doneTexts: string[] = [],
+    skipTexts: string[] = [],
   ): ReplayConditionText {
     const result: ReplayConditionText = {
       type: ReplayType.TEXT,
       multiple,
+      required,
       doneTexts,
+      skipTexts,
       texts,
     };
-
-    if (multiple && !doneTexts.length) {
-      throw new Error("Multiple text condition must have done texts");
-    }
-
+    this.validateArgs(multiple, required, doneTexts, skipTexts);
     return result;
   }
 
@@ -81,20 +101,20 @@ export class ConditionService extends BaseService {
    */
   public replayConditionSelection(
     multiple: boolean,
+    required: boolean,
     valueLabel: Record<string, string>,
     doneTexts: string[] = [],
+    skipTexts: string[] = [],
   ): ReplayConditionSelection {
     const result: ReplayConditionSelection = {
       type: ReplayType.SELECTION,
       multiple,
+      required,
       valueLabel,
       doneTexts,
+      skipTexts,
     };
-
-    if (multiple && !doneTexts.length) {
-      throw new Error("Multiple selection condition must have done texts");
-    }
-
+    this.validateArgs(multiple, required, doneTexts, skipTexts);
     return result;
   }
 
@@ -104,20 +124,20 @@ export class ConditionService extends BaseService {
    */
   public replayConditionFile(
     multiple: boolean,
+    required: boolean,
     mimeTypes: string[] = [],
     doneTexts: string[] = [],
+    skipTexts: string[] = [],
   ): ReplayConditionFile {
     const result: ReplayConditionFile = {
       type: ReplayType.FILE,
       multiple,
+      required,
       mimeTypes,
       doneTexts,
+      skipTexts,
     };
-
-    if (multiple && !doneTexts.length) {
-      throw new Error("Multiple file condition must have done texts");
-    }
-
+    this.validateArgs(multiple, required, doneTexts, skipTexts);
     return result;
   }
 
@@ -127,22 +147,35 @@ export class ConditionService extends BaseService {
    */
   public replayConditionFilePattern(
     multiple: boolean,
+    required: boolean,
     filePattern: string,
     doneTexts: string[] = [],
+    skipTexts: string[] = [],
   ): ReplayConditionFile {
     const mimeTypes = filterMimeTypesByPatterns(filePattern);
-    return this.replayConditionFile(multiple, mimeTypes, doneTexts);
+    return this.replayConditionFile(
+      multiple,
+      required,
+      mimeTypes,
+      doneTexts,
+      skipTexts,
+    );
   }
 
-  public replayConditionCalloutConponent(
+  public replayConditionCalloutComponent(
     multiple: boolean,
+    required: boolean,
     schema: CalloutComponentSchema,
     doneTexts: string[] = [],
+    skipTexts: string[] = [],
   ): ReplayConditionCalloutComponentSchema {
+    this.validateArgs(multiple, required, doneTexts, skipTexts);
     return {
       type: ReplayType.CALLOUT_COMPONENT_SCHEMA,
       multiple,
+      required,
       doneTexts,
+      skipTexts,
       schema,
     };
   }

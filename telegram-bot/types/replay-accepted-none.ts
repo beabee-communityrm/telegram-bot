@@ -6,5 +6,5 @@ import type { ReplayType } from "../enums/index.ts";
  */
 export interface ReplayAcceptedNone extends ReplayAcceptedBase {
   type: ReplayType.NONE;
-  accepted: false;
+  accepted: boolean;
 }

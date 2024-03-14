@@ -139,11 +139,6 @@ export class CalloutResponseEventManager extends BaseEventManager {
         "Created response",
         response,
       );
-
-      await this.communication.send(
-        ctx,
-        await this.messageRenderer.continueHelp(session.state),
-      );
     } catch (error) {
       console.error(
         `Failed to create response`,
@@ -195,7 +190,6 @@ export class CalloutResponseEventManager extends BaseEventManager {
     }
 
     if (!startIntro) {
-      // TODO: Duplicate stop message
       await this.communication.send(ctx, this.messageRenderer.stop());
       // Forward cancel to the cancel command
       await this.cancel.action(ctx);

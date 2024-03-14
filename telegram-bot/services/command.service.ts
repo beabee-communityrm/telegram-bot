@@ -150,7 +150,6 @@ export class CommandService extends BaseService {
       await this.bot.api.deleteMyCommands();
     }
 
-    console.debug("Set commands", commands);
     await this.bot.api.setMyCommands(commands, {
       scope: options.scope,
     });

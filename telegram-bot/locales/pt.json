@@ -36,6 +36,7 @@
     },
     "info": {
       "messages": {
+        "answerIsRequired": "",
         "command": {
           "notUsable": ""
         },
@@ -65,6 +66,7 @@
           "successful": "",
           "unsuccessful": ""
         },
+        "skip": "",
         "uploadFileHere": "",
         "uploadFilesHere": ""
       }
@@ -84,6 +86,7 @@
       "messages": {
         "done": "",
         "falsy": "",
+        "skip": "",
         "truthy": ""
       }
     },

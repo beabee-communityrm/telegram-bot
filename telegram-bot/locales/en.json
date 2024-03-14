@@ -36,6 +36,7 @@
     },
     "info": {
       "messages": {
+        "answerIsRequired": "An answer is required here and cannot be skipped.",
         "command": {
           "notUsable": "You cannot use the {command} command here. If you think this is an error, please use the /reset command."
         },
@@ -65,6 +66,7 @@
           "successful": "Process successfully reset, you are now back at the beginning",
           "unsuccessful": "You are now back at the beginning"
         },
+        "skip": "This question can be skipped, simply answer with \"{skip}\".",
         "uploadFileHere": "Please send me a file.",
         "uploadFilesHere": "Please send me one or more files."
       }
@@ -84,6 +86,7 @@
       "messages": {
         "done": "Done",
         "falsy": "No",
+        "skip": "Skip",
         "truthy": "Yes"
       }
     },

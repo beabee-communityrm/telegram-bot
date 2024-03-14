@@ -25,7 +25,8 @@
       "datetime",
       "Deno",
       "denodb",
-      "selectboxes"
+      "selectboxes",
+      "skippable"
     ],
     "prettier.enable": false,
     "eslint.enable": false,
