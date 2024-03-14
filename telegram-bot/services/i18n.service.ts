@@ -1,10 +1,5 @@
 import { BaseService } from "../core/index.ts";
-import {
-  dirname,
-  FormattedString,
-  fromFileUrl,
-  Singleton,
-} from "../deps/index.ts";
+import { dirname, fromFileUrl, Singleton } from "../deps/index.ts";
 import {
   escapeMd,
   readJson,
@@ -121,10 +116,15 @@ export class I18nService extends BaseService {
    */
   protected translate(
     path: string,
-    placeholders: { [key: string]: FormattedString | string } = {},
-    lang: string = this._activeLang,
+    placeholders: { [key: string]: string } = {},
+    options: {
+      lang?: string;
+      escapeMd?: boolean;
+    } = {},
   ): string {
-    const translation = this.getTranslation(
+    const lang = options.lang || this._activeLang;
+    const doEscapeMd = options.escapeMd ?? false;
+    let translation = this.getTranslation(
       path,
       lang,
       this.translations[lang],
@@ -138,10 +138,14 @@ export class I18nService extends BaseService {
       console.warn(
         `Translation not found for '${path}' in language '${lang}', falling back to English`,
       );
-      return this.translate(path, placeholders, "en");
+      return this.translate(path, placeholders, { ...options, lang: "en" });
     }
 
-    return this.replacePlaceholders(translation, placeholders);
+    if (doEscapeMd) {
+      translation = escapeMd(translation);
+    }
+
+    return this.replacePlaceholders(translation, placeholders, options);
   }
 
   /**
@@ -178,11 +182,17 @@ export class I18nService extends BaseService {
    */
   protected replacePlaceholders(
     translation: string,
-    placeholders: { [key: string]: FormattedString | string },
+    placeholders: { [key: string]: string },
+    options: {
+      escapeMd?: boolean;
+    } = {},
   ): string {
     return Object.keys(placeholders).reduce((acc, key) => {
       // Allow whitespace in placeholders between curly braces
-      const regex = new RegExp(`\\{\\s*${key}\\s*\\}`, "g");
+      const regexStr = options.escapeMd
+        ? `\\\\{\\s*${key}\\s*\\\\}`
+        : `\\{\\s*${key}\\s*\\}`;
+      const regex = new RegExp(regexStr, "g");
       return acc.replaceAll(regex, placeholders[key].toString());
     }, translation);
   }

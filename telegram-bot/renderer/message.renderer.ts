@@ -1,13 +1,6 @@
-import {
-  bold,
-  fmt,
-  FormattedString,
-  italic,
-  link,
-  Singleton,
-} from "../deps/index.ts";
+import { bold, fmt, FormattedString, Singleton } from "../deps/index.ts";
 import { ChatState, RenderType } from "../enums/index.ts";
-import { getSimpleMimeTypes } from "../utils/index.ts";
+import { escapeMd, getSimpleMimeTypes } from "../utils/index.ts";
 import { ConditionService } from "../services/condition.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import { BotService } from "../services/bot.service.ts";
@@ -64,20 +57,18 @@ export class MessageRenderer {
    * Render all available commands
    * @param state The current user state
    */
-  public commands(state: ChatState): RenderFormat {
+  public commands(state: ChatState): RenderMarkdown {
     const commands = this.command.getForState(state);
 
-    const strings: FormattedString[] = [];
+    let markdown = "";
 
     for (const command of commands) {
-      strings.push(
-        fmt`${bold("/" + command.command)}: ${italic(command.description)}\n`,
-      );
+      markdown += `**${("/" + command.command)}:** _${command.description}_\n`;
     }
 
-    const result: RenderFormat = {
-      type: RenderType.FORMAT,
-      format: strings,
+    const result: RenderMarkdown = {
+      type: RenderType.MARKDOWN,
+      markdown,
       key: "commands",
       ...this.noResponse(),
     };
@@ -142,59 +133,58 @@ export class MessageRenderer {
     };
   }
 
-  /**
-   * Render the help message
-   */
-  public async help(state: ChatState): Promise<RenderFormat> {
-    const tKey = "bot.info.messages.help";
-
+  protected async getGeneralContentPlaceholdersMarkdown() {
     const content = await this.beabeeContent.get("general");
-
-    const commands = fmt((this.commands(state)).format);
-    const intro = this.i18n.t(tKey, {
+    return {
       botFirstName: this.bot.botInfo.first_name,
       botLastName: this.bot.botInfo.last_name || "Error: last_name not set",
       botUsername: this.bot.botInfo.username,
-      organisationName: link(content.organisationName, content.siteUrl),
+      organisationName: `[${escapeMd(content.organisationName)}](${
+        escapeMd(content.siteUrl)
+      })`,
       siteUrl: content.siteUrl,
       supportEmail: content.supportEmail,
       privacyLink: content.privacyLink || "Error: privacyLink not set",
       termsLink: content.termsLink || "Error: termsLink not set",
       impressumLink: content.impressumLink || "Error: impressumLink not set",
-      commands: commands.toString(),
-    });
+    };
+  }
 
-    const result: RenderFormat = {
-      type: RenderType.FORMAT,
-      format: [intro],
+  /**
+   * Render the help message
+   */
+  public async help(state: ChatState): Promise<RenderMarkdown> {
+    const tKey = "bot.info.messages.help";
+    const generalContentPlaceholders = await this
+      .getGeneralContentPlaceholdersMarkdown();
+    const commands = this.commands(state).markdown;
+    const intro = this.i18n.t(tKey, {
+      ...generalContentPlaceholders,
+      commands: commands,
+    }, { escapeMd: true });
+
+    const result: RenderMarkdown = {
+      type: RenderType.MARKDOWN,
+      markdown: intro,
       key: tKey,
       ...this.noResponse(),
     };
     return result;
   }
 
-  public async continueHelp(state: ChatState): Promise<RenderFormat> {
+  public async continueHelp(state: ChatState): Promise<RenderMarkdown> {
     const tKey = "bot.info.messages.helpContinue";
-
-    const content = await this.beabeeContent.get("general");
-
-    const commands = fmt((this.commands(state)).format);
+    const generalContentPlaceholders = await this
+      .getGeneralContentPlaceholdersMarkdown();
+    const commands = this.commands(state).markdown;
     const intro = this.i18n.t(tKey, {
-      botFirstName: this.bot.botInfo.first_name,
-      botLastName: this.bot.botInfo.last_name || "Error: last_name not set",
-      botUsername: this.bot.botInfo.username,
-      organisationName: link(content.organisationName, content.siteUrl),
-      siteUrl: content.siteUrl,
-      supportEmail: content.supportEmail,
-      privacyLink: content.privacyLink || "Error: privacyLink not set",
-      termsLink: content.termsLink || "Error: termsLink not set",
-      impressumLink: content.impressumLink || "Error: impressumLink not set",
-      commands: commands.toString(),
-    });
+      ...generalContentPlaceholders,
+      commands: commands,
+    }, { escapeMd: true });
 
-    const result: RenderFormat = {
-      type: RenderType.FORMAT,
-      format: [intro],
+    const result: RenderMarkdown = {
+      type: RenderType.MARKDOWN,
+      markdown: intro,
       key: tKey,
       ...this.noResponse(),
     };
