@@ -7,13 +7,15 @@ import { ChatState } from "../enums/index.ts";
 
 import type { AppContext } from "../types/index.ts";
 
+const IS_DEV = Deno.env.get("TELEGRAM_BOT_ENVIRONMENT") === "development";
+
 @Singleton()
 export class DebugCommand extends BaseCommand {
   /** `/debug` */
   command = "debug";
 
-  // TODO: Disable this command on production
-  visibleOnStates: ChatState[] = []; // Visible in all states
+  // Only visible in development
+  visibleOnStates: ChatState[] = IS_DEV ? [] : [ChatState.None];
 
   constructor(
     protected readonly i18n: I18nService,
