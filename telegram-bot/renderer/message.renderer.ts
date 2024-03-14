@@ -63,7 +63,7 @@ export class MessageRenderer {
     let markdown = "";
 
     for (const command of commands) {
-      markdown += `**${("/" + command.command)}:** _${command.description}_\n`;
+      markdown += `${("/" + command.command)}: _${command.description}_\n`;
     }
 
     const result: RenderMarkdown = {
