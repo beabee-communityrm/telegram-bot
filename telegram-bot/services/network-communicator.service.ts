@@ -1,4 +1,5 @@
-import { djwt, Singleton } from "../deps.ts";
+import { BaseService } from "../core/index.ts";
+import { djwt, Singleton } from "../deps/index.ts";
 import { createSecretKeyFromSecret, extractToken } from "../utils/index.ts";
 import { EventService } from "./event.service.ts";
 import { NetworkCommunicatorEvents } from "../enums/index.ts";
@@ -13,7 +14,7 @@ import type {
  * @see https://github.com/beabee-communityrm/beabee/blob/1140fb602a978b01fd518ebd772452b8240b7880/src/core/services/NetworkCommunicatorService.ts
  */
 @Singleton()
-export class NetworkCommunicatorService {
+export class NetworkCommunicatorService extends BaseService {
   private server?: Deno.HttpServer;
 
   private secretKey?: CryptoKey;
@@ -23,6 +24,7 @@ export class NetworkCommunicatorService {
   };
 
   constructor(protected readonly event: EventService) {
+    super();
     const secret = Deno.env.get("BEABEE_SERVICE_SECRET");
     if (!secret) {
       throw new Error("No service secret found");
@@ -92,6 +94,7 @@ export class NetworkCommunicatorService {
    * Start the internal server
    */
   public startServer() {
+    console.debug("Start server...");
     const reloadRoute = new URLPattern({ pathname: "/books/:id" });
     this.server = Deno.serve({ port: 4000 }, (req: Request) => {
       const method = req.method;

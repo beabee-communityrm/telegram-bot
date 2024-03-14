@@ -1,4 +1,9 @@
-import { CalloutResponseAnswerAddress, Context, Singleton } from "../deps.ts";
+import { BaseService } from "../core/index.ts";
+import {
+  CalloutResponseAnswerAddress,
+  Context,
+  Singleton,
+} from "../deps/index.ts";
 
 import { ParsedResponseType, ReplayType } from "../enums/index.ts";
 import { I18nService } from "../services/i18n.service.ts";
@@ -28,16 +33,16 @@ import type {
 import type {
   CalloutResponseAnswer,
   CalloutResponseAnswersSlide,
-} from "../deps.ts";
+} from "../deps/index.ts";
 import { ReplayAcceptedCalloutComponentSchema } from "../types/index.ts";
-import {} from "../../beabee-client/src/deps.ts";
 
 /**
  * Service to transform message responses
  */
 @Singleton()
-export class TransformService {
+export class TransformService extends BaseService {
   constructor(readonly i18n: I18nService) {
+    super();
     console.debug(`${this.constructor.name} created`);
   }
 

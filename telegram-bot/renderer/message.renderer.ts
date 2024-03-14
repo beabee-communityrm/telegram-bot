@@ -1,8 +1,10 @@
-import { bold, fmt, FormattedString, italic, Singleton } from "../deps.ts";
-import { RenderType } from "../enums/index.ts";
-import { getSimpleMimeTypes } from "../utils/index.ts";
+import { bold, fmt, FormattedString, Singleton } from "../deps/index.ts";
+import { ChatState, RenderType } from "../enums/index.ts";
+import { escapeMd, getSimpleMimeTypes } from "../utils/index.ts";
 import { ConditionService } from "../services/condition.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
+import { BotService } from "../services/bot.service.ts";
+import { BeabeeContentService } from "../services/beabee-content.service.ts";
 import { CommandService } from "../services/command.service.ts";
 
 import type {
@@ -12,11 +14,11 @@ import type {
   RenderText,
   ReplayAccepted,
   ReplayCondition,
-  UserState,
 } from "../types/index.ts";
-import type { CalloutComponentSchema } from "../deps.ts";
+import type { BotCommand, CalloutComponentSchema } from "../deps/index.ts";
 import { ReplayType } from "../enums/replay-type.ts";
 import { ParsedResponseType } from "../enums/parsed-response-type.ts";
+import { AppContext } from "../types/app-context.ts";
 
 /**
  * Render info messages for Telegram in Markdown
@@ -27,6 +29,8 @@ export class MessageRenderer {
     protected readonly command: CommandService,
     protected readonly condition: ConditionService,
     protected readonly i18n: I18nService,
+    protected readonly bot: BotService,
+    protected readonly beabeeContent: BeabeeContentService,
   ) {
     console.debug(`${this.constructor.name} created`);
   }
@@ -43,8 +47,8 @@ export class MessageRenderer {
       type: RenderType.MARKDOWN,
       markdown: WELCOME_MD,
       key: "welcome",
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
+      ...this.noResponse(),
     };
     return result;
   }
@@ -53,47 +57,136 @@ export class MessageRenderer {
    * Render all available commands
    * @param state The current user state
    */
-  public async commands(state: UserState): Promise<RenderFormat> {
-    const commands = await this.command.getByState(state);
+  public commands(state: ChatState): RenderMarkdown {
+    const commands = this.command.getForState(state);
 
-    const strings: FormattedString[] = [];
+    let markdown = "";
 
     for (const command of commands) {
-      strings.push(
-        fmt`${bold("/" + command.key)}: ${italic(command.description)}\n`,
-      );
+      markdown += `${("/" + command.command)}: _${command.description}_\n`;
     }
 
-    const result: RenderFormat = {
-      type: RenderType.FORMAT,
-      format: strings,
+    const result: RenderMarkdown = {
+      type: RenderType.MARKDOWN,
+      markdown,
       key: "commands",
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     };
 
     return result;
   }
 
   /**
-   * Render the intro message
+   * Render a message that the command is not usable
+   * @returns The render object
    */
-  public async intro(): Promise<RenderFormat> {
-    const tKey = "bot.info.messages.intro";
-
-    const commands = fmt((await this.commands("start")).format);
-    const intro = this.i18n.t(tKey, {
-      botName: "beabee",
-      commands: commands.toString(),
-    });
-
-    const result: RenderFormat = {
-      type: RenderType.FORMAT,
-      // TODO: Get the bot name from the beabee content API
-      format: [intro],
+  public commandNotUsable(command: BotCommand, state: ChatState) {
+    const tKey = "bot.info.messages.command.notUsable";
+    const result: Render = {
+      type: RenderType.TEXT,
+      text: this.i18n.t(tKey, {
+        command: "/" + command.command,
+        state,
+      }),
       key: tKey,
+      ...this.noResponse(),
+    };
+
+    return result;
+  }
+
+  public async debug(ctx: AppContext): Promise<RenderFormat> {
+    const strings: FormattedString[] = [];
+    const session = await ctx.session;
+
+    strings.push(fmt`${bold("State: ")} ${session.state}\n`);
+    if (ctx.chat) {
+      strings.push(fmt`${bold("Chat ID: ")} ${ctx.chat?.id}\n`);
+      strings.push(fmt`${bold("Chat type: ")} ${ctx.chat?.type}\n`);
+      if (!session._data.abortController) {
+        strings.push(fmt`${bold("AbortController: ")} null\n`);
+      } else {
+        strings.push(
+          fmt`${bold("AbortController: ")} ${
+            session._data.abortController.signal.aborted
+              ? "aborted"
+              : "not aborted"
+          }\n`,
+        );
+      }
+    }
+
+    // Add more debug info here if needed
+
+    return {
+      type: RenderType.FORMAT,
+      format: strings,
+      key: "debug",
+      ...this.noResponse(),
+    };
+  }
+
+  protected noResponse() {
+    return {
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
+    };
+  }
+
+  protected async getGeneralContentPlaceholdersMarkdown() {
+    const content = await this.beabeeContent.get("general");
+    return {
+      botFirstName: this.bot.botInfo.first_name,
+      botLastName: this.bot.botInfo.last_name || "Error: last_name not set",
+      botUsername: this.bot.botInfo.username,
+      organisationName: `[${escapeMd(content.organisationName)}](${
+        escapeMd(content.siteUrl)
+      })`,
+      siteUrl: content.siteUrl,
+      supportEmail: content.supportEmail,
+      privacyLink: content.privacyLink || "Error: privacyLink not set",
+      termsLink: content.termsLink || "Error: termsLink not set",
+      impressumLink: content.impressumLink || "Error: impressumLink not set",
+    };
+  }
+
+  /**
+   * Render the help message
+   */
+  public async help(state: ChatState): Promise<RenderMarkdown> {
+    const tKey = "bot.info.messages.help";
+    const generalContentPlaceholders = await this
+      .getGeneralContentPlaceholdersMarkdown();
+    const commands = this.commands(state).markdown;
+    const intro = this.i18n.t(tKey, {
+      ...generalContentPlaceholders,
+      commands: commands,
+    }, { escapeMd: true });
+
+    const result: RenderMarkdown = {
+      type: RenderType.MARKDOWN,
+      markdown: intro,
+      key: tKey,
+      ...this.noResponse(),
+    };
+    return result;
+  }
+
+  public async continueHelp(state: ChatState): Promise<RenderMarkdown> {
+    const tKey = "bot.info.messages.helpContinue";
+    const generalContentPlaceholders = await this
+      .getGeneralContentPlaceholdersMarkdown();
+    const commands = this.commands(state).markdown;
+    const intro = this.i18n.t(tKey, {
+      ...generalContentPlaceholders,
+      commands: commands,
+    }, { escapeMd: true });
+
+    const result: RenderMarkdown = {
+      type: RenderType.MARKDOWN,
+      markdown: intro,
+      key: tKey,
+      ...this.noResponse(),
     };
     return result;
   }
@@ -104,8 +197,7 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     };
 
     return result;
@@ -117,8 +209,7 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     };
 
     return result;
@@ -132,8 +223,7 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey, { allowed: texts.join(", ") }),
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     };
   }
 
@@ -143,8 +233,49 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
+    };
+  }
+
+  /**
+   * Cancel successful message
+   * @returns
+   */
+  public resetSuccessfulMessage(): RenderText {
+    const tKey = "bot.info.messages.reset.successful";
+    return {
+      type: RenderType.TEXT,
+      text: this.i18n.t(tKey),
+      key: tKey,
+      ...this.noResponse(),
+    };
+  }
+
+  /**
+   * Cancel unsuccessful message
+   * @returns
+   */
+  public resetUnsuccessfulMessage(): RenderText {
+    const tKey = "bot.info.messages.reset.unsuccessful";
+    return {
+      type: RenderType.TEXT,
+      text: this.i18n.t(tKey),
+      key: tKey,
+      ...this.noResponse(),
+    };
+  }
+
+  /**
+   * Already cancelled message
+   * @returns
+   */
+  public resetCancelledMessage(): RenderText {
+    const tKey = "bot.info.messages.reset.cancelled";
+    return {
+      type: RenderType.TEXT,
+      text: this.i18n.t(tKey),
+      key: tKey,
+      ...this.noResponse(),
     };
   }
 
@@ -154,8 +285,7 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     };
   }
 
@@ -171,8 +301,7 @@ export class MessageRenderer {
         type: mimeTypesStr,
       }),
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     };
   }
 
@@ -184,8 +313,7 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey, { type: schema.type }),
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     } as RenderText;
   }
 
@@ -195,8 +323,7 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey, { done: doneText }),
       key: tKey,
-      accepted: this.condition.replayConditionNone(),
-      parseType: ParsedResponseType.NONE,
+      ...this.noResponse(),
     };
   }
 

@@ -1,18 +1,23 @@
-import { Context, Singleton } from "../deps.ts";
+import { Singleton } from "../deps/index.ts";
 import { CalloutService } from "../services/callout.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { EventService } from "../services/event.service.ts";
 import { TransformService } from "../services/transform.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
+import { StateMachineService } from "../services/state-machine.service.ts";
 import { CalloutResponseRenderer, MessageRenderer } from "../renderer/index.ts";
+import { ResetCommand } from "../commands/reset.command.ts";
+import { ChatState } from "../enums/index.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_INTRO,
   BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
 } from "../constants/index.ts";
-import { EventManager } from "../core/event-manager.ts";
+import { BaseEventManager } from "../core/base.events.ts";
+
+import type { AppContext } from "../types/index.ts";
 
 @Singleton()
-export class CalloutResponseEventManager extends EventManager {
+export class CalloutResponseEventManager extends BaseEventManager {
   constructor(
     protected readonly event: EventService,
     protected readonly callout: CalloutService,
@@ -21,6 +26,8 @@ export class CalloutResponseEventManager extends EventManager {
     protected readonly calloutResponseRenderer: CalloutResponseRenderer,
     protected readonly transform: TransformService,
     protected readonly keyboard: KeyboardService,
+    protected readonly stateMachine: StateMachineService,
+    protected readonly cancel: ResetCommand,
   ) {
     super();
     console.debug(`${this.constructor.name} created`);
@@ -43,10 +50,11 @@ export class CalloutResponseEventManager extends EventManager {
     );
   }
 
-  protected async onCalloutParticipateKeyboardPressed(ctx: Context) {
+  protected async onCalloutParticipateKeyboardPressed(ctx: AppContext) {
     const data = ctx.callbackQuery?.data?.split(":");
     const slug = data?.[1];
     const startResponse = data?.[2] as "continue" | "cancel" === "continue";
+    const session = await ctx.session;
 
     // Remove the inline keyboard
     await this.keyboard.removeInlineKeyboard(ctx);
@@ -89,14 +97,30 @@ export class CalloutResponseEventManager extends EventManager {
       "Disabled inline keyboard",
     );
 
+    const abortSignal = this.stateMachine.setSessionState(
+      session,
+      ChatState.CalloutAnswer,
+      true,
+    );
+
+    // Wait for all responses
     const responses = await this.communication.sendAndReceiveAll(
       ctx,
       questions,
+      abortSignal,
     );
+
+    if (responses instanceof AbortSignal) {
+      return;
+    }
 
     const answers = this.transform.parseCalloutFormResponses(responses);
 
-    // TODO: Show summary of answers here
+    this.stateMachine.setSessionState(
+      session,
+      ChatState.CalloutAnswered,
+      false,
+    );
 
     console.debug(
       "Got answers",
@@ -104,6 +128,7 @@ export class CalloutResponseEventManager extends EventManager {
     );
 
     try {
+      // TODO: Ask for contact details if callout requires it
       const response = await this.callout.createResponse(slug, {
         answers,
         guestName: ctx.from?.username,
@@ -114,12 +139,28 @@ export class CalloutResponseEventManager extends EventManager {
         "Created response",
         response,
       );
+
+      await this.communication.send(
+        ctx,
+        await this.messageRenderer.continueHelp(session.state),
+      );
     } catch (error) {
       console.error(
         `Failed to create response`,
         error,
       );
+
+      // TODO: Send error message to the chat
+
+      return;
     }
+
+    // TODO: Send success message and a summary of answers to the chat
+
+    await this.communication.send(
+      ctx,
+      await this.messageRenderer.continueHelp(session.state),
+    );
   }
 
   /**
@@ -127,7 +168,7 @@ export class CalloutResponseEventManager extends EventManager {
    * Called when the user presses the "Yes" or "No" button on the callout response keyboard.
    * @param ctx
    */
-  protected async onCalloutIntroKeyboardPressed(ctx: Context) {
+  protected async onCalloutIntroKeyboardPressed(ctx: AppContext) {
     const data = ctx.callbackQuery?.data?.split(":");
     const shortSlug = data?.[1];
     const startIntro = data?.[2] as "yes" | "no" === "yes"; // This is the key, so it's not localized
@@ -154,7 +195,10 @@ export class CalloutResponseEventManager extends EventManager {
     }
 
     if (!startIntro) {
+      // TODO: Duplicate stop message
       await this.communication.send(ctx, this.messageRenderer.stop());
+      // Forward cancel to the cancel command
+      await this.cancel.action(ctx);
       return;
     }
 

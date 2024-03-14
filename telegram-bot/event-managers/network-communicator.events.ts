@@ -1,12 +1,12 @@
-import { Singleton } from "alosaur/mod.ts";
+import { Singleton } from "../deps/index.ts";
 import { EventService } from "../services/event.service.ts";
 import { BeabeeContentService } from "../services/beabee-content.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
-import { EventManager } from "../core/event-manager.ts";
+import { BaseEventManager } from "../core/base.events.ts";
 import { NetworkCommunicatorEvents } from "../enums/index.ts";
 
 @Singleton()
-export class NetworkCommunicatorEventManager extends EventManager {
+export class NetworkCommunicatorEventManager extends BaseEventManager {
   constructor(
     protected readonly event: EventService,
     protected readonly beabeeContent: BeabeeContentService,

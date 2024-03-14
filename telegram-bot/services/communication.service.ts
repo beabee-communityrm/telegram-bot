@@ -1,4 +1,11 @@
-import { Context, fmt, Message, ParseModeFlavor, Singleton } from "../deps.ts";
+import { BaseService } from "../core/index.ts";
+import {
+  Context,
+  fmt,
+  Message,
+  ParseModeFlavor,
+  Singleton,
+} from "../deps/index.ts";
 import { ParsedResponseType, RenderType, ReplayType } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
 import { TransformService } from "./transform.service.ts";
@@ -8,19 +15,19 @@ import { getIdentifier } from "../utils/index.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
 
 import type {
+  AppContext,
   Render,
   RenderResponse,
   RenderResponseParsed,
   ReplayAccepted,
 } from "../types/index.ts";
-import type { } from "grammy/context.ts";
 
 /**
  * Service to handle the communication with the telegram bot and the telegram user.
  * This service waits for a response until a response is received that fulfils a basic condition (if there is a condition).
  */
 @Singleton()
-export class CommunicationService {
+export class CommunicationService extends BaseService {
   constructor(
     protected readonly event: EventService,
     protected readonly messageRenderer: MessageRenderer,
@@ -28,6 +35,7 @@ export class CommunicationService {
     protected readonly condition: ConditionService,
     protected readonly validation: ValidationService,
   ) {
+    super();
     console.debug(`${this.constructor.name} created`);
   }
 
@@ -39,37 +47,40 @@ export class CommunicationService {
    * @param ctx
    * @param res
    */
-  public async send(ctx: Context, render: Render) {
+  public async send(ctx: AppContext, render: Render) {
+    const markup = render.keyboard ||
+      (render.removeKeyboard ? { remove_keyboard: true as true } : undefined);
+
+    console.debug("Render markup: ", markup);
+
     switch (render.type) {
       case RenderType.PHOTO:
-        await ctx.replyWithMediaGroup([render.photo]);
+        await ctx.replyWithMediaGroup([render.photo], {});
         if (render.keyboard) {
-          await ctx.reply("", {
-            reply_markup: render.keyboard,
-          });
+          // TODO: Send keyboard
         }
         break;
       case RenderType.MARKDOWN:
         await ctx.reply(render.markdown, {
           parse_mode: "MarkdownV2",
-          reply_markup: render.keyboard,
+          reply_markup: markup,
         });
         break;
       case RenderType.HTML:
         await ctx.reply(render.html, {
           parse_mode: "HTML",
-          reply_markup: render.keyboard,
+          reply_markup: markup,
         });
         break;
       case RenderType.TEXT:
         await ctx.reply(render.text, {
-          reply_markup: render.keyboard,
+          reply_markup: markup,
         });
         break;
       // See https://grammy.dev/plugins/parse-mode
       case RenderType.FORMAT:
         await (ctx as ParseModeFlavor<Context>).replyFmt(fmt(render.format), {
-          reply_markup: render.keyboard,
+          reply_markup: markup,
         });
         break;
       case RenderType.EMPTY:
@@ -86,7 +97,7 @@ export class CommunicationService {
    * @param ctx
    * @returns
    */
-  public async receiveMessage(ctx: Context) {
+  public async receiveMessage(ctx: AppContext) {
     const data = await this.event.onceUserMessageAsync(getIdentifier(ctx));
     return data;
   }
@@ -97,7 +108,10 @@ export class CommunicationService {
    * @param render
    * @returns
    */
-  protected async acceptedUntilSpecificMessage(ctx: Context, render: Render) {
+  protected async acceptedUntilSpecificMessage(
+    ctx: AppContext,
+    render: Render,
+  ) {
     let context: Context;
     let message: Message | undefined;
     const replays: ReplayAccepted[] = [];
@@ -155,7 +169,7 @@ export class CommunicationService {
    * @returns
    */
   public async receive(
-    ctx: Context,
+    ctx: AppContext,
     render: Render,
   ): Promise<RenderResponseParsed<boolean>> {
     // Do not wait for a specific message
@@ -200,7 +214,7 @@ export class CommunicationService {
    * @param render
    * @returns
    */
-  public async sendAndReceive(ctx: Context, render: Render) {
+  public async sendAndReceive(ctx: AppContext, render: Render) {
     await this.send(ctx, render);
 
     const responses = await this.receive(ctx, render);
@@ -216,9 +230,16 @@ export class CommunicationService {
    * @param ctx
    * @param renders
    */
-  public async sendAndReceiveAll(ctx: Context, renders: Render[]) {
+  public async sendAndReceiveAll(
+    ctx: AppContext,
+    renders: Render[],
+    signal: AbortSignal | null,
+  ) {
     const responses: RenderResponse[] = [];
     for (const render of renders) {
+      if (signal?.aborted) {
+        return signal;
+      }
       const response = await this.sendAndReceive(ctx, render);
       if (response) {
         responses.push(response);
@@ -237,7 +258,7 @@ export class CommunicationService {
    *
    * **Official reference:** https://core.telegram.org/bots/api#answercallbackquery
    */
-  public async answerCallbackQuery(ctx: Context, text?: string) {
+  public async answerCallbackQuery(ctx: AppContext, text?: string) {
     try {
       await ctx.answerCallbackQuery({
         text,

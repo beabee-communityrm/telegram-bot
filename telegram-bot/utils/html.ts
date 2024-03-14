@@ -1,4 +1,8 @@
-import { AmmoniaBuilder, ammoniaCleanText, ammoniaInit } from "../deps.ts";
+import {
+  AmmoniaBuilder,
+  ammoniaCleanText,
+  ammoniaInit,
+} from "../deps/index.ts";
 import { ALLOWED_TAGS } from "../constants/index.ts";
 
 const initAmmonia = async () => {

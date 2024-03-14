@@ -1,9 +1,21 @@
 {
   "bot": {
     "commands": {
+      "debug": {
+        "command": "debug",
+        "description": "Display debug information"
+      },
+      "help": {
+        "command": "help",
+        "description": "What can I do now?"
+      },
       "list": {
         "command": "list",
         "description": "Show open callouts"
+      },
+      "reset": {
+        "command": "reset",
+        "description": "Jump back to the beginning and cancel your current process"
       },
       "show": {
         "command": "show",
@@ -24,6 +36,9 @@
     },
     "info": {
       "messages": {
+        "command": {
+          "notUsable": "You cannot use the {command} command here"
+        },
         "done": "When you are finished with your response, just type \"{done}\".",
         "enterAmountOfMoney": "Please enter an amount of money.",
         "enterDate": "Please enter a date.",
@@ -32,7 +47,8 @@
         "enterText": "Please keep your response brief, ideally in one sentence.",
         "enterTime": "Please enter a time. (e.g. 20:45)",
         "enterUrl": "Please enter a web address. (e.g. https://www.beabee.io)",
-        "intro": "Hi! I'm the {botName} bot. I can show you a set of open callouts that you can take part in, right here on Telegram. You can use the following commands to do this, simply select them in the menu or write them to me directly:\n\n{commands}",
+        "help": "From the Telegram chat you'll me able to take part in ongoing investigations run by {organisationName}.\nYou can check the list of open callouts and pick which ones you'd like to participate in.\n\n{commands}",
+        "helpContinue": "Now you can check the list of open callouts and choose another one you'd like to participate in.\n\n{commands}",
         "multipleAddressesAllowed": "Enter one or more addresses.",
         "multipleEmailsAllowed": "You can enter one or more e-mail addresses.",
         "multipleNumbersAllowed": "Enter one or more numbers.",
@@ -44,6 +60,11 @@
         "onlyOneSelectionAllowed": "Please pick your choice by typing its number or pressing its button (you can only pick one).",
         "onlyOneValueAllowed": "Please enter a single value.",
         "placeholder": "Please respond with something like \"{placeholder}\".",
+        "reset": {
+          "cancelled": "The process has already been cancelled",
+          "successful": "Process successfully reset, you are now back at the beginning",
+          "unsuccessful": "You are now back at the beginning"
+        },
         "uploadFileHere": "Please send me a file.",
         "uploadFilesHere": "Please send me one or more files."
       }

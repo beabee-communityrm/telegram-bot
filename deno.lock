@@ -1,5 +1,22 @@
 {
   "version": "3",
+  "packages": {
+    "specifiers": {
+      "npm:valtio@2.0.0-beta.1": "npm:valtio@2.0.0-beta.1"
+    },
+    "npm": {
+      "proxy-compare@2.6.0": {
+        "integrity": "sha512-8xuCeM3l8yqdmbPoYeLbrAXCBWu19XEYc5/F28f5qOaoAIMyfmBUkl5axiK+x9olUvRlcekvnm98AP9RDngOIw==",
+        "dependencies": {}
+      },
+      "valtio@2.0.0-beta.1": {
+        "integrity": "sha512-VarsAUZ3qxZNS9BhC1oeyCZX0vZE4SWuOqyKiXVNy9cbq9OrP+8RU5a59KVV7P0dkRsIRF9RwKL4Jrk4feQWBA==",
+        "dependencies": {
+          "proxy-compare": "proxy-compare@2.6.0"
+        }
+      }
+    }
+  },
   "redirects": {
     "https://lib.deno.dev/x/grammy@^1.20/mod.ts": "https://deno.land/x/grammy@v1.21.1/mod.ts"
   },

@@ -1,13 +1,15 @@
-import { ContentClient, Singleton } from "../deps.ts";
+import { BaseService } from "../core/index.ts";
+import { ContentClient, Singleton } from "../deps/index.ts";
 
 import type { Content, ContentId } from "../types/index.ts";
 
 @Singleton()
-export class BeabeeContentService {
+export class BeabeeContentService extends BaseService {
   public readonly client: ContentClient;
   public readonly baseUrl: URL;
 
   constructor() {
+    super();
     const host = Deno.env.get("API_PROXY_URL") ||
       Deno.env.get("BEABEE_AUDIENCE") ||
       "http://localhost:3001";

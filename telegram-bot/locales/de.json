@@ -1,13 +1,25 @@
 {
   "bot": {
     "commands": {
+      "debug": {
+        "command": "",
+        "description": "Debug-Informationen anzeigen"
+      },
+      "help": {
+        "command": "hilfe",
+        "description": "Was kann ich jetzt tun?"
+      },
       "list": {
         "command": "auflisten",
-        "description": "Offene Aufrufe anzeigen"
+        "description": "Offene Callouts auflisten"
+      },
+      "reset": {
+        "command": "abbrechen",
+        "description": "Springe zurück an den Anfang und breche deinen aktuellen Vorgang ab"
       },
       "show": {
         "command": "zeigen",
-        "description": "Details über einen spezifischen Aufruf anzeigen"
+        "description": "Details über einen spezifischen Callout anzeigen"
       },
       "start": {
         "command": "starten",
@@ -15,15 +27,18 @@
       },
       "subscribe": {
         "command": "abonnieren",
-        "description": "Einem Aufruf abonnieren"
+        "description": "Einen Callout abonnieren"
       },
       "unsubscribe": {
         "command": "abbestellen",
-        "description": "Ein Abonnement für einen Aufruf kündigen"
+        "description": "Ein Abonnement für einen Callout kündigen"
       }
     },
     "info": {
       "messages": {
+        "command": {
+          "notUsable": "Sie können den Befehl {command} hier nicht verwenden"
+        },
         "done": "Wenn Sie mit Ihrer Antwort fertig sind, tippen Sie einfach \"{done}\".",
         "enterAmountOfMoney": "Bitte geben Sie einen Geldbetrag ein.",
         "enterDate": "Bitte geben Sie ein Datum ein.",
@@ -32,7 +47,8 @@
         "enterText": "Bitte halten Sie Ihre Antwort kurz, idealerweise in einem Satz.",
         "enterTime": "Bitte geben Sie eine Zeit ein. (z.B. 20:45)",
         "enterUrl": "Bitte geben Sie eine Webadresse ein. (z.B. https://www.beispiel.de)",
-        "intro": "Hallo! Ich bin der {botName} Bot. Ich kann dir eine Reihe von offenen Callouts zeigen, an denen du hier auf Telegram teilnehmen kannst. Du kannst die folgenden Befehle verwenden, um dies zu tun, wähle sie einfach im Menü aus oder schreibe sie mir direkt:\n\n{commands}",
+        "help": "Über den Telegram-Chat können Sie an den laufenden Umfragen von {organisationName} teilnehmen.\nSie können die Liste der offenen Umfragen einsehen und auswählen, an welchen Sie teilnehmen möchten.\n\n{commands}",
+        "helpContinue": "Jetzt können Sie die Liste der offenen Umfragen überprüfen und eine andere auswählen, an der Sie teilnehmen möchten.\n\n{commands}",
         "multipleAddressesAllowed": "Geben Sie eine oder mehrere Adressen ein.",
         "multipleEmailsAllowed": "Sie können eine oder mehrere E-Mail-Adressen eingeben.",
         "multipleNumbersAllowed": "Geben Sie eine oder mehrere Zahlen ein.",
@@ -44,6 +60,11 @@
         "onlyOneSelectionAllowed": "Bitte wählen Sie Ihre Wahl, indem Sie deren Nummer eingeben oder deren Knopf drücken (Sie können nur eine auswählen).",
         "onlyOneValueAllowed": "Bitte geben Sie einen einzigen Wert ein.",
         "placeholder": "Bitte antworten Sie mit etwas wie \"{placeholder}\".",
+        "reset": {
+          "cancelled": "Sie haben Vorgang bereits abgebrochen",
+          "successful": "Vorgang erfolgreich abgebrochen, Sie sind nun wieder am Anfang",
+          "unsuccessful": "Sie sind nun wieder am Anfang"
+        },
         "uploadFileHere": "Bitte senden Sie mir eine Datei.",
         "uploadFilesHere": "Bitte senden Sie mir eine oder mehrere Dateien."
       }
@@ -56,7 +77,7 @@
         "yes": "Ja"
       },
       "message": {
-        "selectDetailCallout": "❓ Über welchen Aufruf möchten Sie mehr Informationen erhalten? Wählen Sie eine Nummer"
+        "selectDetailCallout": "❓ Über welchen Callout möchten Sie mehr Informationen erhalten? Wählen Sie eine Nummer"
       }
     },
     "reactions": {
@@ -69,18 +90,18 @@
     "render": {
       "callout": {
         "list": {
-          "title": "Liste aktiver Aufrufe"
+          "title": "Liste aktiver Callouts"
         }
       }
     },
     "response": {
       "messages": {
         "answerWithTruthyOrFalsy": "🤔 Bitte antworten Sie mit \"{truthy}\" oder \"{falsy}\".",
-        "calloutNotFound": "Es tut mir leid, ich konnte diesen Aufruf nicht finden.",
-        "calloutStartResponse": "Möchten Sie auf diesen Aufruf reagieren?",
+        "calloutNotFound": "Es tut mir leid, ich konnte diesen Callout nicht finden.",
+        "calloutStartResponse": "Möchten Sie auf diesen Callout beantworten?",
         "componentNotSupported": "\"{type}\" nicht implementiert..",
         "componentUnknown": "Unbekannter Komponententyp \"{type}\"..",
-        "noActiveCallouts": "Derzeit gibt es keine offenen Aufrufe.",
+        "noActiveCallouts": "Derzeit gibt es keine offenen Callouts.",
         "notACalloutComponent": {
           "address": "Ihre Antwort ist keine valide Adresse. Bitte versuchen Sie es erneut.",
           "checkbox": "🤔 Bitte antworten Sie mit \"{truthy}\" oder \"{falsy}\".",

@@ -1,7 +1,19 @@
 {
   "bot": {
     "commands": {
+      "debug": {
+        "command": "",
+        "description": ""
+      },
+      "help": {
+        "command": "",
+        "description": ""
+      },
       "list": {
+        "command": "",
+        "description": ""
+      },
+      "reset": {
         "command": "",
         "description": ""
       },
@@ -24,6 +36,9 @@
     },
     "info": {
       "messages": {
+        "command": {
+          "notUsable": ""
+        },
         "done": "",
         "enterAmountOfMoney": "",
         "enterDate": "",
@@ -32,7 +47,8 @@
         "enterText": "",
         "enterTime": "",
         "enterUrl": "",
-        "intro": "",
+        "help": "",
+        "helpContinue": "",
         "multipleAddressesAllowed": "",
         "multipleEmailsAllowed": "",
         "multipleNumbersAllowed": "",
@@ -44,6 +60,11 @@
         "onlyOneSelectionAllowed": "",
         "onlyOneValueAllowed": "",
         "placeholder": "",
+        "reset": {
+          "cancelled": "",
+          "successful": "",
+          "unsuccessful": ""
+        },
         "uploadFileHere": "",
         "uploadFilesHere": ""
       }

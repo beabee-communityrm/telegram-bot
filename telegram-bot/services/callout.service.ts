@@ -1,9 +1,10 @@
+import { BaseService } from "../core/index.ts";
 import {
   CalloutClient,
   CalloutResponseClient,
   ItemStatus,
   Singleton,
-} from "../deps.ts";
+} from "../deps/index.ts";
 import {
   isCalloutGroupKey,
   splitCalloutGroupKey,
@@ -22,7 +23,10 @@ import type {
   GetCalloutWith,
 } from "../types/index.ts";
 
-import type { CalloutComponentNestableSchema, Paginated } from "../deps.ts";
+import type {
+  CalloutComponentNestableSchema,
+  Paginated,
+} from "../deps/index.ts";
 
 const CALLOUTS_ACTIVE_QUERY: GetCalloutsQuery = {
   rules: {
@@ -35,7 +39,7 @@ const CALLOUTS_ACTIVE_QUERY: GetCalloutsQuery = {
 };
 
 @Singleton()
-export class CalloutService {
+export class CalloutService extends BaseService {
   /**
    * A map of short slugs to slugs for callouts as a WORKAROUND for too long callback data.
    */
@@ -48,6 +52,7 @@ export class CalloutService {
   public readonly baseUrl: URL;
 
   constructor() {
+    super();
     const host = Deno.env.get("API_PROXY_URL") ||
       Deno.env.get("BEABEE_AUDIENCE") ||
       "http://localhost:3001";

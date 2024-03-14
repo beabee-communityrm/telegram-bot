@@ -1,15 +1,17 @@
-import { Context, InlineKeyboard, Keyboard, Singleton } from "../deps.ts";
+import { BaseService } from "../core/index.ts";
+import { InlineKeyboard, Keyboard, Singleton } from "../deps/index.ts";
 import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants/index.ts";
 import { I18nService } from "./i18n.service.ts";
 
-import type { CalloutDataExt } from "../types/index.ts";
+import type { AppContext, CalloutDataExt } from "../types/index.ts";
 
 /**
  * Service to create Telegram keyboard buttons
  */
 @Singleton()
-export class KeyboardService {
+export class KeyboardService extends BaseService {
   constructor(protected readonly i18n: I18nService) {
+    super();
     console.debug(`${this.constructor.name} created`);
   }
 
@@ -110,13 +112,14 @@ export class KeyboardService {
    * Create a keyboard with Continue and Cancel buttons.
    */
   public continueCancel() {
-    const keyboard = new Keyboard();
-    keyboard.text(
-      this.i18n.t("bot.keyboard.label.continue"),
-    ).row()
+    const keyboard = new Keyboard()
+      .text(
+        this.i18n.t("bot.keyboard.label.continue"),
+      )
+      .row()
       .text(
         this.i18n.t("bot.keyboard.label.cancel"),
-      );
+      ).oneTime();
 
     return keyboard;
   }
@@ -125,15 +128,15 @@ export class KeyboardService {
    * Remove an existing inline keyboard
    * @param ctx
    */
-  public async removeInlineKeyboard(ctx: Context, withMessage = false) {
+  public async removeInlineKeyboard(ctx: AppContext, withMessage = false) {
+    // Do not delete keyboard message?
     if (!withMessage) {
       const inlineKeyboard = new InlineKeyboard();
-      await ctx.editMessageReplyMarkup({
+      return await ctx.editMessageReplyMarkup({
         reply_markup: inlineKeyboard,
       });
-      // TODO: Add message with clicked selection?
-    } else {
-      await ctx.deleteMessage();
     }
+
+    return await ctx.deleteMessage();
   }
 }

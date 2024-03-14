@@ -1,105 +1,162 @@
-import { container, Singleton } from "../deps.ts";
-import { Command } from "../core/index.ts";
+import { BaseCommand, BaseService } from "../core/index.ts";
+import {
+  BotCommand,
+  BotCommandScope,
+  BotCommandScopeChat,
+  Singleton,
+} from "../deps/index.ts";
 import { I18nService } from "./i18n.service.ts";
 import { BotService } from "./bot.service.ts";
+import { StateMachineService } from "./state-machine.service.ts";
+import { ChatState } from "../enums/index.ts";
 
-import type { CommandClass, UserState } from "../types/index.ts";
+import type { CommandClass } from "../types/index.ts";
+import { AppContext } from "../types/app-context.ts";
 
 /**
  * Service to manage Telegram Commands like `/start`
  */
 @Singleton()
-export class CommandService {
-  protected readonly _commands: { [key: string]: Command } = {};
+export class CommandService extends BaseService {
+  /** All registered commands */
+  protected readonly _commands: { [command: string]: BaseCommand } = {};
 
   constructor(
     protected readonly bot: BotService,
     protected readonly i18n: I18nService,
+    protected readonly stateMachine: StateMachineService,
   ) {
+    super();
     console.debug(`${this.constructor.name} created`);
   }
 
   public async onLocaleChange(lang: string) {
     for (const command of Object.values(this._commands)) {
-      command.changeLocale(lang);
+      command.onLocaleChange(lang);
     }
-    await this.updateExistingCommands();
-  }
 
-  public async initCommands() {
-    const Commands = await import("../commands/index.ts");
-    await this.addCommands(Commands, "start");
+    await this.updateCommands();
   }
 
   /**
-   * Initialize the commands.
+   * Called from the SessionEventManger after a chats session state has changed.
+   * @param ctx
    * @returns
    */
-  protected async initExistingCommands() {
-    const commands = Object.values(this._commands);
+  public async onSessionChanged(ctx: AppContext) {
+    const session = await ctx.session;
 
-    if (commands.length === 0) {
+    console.debug(`Session for chat ID "${ctx.chat?.id}" changed:`, {
+      ...session,
+      _data: "<hidden>",
+    });
+
+    if (!ctx.chat?.id) {
+      console.warn("No chat id found");
+      return;
+    }
+
+    if (session.state === ChatState.Start) {
+      // Cancel old process for the case there is one
+      this.stateMachine.resetSessionState(
+        session,
+      );
+    }
+
+    const scope: BotCommandScopeChat = {
+      type: "chat",
+      chat_id: ctx.chat.id,
+    };
+
+    await this.updateCommands({
+      scope,
+      commands: this.getForState(session.state),
+      force: true,
+    });
+  }
+
+  /**
+   * Initialize all possible commands.
+   * Called from the `AppService` on start.
+   * @returns
+   */
+  public async initAllCommands() {
+    console.debug("Init all commands...");
+    const Commands = await this.getAllClasses();
+
+    if (Commands.length === 0) {
       console.warn("No commands found");
       return;
     }
 
-    await this.bot.api.deleteMyCommands();
-
-    for (const command of commands) {
-      this.bot.command(command.command, command.action.bind(command));
+    for (const Command of Commands) {
+      this.registerCommand(Command);
     }
 
-    await this.bot.api.setMyCommands(
-      commands.map((command) => ({
-        command: command.command,
-        description: command.description,
-      })),
-    );
+    const initialCommands = this.getForState(ChatState.Initial);
+    await this.updateCommands({ commands: initialCommands });
+  }
+
+  protected registerCommand(Command: CommandClass) {
+    const command = Command.getSingleton();
+    this.bot.command(command.command, command.action.bind(command));
+    this._commands[command.command] = command;
   }
 
   /**
    * Update the commands.
+   * @param options The options
    * @returns
    */
-  protected async updateExistingCommands() {
-    const commands = Object.values(this._commands);
+  protected async updateCommands(options: {
+    /** The commands to update, if no commands are provided, all currently commands are updated */
+    commands?: BotCommand[];
+    /** The scope of the commands, if no scope is provided, the commands are global for all chats */
+    scope?: BotCommandScope;
+    /** Force the update */
+    force?: boolean;
+  } = {}) {
+    console.debug("Update commands...", {
+      scope: options.scope,
+      force: options.force,
+      commands: options.commands?.map((c) => c.command),
+    });
+    // Set updates
+    const commands = options.commands?.map((command) => ({
+      command: command.command,
+      description: command.description,
+    })) || (await this.bot.api.getMyCommands({
+      scope: options.scope,
+    })).map((command) => {
+      const botCommand = this._commands[command.command];
+      return {
+        command: botCommand.command,
+        description: botCommand.description,
+      };
+    }).filter((c) => c.command);
 
     if (commands.length === 0) {
       console.warn("No commands found");
       return;
     }
 
-    await this.bot.api.setMyCommands(
-      commands.map((command) => ({
-        command: command.command,
-        description: command.description,
-      })),
-    );
-  }
-
-  /**
-   * Register new commands to the bot.
-   * To define a new command, create a new class in the commands folder:
-   * - The class must implement the Command interface.
-   * - The class must be decorated with the @Singleton() decorator.
-   * @param Commands
-   */
-  protected async addCommands(
-    Commands: { [key: string]: CommandClass },
-    forState: UserState,
-  ) {
-    for (const Command of Object.values(Commands)) {
-      const command = container.resolve(Command); // Get the Singleton instance
-      // Add this command to the list of commands only if it's visible for the current user state
-      if (command.visibleOnStates.includes(forState)) {
-        this._commands[command.command] = command;
+    if (options.force) {
+      if (options.scope) {
+        await this.bot.api.deleteMyCommands({
+          scope: options.scope,
+        });
       }
+      // Also remove global commands
+      await this.bot.api.deleteMyCommands();
     }
 
-    await this.initExistingCommands();
+    console.debug("Set commands", commands);
+    await this.bot.api.setMyCommands(commands, {
+      scope: options.scope,
+    });
   }
 
-  public getActive(): Command[] {
+  public getActive(): BaseCommand[] {
     return Object.values(this._commands);
   }
 
@@ -108,15 +165,22 @@ export class CommandService {
     return Object.values(Commands);
   }
 
-  public async getAll(): Promise<Command[]> {
-    const Commands = await this.getAllClasses();
-    return Commands.map((Command) => container.resolve(Command));
+  public getAllRegistered(): BaseCommand[] {
+    return Object.values(this._commands);
   }
 
-  public async getByState(state: UserState): Promise<Command[]> {
-    const commands = await this.getAll();
-    return commands.filter((command) =>
-      command.visibleOnStates.includes(state)
-    );
+  public getForState(state: ChatState): BaseCommand[] {
+    const commands = this.getAllRegistered();
+    return commands.filter((command) => {
+      // If the command has no visible states, it is visible in all states
+      // Otherwise, check if the state is included in the visible states
+      if (
+        command.visibleOnStates.length === 0 ||
+        command.visibleOnStates.includes(state)
+      ) {
+        return true;
+      }
+      return false;
+    });
   }
 }
