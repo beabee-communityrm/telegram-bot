@@ -7,7 +7,7 @@
       },
       "help": {
         "command": "help",
-        "description": "Display help message"
+        "description": "What can I do now?"
       },
       "list": {
         "command": "list",

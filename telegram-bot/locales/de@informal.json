@@ -7,11 +7,11 @@
       },
       "help": {
         "command": "hilfe",
-        "description": "Hilfemeldung anzeigen"
+        "description": "Was kann ich jetzt tun?"
       },
       "list": {
         "command": "auflisten",
-        "description": "Zeige offene Aufrufe"
+        "description": "Offene Callouts auflisten"
       },
       "reset": {
         "command": "abbrechen",
@@ -19,7 +19,7 @@
       },
       "show": {
         "command": "zeigen",
-        "description": "Zeige Details über einen spezifischen Aufruf"
+        "description": "Zeige Details über einen spezifischen Callout"
       },
       "start": {
         "command": "starten",
@@ -27,17 +27,17 @@
       },
       "subscribe": {
         "command": "abonnieren",
-        "description": "Abonniere einen Aufruf"
+        "description": "Abonniere einen Callout"
       },
       "unsubscribe": {
         "command": "abbestellen",
-        "description": "Kündige ein Abonnement für einen Aufruf"
+        "description": "Kündige ein Abonnement für einen Callout"
       }
     },
     "info": {
       "messages": {
         "command": {
-          "notUsable": "Sie können den Befehl /start hier nicht verwenden"
+          "notUsable": "Du kannst den Befehl {command} hier nicht verwenden"
         },
         "done": "Wenn du fertig mit deiner Antwort bist, tippe einfach \"{done}\".",
         "enterAmountOfMoney": "Bitte gib einen Geldbetrag ein.",
@@ -47,8 +47,8 @@
         "enterText": "Bitte halte deine Antwort kurz, idealerweise in einem Satz.",
         "enterTime": "Bitte gib eine Zeit ein. (z.B. 20:45)",
         "enterUrl": "Bitte gib eine Webadresse ein. (z.B. https://www.beispiel.de)",
-        "help": "Über den Telegram-Chat können Sie an den laufenden Umfragen von {organisationName} teilnehmen.\nSie können die Liste der offenen Umfragen einsehen und auswählen, an welchen Sie teilnehmen möchten.\n\n{commands}",
-        "helpContinue": "Jetzt können Sie die Liste der offenen Umfragen überprüfen und eine andere auswählen, an der Sie teilnehmen möchten.\n\n{commands}",
+        "help": "Über den Telegram-Chat kannst du an den laufenden Umfragen von {organisationName} teilnehmen.\nDu kannst die Liste der offenen Umfragen einsehen und auswählen, an welchen du teilnehmen möchtest.\n\n{commands}",
+        "helpContinue": "Jetzt kannst du die Liste der offenen Umfragen überprüfen und eine andere auswählen, an der du teilnehmen möchten.\n\n{commands}",
         "multipleAddressesAllowed": "Gib eine oder mehrere Adressen ein.",
         "multipleEmailsAllowed": "Du kannst eine oder mehrere E-Mail-Adressen eingeben.",
         "multipleNumbersAllowed": "Gib eine oder mehrere Zahlen ein.",
@@ -61,9 +61,9 @@
         "onlyOneValueAllowed": "Bitte gib nur einen Wert ein.",
         "placeholder": "Bitte antworte mit etwas wie \"{placeholder}\".",
         "reset": {
-          "cancelled": "Sie haben Vorgang bereits abgebrochen",
-          "successful": "Vorgang erfolgreich abgebrochen, Sie sind nun wieder am Anfang",
-          "unsuccessful": "Sie sind nun wieder am Anfang"
+          "cancelled": "Der Vorgang wurde bereits abgebrochen",
+          "successful": "Vorgang erfolgreich abgebrochen, du bist nun wieder am Anfang",
+          "unsuccessful": "Du bist nun wieder am Anfang"
         },
         "uploadFileHere": "Bitte sende mir eine Datei.",
         "uploadFilesHere": "Bitte sende mir eine oder mehrere Dateien."
@@ -77,7 +77,7 @@
         "yes": "Ja"
       },
       "message": {
-        "selectDetailCallout": "❓ Welchen Aufruf möchtest du näher betrachten? Wähle eine Nummer"
+        "selectDetailCallout": "❓ Welchen Callout möchtest du näher betrachten? Wähle eine Nummer"
       }
     },
     "reactions": {
@@ -90,18 +90,18 @@
     "render": {
       "callout": {
         "list": {
-          "title": "Liste aktiver Aufrufe"
+          "title": "Liste aktiver Callouts"
         }
       }
     },
     "response": {
       "messages": {
         "answerWithTruthyOrFalsy": "🤔 Bitte antworte mit \"{truthy}\" oder \"{falsy}\".",
-        "calloutNotFound": "Tut mir leid, ich konnte diesen Aufruf nicht finden.",
-        "calloutStartResponse": "Möchtest du auf diesen Aufruf reagieren?",
+        "calloutNotFound": "Tut mir leid, ich konnte diesen Callout nicht finden.",
+        "calloutStartResponse": "Möchtest du auf diesen Callout reagieren?",
         "componentNotSupported": "\"{type}\" ist noch nicht implementiert..",
         "componentUnknown": "Unbekannter Komponententyp \"{type}\"..",
-        "noActiveCallouts": "Aktuell gibt es keine offenen Aufrufe.",
+        "noActiveCallouts": "Aktuell gibt es keine offenen Callouts.",
         "notACalloutComponent": {
           "address": "Dies ist keine valide Adresse. Bitte versuche es noch einmal.",
           "checkbox": "🤔 Bitte antworte mit \"{truthy}\" oder \"{falsy}\".",
