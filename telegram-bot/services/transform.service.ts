@@ -265,7 +265,7 @@ export class TransformService extends BaseService {
     render: Render,
   ): RenderResponseParsed<false>["data"] {
     // Check if message was skipped
-    if (replay?.isSkip) {
+    if (replay?.isSkipMessage) {
       if (render.accepted.required) {
         throw new Error("Skip message is not allowed");
       }

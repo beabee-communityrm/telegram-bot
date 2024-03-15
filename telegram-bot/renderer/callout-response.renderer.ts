@@ -205,8 +205,6 @@ export class CalloutResponseRenderer {
         multiple,
         required,
         this.selectValuesToValueLabelPairs(selectable.values),
-        multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
-        !required ? [this.i18n.t("bot.reactions.messages.skip")] : [],
       ),
       markdown: ``,
       parseType: calloutComponentTypeToParsedResponseType(selectable),
@@ -242,8 +240,6 @@ export class CalloutResponseRenderer {
         multiple,
         required,
         this.selectValuesToValueLabelPairs(select.data.values),
-        multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
-        !required ? [this.i18n.t("bot.reactions.messages.skip")] : [],
       ), // Wait for index which is a text message
       parseType: calloutComponentTypeToParsedResponseType(select),
     };
@@ -273,8 +269,6 @@ export class CalloutResponseRenderer {
         multiple,
         required,
         base,
-        multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
-        !required ? [this.i18n.t("bot.reactions.messages.skip")] : [],
       ),
       parseType: ParsedResponseType.CALLOUT_COMPONENT,
     };
@@ -322,8 +316,6 @@ export class CalloutResponseRenderer {
       multiple,
       required,
       file.filePattern || file.type === "signature" ? "image/*" : "",
-      multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
-      !required ? [this.i18n.t("bot.reactions.messages.skip")] : [],
     );
 
     if (file.placeholder) {
@@ -564,7 +556,7 @@ export class CalloutResponseRenderer {
 
     result.markdown += `_${
       escapeMd(
-        this.i18n.t("info.messages.onlyOneSelectionAllowed"),
+        this.i18n.t("bot.info.messages.onlyOneSelectionAllowed"),
       )
     }_`;
     return result;
@@ -583,17 +575,13 @@ export class CalloutResponseRenderer {
     result.parseType = ParsedResponseType.SELECTION;
     const multiple = result.accepted.multiple;
     const required = result.accepted.required;
-    const doneMessage = this.i18n.t("bot.reactions.messages.done");
-    const skipMessage = this.i18n.t("bot.reactions.messages.skip");
 
     result.accepted = {
       ...result.accepted,
       ...this.condition.replayConditionSelection(
         multiple,
-        selectable.validate?.required || false,
+        required,
         this.selectValuesToValueLabelPairs(selectable.values),
-        multiple ? [doneMessage] : [],
-        !required ? [skipMessage] : [],
       ),
     };
 

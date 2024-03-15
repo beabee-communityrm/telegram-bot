@@ -111,8 +111,8 @@ export class ValidationService extends BaseService {
         type: ReplayType.FILE,
         accepted: false,
         fileType,
-        isDone: false,
-        isSkip: false,
+        isDoneMessage: false,
+        isSkipMessage: false,
         context,
       };
     }
@@ -122,8 +122,8 @@ export class ValidationService extends BaseService {
       return {
         type: ReplayType.FILE,
         accepted: isAccepted,
-        isDone: isAccepted && !accepted.multiple,
-        isSkip: false,
+        isDoneMessage: isAccepted && !accepted.multiple,
+        isSkipMessage: false,
         context,
       };
     }
@@ -168,8 +168,8 @@ export class ValidationService extends BaseService {
     return {
       type: ReplayType.FILE,
       accepted: isAccepted,
-      isDone: isAccepted && !accepted.multiple,
-      isSkip: false,
+      isDoneMessage: isAccepted && !accepted.multiple,
+      isSkipMessage: false,
       fileType,
       fileId: getFileIdFromMessage(message),
       context,
@@ -185,38 +185,38 @@ export class ValidationService extends BaseService {
       ?.toLowerCase()
       .trim();
 
-    let isDone = false;
-    let isSkip = false;
+    let isDoneMessage = false;
+    let isSkipMessage = false;
 
     // Is not a text message or empty
     if (!textMessage) {
       return {
         type: ReplayType.NONE,
         accepted: false,
-        isDone,
-        isSkip,
+        isDoneMessage,
+        isSkipMessage,
         context,
       };
     }
 
     if (accepted.multiple && accepted.doneTexts?.length) {
       const doneTexts = accepted.doneTexts.map((t) => t.toLowerCase().trim());
-      isDone = doneTexts.some((t) => t === textMessage);
+      isDoneMessage = doneTexts.some((t) => t === textMessage);
     }
 
     if (!accepted.required && accepted.skipTexts?.length) {
       const skipTexts = accepted.skipTexts.map((t) => t.toLowerCase().trim());
-      isSkip = skipTexts.some((t) => t === textMessage);
+      isSkipMessage = skipTexts.some((t) => t === textMessage);
     }
 
-    console.debug("Text is done or skip", isDone, isSkip);
+    console.debug("Text is done or skip", isDoneMessage, isSkipMessage);
 
-    if (isDone || isSkip) {
+    if (isDoneMessage || isSkipMessage) {
       return {
         type: ReplayType.TEXT,
         accepted: true,
-        isDone,
-        isSkip,
+        isDoneMessage,
+        isSkipMessage,
         text: textMessage,
         context,
       };
@@ -225,8 +225,8 @@ export class ValidationService extends BaseService {
     return {
       type: ReplayType.NONE,
       accepted: false,
-      isDone,
-      isSkip,
+      isDoneMessage,
+      isSkipMessage,
       context,
     };
   }
@@ -243,14 +243,18 @@ export class ValidationService extends BaseService {
     const originalText = message?.text?.trim();
     const lowerCaseText = originalText?.toLowerCase();
 
+    const baseResult = {
+      isDoneMessage: false,
+      isSkipMessage: false,
+      context,
+    };
+
     // Is not a text message
     if (!message || !originalText || !lowerCaseText) {
       return {
         type: ReplayType.NONE,
         accepted: false,
-        isDone: false,
-        isSkip: false,
-        context,
+        ...baseResult,
       };
     }
 
@@ -259,10 +263,8 @@ export class ValidationService extends BaseService {
       return {
         type: ReplayType.TEXT,
         accepted: true,
-        isDone: !accepted.multiple,
-        isSkip: false,
         text: originalText,
-        context,
+        ...baseResult,
       };
     }
     // Is a text message and one of the texts is accepted
@@ -271,19 +273,15 @@ export class ValidationService extends BaseService {
       return {
         type: ReplayType.NONE,
         accepted: false,
-        isDone: false,
-        isSkip: false,
-        context,
+        ...baseResult,
       } as ReplayAcceptedNone;
     }
 
     return {
       type: ReplayType.TEXT,
       accepted: true,
-      isDone: !accepted.multiple,
-      isSkip: false,
       text: originalText,
-      context,
+      ...baseResult,
     } as ReplayAcceptedText;
   }
 
@@ -302,6 +300,12 @@ export class ValidationService extends BaseService {
     const message = context.message;
     const text = getTextFromMessage(message).toLowerCase();
 
+    const baseResult = {
+      isDoneMessage: false,
+      isSkipMessage: false,
+      context,
+    };
+
     // The answer message can be the index of the value but starts with 1
     if (isNumber(text)) {
       const index1 = extractNumbers(text);
@@ -311,10 +315,8 @@ export class ValidationService extends BaseService {
         return {
           type: ReplayType.SELECTION,
           accepted: true,
-          isDone: !accepted.multiple,
-          isSkip: false,
           value,
-          context,
+          ...baseResult,
         };
       }
     }
@@ -327,10 +329,8 @@ export class ValidationService extends BaseService {
     return {
       type: ReplayType.SELECTION,
       accepted: isAccepted,
-      isDone: isAccepted && !accepted.multiple,
-      isSkip: false,
       value: acceptedValue,
-      context,
+      ...baseResult,
     };
   }
 
@@ -344,13 +344,17 @@ export class ValidationService extends BaseService {
     context: AppContext,
     accepted: ReplayConditionCalloutComponentSchema,
   ): ReplayAcceptedCalloutComponentSchema | ReplayAcceptedNone {
+    const baseResult = {
+      isDoneMessage: false,
+      isSkipMessage: false,
+      context,
+    };
+
     const result: ReplayAcceptedCalloutComponentSchema = {
       type: ReplayType.CALLOUT_COMPONENT_SCHEMA,
       accepted: false,
-      isDone: false,
-      isSkip: false,
       answer: undefined,
-      context,
+      ...baseResult,
     };
 
     switch (accepted.schema.type) {
@@ -359,9 +363,7 @@ export class ValidationService extends BaseService {
         return {
           type: ReplayType.NONE,
           accepted: false,
-          isDone: true,
-          isSkip: false,
-          context,
+          ...baseResult,
         };
       }
       case CalloutComponentType.INPUT_CHECKBOX: {
@@ -432,7 +434,10 @@ export class ValidationService extends BaseService {
     accepted: ReplayCondition,
   ): ReplayAccepted {
     const isDoneOrSkip = this.messageIsDoneOrSkipText(context, accepted);
-    if (isDoneOrSkip.accepted && (isDoneOrSkip.isDone || isDoneOrSkip.isSkip)) {
+    if (
+      isDoneOrSkip.accepted &&
+      (isDoneOrSkip.isDoneMessage || isDoneOrSkip.isSkipMessage)
+    ) {
       console.debug("Text is done or skip", isDoneOrSkip);
       return isDoneOrSkip;
     }
@@ -442,8 +447,8 @@ export class ValidationService extends BaseService {
       return {
         type: ReplayType.ANY,
         accepted: true,
-        isDone: false,
-        isSkip: false,
+        isDoneMessage: false,
+        isSkipMessage: false,
         context,
       };
     }
@@ -453,8 +458,8 @@ export class ValidationService extends BaseService {
       return {
         type: ReplayType.NONE,
         accepted: false,
-        isDone: false,
-        isSkip: false,
+        isDoneMessage: false,
+        isSkipMessage: false,
         context,
       };
     }

@@ -160,12 +160,12 @@ export class CommunicationService extends BaseService {
         continue;
       }
 
-      if (replayAccepted.isDone) {
+      if (replayAccepted.isDoneMessage) {
         // Return what we have
         return replays;
       }
 
-      if (replayAccepted.isSkip) {
+      if (replayAccepted.isSkipMessage) {
         // Only return the skip message
         return [replayAccepted];
       }
@@ -175,7 +175,7 @@ export class CommunicationService extends BaseService {
       if (!render.accepted.multiple) {
         return replays;
       }
-    } while (!replayAccepted?.isDone && !replayAccepted?.isSkip);
+    } while (!replayAccepted?.isDoneMessage && !replayAccepted?.isSkipMessage);
 
     return replays;
   }
@@ -258,9 +258,14 @@ export class CommunicationService extends BaseService {
       if (signal?.aborted) {
         return signal;
       }
-      const response = await this.sendAndReceive(ctx, render);
-      if (response) {
-        responses.push(response);
+      try {
+        const response = await this.sendAndReceive(ctx, render);
+        if (response) {
+          responses.push(response);
+        }
+      } catch (error) {
+        console.error("Failed to send and receive", error, render);
+        throw error;
       }
     }
     return responses;

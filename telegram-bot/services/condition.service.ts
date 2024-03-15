@@ -1,6 +1,7 @@
 import { BaseService } from "../core/index.ts";
 import { CalloutComponentSchema, Singleton } from "../deps/index.ts";
 import { ReplayType } from "../enums/index.ts";
+import { I18nService } from "./i18n.service.ts";
 import { filterMimeTypesByPatterns } from "../utils/index.ts";
 
 import type {
@@ -17,7 +18,7 @@ import type {
  */
 @Singleton()
 export class ConditionService extends BaseService {
-  constructor() {
+  constructor(protected readonly i18n: I18nService) {
     super();
     console.debug(`${this.constructor.name} created`);
   }
@@ -39,15 +40,21 @@ export class ConditionService extends BaseService {
   protected validateArgs(
     multiple: boolean,
     required: boolean,
-    doneTexts: string[] = [],
-    skipTexts: string[] = [],
+    doneTexts: string[] = multiple
+      ? [this.i18n.t("bot.reactions.messages.done")]
+      : [],
+    skipTexts: string[] = !required
+      ? [this.i18n.t("bot.reactions.messages.skip")]
+      : [],
   ) {
     if (multiple && !doneTexts.length) {
       throw new Error("Multiple condition must have done texts");
     }
 
     if (!required && !skipTexts.length) {
-      throw new Error("Optional condition must have skip texts");
+      const error = new Error("Optional condition must have skip texts");
+      console.error(error, { multiple, required, doneTexts, skipTexts });
+      throw error;
     }
   }
 
@@ -55,8 +62,12 @@ export class ConditionService extends BaseService {
   public replayConditionAny(
     multiple: boolean,
     required: boolean,
-    doneTexts: string[] = [],
-    skipTexts: string[] = [],
+    doneTexts: string[] = multiple
+      ? [this.i18n.t("bot.reactions.messages.done")]
+      : [],
+    skipTexts: string[] = !required
+      ? [this.i18n.t("bot.reactions.messages.skip")]
+      : [],
   ): ReplayConditionAny {
     const result: ReplayConditionAny = {
       type: ReplayType.ANY,
@@ -78,8 +89,12 @@ export class ConditionService extends BaseService {
     multiple: boolean,
     required: boolean,
     texts?: string[],
-    doneTexts: string[] = [],
-    skipTexts: string[] = [],
+    doneTexts: string[] = multiple
+      ? [this.i18n.t("bot.reactions.messages.done")]
+      : [],
+    skipTexts: string[] = !required
+      ? [this.i18n.t("bot.reactions.messages.skip")]
+      : [],
   ): ReplayConditionText {
     const result: ReplayConditionText = {
       type: ReplayType.TEXT,
@@ -103,8 +118,12 @@ export class ConditionService extends BaseService {
     multiple: boolean,
     required: boolean,
     valueLabel: Record<string, string>,
-    doneTexts: string[] = [],
-    skipTexts: string[] = [],
+    doneTexts: string[] = multiple
+      ? [this.i18n.t("bot.reactions.messages.done")]
+      : [],
+    skipTexts: string[] = !required
+      ? [this.i18n.t("bot.reactions.messages.skip")]
+      : [],
   ): ReplayConditionSelection {
     const result: ReplayConditionSelection = {
       type: ReplayType.SELECTION,
@@ -126,8 +145,12 @@ export class ConditionService extends BaseService {
     multiple: boolean,
     required: boolean,
     mimeTypes: string[] = [],
-    doneTexts: string[] = [],
-    skipTexts: string[] = [],
+    doneTexts: string[] = multiple
+      ? [this.i18n.t("bot.reactions.messages.done")]
+      : [],
+    skipTexts: string[] = !required
+      ? [this.i18n.t("bot.reactions.messages.skip")]
+      : [],
   ): ReplayConditionFile {
     const result: ReplayConditionFile = {
       type: ReplayType.FILE,
@@ -149,8 +172,12 @@ export class ConditionService extends BaseService {
     multiple: boolean,
     required: boolean,
     filePattern: string,
-    doneTexts: string[] = [],
-    skipTexts: string[] = [],
+    doneTexts: string[] = multiple
+      ? [this.i18n.t("bot.reactions.messages.done")]
+      : [],
+    skipTexts: string[] = !required
+      ? [this.i18n.t("bot.reactions.messages.skip")]
+      : [],
   ): ReplayConditionFile {
     const mimeTypes = filterMimeTypesByPatterns(filePattern);
     return this.replayConditionFile(
@@ -166,8 +193,12 @@ export class ConditionService extends BaseService {
     multiple: boolean,
     required: boolean,
     schema: CalloutComponentSchema,
-    doneTexts: string[] = [],
-    skipTexts: string[] = [],
+    doneTexts: string[] = multiple
+      ? [this.i18n.t("bot.reactions.messages.done")]
+      : [],
+    skipTexts: string[] = !required
+      ? [this.i18n.t("bot.reactions.messages.skip")]
+      : [],
   ): ReplayConditionCalloutComponentSchema {
     this.validateArgs(multiple, required, doneTexts, skipTexts);
     return {

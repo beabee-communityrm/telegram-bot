@@ -129,16 +129,11 @@ export class CalloutResponseEventManager extends BaseEventManager {
 
     try {
       // TODO: Ask for contact details if callout requires it
-      const response = await this.callout.createResponse(slug, {
+      const _response = await this.callout.createResponse(slug, {
         answers,
         guestName: ctx.from?.username,
         // guestEmail: "test@beabee.io",
       });
-
-      console.debug(
-        "Created response",
-        response,
-      );
     } catch (error) {
       console.error(
         `Failed to create response`,
@@ -152,10 +147,14 @@ export class CalloutResponseEventManager extends BaseEventManager {
 
     // TODO: Send success message and a summary of answers to the chat
 
-    await this.communication.send(
-      ctx,
-      await this.messageRenderer.continueHelp(session.state),
-    );
+    try {
+      await this.communication.send(
+        ctx,
+        await this.messageRenderer.continueHelp(session.state),
+      );
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   /**
