@@ -64,7 +64,7 @@ export class CalloutResponseRenderer {
 
   /**
    * Render a component label in Markdown
-   * @param component The component to render
+   * @param component The component to render this label for
    * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
   protected labelMd(component: CalloutComponentSchema, prefix: string) {
@@ -84,6 +84,8 @@ export class CalloutResponseRenderer {
 
   /**
    * Render a component description in Markdown
+   * @param component The component to render this description for
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
   protected descriptionMd(component: CalloutComponentSchema, prefix: string) {
     if (typeof component.description !== "string" || !component.description) {
@@ -103,9 +105,10 @@ export class CalloutResponseRenderer {
 
   /**
    * Render an input component placeholder in Markdown
-   * @param input The input component to render
+   * @param input The input component to render this placeholder note for
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
-  protected placeholderMd(input: CalloutComponentInputSchema, prefix: string) {
+  protected placeholderMd(input: CalloutComponentSchema, prefix: string) {
     const result: Render = {
       key: createCalloutGroupKey(input.key, prefix),
       type: RenderType.MARKDOWN,
@@ -127,6 +130,12 @@ export class CalloutResponseRenderer {
     return result;
   }
 
+  /**
+   * Render a note to the user how many answers are expected
+   * @param component The component to render this note for
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
+   * @returns
+   */
   protected multipleMd(component: CalloutComponentSchema, prefix: string) {
     const multiple = this.isMultiple(component);
     const required = component.validate?.required || false;
@@ -158,6 +167,12 @@ export class CalloutResponseRenderer {
     return result;
   }
 
+  /**
+   * Render a note to the user if the answer is required
+   * @param component The component to render this note for
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
+   * @returns
+   */
   protected requiredMd(component: CalloutComponentSchema, prefix: string) {
     const multiple = this.isMultiple(component);
     const required = component.validate?.required || false;
@@ -188,8 +203,44 @@ export class CalloutResponseRenderer {
   }
 
   /**
+   * Render notes and a keyboard with the answer options
+   * - Renders a note to the user how many answers are expected
+   * - Renders a note to the user if the answer is required
+   * - Renders a Keyboard with the answer options
+   * @param component The component to render this note and keyboard for
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
+   */
+  protected answerOptionsMdKeyboard(
+    result: RenderMarkdown,
+    component: CalloutComponentSchema,
+    prefix: string,
+    multiple = this.isMultiple(component),
+    required = component.validate?.required || false,
+  ) {
+    const placeholder = component.placeholder;
+
+    if (placeholder) {
+      result.markdown += `\n\n${
+        this.placeholderMd(component, prefix).markdown
+      }`;
+    }
+
+    result.markdown += `\n\n${this.multipleMd(component, prefix).markdown}`;
+    result.markdown += `\n\n${this.requiredMd(component, prefix).markdown}`;
+
+    result.keyboard = this.keyboard.skipDone(
+      result.keyboard,
+      required,
+      multiple,
+    );
+
+    return result;
+  }
+
+  /**
    * Render radio or selectboxes values in Markdown
    * @param selectable The selectable component to render
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
   protected selectableValues(
     selectable: CalloutComponentInputSelectableSchema,
@@ -318,12 +369,7 @@ export class CalloutResponseRenderer {
       file.filePattern || file.type === "signature" ? "image/*" : "",
     );
 
-    if (file.placeholder) {
-      result.markdown += `\n\n${this.placeholderMd(file, prefix).markdown}`;
-    }
-
-    result.markdown += `\n\n${this.multipleMd(file, prefix).markdown}`;
-    result.markdown += `\n\n${this.requiredMd(file, prefix).markdown}`;
+    this.answerOptionsMdKeyboard(result, file, prefix);
 
     return result;
   }
@@ -380,7 +426,7 @@ export class CalloutResponseRenderer {
     const falsyMessage = this.i18n.t("bot.reactions.messages.falsy");
     const doneMessage = this.i18n.t("bot.reactions.messages.done");
     const skipMessage = this.i18n.t("bot.reactions.messages.skip");
-    const multiple = result.accepted.multiple;
+    const multiple = this.isMultiple(input);
     const required = result.accepted.required;
 
     result.markdown += `_${
@@ -401,16 +447,12 @@ export class CalloutResponseRenderer {
     );
 
     result.keyboard = this.keyboard.yesNo(
+      result.keyboard,
       truthyMessage,
       falsyMessage,
     );
 
-    if (input.placeholder) {
-      result.markdown += `\n\n${this.placeholderMd(input, prefix).markdown}`;
-    }
-
-    result.markdown += `\n\n${this.multipleMd(input, prefix).markdown}`;
-    result.markdown += `\n\n${this.requiredMd(input, prefix).markdown}`;
+    this.answerOptionsMdKeyboard(result, input, prefix);
 
     return result;
   }
@@ -524,12 +566,7 @@ export class CalloutResponseRenderer {
       }
     }
 
-    if (input.placeholder) {
-      result.markdown += `\n\n${this.placeholderMd(input, prefix).markdown}`;
-    }
-
-    result.markdown += `\n\n${this.multipleMd(input, prefix).markdown}`;
-    result.markdown += `\n\n${this.requiredMd(input, prefix).markdown}`;
+    this.answerOptionsMdKeyboard(result, input, prefix);
 
     return result;
   }
@@ -546,12 +583,14 @@ export class CalloutResponseRenderer {
   ): RenderMarkdown {
     const result = this.baseComponent(select, prefix);
     result.parseType = ParsedResponseType.SELECTION;
-    result.markdown += `\n\n`;
+    const multiple = this.isMultiple(select);
+    const required = result.accepted.required;
+
     result.accepted = {
       ...result.accepted,
       ...this.condition.replayConditionSelection(
-        result.accepted.multiple,
-        result.accepted.required,
+        multiple,
+        required,
         this.selectValuesToValueLabelPairs(select.data.values),
       ),
     };
@@ -560,10 +599,11 @@ export class CalloutResponseRenderer {
     result.markdown += `\n\n`;
 
     result.markdown += `_${
-      escapeMd(
-        this.i18n.t("bot.info.messages.onlyOneSelectionAllowed"),
-      )
+      escapeMd(this.i18n.t("bot.info.messages.onlyOneSelectionAllowed"))
     }_`;
+
+    this.answerOptionsMdKeyboard(result, select, prefix);
+
     return result;
   }
 
@@ -578,7 +618,7 @@ export class CalloutResponseRenderer {
   ): RenderMarkdown {
     const result = this.baseComponent(selectable, prefix);
     result.parseType = ParsedResponseType.SELECTION;
-    const multiple = result.accepted.multiple;
+    const multiple = this.isMultiple(selectable);
     const required = result.accepted.required;
 
     result.accepted = {
@@ -594,30 +634,13 @@ export class CalloutResponseRenderer {
       this.selectableValues(selectable, prefix).markdown
     }`;
 
-    result.markdown += `\n\n`;
-
-    switch (selectable.type) {
-      case "radio": {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("bot.info.messages.onlyOneSelectionAllowed"),
-          )
-        }_`;
-        break;
-      }
-      case "selectboxes": {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("bot.info.messages.multipleSelectionsAllowed") +
-              "\n\n" +
-              this.messageRenderer.writeDoneMessage(
-                this.i18n.t("bot.reactions.messages.done"),
-              ).text,
-          )
-        }_`;
-        break;
-      }
-    }
+    this.answerOptionsMdKeyboard(
+      result,
+      selectable,
+      prefix,
+      multiple,
+      required,
+    );
 
     return result;
   }
@@ -749,7 +772,7 @@ export class CalloutResponseRenderer {
     const continueKeyboard = this.keyboard.inlineContinueCancel(
       `${BUTTON_CALLBACK_CALLOUT_PARTICIPATE}:${callout.slug}`,
     );
-    result.keyboard = continueKeyboard;
+    result.inlineKeyboard = continueKeyboard;
 
     return result;
   }

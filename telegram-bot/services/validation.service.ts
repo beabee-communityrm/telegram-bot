@@ -122,7 +122,7 @@ export class ValidationService extends BaseService {
       return {
         type: ReplayType.FILE,
         accepted: isAccepted,
-        isDoneMessage: isAccepted && !accepted.multiple,
+        isDoneMessage: false,
         isSkipMessage: false,
         context,
       };
@@ -168,7 +168,7 @@ export class ValidationService extends BaseService {
     return {
       type: ReplayType.FILE,
       accepted: isAccepted,
-      isDoneMessage: isAccepted && !accepted.multiple,
+      isDoneMessage: false,
       isSkipMessage: false,
       fileType,
       fileId: getFileIdFromMessage(message),

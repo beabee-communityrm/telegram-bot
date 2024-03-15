@@ -84,6 +84,12 @@ export class TransformService extends BaseService {
     return texts;
   }
 
+  /**
+   * @param replay
+   * @param valueLabel
+   * @param otherFalse If every unselected value should be set to false
+   * @returns
+   */
   public parseResponseSelection(
     replay: ReplayAccepted,
     valueLabel: Record<string, string>,
@@ -91,10 +97,21 @@ export class TransformService extends BaseService {
   ): RenderResponseParsedSelection<false>["data"] {
     const res: RenderResponseParsedSelection<false>["data"] = {};
 
+    if (replay.isSkipMessage) {
+      if (otherFalse) {
+        for (const value of Object.keys(valueLabel)) {
+          res[value] ||= false;
+        }
+      }
+      return res;
+    }
+
     if (replay.type !== ReplayType.SELECTION) {
-      throw new Error(
+      const error = new Error(
         `Unsupported accepted type for selection: "${replay.type}"`,
       );
+      console.error(error, replay);
+      throw error;
     }
 
     if (replay.value) {

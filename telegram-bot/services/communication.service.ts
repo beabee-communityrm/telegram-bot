@@ -43,7 +43,16 @@ export class CommunicationService extends BaseService {
    * @param res
    */
   public async send(ctx: AppContext, render: Render) {
-    const markup = render.keyboard ||
+    if (render.keyboard && render.inlineKeyboard) {
+      throw new Error("You can only use one keyboard at a time");
+    }
+
+    // Always resize the custom keyboard and all custom keyboards are one time keyboards the way we use them
+    if (render.keyboard) {
+      render.keyboard.oneTime().resized();
+    }
+
+    const markup = render.keyboard || render.inlineKeyboard ||
       (render.removeKeyboard ? { remove_keyboard: true as true } : undefined);
 
     let message: Message.TextMessage | undefined;
@@ -90,10 +99,10 @@ export class CommunicationService extends BaseService {
         throw new Error("Unknown render type: " + (render as Render).type);
     }
 
-    // Store latest sended keyboard
-    // TODO: Move this to KeyboardService or StateMachineService
+    // Store latest sended keyboard to be able to remove it later
+    // TODO: Should we move this to the `KeyboardService` or `StateMachineService`?
     if (
-      render.keyboard && message && render.keyboard instanceof InlineKeyboard
+      message && markup && markup instanceof InlineKeyboard
     ) {
       const session = await ctx.session;
       session._data.latestKeyboard = {

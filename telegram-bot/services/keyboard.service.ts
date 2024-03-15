@@ -42,7 +42,7 @@ export class KeyboardService extends BaseService {
    * @param startIndex The index of the first callout to show, starting at 1
    * @param endIndex The index of the last callout to show, starting at 1 and must be larger than startIndex
    */
-  public calloutSelection(
+  public inlineCalloutSelection(
     callouts: CalloutDataExt[],
     startIndex = 1,
     endIndex = callouts.length,
@@ -109,17 +109,59 @@ export class KeyboardService extends BaseService {
   }
 
   /**
-   * Create a custom keyboard with Yes and No buttons.
+   * Creates or extends a custom keyboard with Yes and No buttons.
    *
    * @param ctx The chat context
    */
   public yesNo(
+    keyboard = new Keyboard(),
     truthyLabel = this.i18n.t("bot.reactions.messages.truthy"),
     falsyLabel = this.i18n.t("bot.reactions.messages.falsy"),
   ) {
-    const keyboard = new Keyboard();
-    keyboard.text(truthyLabel);
-    keyboard.text(falsyLabel);
+    return keyboard.text(truthyLabel).text(falsyLabel).row();
+  }
+
+  /**
+   * Creates a extends a custom keyboard with a skip button.
+   *
+   * @param ctx The chat context
+   */
+  public skip(
+    keyboard = new Keyboard(),
+    skipLabel = this.i18n.t("bot.reactions.messages.skip"),
+  ) {
+    return keyboard.text(skipLabel).row();
+  }
+
+  /**
+   * Creates a extends a custom keyboard with a done button.
+   *
+   * @param ctx The chat context
+   */
+  public done(
+    keyboard = new Keyboard(),
+    skipLabel = this.i18n.t("bot.reactions.messages.done"),
+  ) {
+    return keyboard.text(skipLabel).row();
+  }
+
+  /**
+   * Create a keyboard for a callout response
+   * @param options The options
+   */
+  public skipDone(
+    keyboard = new Keyboard(),
+    required = false,
+    multiple = false,
+  ) {
+    if (multiple) {
+      this.done(keyboard);
+    }
+
+    if (!required) {
+      this.skip(keyboard);
+    }
+
     return keyboard;
   }
 
