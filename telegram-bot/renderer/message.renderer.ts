@@ -247,6 +247,7 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
       key: tKey,
+      removeKeyboard: true,
       ...this.noResponse(),
     };
   }
@@ -261,6 +262,7 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
       key: tKey,
+      removeKeyboard: true,
       ...this.noResponse(),
     };
   }
@@ -275,6 +277,7 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
       key: tKey,
+      removeKeyboard: true,
       ...this.noResponse(),
     };
   }

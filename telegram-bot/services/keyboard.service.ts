@@ -16,6 +16,22 @@ export class KeyboardService extends BaseService {
   }
 
   /**
+   * Create a new empty keyboard
+   * @returns
+   */
+  public empty() {
+    return new Keyboard();
+  }
+
+  /**
+   * Create a new empty inline keyboard
+   * @returns
+   */
+  public inlineEmpty() {
+    return new InlineKeyboard();
+  }
+
+  /**
    * Create a keyboard button to select a callout.
    *
    * To respond to the button press, listen for the `callback_query:data:show-callout-slug` event using the EventService.
@@ -67,7 +83,7 @@ export class KeyboardService extends BaseService {
   }
 
   /**
-   * Create a keyboard with Yes and No buttons.
+   * Create a inline keyboard with Yes and No buttons.
    *
    * To respond to the button press, listen for the `callback_query:data:yes` and `callback_query:data:no` events using the EventService.
    * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `callback_query:data:callout-respond:yes`.
@@ -75,17 +91,36 @@ export class KeyboardService extends BaseService {
    * @param ctx The chat context
    * @param prefix A prefix to add to the button data, e.g. "callout-respond"
    */
-  public yesNo(prefix = "") {
+  public inlineYesNo(
+    prefix: string,
+    truthyLabel = this.i18n.t("bot.reactions.messages.truthy"),
+    falsyLabel = this.i18n.t("bot.reactions.messages.falsy"),
+  ) {
     const inlineKeyboard = new InlineKeyboard();
     inlineKeyboard.text(
-      this.i18n.t("bot.keyboard.label.yes"),
+      truthyLabel,
       prefix ? `${prefix}:yes` : `yes`,
     );
     inlineKeyboard.text(
-      this.i18n.t("bot.keyboard.label.no"),
+      falsyLabel,
       prefix ? `${prefix}:no` : `no`,
     );
     return inlineKeyboard;
+  }
+
+  /**
+   * Create a custom keyboard with Yes and No buttons.
+   *
+   * @param ctx The chat context
+   */
+  public yesNo(
+    truthyLabel = this.i18n.t("bot.reactions.messages.truthy"),
+    falsyLabel = this.i18n.t("bot.reactions.messages.falsy"),
+  ) {
+    const keyboard = new Keyboard();
+    keyboard.text(truthyLabel);
+    keyboard.text(falsyLabel);
+    return keyboard;
   }
 
   /**

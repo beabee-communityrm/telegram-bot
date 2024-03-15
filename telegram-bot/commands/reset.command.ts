@@ -32,7 +32,6 @@ export class ResetCommand extends BaseCommand {
   ) {
     super();
   }
-
   // Handle the /reset command
   async action(ctx: AppContext) {
     // Always allow this command to reset the state even if an error occurs, so we not use `this.checkAction` here

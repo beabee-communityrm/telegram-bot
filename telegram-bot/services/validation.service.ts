@@ -258,7 +258,7 @@ export class ValidationService extends BaseService {
       };
     }
 
-    // If not texts are defined, all texts are accepted
+    // If no texts are defined, all texts are accepted
     if (!texts || !texts.length) {
       return {
         type: ReplayType.TEXT,
@@ -267,8 +267,8 @@ export class ValidationService extends BaseService {
         ...baseResult,
       };
     }
-    // Is a text message and one of the texts is accepted
-    const match = texts.some((t) => t === message.text);
+    // Is one of the texts is accepted
+    const match = texts.some((t) => t === lowerCaseText);
     if (!match) {
       return {
         type: ReplayType.NONE,
@@ -438,7 +438,6 @@ export class ValidationService extends BaseService {
       isDoneOrSkip.accepted &&
       (isDoneOrSkip.isDoneMessage || isDoneOrSkip.isSkipMessage)
     ) {
-      console.debug("Text is done or skip", isDoneOrSkip);
       return isDoneOrSkip;
     }
 

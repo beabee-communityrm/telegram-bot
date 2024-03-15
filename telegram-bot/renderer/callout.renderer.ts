@@ -40,7 +40,7 @@ export class CalloutRenderer {
     const keyboardMessageMd = `_${
       escapeMd(this.i18n.t("bot.response.messages.calloutStartResponse"))
     }_`;
-    const yesNoKeyboard = this.keyboard.yesNo(
+    const yesNoKeyboard = this.keyboard.inlineYesNo(
       `${BUTTON_CALLBACK_CALLOUT_INTRO}:${callout.shortSlug}`,
     );
 

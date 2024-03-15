@@ -400,6 +400,11 @@ export class CalloutResponseRenderer {
       !required ? [skipMessage] : [],
     );
 
+    result.keyboard = this.keyboard.yesNo(
+      truthyMessage,
+      falsyMessage,
+    );
+
     if (input.placeholder) {
       result.markdown += `\n\n${this.placeholderMd(input, prefix).markdown}`;
     }
