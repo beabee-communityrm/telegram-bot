@@ -83,6 +83,19 @@ export class KeyboardService extends BaseService {
   }
 
   /**
+   * Create a keyboard with a list of selections
+   * @param keyboard
+   * @param selections
+   * @returns
+   */
+  public selection(keyboard = new Keyboard(), selections: string[]) {
+    for (const selection of selections) {
+      keyboard.text(selection);
+    }
+    return keyboard.row();
+  }
+
+  /**
    * Create a inline keyboard with Yes and No buttons.
    *
    * To respond to the button press, listen for the `callback_query:data:yes` and `callback_query:data:no` events using the EventService.
@@ -111,7 +124,9 @@ export class KeyboardService extends BaseService {
   /**
    * Creates or extends a custom keyboard with Yes and No buttons.
    *
-   * @param ctx The chat context
+   * @param keyboard The keyboard to extend
+   * @param truthyLabel The label for the truthy button
+   * @param falsyLabel The label for the falsy button
    */
   public yesNo(
     keyboard = new Keyboard(),
@@ -124,7 +139,8 @@ export class KeyboardService extends BaseService {
   /**
    * Creates a extends a custom keyboard with a skip button.
    *
-   * @param ctx The chat context
+   * @param keyboard The keyboard to extend
+   * @param skipLabel The label for the skip button
    */
   public skip(
     keyboard = new Keyboard(),
@@ -136,7 +152,8 @@ export class KeyboardService extends BaseService {
   /**
    * Creates a extends a custom keyboard with a done button.
    *
-   * @param ctx The chat context
+   * @param keyboard The keyboard to extend
+   * @param doneLabel The label for the done button
    */
   public done(
     keyboard = new Keyboard(),
@@ -147,7 +164,9 @@ export class KeyboardService extends BaseService {
 
   /**
    * Create a keyboard for a callout response
-   * @param options The options
+   * @param keyboard The keyboard to extend
+   * @param required
+   * @param multiple
    */
   public skipDone(
     keyboard = new Keyboard(),
@@ -171,7 +190,6 @@ export class KeyboardService extends BaseService {
    * To respond to the button press, listen for the `callback_query:data:continue` and `callback_query:data:cancel` events using the EventService.
    * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `callback_query:data:callout-respond:continue`.
    *
-   * @param ctx The chat context
    * @param prefix A prefix to add to the button data, e.g. "callout-respond"
    */
   public inlineContinueCancel(prefix = "") {
@@ -205,7 +223,8 @@ export class KeyboardService extends BaseService {
 
   /**
    * Remove an existing inline keyboard
-   * @param ctx
+   * @param ctx The chat context
+   * @param withMessage If true, the message will be deleted, too
    */
   public async removeInlineKeyboard(ctx: AppContext, withMessage = false) {
     // Do not delete keyboard message?
