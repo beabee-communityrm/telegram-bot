@@ -320,11 +320,11 @@ export class MessageRenderer {
     } as RenderText;
   }
 
-  public writeDoneMessage(skipText: string): RenderText {
+  public writeDoneMessage(doneText: string): RenderText {
     const tKey = "bot.info.messages.done";
     return {
       type: RenderType.TEXT,
-      text: this.i18n.t(tKey, { done: skipText }),
+      text: this.i18n.t(tKey, { done: doneText }),
       key: tKey,
       ...this.noResponse(),
     };
