@@ -36,7 +36,6 @@
     },
     "info": {
       "messages": {
-        "answerIsRequired": "Eine Antwort ist hier erforderlich und kann nicht übersprungen werden.",
         "command": {
           "notUsable": "Der Befehl {command} kann hier nicht verwendet werden. Wenn Sie glauben, dass es sich um einen Fehler handelt, verwenden Sie bitte den Befehl /reset."
         },

@@ -36,7 +36,6 @@
     },
     "info": {
       "messages": {
-        "answerIsRequired": "An answer is required here and cannot be skipped.",
         "command": {
           "notUsable": "You cannot use the {command} command here. If you think this is an error, please use the /reset command."
         },

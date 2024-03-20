@@ -178,13 +178,7 @@ export class CalloutResponseRenderer {
       markdown: ``,
       parseType: ParsedResponseType.NONE,
     };
-    if (required) {
-      result.markdown += `_${
-        escapeMd(
-          `${this.i18n.t("bot.info.messages.answerIsRequired")}\n\n`,
-        )
-      }_`;
-    } else {
+    if (!required) {
       result.markdown += `_${
         escapeMd(
           this.messageRenderer.writeSkipMessage(
@@ -193,7 +187,6 @@ export class CalloutResponseRenderer {
         )
       }_`;
     }
-
     return result;
   }
 
