@@ -10,7 +10,6 @@ import {
   splitCalloutGroupKey,
   truncateSlug,
 } from "../utils/index.ts";
-import { BeabeeContentService } from "./beabee-content.service.ts";
 
 import type {
   CalloutData,
@@ -26,7 +25,6 @@ import type {
 
 import type {
   CalloutComponentNestableSchema,
-  ContentGeneral,
   Paginated,
 } from "../deps/index.ts";
 
@@ -56,7 +54,7 @@ export class CalloutService extends BaseService {
 
   protected readonly basePath = "/callouts";
 
-  constructor(protected readonly beabeeContent: BeabeeContentService) {
+  constructor() {
     super();
     const host = Deno.env.get("API_PROXY_URL") ||
       Deno.env.get("BEABEE_AUDIENCE") ||
@@ -76,11 +74,6 @@ export class CalloutService extends BaseService {
     this.responseClient = new CalloutResponseClient({ path, host, token });
 
     console.debug(`${this.constructor.name} created`);
-  }
-
-  public async init(content?: ContentGeneral) {
-    content = content || await this.beabeeContent.get("general");
-    this.baseUrl = new URL(this.basePath, content.siteUrl);
   }
 
   protected getUrl(slug: string) {

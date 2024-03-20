@@ -115,6 +115,8 @@ export class MessageRenderer {
           }\n`,
         );
       }
+
+      // TODO: Make debug message configurable
       strings.push(fmt`${bold("beabee general content:")}\n`);
       const content = await this.beabeeContent.get("general");
       strings.push(code(JSON.stringify(content, null, 2)));

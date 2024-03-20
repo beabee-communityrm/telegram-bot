@@ -74,8 +74,6 @@ export class AppService extends BaseService {
     // Initialize the localization
     await this.i18n.setActiveLang(beabeeGeneralContent.locale);
 
-    await this.callout.init(beabeeGeneralContent);
-
     return beabeeGeneralContent;
   }
 
