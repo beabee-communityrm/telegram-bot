@@ -93,7 +93,7 @@
     "render": {
       "callout": {
         "list": {
-          "title": "List of active callouts"
+          "title": "List of open callouts"
         }
       }
     },
@@ -101,27 +101,27 @@
       "messages": {
         "answerWithTruthyOrFalsy": "🤔 Please answer with \"{truthy}\" or \"{falsy}\".",
         "calloutNotFound": "I'm sorry, I couldn't find this callout.",
-        "calloutStartResponse": "Would you like to respond to this callout?",
+        "calloutStartResponse": "Do you want to answer this callout?",
         "componentNotSupported": "\"{type}\" not implemented..",
         "componentUnknown": "Unknown component type \"{type}\"..",
         "noActiveCallouts": "There are currently no open callouts.",
         "notACalloutComponent": {
-          "address": "That doesn't look like a valid address, please try again.",
-          "checkbox": "Please answer with \"{truthy}\" or \"{falsy}\".",
-          "currency": "🤔 Your answer doesn't look like a valid amount, please try again.",
-          "datetime": "🤔 I'm sorry, I didn't understand your response. I'm expecting a date for this question. Can you try again?",
-          "email": "🤔 I'm sorry, I didn't understand your response. I'm expecting a valid email address for this question. Can you try again?",
-          "file": "🤔 I'm sorry, I didn't understand your response. I'm expecting a file attachment for this question. Can you try again?",
-          "number": "🤔 I'm sorry, I didn't understand your response. I'm expecting a number for this question. Can you try again?",
-          "phoneNumber": "🤔 I'm sorry, I didn't understand your response. I'm expecting a valid phone number for this question. Can you try again?",
-          "radio": "🤔 You should respond to this question with one of the options listed. Please try again.",
-          "select": "🤔 That isn't a response I recognise, please respond with one of the options listed.",
-          "selectboxes": "🤔 You should respond to this question with one of the options listed. Please try again.",
-          "signature": "🤔 You should respond to this question with one of the options listed. Please try again.",
-          "textarea": "🤔 I'm sorry, I didn't understand your response. Can you try again?",
-          "textfield": "🤔 I'm sorry, I didn't understand your response. Can you try again?",
-          "time": "🤔 I'm sorry, I didn't understand your response. Can you try again?",
-          "url": "Your answer doesn't seem to be a valid URL. Please try again."
+          "address": "🤔 Sorry, I'm expecting a valid address here. Can you try again?",
+          "checkbox": "🤔 Please reply with \"{truthy}\" or \"{falsy}\".",
+          "currency": "🤔 Sorry, I'm expecting an amount here. Can you try again?",
+          "datetime": "🤔 Sorry, I'm expecting a date here. Can you try again?",
+          "email": "🤔 Sorry, I'm expecting a valid email address here. Can you try again?",
+          "file": "🤔 Sorry, I'm expecting a file attachment here. Can you try again?",
+          "number": "🤔 Sorry, I'm expecting a number here. Can you try again?",
+          "phoneNumber": "🤔 Sorry, I'm expecting a valid phone number here. Can you try again?",
+          "radio": "🤔 Sorry, I don't recognise that option. Can you respond with one of the options listed above?",
+          "select": "🤔 Sorry, I don't recognise that option. Can you respond with one of the options listed above?",
+          "selectboxes": "🤔 Sorry, I don't recognise that option. Can you respond with one of the options listed above?",
+          "signature": "🤔 Sorry, I'm expecting a signature here. Can you try again?",
+          "textarea": "🤔 Sorry,  I didn't understand something about your response. Can you try again?",
+          "textfield": "🤔 Sorry,  I didn't understand something about your response. Can you try again?",
+          "time": "🤔 Sorry, I'm expecting a time here. Can you try again?",
+          "url": "🤔 Sorry, I'm expecting a URL here. Can you try again?"
         },
         "notAFileMessage": "Please send a file.",
         "notASelectionMessage": "Please select an option from the list above.",
