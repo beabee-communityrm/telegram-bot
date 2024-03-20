@@ -15,7 +15,7 @@ import type {
   RenderResponseParsed,
   ReplayAccepted,
 } from "../types/index.ts";
-import { InlineKeyboard } from "../deps/grammy.ts";
+import { InlineKeyboard, LinkPreviewOptions } from "../deps/grammy.ts";
 
 /**
  * Service to handle the communication with the telegram bot and the telegram user.
@@ -52,6 +52,11 @@ export class CommunicationService extends BaseService {
       render.keyboard.oneTime().resized();
     }
 
+    // TODO: Make this configurable, link previews are disabled by default
+    const link_preview_options: LinkPreviewOptions = {
+      is_disabled: true,
+    };
+
     const markup = render.keyboard || render.inlineKeyboard ||
       (render.removeKeyboard ? { remove_keyboard: true as true } : undefined);
 
@@ -62,6 +67,7 @@ export class CommunicationService extends BaseService {
         await ctx.replyWithMediaGroup([render.photo], {});
         if (render.keyboard) {
           message = await ctx.reply("", {
+            link_preview_options,
             reply_markup: markup,
           });
         }
@@ -69,17 +75,20 @@ export class CommunicationService extends BaseService {
       case RenderType.MARKDOWN:
         message = await ctx.reply(render.markdown, {
           parse_mode: "MarkdownV2",
+          link_preview_options,
           reply_markup: markup,
         });
         break;
       case RenderType.HTML:
         message = await ctx.reply(render.html, {
           parse_mode: "HTML",
+          link_preview_options,
           reply_markup: markup,
         });
         break;
       case RenderType.TEXT:
         message = await ctx.reply(render.text, {
+          link_preview_options,
           reply_markup: markup,
         });
         break;
@@ -88,6 +97,7 @@ export class CommunicationService extends BaseService {
         message = await (ctx as ParseModeFlavor<AppContext>).replyFmt(
           fmt(render.format),
           {
+            link_preview_options,
             reply_markup: markup,
           },
         );
