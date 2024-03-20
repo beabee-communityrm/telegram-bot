@@ -148,7 +148,7 @@ export class CalloutResponseRenderer {
       parseType: ParsedResponseType.NONE,
     };
     if (multiple) {
-      result.markdown += `_${
+      result.markdown += `\n\n_${
         escapeMd(
           `${this.i18n.t("bot.info.messages.multipleValuesAllowed")}\n\n${
             this.messageRenderer.writeDoneMessage(
@@ -179,7 +179,7 @@ export class CalloutResponseRenderer {
       parseType: ParsedResponseType.NONE,
     };
     if (!required) {
-      result.markdown += `_${
+      result.markdown += `\n\n_${
         escapeMd(
           this.messageRenderer.writeSkipMessage(
             this.i18n.t("bot.reactions.messages.skip"),
@@ -213,8 +213,8 @@ export class CalloutResponseRenderer {
       }`;
     }
 
-    result.markdown += `\n\n${this.multipleMd(component, prefix).markdown}`;
-    result.markdown += `\n\n${this.requiredMd(component, prefix).markdown}`;
+    result.markdown += `${this.multipleMd(component, prefix).markdown}`;
+    result.markdown += `${this.requiredMd(component, prefix).markdown}`;
 
     result.keyboard = this.keyboard.skipDone(
       result.keyboard,

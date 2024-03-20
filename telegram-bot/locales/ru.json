@@ -39,6 +39,7 @@
         "command": {
           "notUsable": ""
         },
+        "continueList": "",
         "done": "",
         "enterAmountOfMoney": "",
         "enterDate": "",

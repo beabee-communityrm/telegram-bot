@@ -172,6 +172,23 @@ export class MessageRenderer {
     return result;
   }
 
+  public async continueList(): Promise<RenderMarkdown> {
+    const tKey = "bot.info.messages.continueList";
+    const generalContentPlaceholders = await this
+      .getGeneralContentPlaceholdersMarkdown();
+    const intro = this.i18n.t(tKey, {
+      ...generalContentPlaceholders,
+    }, { escapeMd: true });
+
+    const result: RenderMarkdown = {
+      type: RenderType.MARKDOWN,
+      markdown: intro,
+      key: tKey,
+      ...this.noResponse(),
+    };
+    return result;
+  }
+
   public async continueHelp(state: ChatState): Promise<RenderMarkdown> {
     const tKey = "bot.info.messages.helpContinue";
     const generalContentPlaceholders = await this

@@ -65,12 +65,20 @@ export class ResetCommand extends BaseCommand {
       );
     }
 
+    // Show list if the constant is set to true
     if (SHOW_LIST_AFTER_RESET) {
       await this.keyboard.removeLastInlineKeyboard(ctx);
+
+      await this.communication.send(
+        ctx,
+        await this.messageRenderer.continueList(),
+      );
 
       const successful = await this.listCommand.action(ctx, true);
       return successful;
     }
+
+    // Otherwise show continue help and set the state to start
 
     const successful = await this.stateMachine.resetSessionState(ctx);
 

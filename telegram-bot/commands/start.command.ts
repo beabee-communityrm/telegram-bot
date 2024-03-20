@@ -5,8 +5,11 @@ import { CommunicationService } from "../services/communication.service.ts";
 import { StateMachineService } from "../services/state-machine.service.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
 import { ChatState } from "../enums/index.ts";
+import { ListCommand } from "./index.ts";
 
 import type { AppContext } from "../types/index.ts";
+
+const SHOW_LIST_AFTER_START = true;
 
 @Singleton()
 export class StartCommand extends BaseCommand {
@@ -20,6 +23,7 @@ export class StartCommand extends BaseCommand {
     protected readonly communication: CommunicationService,
     protected readonly messageRenderer: MessageRenderer,
     protected readonly stateMachine: StateMachineService,
+    protected readonly listCommand: ListCommand,
   ) {
     super();
   }
@@ -32,9 +36,18 @@ export class StartCommand extends BaseCommand {
       return false;
     }
 
+    await this.communication.send(ctx, this.messageRenderer.welcome());
+
+    // Show list if the constant is set to true
+    if (SHOW_LIST_AFTER_START) {
+      const successful = await this.listCommand.action(ctx, true);
+      return successful;
+    }
+
+    // Otherwise show initial help and set the state to start
+
     this.stateMachine.setSessionState(session, ChatState.Start, false);
 
-    await this.communication.send(ctx, this.messageRenderer.welcome());
     await this.communication.send(
       ctx,
       await this.messageRenderer.help(session.state),

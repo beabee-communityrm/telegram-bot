@@ -39,6 +39,7 @@
         "command": {
           "notUsable": "Der Befehl {command} kann hier nicht verwendet werden. Wenn Sie glauben, dass es sich um einen Fehler handelt, verwenden Sie bitte den Befehl /reset."
         },
+        "continueList": "Jetzt können Sie die Liste der offenen Umfragen überprüfen und eine andere auswählen, an der Sie teilnehmen möchten:",
         "done": "Wenn Sie mit Ihrer Antwort fertig sind, tippen Sie einfach \"{done}\".",
         "enterAmountOfMoney": "Bitte geben Sie einen Geldbetrag ein.",
         "enterDate": "Bitte geben Sie ein Datum ein.",

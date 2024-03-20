@@ -39,6 +39,7 @@
         "command": {
           "notUsable": "You cannot use the {command} command here. If you think this is an error, please use the /reset command."
         },
+        "continueList": "Now you can check the list of open callouts and choose another one you'd like to participate in:",
         "done": "When you are finished with your response, just type \"{done}\".",
         "enterAmountOfMoney": "Please enter an amount of money.",
         "enterDate": "Please enter a date.",

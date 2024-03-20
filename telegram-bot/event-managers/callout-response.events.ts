@@ -7,6 +7,7 @@ import { KeyboardService } from "../services/keyboard.service.ts";
 import { StateMachineService } from "../services/state-machine.service.ts";
 import { CalloutResponseRenderer, MessageRenderer } from "../renderer/index.ts";
 import { ResetCommand } from "../commands/reset.command.ts";
+import { ListCommand } from "../commands/list.command.ts";
 import { ChatState } from "../enums/index.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_INTRO,
@@ -15,6 +16,8 @@ import {
 import { BaseEventManager } from "../core/base.events.ts";
 
 import type { AppContext } from "../types/index.ts";
+
+const SHOW_LIST_AFTER_RESPONSE = true;
 
 @Singleton()
 export class CalloutResponseEventManager extends BaseEventManager {
@@ -27,7 +30,8 @@ export class CalloutResponseEventManager extends BaseEventManager {
     protected readonly transform: TransformService,
     protected readonly keyboard: KeyboardService,
     protected readonly stateMachine: StateMachineService,
-    protected readonly cancel: ResetCommand,
+    protected readonly resetCommand: ResetCommand,
+    protected readonly listCommand: ListCommand,
   ) {
     super();
     console.debug(`${this.constructor.name} created`);
@@ -118,12 +122,6 @@ export class CalloutResponseEventManager extends BaseEventManager {
 
     await this.keyboard.removeLastInlineKeyboard(ctx);
 
-    this.stateMachine.setSessionState(
-      session,
-      ChatState.CalloutAnswered,
-      false,
-    );
-
     console.debug(
       "Got answers",
       answers,
@@ -149,7 +147,22 @@ export class CalloutResponseEventManager extends BaseEventManager {
 
     // TODO: Send success message and a summary of answers to the chat
 
+    if (SHOW_LIST_AFTER_RESPONSE) {
+      await this.communication.send(
+        ctx,
+        await this.messageRenderer.continueList(),
+      );
+
+      return await this.listCommand.action(ctx, true);
+    }
+
     try {
+      this.stateMachine.setSessionState(
+        session,
+        ChatState.CalloutAnswered,
+        false,
+      );
+
       await this.communication.send(
         ctx,
         await this.messageRenderer.continueHelp(session.state),
@@ -193,7 +206,7 @@ export class CalloutResponseEventManager extends BaseEventManager {
     if (!startIntro) {
       await this.communication.send(ctx, this.messageRenderer.stop());
       // Forward cancel to the cancel command
-      await this.cancel.action(ctx);
+      await this.resetCommand.action(ctx);
       return;
     }
 
