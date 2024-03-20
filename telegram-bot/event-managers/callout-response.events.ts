@@ -116,6 +116,8 @@ export class CalloutResponseEventManager extends BaseEventManager {
 
     const answers = this.transform.parseCalloutFormResponses(responses);
 
+    await this.keyboard.removeLastInlineKeyboard(ctx);
+
     this.stateMachine.setSessionState(
       session,
       ChatState.CalloutAnswered,

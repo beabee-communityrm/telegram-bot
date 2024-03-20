@@ -11,7 +11,7 @@ import { EventService } from "./event.service.ts";
 import { KeyboardService } from "./keyboard.service.ts";
 import { ChatState, SessionEvent } from "../enums/index.ts";
 
-import type { SessionState } from "../types/index.ts";
+import type { AppContext, SessionState } from "../types/index.ts";
 
 /**
  * State machine service
@@ -86,7 +86,11 @@ export class StateMachineService extends BaseService {
    * @param session The session to reset the state for
    * @returns True if the state was cancelled, false otherwise
    */
-  public resetSessionState(session: SessionState) {
+  public async resetSessionState(ctx: AppContext) {
+    const session = await ctx.session;
+
+    await this.keyboard.removeLastInlineKeyboard(ctx);
+
     session.state = ChatState.Start;
     if (
       session._data.abortController &&

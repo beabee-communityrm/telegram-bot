@@ -60,9 +60,7 @@ export class ResetCommand extends BaseCommand {
       );
     }
 
-    this.keyboard.removeLastInlineKeyboard(ctx);
-
-    const successful = this.stateMachine.resetSessionState(session);
+    const successful = await this.stateMachine.resetSessionState(ctx);
 
     // Use this after the reset to show the right help message for the current state
     await this.communication.send(

@@ -20,7 +20,7 @@ export class KeyboardService extends BaseService {
    * @returns
    */
   public empty() {
-    return new Keyboard();
+    return new Keyboard().oneTime();
   }
 
   /**
@@ -88,7 +88,7 @@ export class KeyboardService extends BaseService {
    * @param selections
    * @returns
    */
-  public selection(keyboard = new Keyboard(), selections: string[]) {
+  public selection(keyboard = this.empty(), selections: string[]) {
     for (const selection of selections) {
       keyboard.text(selection);
     }
@@ -129,7 +129,7 @@ export class KeyboardService extends BaseService {
    * @param falsyLabel The label for the falsy button
    */
   public yesNo(
-    keyboard = new Keyboard(),
+    keyboard = this.empty(),
     truthyLabel = this.i18n.t("bot.reactions.messages.truthy"),
     falsyLabel = this.i18n.t("bot.reactions.messages.falsy"),
   ) {
@@ -143,7 +143,7 @@ export class KeyboardService extends BaseService {
    * @param skipLabel The label for the skip button
    */
   public skip(
-    keyboard = new Keyboard(),
+    keyboard = this.empty(),
     skipLabel = this.i18n.t("bot.reactions.messages.skip"),
   ) {
     return keyboard.text(skipLabel).row();
@@ -156,7 +156,7 @@ export class KeyboardService extends BaseService {
    * @param doneLabel The label for the done button
    */
   public done(
-    keyboard = new Keyboard(),
+    keyboard = this.empty(),
     skipLabel = this.i18n.t("bot.reactions.messages.done"),
   ) {
     return keyboard.text(skipLabel).row();
@@ -169,7 +169,7 @@ export class KeyboardService extends BaseService {
    * @param multiple
    */
   public skipDone(
-    keyboard = new Keyboard(),
+    keyboard = this.empty(),
     required = false,
     multiple = false,
   ) {
@@ -209,14 +209,14 @@ export class KeyboardService extends BaseService {
    * Create a keyboard with Continue and Cancel buttons.
    */
   public continueCancel() {
-    const keyboard = new Keyboard()
+    const keyboard = this.empty()
       .text(
         this.i18n.t("bot.keyboard.label.continue"),
       )
       .row()
       .text(
         this.i18n.t("bot.keyboard.label.cancel"),
-      ).oneTime();
+      );
 
     return keyboard;
   }
@@ -227,15 +227,19 @@ export class KeyboardService extends BaseService {
    * @param withMessage If true, the message will be deleted, too
    */
   public async removeInlineKeyboard(ctx: AppContext, withMessage = false) {
-    // Do not delete keyboard message?
-    if (!withMessage) {
-      const inlineKeyboard = new InlineKeyboard();
-      return await ctx.editMessageReplyMarkup({
-        reply_markup: inlineKeyboard,
-      });
-    }
+    try {
+      // Do not delete keyboard message?
+      if (!withMessage) {
+        const inlineKeyboard = new InlineKeyboard();
+        return await ctx.editMessageReplyMarkup({
+          reply_markup: inlineKeyboard,
+        });
+      }
 
-    return await ctx.deleteMessage();
+      return await ctx.deleteMessage();
+    } catch (error) {
+      console.error("Error removing inline keyboard", error);
+    }
   }
 
   public async removeLastInlineKeyboard(ctx: AppContext) {
@@ -250,13 +254,17 @@ export class KeyboardService extends BaseService {
     }
 
     if (inlineKeyboardData.message_id && inlineKeyboardData.chat_id) {
-      await ctx.api.editMessageReplyMarkup(
-        inlineKeyboardData.chat_id,
-        inlineKeyboardData.message_id,
-        {
-          reply_markup: new InlineKeyboard(),
-        },
-      );
+      try {
+        await ctx.api.editMessageReplyMarkup(
+          inlineKeyboardData.chat_id,
+          inlineKeyboardData.message_id,
+          {
+            reply_markup: new InlineKeyboard(),
+          },
+        );
+      } catch (error) {
+        console.error("Error removing last inline keyboard", error);
+      }
     }
   }
 }
