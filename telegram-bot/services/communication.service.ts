@@ -99,16 +99,18 @@ export class CommunicationService extends BaseService {
         throw new Error("Unknown render type: " + (render as Render).type);
     }
 
-    // Store latest sended keyboard to be able to remove it later
+    // Store latest sended keyboard to be able to remove it later if the keyboard is not empty
     // TODO: Should we move this to the `KeyboardService` or `StateMachineService`?
     if (
-      message && markup && markup instanceof InlineKeyboard
+      message && markup && markup instanceof InlineKeyboard &&
+      markup.inline_keyboard.entries.length > 0
     ) {
       const session = await ctx.session;
       session._data.latestKeyboard = {
         message_id: message.message_id,
         chat_id: message.chat.id,
         type: "inline",
+        inlineKeyboard: markup,
       };
     }
   }
