@@ -59,7 +59,6 @@
         "onlyOneEmailAllowed": "Please enter an e-mail address.",
         "onlyOneNumberAllowed": "Please enter a number.",
         "onlyOneSelectionAllowed": "Please pick your choice by typing its number or pressing its button (you can only pick one).",
-        "onlyOneValueAllowed": "Please enter a single value.",
         "placeholder": "Please respond with something like \"{placeholder}\".",
         "reset": {
           "cancelled": "The process has already been cancelled",

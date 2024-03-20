@@ -157,12 +157,6 @@ export class CalloutResponseRenderer {
           }`,
         )
       }_`;
-    } else {
-      result.markdown += `_${
-        escapeMd(
-          `${this.i18n.t("bot.info.messages.onlyOneValueAllowed")}`,
-        )
-      }_`;
     }
 
     return result;

@@ -59,7 +59,6 @@
         "onlyOneEmailAllowed": "Bitte geben Sie eine E-Mail-Adresse ein.",
         "onlyOneNumberAllowed": "Bitte geben Sie eine Zahl ein.",
         "onlyOneSelectionAllowed": "Bitte wählen Sie Ihre Wahl, indem Sie deren Nummer eingeben oder deren Knopf drücken (Sie können nur eine auswählen).",
-        "onlyOneValueAllowed": "Bitte geben Sie einen einzigen Wert ein.",
         "placeholder": "Bitte antworten Sie mit etwas wie \"{placeholder}\".",
         "reset": {
           "cancelled": "Sie haben Vorgang bereits abgebrochen",
