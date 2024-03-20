@@ -16,7 +16,7 @@ import type {
   ReplayAccepted,
   ReplayCondition,
 } from "../types/index.ts";
-import type { BotCommand, CalloutComponentSchema } from "../deps/index.ts";
+import { BotCommand, CalloutComponentSchema, code } from "../deps/index.ts";
 import { ReplayType } from "../enums/replay-type.ts";
 import { ParsedResponseType } from "../enums/parsed-response-type.ts";
 import { AppContext } from "../types/app-context.ts";
@@ -115,6 +115,9 @@ export class MessageRenderer {
           }\n`,
         );
       }
+      strings.push(fmt`${bold("beabee general content:")}\n`);
+      const content = await this.beabeeContent.get("general");
+      strings.push(code(JSON.stringify(content, null, 2)));
     }
 
     // Add more debug info here if needed
