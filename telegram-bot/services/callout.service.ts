@@ -34,6 +34,7 @@ const CALLOUTS_ACTIVE_QUERY: GetCalloutsQuery = {
     rules: [
       { field: "status", operator: "equal", value: [ItemStatus.Open] },
       { field: "expires", operator: "is_empty", value: [] },
+      { field: "hidden", operator: "equal", value: [false]}
     ],
   },
 };
