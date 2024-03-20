@@ -6,8 +6,12 @@ import { StateMachineService } from "../services/state-machine.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
 import { ChatState } from "../enums/index.ts";
+import { ListCommand } from "./index.ts";
 
 import type { AppContext } from "../types/index.ts";
+
+// Temporary constant until it is certain that we want to do this, I am not happy with it because we are no longer able to reset the state to to the `start` state
+const SHOW_LIST_AFTER_RESET = true;
 
 @Singleton()
 export class ResetCommand extends BaseCommand {
@@ -29,6 +33,7 @@ export class ResetCommand extends BaseCommand {
     protected readonly messageRenderer: MessageRenderer,
     protected readonly stateMachine: StateMachineService,
     protected readonly keyboard: KeyboardService,
+    protected readonly listCommand: ListCommand,
   ) {
     super();
   }
@@ -58,6 +63,13 @@ export class ResetCommand extends BaseCommand {
         ctx,
         this.messageRenderer.resetUnsuccessfulMessage(),
       );
+    }
+
+    if (SHOW_LIST_AFTER_RESET) {
+      await this.keyboard.removeLastInlineKeyboard(ctx);
+
+      const successful = await this.listCommand.action(ctx, true);
+      return successful;
     }
 
     const successful = await this.stateMachine.resetSessionState(ctx);

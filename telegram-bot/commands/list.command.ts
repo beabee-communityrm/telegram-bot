@@ -30,10 +30,10 @@ export class ListCommand extends BaseCommand {
   }
 
   // Handle the /list command
-  public async action(ctx: AppContext) {
+  public async action(ctx: AppContext, force = false) {
     const session = await ctx.session;
-    const successful = await this.checkAction(ctx);
-    if (!successful) {
+    const successful = await this.checkAction(ctx, force);
+    if (!force && !successful) {
       return false;
     }
 
