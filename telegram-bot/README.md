@@ -53,7 +53,7 @@ To update the locale data in the repository you run the following
 
 ```
 deno task i18n
-git add -A locales/ && git commit locales/ -m 'chore(i18n): Updated locales'
+git add -A ./telegram-bot/locales && git commit ./telegram-bot/locales -m 'chore(i18n): Updated locales'
 ```
 
 #### Using the localisation strings
