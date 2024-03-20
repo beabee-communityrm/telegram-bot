@@ -98,7 +98,6 @@ export class CalloutResponseEventManager extends BaseEventManager {
     // remove loading animation
     await this.communication.answerCallbackQuery(
       ctx,
-      "Disabled inline keyboard",
     );
 
     const abortSignal = this.stateMachine.setSessionState(
@@ -119,8 +118,6 @@ export class CalloutResponseEventManager extends BaseEventManager {
     }
 
     const answers = this.transform.parseCalloutFormResponses(responses);
-
-    await this.keyboard.removeLastInlineKeyboard(ctx);
 
     console.debug(
       "Got answers",

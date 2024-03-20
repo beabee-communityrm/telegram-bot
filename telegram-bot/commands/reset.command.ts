@@ -65,10 +65,10 @@ export class ResetCommand extends BaseCommand {
       );
     }
 
+    await this.keyboard.removeLastInlineKeyboard(ctx);
+
     // Show list if the constant is set to true
     if (SHOW_LIST_AFTER_RESET) {
-      await this.keyboard.removeLastInlineKeyboard(ctx);
-
       await this.communication.send(
         ctx,
         await this.messageRenderer.continueList(),

@@ -51,6 +51,7 @@ export class CalloutRenderer {
       inlineKeyboard: yesNoInlineKeyboard,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
     return result;
   }
@@ -70,6 +71,7 @@ export class CalloutRenderer {
       markdown: `${listChar} ${this.title(callout).markdown}\n`,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     return result;
@@ -89,6 +91,7 @@ export class CalloutRenderer {
       markdown: "",
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     if (callouts.items.length === 0) {
@@ -119,6 +122,7 @@ export class CalloutRenderer {
       inlineKeyboard,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     return [listResult, keyboardResult];
@@ -137,6 +141,7 @@ export class CalloutRenderer {
       markdown: "",
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     const title = escapeMd(callout.title);
@@ -174,6 +179,7 @@ export class CalloutRenderer {
       photo: calloutImage,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     const keyboardResult = this.startResponseKeyboard(callout);

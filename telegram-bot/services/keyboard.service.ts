@@ -266,5 +266,7 @@ export class KeyboardService extends BaseService {
         console.error("Error removing last inline keyboard", error);
       }
     }
+
+    session._data.latestKeyboard = null;
   }
 }

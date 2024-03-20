@@ -4,6 +4,7 @@ import { escapeMd, getSimpleMimeTypes } from "../utils/index.ts";
 import { ConditionService } from "../services/condition.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import { BotService } from "../services/bot.service.ts";
+import { KeyboardService } from "../services/keyboard.service.ts";
 import { BeabeeContentService } from "../services/beabee-content.service.ts";
 import { CommandService } from "../services/command.service.ts";
 
@@ -31,6 +32,7 @@ export class MessageRenderer {
     protected readonly i18n: I18nService,
     protected readonly bot: BotService,
     protected readonly beabeeContent: BeabeeContentService,
+    protected readonly keyboard: KeyboardService,
   ) {
     console.debug(`${this.constructor.name} created`);
   }
@@ -47,7 +49,6 @@ export class MessageRenderer {
       type: RenderType.MARKDOWN,
       markdown: WELCOME_MD,
       key: "welcome",
-      removeKeyboard: true,
       ...this.noResponse(),
     };
     return result;
@@ -130,6 +131,7 @@ export class MessageRenderer {
     return {
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
   }
 
@@ -184,6 +186,7 @@ export class MessageRenderer {
       type: RenderType.MARKDOWN,
       markdown: intro,
       key: tKey,
+      keyboard: this.keyboard.empty(), // To replace the old one
       ...this.noResponse(),
     };
     return result;
@@ -264,7 +267,6 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
       key: tKey,
-      removeKeyboard: true,
       ...this.noResponse(),
     };
   }
@@ -279,7 +281,6 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
       key: tKey,
-      removeKeyboard: true,
       ...this.noResponse(),
     };
   }
@@ -294,7 +295,6 @@ export class MessageRenderer {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey),
       key: tKey,
-      removeKeyboard: true,
       ...this.noResponse(),
     };
   }

@@ -209,8 +209,6 @@ export class ValidationService extends BaseService {
       isSkipMessage = skipTexts.some((t) => t === textMessage);
     }
 
-    console.debug("Text is done or skip", isDoneMessage, isSkipMessage);
-
     if (isDoneMessage || isSkipMessage) {
       return {
         type: ReplayType.TEXT,

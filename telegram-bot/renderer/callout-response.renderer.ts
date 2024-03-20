@@ -78,6 +78,7 @@ export class CalloutResponseRenderer {
       accepted: this.condition.replayConditionNone(),
       markdown: `*${escapeMd(component.label)}*`,
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     return result;
@@ -99,6 +100,7 @@ export class CalloutResponseRenderer {
       accepted: this.condition.replayConditionNone(),
       markdown: `${escapeMd(component.description)}`,
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     return result;
@@ -116,6 +118,7 @@ export class CalloutResponseRenderer {
       accepted: this.condition.replayConditionNone(),
       markdown: ``,
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     const placeholder = input.placeholder as string | undefined;
@@ -146,6 +149,7 @@ export class CalloutResponseRenderer {
       accepted: this.condition.replayConditionNone(multiple, required),
       markdown: ``,
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
     if (multiple) {
       result.markdown += `\n\n_${
@@ -177,6 +181,7 @@ export class CalloutResponseRenderer {
       accepted: this.condition.replayConditionNone(multiple, required),
       markdown: ``,
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
     if (!required) {
       result.markdown += `\n\n_${
@@ -248,6 +253,7 @@ export class CalloutResponseRenderer {
       ),
       markdown: ``,
       parseType: calloutComponentTypeToParsedResponseType(selectable),
+      removeKeyboard: true,
     };
 
     let n = 1;
@@ -283,6 +289,7 @@ export class CalloutResponseRenderer {
         valueLabel,
       ), // Wait for index which is a text message
       parseType: calloutComponentTypeToParsedResponseType(select),
+      removeKeyboard: true,
     };
 
     let n = 1;
@@ -312,6 +319,7 @@ export class CalloutResponseRenderer {
         base,
       ),
       parseType: ParsedResponseType.CALLOUT_COMPONENT,
+      removeKeyboard: true,
     };
 
     // Label
@@ -483,6 +491,7 @@ export class CalloutResponseRenderer {
         false,
       ),
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     return result;
@@ -809,6 +818,7 @@ export class CalloutResponseRenderer {
         type: (component as CalloutComponentSchema).type || "undefined",
       }),
       parseType: calloutComponentTypeToParsedResponseType(component),
+      removeKeyboard: true,
     };
     results.push(unknown);
 
@@ -825,6 +835,7 @@ export class CalloutResponseRenderer {
       accepted: this.condition.replayConditionNone(),
       html: "",
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
     result.html = `${sanitizeHtml(callout.intro)}`;
 
@@ -846,6 +857,7 @@ export class CalloutResponseRenderer {
       accepted: this.condition.replayConditionNone(),
       html: ``,
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     if (callout.thanksTitle) {

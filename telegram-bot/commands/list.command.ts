@@ -43,6 +43,8 @@ export class ListCommand extends BaseCommand {
       true,
     );
 
+    await this.keyboard.removeLastInlineKeyboard(ctx);
+
     const callouts = await this.callout.list();
     const render = this.calloutRenderer.listItems(callouts);
     await this.communication.sendAndReceiveAll(ctx, render, signal);
