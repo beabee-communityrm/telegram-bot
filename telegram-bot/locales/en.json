@@ -11,15 +11,15 @@
       },
       "list": {
         "command": "list",
-        "description": "Show open callouts"
+        "description": "Get a list of callouts"
       },
       "reset": {
         "command": "reset",
-        "description": "Jump back to the beginning and cancel your current process"
+        "description": "Go back to the start"
       },
       "show": {
         "command": "show",
-        "description": "Show details about a specific callout"
+        "description": "Get more information about a callout"
       },
       "start": {
         "command": "start",
@@ -45,9 +45,9 @@
         "enterDate": "Please enter a date.",
         "enterLotsOfText": "Please reply with a single message. You can make it as long as you want.",
         "enterTelephoneNumber": "Please enter a telephone number.",
-        "enterText": "Please keep your response brief, ideally in one sentence.",
+        "enterText": "Just write your answer here in the chat.",
         "enterTime": "Please enter a time. (e.g. 20:45)",
-        "enterUrl": "Please enter a web address. (e.g. https://www.beabee.io)",
+        "enterUrl": "Please enter a web address. (e.g. https://example.com)",
         "help": "From the Telegram chat you'll me able to take part in ongoing investigations run by {organisationName}.\nYou can check the list of open callouts and pick which ones you'd like to participate in.\n\n{commands}",
         "helpContinue": "Now you can check the list of open callouts and choose another one you'd like to participate in.\n\n{commands}",
         "multipleAddressesAllowed": "Enter one or more addresses.",
@@ -79,7 +79,7 @@
         "yes": "Yes"
       },
       "message": {
-        "selectDetailCallout": "❓ Which Callout would you like to get more information displayed about? Choose a number."
+        "selectDetailCallout": "❓ Choose a number to find out more about a callout and respond to it"
       }
     },
     "reactions": {
@@ -106,25 +106,25 @@
         "componentUnknown": "Unknown component type \"{type}\"..",
         "noActiveCallouts": "There are currently no open callouts.",
         "notACalloutComponent": {
-          "address": "Your answer is not a valid address. Please try again.",
-          "checkbox": "🤔 Please answer with \"{truthy}\" or \"{falsy}\".",
-          "currency": "Your answer is not a valid amount of money. Please try again.",
-          "datetime": "Your answer doesn't seem to be a valid date. Please try again.",
-          "email": "Your reply does not appear to be a valid email address. Please try again.",
-          "file": "Your answer doesn't seem to be a valid file. Please try again.",
-          "number": "Your answer doesn't seem to be a valid number. Please try again.",
-          "phoneNumber": "Your answer doesn't appear to be a valid phone number. Please try again.",
-          "radio": "Your answer doesn't seem like a valid choice. Please try again.",
-          "select": "Your answer doesn't seem like a valid choice. Please try again.",
-          "selectboxes": "Your answer doesn't seem like a valid choice. Please try again.",
-          "signature": "Your answer doesn't appear to be a valid image file. Please try again.",
-          "textarea": "Your answer doesn't seem to follow the rules for allowed text answers. Please try again.",
-          "textfield": "Your answer doesn't seem to follow the rules for allowed text answers. Please try again.",
-          "time": "Your answer doesn't seem to be a valid time. Please try again.",
+          "address": "That doesn't look like a valid address, please try again.",
+          "checkbox": "Please answer with \"{truthy}\" or \"{falsy}\".",
+          "currency": "🤔 Your answer doesn't look like a valid amount, please try again.",
+          "datetime": "🤔 I'm sorry, I didn't understand your response. I'm expecting a date for this question. Can you try again?",
+          "email": "🤔 I'm sorry, I didn't understand your response. I'm expecting a valid email address for this question. Can you try again?",
+          "file": "🤔 I'm sorry, I didn't understand your response. I'm expecting a file attachment for this question. Can you try again?",
+          "number": "🤔 I'm sorry, I didn't understand your response. I'm expecting a number for this question. Can you try again?",
+          "phoneNumber": "🤔 I'm sorry, I didn't understand your response. I'm expecting a valid phone number for this question. Can you try again?",
+          "radio": "🤔 You should respond to this question with one of the options listed. Please try again.",
+          "select": "🤔 That isn't a response I recognise, please respond with one of the options listed.",
+          "selectboxes": "🤔 You should respond to this question with one of the options listed. Please try again.",
+          "signature": "🤔 You should respond to this question with one of the options listed. Please try again.",
+          "textarea": "🤔 I'm sorry, I didn't understand your response. Can you try again?",
+          "textfield": "🤔 I'm sorry, I didn't understand your response. Can you try again?",
+          "time": "🤔 I'm sorry, I didn't understand your response. Can you try again?",
           "url": "Your answer doesn't seem to be a valid URL. Please try again."
         },
         "notAFileMessage": "Please send a file.",
-        "notASelectionMessage": "Please select the number of one of the possible answers.",
+        "notASelectionMessage": "Please select an option from the list above.",
         "notATextMessage": "Please send a text message.",
         "notATextMessageWithAllowed": "Please send a text message containing one of the following: {allowed}.",
         "notTheRightFileType": "Please send a file of type {type}.",

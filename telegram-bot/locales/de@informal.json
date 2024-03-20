@@ -45,7 +45,7 @@
         "enterDate": "Bitte gib ein Datum ein.",
         "enterLotsOfText": "Bitte antworte mit einer einzigen Nachricht. Du kannst sie so lang machen, wie du möchtest.",
         "enterTelephoneNumber": "Bitte gib eine Telefonnummer ein.",
-        "enterText": "Bitte halte deine Antwort kurz, idealerweise in einem Satz.",
+        "enterText": "Schreibe deine Antwort einfach hier in den Chat.",
         "enterTime": "Bitte gib eine Zeit ein. (z.B. 20:45)",
         "enterUrl": "Bitte gib eine Webadresse ein. (z.B. https://www.beispiel.de)",
         "help": "Über den Telegram-Chat kannst du an den laufenden Umfragen von {organisationName} teilnehmen.\nDu kannst die Liste der offenen Umfragen einsehen und auswählen, an welchen du teilnehmen möchtest.\n\n{commands}",
@@ -107,7 +107,7 @@
         "noActiveCallouts": "Aktuell gibt es keine offenen Callouts.",
         "notACalloutComponent": {
           "address": "Dies ist keine valide Adresse. Bitte versuche es noch einmal.",
-          "checkbox": "🤔 Bitte antworte mit \"{truthy}\" oder \"{falsy}\".",
+          "checkbox": "Bitte antworte mit \"{truthy}\" oder \"{falsy}\".",
           "currency": "Dies ist kein valider Geldbetrag. Bitte versuche es noch einmal.",
           "datetime": "Dies ist kein valides Datum. Bitte versuche es noch einmal.",
           "email": "Deine Antwort scheint keine gültige E-Mail-Adresse zu sein. Bitte versuche es erneut.",
