@@ -81,7 +81,9 @@ export class CalloutService extends BaseService {
       throw new Error("Base URL not initialized");
     }
 
-    return new URL(this.baseUrl.pathname + "/" + slug, this.baseUrl);
+    const url = new URL(this.basePath + "/" + slug, this.baseUrl);
+    console.debug(`Callout URL: ${url}`);
+    return url;
   }
 
   protected extend<With extends GetCalloutWith = void>(
