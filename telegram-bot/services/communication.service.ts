@@ -1,11 +1,5 @@
 import { BaseService } from "../core/index.ts";
-import {
-  Context,
-  fmt,
-  Message,
-  ParseModeFlavor,
-  Singleton,
-} from "../deps/index.ts";
+import { fmt, Message, ParseModeFlavor, Singleton } from "../deps/index.ts";
 import { ParsedResponseType, RenderType, ReplayType } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
 import { TransformService } from "./transform.service.ts";
@@ -21,6 +15,7 @@ import type {
   RenderResponseParsed,
   ReplayAccepted,
 } from "../types/index.ts";
+import { InlineKeyboard, LinkPreviewOptions } from "../deps/grammy.ts";
 
 /**
  * Service to handle the communication with the telegram bot and the telegram user.
@@ -48,46 +43,85 @@ export class CommunicationService extends BaseService {
    * @param res
    */
   public async send(ctx: AppContext, render: Render) {
-    const markup = render.keyboard ||
+    if (render.keyboard && render.inlineKeyboard) {
+      throw new Error("You can only use one keyboard at a time");
+    }
+
+    // Always resize the custom keyboard and all custom keyboards are one time keyboards the way we use them
+    if (render.keyboard) {
+      render.keyboard.oneTime().resized();
+    }
+
+    // TODO: Make this configurable, link previews are disabled by default
+    const link_preview_options: LinkPreviewOptions = {
+      is_disabled: true,
+    };
+
+    const markup = render.keyboard || render.inlineKeyboard ||
       (render.removeKeyboard ? { remove_keyboard: true as true } : undefined);
 
-    console.debug("Render markup: ", markup);
+    let message: Message.TextMessage | undefined;
 
     switch (render.type) {
       case RenderType.PHOTO:
         await ctx.replyWithMediaGroup([render.photo], {});
         if (render.keyboard) {
-          // TODO: Send keyboard
+          message = await ctx.reply("", {
+            link_preview_options,
+            reply_markup: markup,
+          });
         }
         break;
       case RenderType.MARKDOWN:
-        await ctx.reply(render.markdown, {
+        message = await ctx.reply(render.markdown, {
           parse_mode: "MarkdownV2",
+          link_preview_options,
           reply_markup: markup,
         });
         break;
       case RenderType.HTML:
-        await ctx.reply(render.html, {
+        message = await ctx.reply(render.html, {
           parse_mode: "HTML",
+          link_preview_options,
           reply_markup: markup,
         });
         break;
       case RenderType.TEXT:
-        await ctx.reply(render.text, {
+        message = await ctx.reply(render.text, {
+          link_preview_options,
           reply_markup: markup,
         });
         break;
       // See https://grammy.dev/plugins/parse-mode
       case RenderType.FORMAT:
-        await (ctx as ParseModeFlavor<Context>).replyFmt(fmt(render.format), {
-          reply_markup: markup,
-        });
+        message = await (ctx as ParseModeFlavor<AppContext>).replyFmt(
+          fmt(render.format),
+          {
+            link_preview_options,
+            reply_markup: markup,
+          },
+        );
         break;
       case RenderType.EMPTY:
         // Do nothing
         break;
       default:
         throw new Error("Unknown render type: " + (render as Render).type);
+    }
+
+    // Store latest sended keyboard to be able to remove it later if the keyboard is not empty
+    // TODO: Should we move this to the `KeyboardService` or `StateMachineService`?
+    if (
+      message && markup && markup instanceof InlineKeyboard &&
+      markup.inline_keyboard.entries.length > 0
+    ) {
+      const session = await ctx.session;
+      session._data.latestKeyboard = {
+        message_id: message.message_id,
+        chat_id: message.chat.id,
+        type: "inline",
+        inlineKeyboard: markup,
+      };
     }
   }
 
@@ -112,7 +146,7 @@ export class CommunicationService extends BaseService {
     ctx: AppContext,
     render: Render,
   ) {
-    let context: Context;
+    let context: AppContext;
     let message: Message | undefined;
     const replays: ReplayAccepted[] = [];
 
@@ -147,17 +181,22 @@ export class CommunicationService extends BaseService {
         continue;
       }
 
-      if (render.accepted.multiple) {
-        // Do not store the done message
-        if (!replayAccepted.isDone) {
-          replays.push(replayAccepted);
-        }
-      } else {
-        replays.push(replayAccepted);
-        // Stop collecting messages if only one message is accepted
-        replayAccepted.isDone = true;
+      if (replayAccepted.isDoneMessage) {
+        // Return what we have
+        return replays;
       }
-    } while (!replayAccepted?.isDone);
+
+      if (replayAccepted.isSkipMessage) {
+        // Only return the skip message
+        return [replayAccepted];
+      }
+
+      replays.push(replayAccepted);
+
+      if (!render.accepted.multiple) {
+        return replays;
+      }
+    } while (!replayAccepted?.isDoneMessage && !replayAccepted?.isSkipMessage);
 
     return replays;
   }
@@ -172,7 +211,7 @@ export class CommunicationService extends BaseService {
     ctx: AppContext,
     render: Render,
   ): Promise<RenderResponseParsed<boolean>> {
-    // Do not wait for a specific message
+    // Do not wait for any specific message
     if (!render.accepted || render.accepted.type === ReplayType.NONE) {
       return {
         type: ParsedResponseType.NONE,
@@ -240,9 +279,14 @@ export class CommunicationService extends BaseService {
       if (signal?.aborted) {
         return signal;
       }
-      const response = await this.sendAndReceive(ctx, render);
-      if (response) {
-        responses.push(response);
+      try {
+        const response = await this.sendAndReceive(ctx, render);
+        if (response) {
+          responses.push(response);
+        }
+      } catch (error) {
+        console.error("Failed to send and receive", error, render);
+        throw error;
       }
     }
     return responses;

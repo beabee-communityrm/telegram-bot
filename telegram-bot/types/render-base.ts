@@ -19,14 +19,19 @@ export interface RenderBase {
   type: RenderType;
 
   /**
-   * Define this to show a keyboard to the user
+   * Define this to show a custom keyboard to the user
    */
-  keyboard?: InlineKeyboard | Keyboard;
+  keyboard?: Keyboard;
+
+  /**
+   * Define this to show a inline keyboard to the user
+   */
+  inlineKeyboard?: InlineKeyboard;
 
   /**
    * Remove the custom keyboard after the user has replied.
    */
-  removeKeyboard?: boolean;
+  removeKeyboard: boolean;
 
   /**
    * Define the types of the replay you are accepting.

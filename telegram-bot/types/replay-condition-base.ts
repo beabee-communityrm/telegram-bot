@@ -11,15 +11,26 @@ export interface ReplayConditionBase {
   type: ReplayType;
 
   /**
-   * If you want to wait for a special replay, you can set this to `true`.
-   * Or in other words: Set this to `true` if multiple answers are allowed
+   * Set this to `true` if multiple answers are allowed
    */
   multiple: boolean;
 
   /**
+   * Set this to `true` if an answer is required and not skippable
+   */
+  required: boolean;
+
+  /**
    * Define this to wait for a done text message.
-   * The property `multiple` must be `true` to use this.
-   * If you do not wait for a done text message, leave this empty.
+   * The property `multiple` must be `true` for this.
+   * If you do not wait for a done text messages, leave this empty.
    */
   doneTexts: string[];
+
+  /**
+   * Define this to wait for a skip text message.
+   * The property `required` must be `false` for this.
+   * If you do not wait for a skip text messages, leave this empty.
+   */
+  skipTexts: string[];
 }

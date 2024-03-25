@@ -16,6 +16,22 @@ export class KeyboardService extends BaseService {
   }
 
   /**
+   * Create a new empty keyboard
+   * @returns
+   */
+  public empty() {
+    return new Keyboard().oneTime();
+  }
+
+  /**
+   * Create a new empty inline keyboard
+   * @returns
+   */
+  public inlineEmpty() {
+    return new InlineKeyboard();
+  }
+
+  /**
    * Create a keyboard button to select a callout.
    *
    * To respond to the button press, listen for the `callback_query:data:show-callout-slug` event using the EventService.
@@ -26,7 +42,7 @@ export class KeyboardService extends BaseService {
    * @param startIndex The index of the first callout to show, starting at 1
    * @param endIndex The index of the last callout to show, starting at 1 and must be larger than startIndex
    */
-  public calloutSelection(
+  public inlineCalloutSelection(
     callouts: CalloutDataExt[],
     startIndex = 1,
     endIndex = callouts.length,
@@ -67,24 +83,105 @@ export class KeyboardService extends BaseService {
   }
 
   /**
-   * Create a keyboard with Yes and No buttons.
+   * Create a keyboard with a list of selections
+   * @param keyboard
+   * @param selections
+   * @returns
+   */
+  public selection(keyboard = this.empty(), selections: string[]) {
+    for (const selection of selections) {
+      keyboard.text(selection);
+    }
+    return keyboard.row();
+  }
+
+  /**
+   * Create a inline keyboard with Yes and No buttons.
    *
    * To respond to the button press, listen for the `callback_query:data:yes` and `callback_query:data:no` events using the EventService.
    * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `callback_query:data:callout-respond:yes`.
    *
+   * @param ctx The chat context
    * @param prefix A prefix to add to the button data, e.g. "callout-respond"
    */
-  public yesNo(prefix = "") {
+  public inlineYesNo(
+    prefix: string,
+    truthyLabel = this.i18n.t("bot.reactions.messages.truthy"),
+    falsyLabel = this.i18n.t("bot.reactions.messages.falsy"),
+  ) {
     const inlineKeyboard = new InlineKeyboard();
     inlineKeyboard.text(
-      this.i18n.t("bot.keyboard.label.yes"),
+      truthyLabel,
       prefix ? `${prefix}:yes` : `yes`,
     );
     inlineKeyboard.text(
-      this.i18n.t("bot.keyboard.label.no"),
+      falsyLabel,
       prefix ? `${prefix}:no` : `no`,
     );
     return inlineKeyboard;
+  }
+
+  /**
+   * Creates or extends a custom keyboard with Yes and No buttons.
+   *
+   * @param keyboard The keyboard to extend
+   * @param truthyLabel The label for the truthy button
+   * @param falsyLabel The label for the falsy button
+   */
+  public yesNo(
+    keyboard = this.empty(),
+    truthyLabel = this.i18n.t("bot.reactions.messages.truthy"),
+    falsyLabel = this.i18n.t("bot.reactions.messages.falsy"),
+  ) {
+    return keyboard.text(truthyLabel).text(falsyLabel).row();
+  }
+
+  /**
+   * Creates a extends a custom keyboard with a skip button.
+   *
+   * @param keyboard The keyboard to extend
+   * @param skipLabel The label for the skip button
+   */
+  public skip(
+    keyboard = this.empty(),
+    skipLabel = this.i18n.t("bot.reactions.messages.skip"),
+  ) {
+    return keyboard.text(skipLabel).row();
+  }
+
+  /**
+   * Creates a extends a custom keyboard with a done button.
+   *
+   * @param keyboard The keyboard to extend
+   * @param doneLabel The label for the done button
+   */
+  public done(
+    keyboard = this.empty(),
+    skipLabel = this.i18n.t("bot.reactions.messages.done"),
+  ) {
+    return keyboard.text(skipLabel).row();
+  }
+
+  /**
+   * Create a keyboard for a callout response
+   * @param keyboard The keyboard to extend
+   * @param required
+   * @param multiple
+   */
+  public skipDone(
+    keyboard = this.empty(),
+    required = false,
+    multiple = false,
+  ) {
+    if (multiple) {
+      this.done(keyboard);
+    }
+
+    if (!required) {
+      this.skip(keyboard);
+    }
+
+    return keyboard;
   }
 
   /**
@@ -112,31 +209,64 @@ export class KeyboardService extends BaseService {
    * Create a keyboard with Continue and Cancel buttons.
    */
   public continueCancel() {
-    const keyboard = new Keyboard()
+    const keyboard = this.empty()
       .text(
         this.i18n.t("bot.keyboard.label.continue"),
       )
       .row()
       .text(
         this.i18n.t("bot.keyboard.label.cancel"),
-      ).oneTime();
+      );
 
     return keyboard;
   }
 
   /**
    * Remove an existing inline keyboard
-   * @param ctx
+   * @param ctx The chat context
+   * @param withMessage If true, the message will be deleted, too
    */
   public async removeInlineKeyboard(ctx: AppContext, withMessage = false) {
-    // Do not delete keyboard message?
-    if (!withMessage) {
-      const inlineKeyboard = new InlineKeyboard();
-      return await ctx.editMessageReplyMarkup({
-        reply_markup: inlineKeyboard,
-      });
+    try {
+      // Do not delete keyboard message?
+      if (!withMessage) {
+        const inlineKeyboard = new InlineKeyboard();
+        return await ctx.editMessageReplyMarkup({
+          reply_markup: inlineKeyboard,
+        });
+      }
+
+      return await ctx.deleteMessage();
+    } catch (error) {
+      console.error("Error removing inline keyboard", error);
+    }
+  }
+
+  public async removeLastInlineKeyboard(ctx: AppContext) {
+    const session = await ctx.session;
+    if (!session) {
+      throw new Error("ctx with a session is required when once is true");
+    }
+    const inlineKeyboardData = session._data.latestKeyboard;
+    if (!inlineKeyboardData || !Object.keys(inlineKeyboardData).length) {
+      console.debug("No inline keyboard to remove");
+      return;
     }
 
-    return await ctx.deleteMessage();
+    if (inlineKeyboardData.message_id && inlineKeyboardData.chat_id) {
+      try {
+        await ctx.api.editMessageReplyMarkup(
+          inlineKeyboardData.chat_id,
+          inlineKeyboardData.message_id,
+          {
+            reply_markup: new InlineKeyboard(),
+          },
+        );
+      } catch (error) {
+        console.error("Error removing last inline keyboard", error);
+      }
+    }
+
+    session._data.latestKeyboard = null;
   }
 }

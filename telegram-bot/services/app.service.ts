@@ -2,6 +2,7 @@ import { BaseService } from "../core/index.ts";
 import { Singleton } from "../deps/index.ts";
 import { I18nService } from "./i18n.service.ts";
 import { BotService } from "./bot.service.ts";
+import { CalloutService } from "./callout.service.ts";
 import { CommandService } from "./command.service.ts";
 import { NetworkCommunicatorService } from "./network-communicator.service.ts";
 import { BeabeeContentService } from "./beabee-content.service.ts";
@@ -20,9 +21,9 @@ export class AppService extends BaseService {
     protected readonly i18n: I18nService,
     protected readonly beabeeContent: BeabeeContentService,
     protected readonly networkCommunicator: NetworkCommunicatorService,
+    protected readonly callout: CalloutService,
   ) {
     super();
-    // this.bootstrap().catch(console.error);
     console.debug(`${this.constructor.name} created`);
   }
 

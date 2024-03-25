@@ -34,6 +34,7 @@ const CALLOUTS_ACTIVE_QUERY: GetCalloutsQuery = {
     rules: [
       { field: "status", operator: "equal", value: [ItemStatus.Open] },
       { field: "expires", operator: "is_empty", value: [] },
+      { field: "hidden", operator: "equal", value: [false] },
     ],
   },
 };
@@ -45,11 +46,13 @@ export class CalloutService extends BaseService {
    */
   protected readonly shortSlugs = new Map<string, string>();
 
-  public readonly client: CalloutClient;
+  protected readonly client: CalloutClient;
 
-  public readonly responseClient: CalloutResponseClient;
+  protected readonly responseClient: CalloutResponseClient;
 
-  public readonly baseUrl: URL;
+  protected baseUrl?: URL;
+
+  protected readonly basePath = "/callouts";
 
   constructor() {
     super();
@@ -58,9 +61,10 @@ export class CalloutService extends BaseService {
       "http://localhost:3001";
     const path = Deno.env.get("API_BASE_URL") || "/api/1.0/";
     const token = Deno.env.get("BEABEE_API_TOKEN");
-    const baseUrl = Deno.env.get("BEABEE_AUDIENCE") ||
-      "http://localhost:3000";
-    const basePath = "/callouts";
+    this.baseUrl = new URL(
+      Deno.env.get("BEABEE_AUDIENCE") ||
+        "http://localhost:3000",
+    );
 
     if (!token) {
       throw new Error("BEABEE_API_TOKEN is required");
@@ -68,12 +72,18 @@ export class CalloutService extends BaseService {
 
     this.client = new CalloutClient({ path, host, token });
     this.responseClient = new CalloutResponseClient({ path, host, token });
-    this.baseUrl = new URL(basePath, baseUrl);
+
     console.debug(`${this.constructor.name} created`);
   }
 
   protected getUrl(slug: string) {
-    return new URL(slug, this.baseUrl);
+    if (!this.baseUrl) {
+      throw new Error("Base URL not initialized");
+    }
+
+    const url = new URL(this.basePath + "/" + slug, this.baseUrl);
+    console.debug(`Callout URL: ${url}`);
+    return url;
   }
 
   protected extend<With extends GetCalloutWith = void>(

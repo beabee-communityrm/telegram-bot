@@ -2,7 +2,6 @@ import { BaseService } from "../core/index.ts";
 import {
   CalloutComponentType,
   calloutComponentValidator,
-  Context,
   Message,
   Singleton,
 } from "../deps/index.ts";
@@ -18,6 +17,7 @@ import {
 import { TransformService } from "./transform.service.ts";
 
 import type {
+  AppContext,
   ReplayAccepted,
   ReplayAcceptedFile,
   ReplayAcceptedNone,
@@ -99,7 +99,7 @@ export class ValidationService extends BaseService {
    * Check if a message is a file message and if the mime type is accepted
    */
   protected messageIsFile(
-    context: Context,
+    context: AppContext,
     accepted: ReplayConditionFile,
   ): ReplayAcceptedFile {
     const message = context.message;
@@ -111,7 +111,8 @@ export class ValidationService extends BaseService {
         type: ReplayType.FILE,
         accepted: false,
         fileType,
-        isDone: false,
+        isDoneMessage: false,
+        isSkipMessage: false,
         context,
       };
     }
@@ -121,7 +122,8 @@ export class ValidationService extends BaseService {
       return {
         type: ReplayType.FILE,
         accepted: isAccepted,
-        isDone: isAccepted && !accepted.multiple,
+        isDoneMessage: false,
+        isSkipMessage: false,
         context,
       };
     }
@@ -166,15 +168,16 @@ export class ValidationService extends BaseService {
     return {
       type: ReplayType.FILE,
       accepted: isAccepted,
-      isDone: isAccepted && !accepted.multiple,
+      isDoneMessage: false,
+      isSkipMessage: false,
       fileType,
       fileId: getFileIdFromMessage(message),
       context,
     };
   }
 
-  protected messageIsDoneText(
-    context: Context,
+  protected messageIsDoneOrSkipText(
+    context: AppContext,
     accepted: ReplayCondition,
   ): ReplayAcceptedText | ReplayAcceptedNone {
     // Capitalisation should not play a role for done messages, see https://github.com/beabee-communityrm/telegram-bot/issues/5
@@ -182,34 +185,46 @@ export class ValidationService extends BaseService {
       ?.toLowerCase()
       .trim();
 
+    let isDoneMessage = false;
+    let isSkipMessage = false;
+
     // Is not a text message or empty
     if (!textMessage) {
       return {
         type: ReplayType.NONE,
         accepted: false,
-        isDone: false,
+        isDoneMessage,
+        isSkipMessage,
         context,
       };
     }
 
     if (accepted.multiple && accepted.doneTexts?.length) {
       const doneTexts = accepted.doneTexts.map((t) => t.toLowerCase().trim());
-      const isDone = doneTexts.some((t) => t === textMessage);
-      if (isDone) {
-        return {
-          type: ReplayType.TEXT,
-          accepted: true,
-          isDone,
-          text: textMessage,
-          context,
-        };
-      }
+      isDoneMessage = doneTexts.some((t) => t === textMessage);
+    }
+
+    if (!accepted.required && accepted.skipTexts?.length) {
+      const skipTexts = accepted.skipTexts.map((t) => t.toLowerCase().trim());
+      isSkipMessage = skipTexts.some((t) => t === textMessage);
+    }
+
+    if (isDoneMessage || isSkipMessage) {
+      return {
+        type: ReplayType.TEXT,
+        accepted: true,
+        isDoneMessage,
+        isSkipMessage,
+        text: textMessage,
+        context,
+      };
     }
 
     return {
       type: ReplayType.NONE,
       accepted: false,
-      isDone: false,
+      isDoneMessage,
+      isSkipMessage,
       context,
     };
   }
@@ -218,7 +233,7 @@ export class ValidationService extends BaseService {
    * Check if a message is a text message and if the text is accepted
    */
   protected messageIsText(
-    context: Context,
+    context: AppContext,
     accepted: ReplayConditionText,
   ): ReplayAcceptedText | ReplayAcceptedNone {
     const message = context.message;
@@ -226,43 +241,45 @@ export class ValidationService extends BaseService {
     const originalText = message?.text?.trim();
     const lowerCaseText = originalText?.toLowerCase();
 
+    const baseResult = {
+      isDoneMessage: false,
+      isSkipMessage: false,
+      context,
+    };
+
     // Is not a text message
     if (!message || !originalText || !lowerCaseText) {
       return {
         type: ReplayType.NONE,
         accepted: false,
-        isDone: false,
-        context,
+        ...baseResult,
       };
     }
 
-    // If not texts are defined, all texts are accepted
+    // If no texts are defined, all texts are accepted
     if (!texts || !texts.length) {
       return {
         type: ReplayType.TEXT,
         accepted: true,
-        isDone: !accepted.multiple,
         text: originalText,
-        context,
+        ...baseResult,
       };
     }
-    // Is a text message and one of the texts is accepted
-    const match = texts.some((t) => t === message.text);
+    // Is one of the texts is accepted
+    const match = texts.some((t) => t === lowerCaseText);
     if (!match) {
       return {
         type: ReplayType.NONE,
         accepted: false,
-        isDone: false,
-        context,
+        ...baseResult,
       } as ReplayAcceptedNone;
     }
 
     return {
       type: ReplayType.TEXT,
       accepted: true,
-      isDone: !accepted.multiple,
       text: originalText,
-      context,
+      ...baseResult,
     } as ReplayAcceptedText;
   }
 
@@ -275,11 +292,17 @@ export class ValidationService extends BaseService {
    * @returns
    */
   protected messageIsSelection(
-    context: Context,
+    context: AppContext,
     accepted: ReplayConditionSelection,
   ): ReplayAcceptedSelection {
     const message = context.message;
     const text = getTextFromMessage(message).toLowerCase();
+
+    const baseResult = {
+      isDoneMessage: false,
+      isSkipMessage: false,
+      context,
+    };
 
     // The answer message can be the index of the value but starts with 1
     if (isNumber(text)) {
@@ -290,9 +313,8 @@ export class ValidationService extends BaseService {
         return {
           type: ReplayType.SELECTION,
           accepted: true,
-          isDone: !accepted.multiple,
           value,
-          context,
+          ...baseResult,
         };
       }
     }
@@ -305,9 +327,8 @@ export class ValidationService extends BaseService {
     return {
       type: ReplayType.SELECTION,
       accepted: isAccepted,
-      isDone: isAccepted && !accepted.multiple,
       value: acceptedValue,
-      context,
+      ...baseResult,
     };
   }
 
@@ -318,15 +339,20 @@ export class ValidationService extends BaseService {
    * @returns
    */
   protected messageIsCalloutComponent(
-    context: Context,
+    context: AppContext,
     accepted: ReplayConditionCalloutComponentSchema,
   ): ReplayAcceptedCalloutComponentSchema | ReplayAcceptedNone {
+    const baseResult = {
+      isDoneMessage: false,
+      isSkipMessage: false,
+      context,
+    };
+
     const result: ReplayAcceptedCalloutComponentSchema = {
       type: ReplayType.CALLOUT_COMPONENT_SCHEMA,
       accepted: false,
-      isDone: false,
       answer: undefined,
-      context,
+      ...baseResult,
     };
 
     switch (accepted.schema.type) {
@@ -335,8 +361,7 @@ export class ValidationService extends BaseService {
         return {
           type: ReplayType.NONE,
           accepted: false,
-          isDone: true,
-          context,
+          ...baseResult,
         };
       }
       case CalloutComponentType.INPUT_CHECKBOX: {
@@ -393,8 +418,6 @@ export class ValidationService extends BaseService {
 
     const isValid = calloutComponentValidator(accepted.schema, result.answer);
     result.accepted = isValid;
-    result.isDone = isValid && !accepted.multiple;
-
     return result;
   }
 
@@ -405,15 +428,15 @@ export class ValidationService extends BaseService {
    * @returns
    */
   public messageIsAccepted(
-    context: Context,
+    context: AppContext,
     accepted: ReplayCondition,
   ): ReplayAccepted {
-    // If multiple messages are accepted, check if the message is a done text
-    if (accepted.multiple && accepted.doneTexts.length) {
-      const isText = this.messageIsDoneText(context, accepted);
-      if (isText.isDone) {
-        return isText;
-      }
+    const isDoneOrSkip = this.messageIsDoneOrSkipText(context, accepted);
+    if (
+      isDoneOrSkip.accepted &&
+      (isDoneOrSkip.isDoneMessage || isDoneOrSkip.isSkipMessage)
+    ) {
+      return isDoneOrSkip;
     }
 
     // Any response is accepted
@@ -421,7 +444,8 @@ export class ValidationService extends BaseService {
       return {
         type: ReplayType.ANY,
         accepted: true,
-        isDone: !accepted.multiple,
+        isDoneMessage: false,
+        isSkipMessage: false,
         context,
       };
     }
@@ -431,7 +455,8 @@ export class ValidationService extends BaseService {
       return {
         type: ReplayType.NONE,
         accepted: false,
-        isDone: true,
+        isDoneMessage: false,
+        isSkipMessage: false,
         context,
       };
     }

@@ -4,6 +4,7 @@ import { escapeMd, getSimpleMimeTypes } from "../utils/index.ts";
 import { ConditionService } from "../services/condition.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import { BotService } from "../services/bot.service.ts";
+import { KeyboardService } from "../services/keyboard.service.ts";
 import { BeabeeContentService } from "../services/beabee-content.service.ts";
 import { CommandService } from "../services/command.service.ts";
 
@@ -15,7 +16,7 @@ import type {
   ReplayAccepted,
   ReplayCondition,
 } from "../types/index.ts";
-import type { BotCommand, CalloutComponentSchema } from "../deps/index.ts";
+import { BotCommand, CalloutComponentSchema, code } from "../deps/index.ts";
 import { ReplayType } from "../enums/replay-type.ts";
 import { ParsedResponseType } from "../enums/parsed-response-type.ts";
 import { AppContext } from "../types/app-context.ts";
@@ -31,6 +32,7 @@ export class MessageRenderer {
     protected readonly i18n: I18nService,
     protected readonly bot: BotService,
     protected readonly beabeeContent: BeabeeContentService,
+    protected readonly keyboard: KeyboardService,
   ) {
     console.debug(`${this.constructor.name} created`);
   }
@@ -47,7 +49,6 @@ export class MessageRenderer {
       type: RenderType.MARKDOWN,
       markdown: WELCOME_MD,
       key: "welcome",
-      removeKeyboard: true,
       ...this.noResponse(),
     };
     return result;
@@ -114,6 +115,11 @@ export class MessageRenderer {
           }\n`,
         );
       }
+
+      // TODO: Make debug message configurable
+      strings.push(fmt`${bold("beabee general content:")}\n`);
+      const content = await this.beabeeContent.get("general");
+      strings.push(code(JSON.stringify(content, null, 2)));
     }
 
     // Add more debug info here if needed
@@ -130,6 +136,7 @@ export class MessageRenderer {
     return {
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
   }
 
@@ -167,6 +174,24 @@ export class MessageRenderer {
       type: RenderType.MARKDOWN,
       markdown: intro,
       key: tKey,
+      ...this.noResponse(),
+    };
+    return result;
+  }
+
+  public async continueList(): Promise<RenderMarkdown> {
+    const tKey = "bot.info.messages.continueList";
+    const generalContentPlaceholders = await this
+      .getGeneralContentPlaceholdersMarkdown();
+    const intro = this.i18n.t(tKey, {
+      ...generalContentPlaceholders,
+    }, { escapeMd: true });
+
+    const result: RenderMarkdown = {
+      type: RenderType.MARKDOWN,
+      markdown: intro,
+      key: tKey,
+      keyboard: this.keyboard.empty(), // To replace the old one
       ...this.noResponse(),
     };
     return result;
@@ -322,6 +347,16 @@ export class MessageRenderer {
     return {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey, { done: doneText }),
+      key: tKey,
+      ...this.noResponse(),
+    };
+  }
+
+  public writeSkipMessage(skipText: string): RenderText {
+    const tKey = "bot.info.messages.skip";
+    return {
+      type: RenderType.TEXT,
+      text: this.i18n.t(tKey, { skip: skipText }),
       key: tKey,
       ...this.noResponse(),
     };

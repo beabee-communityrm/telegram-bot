@@ -34,11 +34,13 @@ export class CalloutRenderer {
    * @param callout
    * @returns
    */
-  protected startResponseKeyboard(callout: CalloutDataExt) {
+  protected startResponseKeyboard(
+    callout: CalloutDataExt,
+  ): Render {
     const keyboardMessageMd = `_${
       escapeMd(this.i18n.t("bot.response.messages.calloutStartResponse"))
     }_`;
-    const yesNoKeyboard = this.keyboard.yesNo(
+    const yesNoInlineKeyboard = this.keyboard.inlineYesNo(
       `${BUTTON_CALLBACK_CALLOUT_INTRO}:${callout.shortSlug}`,
     );
 
@@ -46,9 +48,10 @@ export class CalloutRenderer {
       key: `callout:start-response:${callout.shortSlug}`,
       type: RenderType.MARKDOWN,
       markdown: keyboardMessageMd,
-      keyboard: yesNoKeyboard,
+      inlineKeyboard: yesNoInlineKeyboard,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
     return result;
   }
@@ -68,6 +71,7 @@ export class CalloutRenderer {
       markdown: `${listChar} ${this.title(callout).markdown}\n`,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     return result;
@@ -78,13 +82,16 @@ export class CalloutRenderer {
    * @param callouts
    * @returns
    */
-  public listItems(callouts: Paginated<GetCalloutDataExt>) {
+  public listItems(
+    callouts: Paginated<GetCalloutDataExt>,
+  ) {
     const listResult: Render = {
       key: "callout:list",
       type: RenderType.MARKDOWN,
       markdown: "",
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     if (callouts.items.length === 0) {
@@ -103,7 +110,7 @@ export class CalloutRenderer {
       p++;
     }
 
-    const keyboard = this.keyboard.calloutSelection(callouts.items);
+    const inlineKeyboard = this.keyboard.inlineCalloutSelection(callouts.items);
     const keyboardMessageMd = `_${
       escapeMd(this.i18n.t("bot.keyboard.message.select-detail-callout"))
     }_`;
@@ -112,9 +119,10 @@ export class CalloutRenderer {
       key: "callout:list:keyboard",
       type: RenderType.MARKDOWN,
       markdown: keyboardMessageMd,
-      keyboard,
+      inlineKeyboard,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     return [listResult, keyboardResult];
@@ -133,6 +141,7 @@ export class CalloutRenderer {
       markdown: "",
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     const title = escapeMd(callout.title);
@@ -170,6 +179,7 @@ export class CalloutRenderer {
       photo: calloutImage,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     const keyboardResult = this.startResponseKeyboard(callout);

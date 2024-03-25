@@ -64,7 +64,7 @@
     "generate:index:beabee-client": "cd beabee-client && deno task generate:index",
     "generate:index:beabee-common": "cd beabee-common && deno task generate:index",
     "i18n": "cd telegram-bot && deno task i18n",
-    "docker:build": "docker build -t beabee/telegram-bot:latest .docker p",
+    "docker:build": "docker build -t beabee/telegram-bot:latest .",
     "docker:start": "docker run -it --init -p 3003:3003 beabee/telegram-bot:latest",
     "docker:push": "docker push beabee/telegram-bot:latest"
   }

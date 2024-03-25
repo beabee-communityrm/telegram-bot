@@ -1,5 +1,5 @@
 import type { ReplayType } from "../enums/index.ts";
-import type { Context } from "../deps/index.ts";
+import type { AppContext } from "./index.ts";
 
 export interface ReplayAcceptedBase {
   /** The type of the replay. */
@@ -7,7 +7,9 @@ export interface ReplayAcceptedBase {
   /** True if the replay was accepted, false if not. */
   accepted: boolean;
   /** True if the replay is done and nor more replays are needed, false if not. */
-  isDone: boolean;
+  isDoneMessage: boolean;
+  /** True if the replay is skipped and nor more replays are needed, false if not. */
+  isSkipMessage: boolean;
   /** The original replay Telegram context */
-  context: Context;
+  context: AppContext;
 }

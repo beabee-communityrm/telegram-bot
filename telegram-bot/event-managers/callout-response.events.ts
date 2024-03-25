@@ -7,6 +7,7 @@ import { KeyboardService } from "../services/keyboard.service.ts";
 import { StateMachineService } from "../services/state-machine.service.ts";
 import { CalloutResponseRenderer, MessageRenderer } from "../renderer/index.ts";
 import { ResetCommand } from "../commands/reset.command.ts";
+import { ListCommand } from "../commands/list.command.ts";
 import { ChatState } from "../enums/index.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_INTRO,
@@ -15,6 +16,8 @@ import {
 import { BaseEventManager } from "../core/base.events.ts";
 
 import type { AppContext } from "../types/index.ts";
+
+const SHOW_LIST_AFTER_RESPONSE = true;
 
 @Singleton()
 export class CalloutResponseEventManager extends BaseEventManager {
@@ -27,7 +30,8 @@ export class CalloutResponseEventManager extends BaseEventManager {
     protected readonly transform: TransformService,
     protected readonly keyboard: KeyboardService,
     protected readonly stateMachine: StateMachineService,
-    protected readonly cancel: ResetCommand,
+    protected readonly resetCommand: ResetCommand,
+    protected readonly listCommand: ListCommand,
   ) {
     super();
     console.debug(`${this.constructor.name} created`);
@@ -94,7 +98,6 @@ export class CalloutResponseEventManager extends BaseEventManager {
     // remove loading animation
     await this.communication.answerCallbackQuery(
       ctx,
-      "Disabled inline keyboard",
     );
 
     const abortSignal = this.stateMachine.setSessionState(
@@ -116,12 +119,6 @@ export class CalloutResponseEventManager extends BaseEventManager {
 
     const answers = this.transform.parseCalloutFormResponses(responses);
 
-    this.stateMachine.setSessionState(
-      session,
-      ChatState.CalloutAnswered,
-      false,
-    );
-
     console.debug(
       "Got answers",
       answers,
@@ -129,21 +126,11 @@ export class CalloutResponseEventManager extends BaseEventManager {
 
     try {
       // TODO: Ask for contact details if callout requires it
-      const response = await this.callout.createResponse(slug, {
+      const _response = await this.callout.createResponse(slug, {
         answers,
         guestName: ctx.from?.username,
         // guestEmail: "test@beabee.io",
       });
-
-      console.debug(
-        "Created response",
-        response,
-      );
-
-      await this.communication.send(
-        ctx,
-        await this.messageRenderer.continueHelp(session.state),
-      );
     } catch (error) {
       console.error(
         `Failed to create response`,
@@ -157,10 +144,29 @@ export class CalloutResponseEventManager extends BaseEventManager {
 
     // TODO: Send success message and a summary of answers to the chat
 
-    await this.communication.send(
-      ctx,
-      await this.messageRenderer.continueHelp(session.state),
-    );
+    if (SHOW_LIST_AFTER_RESPONSE) {
+      await this.communication.send(
+        ctx,
+        await this.messageRenderer.continueList(),
+      );
+
+      return await this.listCommand.action(ctx, true);
+    }
+
+    try {
+      this.stateMachine.setSessionState(
+        session,
+        ChatState.CalloutAnswered,
+        false,
+      );
+
+      await this.communication.send(
+        ctx,
+        await this.messageRenderer.continueHelp(session.state),
+      );
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   /**
@@ -195,10 +201,9 @@ export class CalloutResponseEventManager extends BaseEventManager {
     }
 
     if (!startIntro) {
-      // TODO: Duplicate stop message
       await this.communication.send(ctx, this.messageRenderer.stop());
       // Forward cancel to the cancel command
-      await this.cancel.action(ctx);
+      await this.resetCommand.action(ctx);
       return;
     }
 

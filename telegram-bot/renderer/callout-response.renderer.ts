@@ -19,6 +19,7 @@ import {
   createCalloutGroupKey,
   escapeHtml,
   escapeMd,
+  range,
   sanitizeHtml,
 } from "../utils/index.ts";
 import { ParsedResponseType, RenderType } from "../enums/index.ts";
@@ -64,7 +65,7 @@ export class CalloutResponseRenderer {
 
   /**
    * Render a component label in Markdown
-   * @param component The component to render
+   * @param component The component to render this label for
    * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
   protected labelMd(component: CalloutComponentSchema, prefix: string) {
@@ -76,7 +77,8 @@ export class CalloutResponseRenderer {
       type: RenderType.MARKDOWN,
       accepted: this.condition.replayConditionNone(),
       markdown: `*${escapeMd(component.label)}*`,
-      parseType: calloutComponentTypeToParsedResponseType(component),
+      parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     return result;
@@ -84,6 +86,8 @@ export class CalloutResponseRenderer {
 
   /**
    * Render a component description in Markdown
+   * @param component The component to render this description for
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
   protected descriptionMd(component: CalloutComponentSchema, prefix: string) {
     if (typeof component.description !== "string" || !component.description) {
@@ -95,7 +99,8 @@ export class CalloutResponseRenderer {
       type: RenderType.MARKDOWN,
       accepted: this.condition.replayConditionNone(),
       markdown: `${escapeMd(component.description)}`,
-      parseType: calloutComponentTypeToParsedResponseType(component),
+      parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     return result;
@@ -103,15 +108,17 @@ export class CalloutResponseRenderer {
 
   /**
    * Render an input component placeholder in Markdown
-   * @param input The input component to render
+   * @param input The input component to render this placeholder note for
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
-  protected placeholderMd(input: CalloutComponentInputSchema, prefix: string) {
+  protected placeholderMd(input: CalloutComponentSchema, prefix: string) {
     const result: Render = {
       key: createCalloutGroupKey(input.key, prefix),
       type: RenderType.MARKDOWN,
       accepted: this.condition.replayConditionNone(),
       markdown: ``,
-      parseType: calloutComponentTypeToParsedResponseType(input),
+      parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     const placeholder = input.placeholder as string | undefined;
@@ -127,29 +134,30 @@ export class CalloutResponseRenderer {
     return result;
   }
 
+  /**
+   * Render a note to the user how many answers are expected
+   * @param component The component to render this note for
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
+   * @returns
+   */
   protected multipleMd(component: CalloutComponentSchema, prefix: string) {
-    const doneMessage = this.i18n.t("bot.reactions.messages.done");
     const multiple = this.isMultiple(component);
+    const required = component.validate?.required || false;
     const result: Render = {
       key: createCalloutGroupKey(component.key, prefix),
       type: RenderType.MARKDOWN,
-      accepted: this.condition.replayConditionNone(multiple),
+      accepted: this.condition.replayConditionNone(multiple, required),
       markdown: ``,
-      parseType: calloutComponentTypeToParsedResponseType(component),
+      parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
     if (multiple) {
-      result.markdown += `_${
+      result.markdown += `\n\n_${
         escapeMd(
-          `${this.i18n.t("bot.info.messages.multiple-values-allowed")}\n\n${
-            this.messageRenderer.writeDoneMessage(doneMessage).text
-          }`,
-        )
-      }_`;
-    } else {
-      result.markdown += `_${
-        escapeMd(
-          `${this.i18n.t("bot.info.messages.only-one-value-allowed")}\n\n${
-            this.messageRenderer.writeDoneMessage(doneMessage).text
+          `${this.i18n.t("bot.info.messages.multipleValuesAllowed")}\n\n${
+            this.messageRenderer.writeDoneMessage(
+              this.i18n.t("bot.reactions.messages.done"),
+            ).text
           }`,
         )
       }_`;
@@ -159,25 +167,93 @@ export class CalloutResponseRenderer {
   }
 
   /**
+   * Render a note to the user if the answer is required
+   * @param component The component to render this note for
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
+   * @returns
+   */
+  protected requiredMd(component: CalloutComponentSchema, prefix: string) {
+    const multiple = this.isMultiple(component);
+    const required = component.validate?.required || false;
+    const result: Render = {
+      key: createCalloutGroupKey(component.key, prefix),
+      type: RenderType.MARKDOWN,
+      accepted: this.condition.replayConditionNone(multiple, required),
+      markdown: ``,
+      parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
+    };
+    if (!required) {
+      result.markdown += `\n\n_${
+        escapeMd(
+          this.messageRenderer.writeSkipMessage(
+            this.i18n.t("bot.reactions.messages.skip"),
+          ).text,
+        )
+      }_`;
+    }
+    return result;
+  }
+
+  /**
+   * Render notes and a keyboard with the answer options
+   * - Renders a note to the user how many answers are expected
+   * - Renders a note to the user if the answer is required
+   * - Renders a Keyboard with the answer options
+   * @param component The component to render this note and keyboard for
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
+   */
+  protected answerOptionsMdKeyboard(
+    result: RenderMarkdown,
+    component: CalloutComponentSchema,
+    prefix: string,
+    multiple = this.isMultiple(component),
+    required = component.validate?.required || false,
+  ) {
+    const placeholder = component.placeholder;
+
+    if (placeholder) {
+      result.markdown += `\n\n${
+        this.placeholderMd(component, prefix).markdown
+      }`;
+    }
+
+    result.markdown += `${this.multipleMd(component, prefix).markdown}`;
+    result.markdown += `${this.requiredMd(component, prefix).markdown}`;
+
+    result.keyboard = this.keyboard.skipDone(
+      result.keyboard,
+      required,
+      multiple,
+    );
+
+    return result;
+  }
+
+  /**
    * Render radio or selectboxes values in Markdown
    * @param selectable The selectable component to render
+   * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
   protected selectableValues(
     selectable: CalloutComponentInputSelectableSchema,
     prefix: string,
+    valueLabel: Record<string, string>,
   ) {
     // Selectboxes are always multiple
     const multiple = this.isMultiple(selectable);
+    const required = selectable.validate?.required || false;
     const result: Render = {
       key: createCalloutGroupKey(selectable.key, prefix),
       type: RenderType.MARKDOWN,
       accepted: this.condition.replayConditionSelection(
         multiple,
-        this.selectValuesToValueLabelPairs(selectable.values),
-        multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
+        required,
+        valueLabel,
       ),
       markdown: ``,
       parseType: calloutComponentTypeToParsedResponseType(selectable),
+      removeKeyboard: true,
     };
 
     let n = 1;
@@ -198,18 +274,22 @@ export class CalloutResponseRenderer {
   protected selectValues(
     select: CalloutComponentInputSelectSchema,
     prefix: string,
+    valueLabel: Record<string, string>,
   ) {
     // TODO: Is a dropdown never multiple?
     const multiple = this.isMultiple(select);
+    const required = select.validate?.required || false;
     const result: Render = {
       key: createCalloutGroupKey(select.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
       accepted: this.condition.replayConditionSelection(
         multiple,
-        this.selectValuesToValueLabelPairs(select.data.values),
+        required,
+        valueLabel,
       ), // Wait for index which is a text message
       parseType: calloutComponentTypeToParsedResponseType(select),
+      removeKeyboard: true,
     };
 
     let n = 1;
@@ -228,16 +308,18 @@ export class CalloutResponseRenderer {
    */
   protected baseComponent(base: CalloutComponentSchema, prefix: string) {
     const multiple = this.isMultiple(base);
+    const required = base.validate?.required || false;
     const result: Render = {
       key: createCalloutGroupKey(base.key, prefix),
       type: RenderType.MARKDOWN,
       markdown: ``,
-      accepted: this.condition.replayConditionCalloutConponent(
+      accepted: this.condition.replayConditionCalloutComponent(
         multiple,
+        required,
         base,
-        multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
       ),
       parseType: ParsedResponseType.CALLOUT_COMPONENT,
+      removeKeyboard: true,
     };
 
     // Label
@@ -256,6 +338,96 @@ export class CalloutResponseRenderer {
   }
 
   /**
+   * Render a note to the user how many files are expected
+   * @param multiple If multiple files are expected
+   * @returns The note in Markdown
+   */
+  protected howManyFilesMd(multiple?: boolean): string {
+    return `_${
+      escapeMd(
+        multiple
+          ? this.i18n.t("bot.info.messages.uploadFilesHere")
+          : this.i18n.t("bot.info.messages.uploadFileHere"),
+      )
+    }_`;
+  }
+
+  /**
+   * Render a note to the user how many addresses are expected
+   * @param multiple If multiple addresses are expected
+   * @returns The note in Markdown
+   */
+  protected howManyAddressesMd(multiple?: boolean): string {
+    return `_${
+      escapeMd(
+        multiple
+          ? this.i18n.t("bot.info.messages.multipleAddressesAllowed")
+          : this.i18n.t("bot.info.messages.onlyOneAddressAllowed"),
+      )
+    }_`;
+  }
+
+  /**
+   * Render a note to the user how many emails are expected
+   * @param multiple If multiple emails are expected
+   * @returns The note in Markdown
+   */
+  protected howManyEmailsMd(multiple?: boolean): string {
+    return `_${
+      escapeMd(
+        multiple
+          ? this.i18n.t("bot.info.messages.multipleEmailsAllowed")
+          : this.i18n.t("bot.info.messages.onlyOneEmailAllowed"),
+      )
+    }_`;
+  }
+
+  /**
+   * Render a note to the user how many numbers are expected
+   * @param multiple If multiple numbers are expected
+   * @returns The note in Markdown
+   */
+  protected howManyNumbersMd(multiple?: boolean): string {
+    return `_${
+      escapeMd(
+        multiple
+          ? this.i18n.t("bot.info.messages.multipleNumbersAllowed")
+          : this.i18n.t("bot.info.messages.onlyOneNumberAllowed"),
+      )
+    }_`;
+  }
+
+  protected howManySelectionsMd(multiple?: boolean): string {
+    return `_${
+      escapeMd(
+        multiple
+          ? this.i18n.t("bot.info.messages.multipleSelectionsAllowed")
+          : this.i18n.t("bot.info.messages.onlyOneSelectionAllowed"),
+      )
+    }_`;
+  }
+
+  protected textTypeMd(
+    type:
+      | CalloutComponentType.INPUT_TEXT_FIELD
+      | CalloutComponentType.INPUT_TEXT_AREA,
+  ) {
+    if (type === CalloutComponentType.INPUT_TEXT_FIELD) {
+      return `_${
+        escapeMd(
+          this.i18n.t("bot.info.messages.enterText"),
+        )
+      }_`;
+    } else if (type === CalloutComponentType.INPUT_TEXT_AREA) {
+      return `_${
+        escapeMd(
+          this.i18n.t("bot.info.messages.enterLotsOfText"),
+        )
+      }_`;
+    }
+  }
+
+  /**
    * Render an input file component in Markdown
    * @param file The input file component to render
    * @param prefix The prefix, used to group the answers later (only used to group slides)
@@ -267,30 +439,19 @@ export class CalloutResponseRenderer {
     prefix: string,
   ) {
     const multiple = this.isMultiple(file);
+    const required = file.validate?.required || false;
     const result = this.baseComponent(file, prefix);
     result.markdown += `\n\n`;
 
-    result.markdown += `_${
-      escapeMd(
-        multiple
-          ? this.i18n.t("bot.info.messages.uploadFilesHere")
-          : this.i18n.t("bot.info.messages.uploadFileHere"),
-      )
-    }_`;
+    result.markdown += this.howManyFilesMd(multiple);
 
     result.accepted = this.condition.replayConditionFilePattern(
       multiple,
+      required,
       file.filePattern || file.type === "signature" ? "image/*" : "",
-      multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
     );
 
-    if (file.placeholder) {
-      result.markdown += `\n\n${this.placeholderMd(file, prefix).markdown}`;
-    }
-
-    if (multiple) {
-      result.markdown += `\n\n${this.multipleMd(file, prefix).markdown}`;
-    }
+    this.answerOptionsMdKeyboard(result, file, prefix);
 
     return result;
   }
@@ -325,8 +486,12 @@ export class CalloutResponseRenderer {
       key: createCalloutGroupKey(content.key, prefix),
       type: RenderType.HTML,
       html,
-      accepted: this.condition.replayConditionNone(false),
+      accepted: this.condition.replayConditionNone(
+        false,
+        false,
+      ),
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     return result;
@@ -343,6 +508,9 @@ export class CalloutResponseRenderer {
     const truthyMessage = this.i18n.t("bot.reactions.messages.truthy");
     const falsyMessage = this.i18n.t("bot.reactions.messages.falsy");
     const doneMessage = this.i18n.t("bot.reactions.messages.done");
+    const skipMessage = this.i18n.t("bot.reactions.messages.skip");
+    const multiple = this.isMultiple(input);
+    const required = result.accepted.required;
 
     result.markdown += `_${
       escapeMd(
@@ -354,18 +522,20 @@ export class CalloutResponseRenderer {
     }_`;
 
     result.accepted = this.condition.replayConditionText(
-      result.accepted.multiple,
+      multiple,
+      required,
       [truthyMessage, falsyMessage],
-      result.accepted.multiple ? [doneMessage] : [],
+      multiple ? [doneMessage] : [],
+      !required ? [skipMessage] : [],
     );
 
-    if (input.placeholder) {
-      result.markdown += `\n\n${this.placeholderMd(input, prefix).markdown}`;
-    }
+    result.keyboard = this.keyboard.yesNo(
+      result.keyboard,
+      truthyMessage,
+      falsyMessage,
+    );
 
-    if (input.multiple) {
-      result.markdown += `\n\n${this.multipleMd(input, prefix).markdown}`;
-    }
+    this.answerOptionsMdKeyboard(result, input, prefix);
 
     return result;
   }
@@ -378,53 +548,24 @@ export class CalloutResponseRenderer {
   protected inputComponent(input: CalloutComponentInputSchema, prefix: string) {
     const result = this.baseComponent(input, prefix);
     result.markdown += `\n\n`;
+    const multiple = this.isMultiple(input);
 
     switch (input.type) {
       case CalloutComponentType.INPUT_ADDRESS: {
-        result.markdown += `_${
-          escapeMd(
-            result.accepted.multiple
-              ? this.i18n.t("bot.info.messages.multipleAddressesAllowed")
-              : this.i18n.t("bot.info.messages.onlyOneAddressAllowed"),
-          )
-        }_`;
+        result.markdown += this.howManyAddressesMd(multiple);
         break;
       }
       case CalloutComponentType.INPUT_EMAIL: {
-        result.markdown += `_${
-          escapeMd(
-            result.accepted.multiple
-              ? this.i18n.t("bot.info.messages.multipleEmailsAllowed")
-              : this.i18n.t("bot.info.messages.onlyOneEmailAllowed"),
-          )
-        }_`;
-
+        result.markdown += this.howManyEmailsMd(multiple);
         break;
       }
       case CalloutComponentType.INPUT_NUMBER: {
-        result.markdown += `_${
-          escapeMd(
-            result.accepted.multiple
-              ? this.i18n.t("bot.info.messages.multipleNumbersAllowed")
-              : this.i18n.t("bot.info.messages.onlyOneNumberAllowed"),
-          )
-        }_`;
+        result.markdown += this.howManyNumbersMd(multiple);
         break;
       }
-      case CalloutComponentType.INPUT_TEXT_FIELD: {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("bot.info.messages.enterText"),
-          )
-        }_`;
-        break;
-      }
+      case CalloutComponentType.INPUT_TEXT_FIELD:
       case CalloutComponentType.INPUT_TEXT_AREA: {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("bot.info.messages.enterLotsOfText"),
-          )
-        }_`;
+        result.markdown += this.textTypeMd(input.type);
         break;
       }
       case CalloutComponentType.INPUT_PHONE_NUMBER: {
@@ -479,13 +620,7 @@ export class CalloutResponseRenderer {
       }
     }
 
-    if (input.placeholder) {
-      result.markdown += `\n\n${this.placeholderMd(input, prefix).markdown}`;
-    }
-
-    if (input.multiple) {
-      result.markdown += `\n\n${this.multipleMd(input, prefix).markdown}`;
-    }
+    this.answerOptionsMdKeyboard(result, input, prefix, multiple);
 
     return result;
   }
@@ -502,23 +637,33 @@ export class CalloutResponseRenderer {
   ): RenderMarkdown {
     const result = this.baseComponent(select, prefix);
     result.parseType = ParsedResponseType.SELECTION;
-    result.markdown += `\n\n`;
+    const multiple = this.isMultiple(select);
+    const required = result.accepted.required;
+    const valueLabel = this.selectValuesToValueLabelPairs(select.data.values);
+
     result.accepted = {
       ...result.accepted,
       ...this.condition.replayConditionSelection(
-        result.accepted.multiple,
-        this.selectValuesToValueLabelPairs(select.data.values),
+        multiple,
+        required,
+        valueLabel,
       ),
     };
-    result.markdown += `\n${this.selectValues(select, prefix).markdown}`;
+    result.markdown += `\n${
+      this.selectValues(select, prefix, valueLabel).markdown
+    }`;
 
     result.markdown += `\n\n`;
 
-    result.markdown += `_${
-      escapeMd(
-        this.i18n.t("info.messages.onlyOneSelectionAllowed"),
-      )
-    }_`;
+    result.markdown += this.howManySelectionsMd(multiple);
+
+    result.keyboard = this.keyboard.selection(
+      result.keyboard,
+      range(1, Object.keys(valueLabel).length).map(String),
+    );
+
+    this.answerOptionsMdKeyboard(result, select, prefix);
+
     return result;
   }
 
@@ -533,45 +678,37 @@ export class CalloutResponseRenderer {
   ): RenderMarkdown {
     const result = this.baseComponent(selectable, prefix);
     result.parseType = ParsedResponseType.SELECTION;
-    const multiple = result.accepted.multiple;
+    const multiple = this.isMultiple(selectable);
+    const required = result.accepted.required;
+    const valueLabel = this.selectValuesToValueLabelPairs(selectable.values);
 
     result.accepted = {
       ...result.accepted,
       ...this.condition.replayConditionSelection(
         multiple,
-        this.selectValuesToValueLabelPairs(selectable.values),
-        multiple ? [this.i18n.t("bot.reactions.messages.done")] : [],
+        required,
+        valueLabel,
       ),
     };
 
     result.markdown += `\n${
-      this.selectableValues(selectable, prefix).markdown
+      this.selectableValues(selectable, prefix, valueLabel).markdown
     }`;
 
-    result.markdown += `\n\n`;
+    result.markdown += this.howManySelectionsMd(multiple);
 
-    switch (selectable.type) {
-      case "radio": {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("bot.info.messages.onlyOneSelectionAllowed"),
-          )
-        }_`;
-        break;
-      }
-      case "selectboxes": {
-        result.markdown += `_${
-          escapeMd(
-            this.i18n.t("bot.info.messages.multipleSelectionsAllowed") +
-              "\n\n" +
-              this.messageRenderer.writeDoneMessage(
-                this.i18n.t("bot.reactions.messages.done"),
-              ).text,
-          )
-        }_`;
-        break;
-      }
-    }
+    result.keyboard = this.keyboard.selection(
+      result.keyboard,
+      range(1, Object.keys(valueLabel).length).map(String),
+    );
+
+    this.answerOptionsMdKeyboard(
+      result,
+      selectable,
+      prefix,
+      multiple,
+      required,
+    );
 
     return result;
   }
@@ -673,11 +810,15 @@ export class CalloutResponseRenderer {
         prefix,
       ),
       type: RenderType.MARKDOWN,
-      accepted: this.condition.replayConditionAny(multiple),
+      accepted: this.condition.replayConditionAny(
+        multiple,
+        (component as CalloutComponentSchema).validate?.required || false,
+      ),
       markdown: this.i18n.t("bot.response.messages.componentUnknown", {
         type: (component as CalloutComponentSchema).type || "undefined",
       }),
       parseType: calloutComponentTypeToParsedResponseType(component),
+      removeKeyboard: true,
     };
     results.push(unknown);
 
@@ -694,13 +835,14 @@ export class CalloutResponseRenderer {
       accepted: this.condition.replayConditionNone(),
       html: "",
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
     result.html = `${sanitizeHtml(callout.intro)}`;
 
     const continueKeyboard = this.keyboard.inlineContinueCancel(
       `${BUTTON_CALLBACK_CALLOUT_PARTICIPATE}:${callout.slug}`,
     );
-    result.keyboard = continueKeyboard;
+    result.inlineKeyboard = continueKeyboard;
 
     return result;
   }
@@ -715,6 +857,7 @@ export class CalloutResponseRenderer {
       accepted: this.condition.replayConditionNone(),
       html: ``,
       parseType: ParsedResponseType.NONE,
+      removeKeyboard: true,
     };
 
     if (callout.thanksTitle) {

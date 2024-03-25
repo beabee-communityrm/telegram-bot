@@ -124,7 +124,7 @@ export class I18nService extends BaseService {
   ): string {
     const lang = options.lang || this._activeLang;
     const doEscapeMd = options.escapeMd ?? false;
-    let translation = this.getTranslation(
+    const translation = this.getTranslation(
       path,
       lang,
       this.translations[lang],
@@ -132,7 +132,12 @@ export class I18nService extends BaseService {
 
     if (!translation) {
       if (lang === "en") {
-        return escapeMd(`Error: Translation not found for '${path}'`);
+        const errorMessage =
+          `Error: Translation not found for '${path}' in language '${lang}'`;
+        console.error(
+          errorMessage,
+        );
+        return escapeMd(errorMessage);
       }
       // Fallback to English
       console.warn(
@@ -141,11 +146,11 @@ export class I18nService extends BaseService {
       return this.translate(path, placeholders, { ...options, lang: "en" });
     }
 
-    if (doEscapeMd) {
-      translation = escapeMd(translation);
-    }
-
-    return this.replacePlaceholders(translation, placeholders, options);
+    return this.replacePlaceholders(
+      doEscapeMd ? escapeMd(translation) : translation,
+      placeholders,
+      options,
+    );
   }
 
   /**
@@ -190,8 +195,8 @@ export class I18nService extends BaseService {
     return Object.keys(placeholders).reduce((acc, key) => {
       // Allow whitespace in placeholders between curly braces
       const regexStr = options.escapeMd
-        ? `\\\\{\\s*${key}\\s*\\\\}`
-        : `\\{\\s*${key}\\s*\\}`;
+        ? `\\\\{\\s*${key}\\s*\\\\}` // Search for excaped plaxeholders
+        : `\\{\\s*${key}\\s*\\}`; // Search for unescaped placeholders
       const regex = new RegExp(regexStr, "g");
       return acc.replaceAll(regex, placeholders[key].toString());
     }, translation);

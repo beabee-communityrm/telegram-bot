@@ -8,10 +8,13 @@ export const EMPTY_RENDER: RenderEmpty = {
   keyboard: undefined,
   accepted: {
     multiple: false,
+    required: false,
     type: ReplayType.NONE,
     doneTexts: [],
+    skipTexts: [],
   },
   parseType: ParsedResponseType.NONE,
+  removeKeyboard: true,
 };
 
 export const CALLOUT_RESPONSE_GROUP_KEY_SEPARATOR = "-slide:";

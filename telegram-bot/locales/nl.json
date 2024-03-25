@@ -39,6 +39,7 @@
         "command": {
           "notUsable": ""
         },
+        "continueList": "",
         "done": "",
         "enterAmountOfMoney": "",
         "enterDate": "",
@@ -58,13 +59,13 @@
         "onlyOneEmailAllowed": "",
         "onlyOneNumberAllowed": "",
         "onlyOneSelectionAllowed": "",
-        "onlyOneValueAllowed": "",
         "placeholder": "",
         "reset": {
           "cancelled": "",
           "successful": "",
           "unsuccessful": ""
         },
+        "skip": "",
         "uploadFileHere": "",
         "uploadFilesHere": ""
       }
@@ -84,6 +85,7 @@
       "messages": {
         "done": "",
         "falsy": "",
+        "skip": "",
         "truthy": ""
       }
     },

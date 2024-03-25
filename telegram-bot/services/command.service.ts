@@ -58,8 +58,8 @@ export class CommandService extends BaseService {
 
     if (session.state === ChatState.Start) {
       // Cancel old process for the case there is one
-      this.stateMachine.resetSessionState(
-        session,
+      await this.stateMachine.resetSessionState(
+        ctx,
       );
     }
 
@@ -150,7 +150,6 @@ export class CommandService extends BaseService {
       await this.bot.api.deleteMyCommands();
     }
 
-    console.debug("Set commands", commands);
     await this.bot.api.setMyCommands(commands, {
       scope: options.scope,
     });

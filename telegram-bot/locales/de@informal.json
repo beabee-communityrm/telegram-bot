@@ -37,14 +37,15 @@
     "info": {
       "messages": {
         "command": {
-          "notUsable": "Du kannst den Befehl {command} hier nicht verwenden"
+          "notUsable": "Das Kommando {command} kann hier nicht verwendet werden. Wenn du glaubst, dass es sich um einen Fehler handelt, verwende bitte den Befehl /reset."
         },
+        "continueList": "Jetzt kannst du die Liste der offenen Umfragen überprüfen und eine andere auswählen, an der du teilnehmen möchten:",
         "done": "Wenn du fertig mit deiner Antwort bist, tippe einfach \"{done}\".",
         "enterAmountOfMoney": "Bitte gib einen Geldbetrag ein.",
         "enterDate": "Bitte gib ein Datum ein.",
         "enterLotsOfText": "Bitte antworte mit einer einzigen Nachricht. Du kannst sie so lang machen, wie du möchtest.",
         "enterTelephoneNumber": "Bitte gib eine Telefonnummer ein.",
-        "enterText": "Bitte halte deine Antwort kurz, idealerweise in einem Satz.",
+        "enterText": "Schreibe deine Antwort einfach hier in den Chat.",
         "enterTime": "Bitte gib eine Zeit ein. (z.B. 20:45)",
         "enterUrl": "Bitte gib eine Webadresse ein. (z.B. https://www.beispiel.de)",
         "help": "Über den Telegram-Chat kannst du an den laufenden Umfragen von {organisationName} teilnehmen.\nDu kannst die Liste der offenen Umfragen einsehen und auswählen, an welchen du teilnehmen möchtest.\n\n{commands}",
@@ -58,13 +59,13 @@
         "onlyOneEmailAllowed": "Bitte gib eine E-Mail-Adresse ein.",
         "onlyOneNumberAllowed": "Bitte gib eine Zahl ein.",
         "onlyOneSelectionAllowed": "Bitte triff deine Wahl, indem du deren Nummer eintippst oder den Button drückst (du kannst nur eine auswählen).",
-        "onlyOneValueAllowed": "Bitte gib nur einen Wert ein.",
         "placeholder": "Bitte antworte mit etwas wie \"{placeholder}\".",
         "reset": {
           "cancelled": "Der Vorgang wurde bereits abgebrochen",
           "successful": "Vorgang erfolgreich abgebrochen, du bist nun wieder am Anfang",
           "unsuccessful": "Du bist nun wieder am Anfang"
         },
+        "skip": "Diese Frage kann übersprungen werden, antworte dafür einfach mit \"{skip}\".",
         "uploadFileHere": "Bitte sende mir eine Datei.",
         "uploadFilesHere": "Bitte sende mir eine oder mehrere Dateien."
       }
@@ -84,6 +85,7 @@
       "messages": {
         "done": "Erledigt",
         "falsy": "Nein",
+        "skip": "Überspringe",
         "truthy": "Ja"
       }
     },
@@ -104,7 +106,7 @@
         "noActiveCallouts": "Aktuell gibt es keine offenen Callouts.",
         "notACalloutComponent": {
           "address": "Dies ist keine valide Adresse. Bitte versuche es noch einmal.",
-          "checkbox": "🤔 Bitte antworte mit \"{truthy}\" oder \"{falsy}\".",
+          "checkbox": "Bitte antworte mit \"{truthy}\" oder \"{falsy}\".",
           "currency": "Dies ist kein valider Geldbetrag. Bitte versuche es noch einmal.",
           "datetime": "Dies ist kein valides Datum. Bitte versuche es noch einmal.",
           "email": "Deine Antwort scheint keine gültige E-Mail-Adresse zu sein. Bitte versuche es erneut.",
