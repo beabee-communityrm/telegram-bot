@@ -17,5 +17,6 @@ export type {
   PaymentStatus,
   RoleType,
   RuleGroup,
+  SetCalloutFormSchema,
   StripeFeeCountry,
 } from "@beabee/beabee-common";

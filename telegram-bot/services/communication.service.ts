@@ -1,11 +1,11 @@
 import { BaseService } from "../core/index.ts";
-import { fmt, Message, ParseModeFlavor, Singleton } from "../deps/index.ts";
+import { fmt, Message, ParseModeFlavor, Singleton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply } from "../deps/index.ts";
 import { ParsedResponseType, RenderType, ReplayType } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
 import { TransformService } from "./transform.service.ts";
 import { ConditionService } from "./condition.service.ts";
 import { ValidationService } from "./validation.service.ts";
-import { getIdentifier } from "../utils/index.ts";
+import { getIdentifier, sleep } from "../utils/index.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
 
 import type {
@@ -15,7 +15,7 @@ import type {
   RenderResponseParsed,
   ReplayAccepted,
 } from "../types/index.ts";
-import { InlineKeyboard, LinkPreviewOptions } from "../deps/grammy.ts";
+import { InlineKeyboard } from "../deps/grammy.ts";
 
 /**
  * Service to handle the communication with the telegram bot and the telegram user.
@@ -47,18 +47,29 @@ export class CommunicationService extends BaseService {
       throw new Error("You can only use one keyboard at a time");
     }
 
-    // Always resize the custom keyboard and all custom keyboards are one time keyboards the way we use them
-    if (render.keyboard) {
-      render.keyboard.oneTime().resized();
+    if (render.beforeDelay) {
+      await sleep(render.beforeDelay);
     }
 
-    // TODO: Make this configurable, link previews are disabled by default
-    const link_preview_options: LinkPreviewOptions = {
-      is_disabled: true,
-    };
+    // link previews are disabled by default
+    if (!render.linkPreview) {
+      render.linkPreview = {
+        is_disabled: true,
+      };
+    }
 
-    const markup = render.keyboard || render.inlineKeyboard ||
-      (render.removeKeyboard ? { remove_keyboard: true as true } : undefined);
+    let markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | undefined = render.keyboard || render.inlineKeyboard || undefined;
+    //  (render.removeKeyboard ? { remove_keyboard: true as true } : undefined);
+    (render.forceReply ? { force_reply: true as true } : undefined);
+
+
+    if (!markup && render.removeKeyboard) {
+      markup = { remove_keyboard: true } as ReplyKeyboardRemove;
+    }
+
+    if (!markup && render.forceReply) {
+      markup = { force_reply: true } as ForceReply;
+    }
 
     let message: Message.TextMessage | undefined;
 
@@ -67,7 +78,7 @@ export class CommunicationService extends BaseService {
         await ctx.replyWithMediaGroup([render.photo], {});
         if (render.keyboard) {
           message = await ctx.reply("", {
-            link_preview_options,
+            link_preview_options: render.linkPreview,
             reply_markup: markup,
           });
         }
@@ -75,20 +86,20 @@ export class CommunicationService extends BaseService {
       case RenderType.MARKDOWN:
         message = await ctx.reply(render.markdown, {
           parse_mode: "MarkdownV2",
-          link_preview_options,
+          link_preview_options: render.linkPreview,
           reply_markup: markup,
         });
         break;
       case RenderType.HTML:
         message = await ctx.reply(render.html, {
           parse_mode: "HTML",
-          link_preview_options,
+          link_preview_options: render.linkPreview,
           reply_markup: markup,
         });
         break;
       case RenderType.TEXT:
         message = await ctx.reply(render.text, {
-          link_preview_options,
+          link_preview_options: render.linkPreview,
           reply_markup: markup,
         });
         break;
@@ -97,7 +108,7 @@ export class CommunicationService extends BaseService {
         message = await (ctx as ParseModeFlavor<AppContext>).replyFmt(
           fmt(render.format),
           {
-            link_preview_options,
+            link_preview_options: render.linkPreview,
             reply_markup: markup,
           },
         );
@@ -122,6 +133,10 @@ export class CommunicationService extends BaseService {
         type: "inline",
         inlineKeyboard: markup,
       };
+    }
+
+    if (render.afterDelay) {
+      await sleep(render.afterDelay);
     }
   }
 

@@ -35,7 +35,7 @@ export interface RenderBase {
   /**
    * Remove the custom keyboard after the user has replied.
    */
-  removeKeyboard: boolean;
+  removeKeyboard?: boolean;
 
   /**
    * Define the types of the replay you are accepting.
@@ -66,5 +66,5 @@ export interface RenderBase {
    * Shows reply interface to the user, as if they manually selected the bot’s message and tapped ‘Reply’
    * @see https://grammy.dev/ref/types/forcereply
    */
-  forceReply: boolean;
+  forceReply?: boolean;
 }

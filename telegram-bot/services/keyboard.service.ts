@@ -16,11 +16,16 @@ export class KeyboardService extends BaseService {
   }
 
   /**
-   * Create a new empty keyboard
+   * Create a new empty custom keyboard
    * @returns
    */
-  public empty() {
-    return new Keyboard().oneTime();
+  public empty(
+    options: { isOneTime: boolean; isPersistent: boolean; isResized: boolean } =
+      { isOneTime: true, isPersistent: false, isResized: true },
+  ) {
+    return new Keyboard().oneTime(options.isOneTime).persistent(
+      options.isPersistent,
+    ).resized(options.isResized);
   }
 
   /**
