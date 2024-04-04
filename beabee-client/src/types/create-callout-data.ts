@@ -1,12 +1,12 @@
 import type {
   AllowNull,
   CalloutData,
-  CalloutFormData,
   CalloutResponseViewSchema,
+  GetCalloutFormData,
 } from "./index.ts";
 
 export type CreateCalloutData = AllowNull<
   & CalloutData
-  & CalloutFormData
+  & GetCalloutFormData
   & { responseViewSchema?: CalloutResponseViewSchema | null }
 >;

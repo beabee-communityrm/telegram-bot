@@ -137,6 +137,7 @@ export class MessageRenderer {
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
       removeKeyboard: true,
+      forceReply: false,
     };
   }
 

@@ -2,9 +2,8 @@ import type {
   ContributionPeriod,
   ContributionType,
   MembershipStatus,
+  PaymentSource,
 } from "../deps.ts";
-
-import type { PaymentSource } from "./index.ts";
 
 export interface ContributionInfo {
   type: ContributionType;

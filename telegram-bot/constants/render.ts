@@ -15,6 +15,7 @@ export const EMPTY_RENDER: RenderEmpty = {
   },
   parseType: ParsedResponseType.NONE,
   removeKeyboard: true,
+  forceReply: false,
 };
 
 export const CALLOUT_RESPONSE_GROUP_KEY_SEPARATOR = "-slide:";

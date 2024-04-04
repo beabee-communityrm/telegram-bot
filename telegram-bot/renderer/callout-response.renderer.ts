@@ -9,7 +9,7 @@ import {
   CalloutComponentNestableSchema,
   CalloutComponentSchema,
   CalloutComponentType,
-  CalloutSlideSchema,
+  GetCalloutSlideSchema,
   isCalloutComponentOfBaseType,
   isCalloutComponentOfType,
   Singleton,
@@ -79,6 +79,7 @@ export class CalloutResponseRenderer {
       markdown: `*${escapeMd(component.label)}*`,
       parseType: ParsedResponseType.NONE,
       removeKeyboard: true,
+      forceReply: false,
     };
 
     return result;
@@ -101,6 +102,7 @@ export class CalloutResponseRenderer {
       markdown: `${escapeMd(component.description)}`,
       parseType: ParsedResponseType.NONE,
       removeKeyboard: true,
+      forceReply: false,
     };
 
     return result;
@@ -119,6 +121,7 @@ export class CalloutResponseRenderer {
       markdown: ``,
       parseType: ParsedResponseType.NONE,
       removeKeyboard: true,
+      forceReply: false,
     };
 
     const placeholder = input.placeholder as string | undefined;
@@ -150,6 +153,7 @@ export class CalloutResponseRenderer {
       markdown: ``,
       parseType: ParsedResponseType.NONE,
       removeKeyboard: true,
+      forceReply: false,
     };
     if (multiple) {
       result.markdown += `\n\n_${
@@ -182,6 +186,7 @@ export class CalloutResponseRenderer {
       markdown: ``,
       parseType: ParsedResponseType.NONE,
       removeKeyboard: true,
+      forceReply: false,
     };
     if (!required) {
       result.markdown += `\n\n_${
@@ -254,6 +259,7 @@ export class CalloutResponseRenderer {
       markdown: ``,
       parseType: calloutComponentTypeToParsedResponseType(selectable),
       removeKeyboard: true,
+      forceReply: true,
     };
 
     let n = 1;
@@ -290,6 +296,7 @@ export class CalloutResponseRenderer {
       ), // Wait for index which is a text message
       parseType: calloutComponentTypeToParsedResponseType(select),
       removeKeyboard: true,
+      forceReply: true,
     };
 
     let n = 1;
@@ -320,6 +327,7 @@ export class CalloutResponseRenderer {
       ),
       parseType: ParsedResponseType.CALLOUT_COMPONENT,
       removeKeyboard: true,
+      forceReply: true,
     };
 
     // Label
@@ -492,6 +500,7 @@ export class CalloutResponseRenderer {
       ),
       parseType: ParsedResponseType.NONE,
       removeKeyboard: true,
+      forceReply: false,
     };
 
     return result;
@@ -731,7 +740,7 @@ export class CalloutResponseRenderer {
    * @param prefix The prefix, used to group the answers later (only used for slides)
    */
   public nestableComponent(
-    nestable: CalloutComponentNestableSchema | CalloutSlideSchema,
+    nestable: CalloutComponentNestableSchema | GetCalloutSlideSchema,
     prefix: string,
   ) {
     const nestableResults: Render[] = [];
@@ -819,6 +828,7 @@ export class CalloutResponseRenderer {
       }),
       parseType: calloutComponentTypeToParsedResponseType(component),
       removeKeyboard: true,
+      forceReply: false,
     };
     results.push(unknown);
 
@@ -836,6 +846,7 @@ export class CalloutResponseRenderer {
       html: "",
       parseType: ParsedResponseType.NONE,
       removeKeyboard: true,
+      forceReply: true,
     };
     result.html = `${sanitizeHtml(callout.intro)}`;
 
@@ -858,6 +869,8 @@ export class CalloutResponseRenderer {
       html: ``,
       parseType: ParsedResponseType.NONE,
       removeKeyboard: true,
+      forceReply: false,
+      afterDelay: 3000,
     };
 
     if (callout.thanksTitle) {

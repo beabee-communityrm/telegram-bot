@@ -52,6 +52,7 @@ export class CalloutRenderer {
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
       removeKeyboard: true,
+      forceReply: true,
     };
     return result;
   }
@@ -72,6 +73,7 @@ export class CalloutRenderer {
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
       removeKeyboard: true,
+      forceReply: false,
     };
 
     return result;
@@ -92,6 +94,7 @@ export class CalloutRenderer {
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
       removeKeyboard: true,
+      forceReply: false,
     };
 
     if (callouts.items.length === 0) {
@@ -123,6 +126,7 @@ export class CalloutRenderer {
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
       removeKeyboard: true,
+      forceReply: false,
     };
 
     return [listResult, keyboardResult];
@@ -142,6 +146,7 @@ export class CalloutRenderer {
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
       removeKeyboard: true,
+      forceReply: false,
     };
 
     const title = escapeMd(callout.title);
@@ -180,6 +185,7 @@ export class CalloutRenderer {
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
       removeKeyboard: true,
+      forceReply: false,
     };
 
     const keyboardResult = this.startResponseKeyboard(callout);

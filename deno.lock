@@ -2,9 +2,14 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "npm:date-fns@3.6.0": "npm:date-fns@3.6.0",
       "npm:valtio@2.0.0-beta.1": "npm:valtio@2.0.0-beta.1"
     },
     "npm": {
+      "date-fns@3.6.0": {
+        "integrity": "sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==",
+        "dependencies": {}
+      },
       "proxy-compare@2.6.0": {
         "integrity": "sha512-8xuCeM3l8yqdmbPoYeLbrAXCBWu19XEYc5/F28f5qOaoAIMyfmBUkl5axiK+x9olUvRlcekvnm98AP9RDngOIw==",
         "dependencies": {}
@@ -29,7 +34,7 @@
     "members": {
       "@beabee/beabee-common": {
         "dependencies": [
-          "npm:date-fns@3.3.1"
+          "npm:date-fns@3.6.0"
         ]
       },
       "beabee-client": {

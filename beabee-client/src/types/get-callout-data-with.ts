@@ -1,7 +1,7 @@
 import type {
-  CalloutFormData,
   CalloutResponseViewSchema,
   GetCalloutData,
+  GetCalloutFormData,
   GetCalloutWith,
   Noop,
 } from "./index.ts";
@@ -13,4 +13,4 @@ export type GetCalloutDataWith<With extends GetCalloutWith> =
   & ("responseViewSchema" extends With
     ? { responseViewSchema: CalloutResponseViewSchema | null }
     : Noop)
-  & ("form" extends With ? CalloutFormData : Noop);
+  & ("form" extends With ? GetCalloutFormData : Noop);
