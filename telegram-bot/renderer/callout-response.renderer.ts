@@ -9,7 +9,7 @@ import {
   CalloutComponentNestableSchema,
   CalloutComponentSchema,
   CalloutComponentType,
-  CalloutSlideSchema,
+  GetCalloutSlideSchema,
   isCalloutComponentOfBaseType,
   isCalloutComponentOfType,
   Singleton,
@@ -731,7 +731,7 @@ export class CalloutResponseRenderer {
    * @param prefix The prefix, used to group the answers later (only used for slides)
    */
   public nestableComponent(
-    nestable: CalloutComponentNestableSchema | CalloutSlideSchema,
+    nestable: CalloutComponentNestableSchema | GetCalloutSlideSchema,
     prefix: string,
   ) {
     const nestableResults: Render[] = [];
@@ -858,6 +858,7 @@ export class CalloutResponseRenderer {
       html: ``,
       parseType: ParsedResponseType.NONE,
       removeKeyboard: true,
+      afterDelay: 3000,
     };
 
     if (callout.thanksTitle) {

@@ -1,6 +1,10 @@
 import type { ParsedResponseType, RenderType } from "../enums/index.ts";
 import type { ReplayCondition } from "./index.ts";
-import type { InlineKeyboard, Keyboard } from "../deps/index.ts";
+import type {
+  InlineKeyboard,
+  Keyboard,
+  LinkPreviewOptions,
+} from "../deps/index.ts";
 
 export interface RenderBase {
   /**
@@ -42,4 +46,16 @@ export interface RenderBase {
    * The type in which the response should be parsed.
    */
   parseType: ParsedResponseType;
+
+  /**
+   * The delay in milliseconds before the message is sent.
+   */
+  beforeDelay?: number;
+
+  /**
+   * The delay in milliseconds after the message is sent.
+   */
+  afterDelay?: number;
+
+  linkPreview?: LinkPreviewOptions;
 }

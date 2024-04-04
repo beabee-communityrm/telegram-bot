@@ -1,7 +1,7 @@
-import type { CalloutFormSchema } from "../deps.ts";
+import type { GetCalloutFormSchema } from "../deps.ts";
 
 export interface CalloutFormData {
-  formSchema: CalloutFormSchema;
+  formSchema: GetCalloutFormSchema;
   intro: string;
   thanksText: string;
   thanksTitle: string;

@@ -1,5 +1,4 @@
 export type {
-  CalloutFormSchema,
   CalloutResponseAnswer,
   CalloutResponseAnswerAddress,
   CalloutResponseAnswerFileUpload,
@@ -7,6 +6,7 @@ export type {
   CalloutResponseAnswersSlide,
   ContributionPeriod,
   ContributionType,
+  GetCalloutFormSchema,
   ItemStatus,
   MembershipStatus,
   NewsletterStatus,
@@ -16,5 +16,6 @@ export type {
   PaymentStatus,
   RoleType,
   RuleGroup,
+  SetCalloutFormSchema,
   StripeFeeCountry,
 } from "@beabee/beabee-common";
