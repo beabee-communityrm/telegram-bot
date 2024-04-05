@@ -39,9 +39,9 @@ export class KeyboardService extends BaseService {
   /**
    * Create a keyboard button to select a callout.
    *
-   * To respond to the button press, listen for the `callback_query:data:show-callout-slug` event using the EventService.
+   * To respond to the button press, listen for the `${BUTTON_CALLBACK_PREFIX}:show-callout-slug` event using the EventService.
    *
-   * @fires `callback_query:data:${BUTTON_CALLBACK_SHOW_CALLOUT}`
+   * @fires `${BUTTON_CALLBACK_PREFIX}:${BUTTON_CALLBACK_SHOW_CALLOUT}`
    *
    * @param callouts The Callouts to select from
    * @param startIndex The index of the first callout to show, starting at 1
@@ -88,7 +88,7 @@ export class KeyboardService extends BaseService {
   }
 
   /**
-   * Create a keyboard with a list of selections
+   * Create or extends a custom keyboard with a list of selections
    * @param keyboard
    * @param selections
    * @returns
@@ -101,29 +101,50 @@ export class KeyboardService extends BaseService {
   }
 
   /**
+   * Create or extends a inline keyboard with a list of selections
+   * @param prefix A prefix to add to the button data, used to subscribe to the events
+   * @param keyboard The inline keyboard to extend
+   * @param selections The selections to add
+   * @returns
+   */
+  public inlineSelection(
+    prefix: string,
+    keyboard = this.inlineEmpty(),
+    selections: string[],
+  ) {
+    for (const selection of selections) {
+      keyboard.text(selection, `${prefix}:${selection}`);
+    }
+    return keyboard.row();
+  }
+
+  /**
    * Create a inline keyboard with Yes and No buttons.
    *
-   * To respond to the button press, listen for the `callback_query:data:yes` and `callback_query:data:no` events using the EventService.
-   * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `callback_query:data:callout-respond:yes`.
+   * To respond to the button press, listen for the `${BUTTON_CALLBACK_PREFIX}:yes` and `${BUTTON_CALLBACK_PREFIX}:no` events using the EventService.
+   * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `${BUTTON_CALLBACK_PREFIX}:callout-respond:yes`.
    *
    * @param ctx The chat context
    * @param prefix A prefix to add to the button data, e.g. "callout-respond"
+   * @param keyboard The keyboard to extend
+   * @param truthyLabel The label for the truthy button
+   * @param falsyLabel The label for the falsy button
    */
   public inlineYesNo(
     prefix: string,
+    keyboard = this.inlineEmpty(),
     truthyLabel = this.i18n.t("bot.reactions.messages.truthy"),
     falsyLabel = this.i18n.t("bot.reactions.messages.falsy"),
   ) {
-    const inlineKeyboard = new InlineKeyboard();
-    inlineKeyboard.text(
+    keyboard.text(
       truthyLabel,
       prefix ? `${prefix}:yes` : `yes`,
     );
-    inlineKeyboard.text(
+    keyboard.text(
       falsyLabel,
       prefix ? `${prefix}:no` : `no`,
     );
-    return inlineKeyboard;
+    return keyboard;
   }
 
   /**
@@ -142,7 +163,7 @@ export class KeyboardService extends BaseService {
   }
 
   /**
-   * Creates a extends a custom keyboard with a skip button.
+   * Creates or extends a custom keyboard with a skip button.
    *
    * @param keyboard The keyboard to extend
    * @param skipLabel The label for the skip button
@@ -155,16 +176,46 @@ export class KeyboardService extends BaseService {
   }
 
   /**
-   * Creates a extends a custom keyboard with a done button.
+   * Creates or extends a inline keyboard with a skip button.
+   *
+   * @param prefix A prefix to add to the button data, used to subscribe to the events
+   * @param keyboard The keyboard to extend
+   * @param skipLabel The label for the skip button
+   */
+  public inlineSkip(
+    prefix: string,
+    keyboard = this.inlineEmpty(),
+    skipLabel = this.i18n.t("bot.reactions.messages.skip"),
+  ) {
+    return keyboard.text(skipLabel, `${prefix}:skip`).row();
+  }
+
+  /**
+   * Creates or extends a custom keyboard with a done button.
    *
    * @param keyboard The keyboard to extend
    * @param doneLabel The label for the done button
    */
   public done(
     keyboard = this.empty(),
-    skipLabel = this.i18n.t("bot.reactions.messages.done"),
+    doneLabel = this.i18n.t("bot.reactions.messages.done"),
   ) {
-    return keyboard.text(skipLabel).row();
+    return keyboard.text(doneLabel).row();
+  }
+
+  /**
+   * Creates or extends a inline keyboard with a done button.
+   *
+   * @param prefix A prefix to add to the button data, used to subscribe to the events
+   * @param keyboard The keyboard to extend
+   * @param doneLabel The label for the done button
+   */
+  public inlineDone(
+    prefix: string,
+    keyboard = this.inlineEmpty(),
+    doneLabel = this.i18n.t("bot.reactions.messages.done"),
+  ) {
+    return keyboard.text(doneLabel, `${prefix}:done`).row();
   }
 
   /**
@@ -190,10 +241,35 @@ export class KeyboardService extends BaseService {
   }
 
   /**
+   * Create a inline keyboard for a callout response
+   * @param keyboard The keyboard to extend
+   * @param required
+   * @param multiple
+   */
+  public inlineSkipDone(
+    prefix: string,
+    keyboard = this.inlineEmpty(),
+    required = false,
+    multiple = false,
+  ) {
+    if (multiple) {
+      this.inlineDone(prefix, keyboard);
+    }
+
+    if (!required) {
+      this.inlineSkip(prefix, keyboard);
+    }
+
+    console.debug(`inlineSkipDone: ${prefix}`);
+
+    return keyboard;
+  }
+
+  /**
    * Create a inline keyboard with Continue and Cancel buttons.
    *
-   * To respond to the button press, listen for the `callback_query:data:continue` and `callback_query:data:cancel` events using the EventService.
-   * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `callback_query:data:callout-respond:continue`.
+   * To respond to the button press, listen for the `${BUTTON_CALLBACK_PREFIX}:continue` and `${BUTTON_CALLBACK_PREFIX}:cancel` events using the EventService.
+   * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `${BUTTON_CALLBACK_PREFIX}:callout-respond:continue`.
    *
    * @param prefix A prefix to add to the button data, e.g. "callout-respond"
    */
@@ -252,17 +328,20 @@ export class KeyboardService extends BaseService {
     if (!session) {
       throw new Error("ctx with a session is required when once is true");
     }
-    const inlineKeyboardData = session._data.latestKeyboard;
-    if (!inlineKeyboardData || !Object.keys(inlineKeyboardData).length) {
+    const keyboardData = session._data.latestKeyboard || null;
+    if (!keyboardData || !Object.keys(keyboardData).length) {
       console.debug("No inline keyboard to remove");
       return;
     }
 
-    if (inlineKeyboardData.message_id && inlineKeyboardData.chat_id) {
+    if (
+      keyboardData.message_id && keyboardData.chat_id &&
+      keyboardData.inlineKeyboard
+    ) {
       try {
         await ctx.api.editMessageReplyMarkup(
-          inlineKeyboardData.chat_id,
-          inlineKeyboardData.message_id,
+          keyboardData.chat_id,
+          keyboardData.message_id,
           {
             reply_markup: new InlineKeyboard(),
           },

@@ -29,7 +29,7 @@ export class CalloutRenderer {
   }
 
   /**
-   * @fires `callback_query:data:${BUTTON_CALLBACK_CALLOUT_INTRO}`
+   * @fires `${BUTTON_CALLBACK_PREFIX}:${BUTTON_CALLBACK_CALLOUT_INTRO}`
    *
    * @param callout
    * @returns
@@ -37,8 +37,9 @@ export class CalloutRenderer {
   protected startResponseKeyboard(
     callout: CalloutDataExt,
   ): Render {
-    const keyboardMessageMd = `_${escapeMd(this.i18n.t("bot.response.messages.calloutStartResponse"))
-      }_`;
+    const keyboardMessageMd = `_${
+      escapeMd(this.i18n.t("bot.response.messages.calloutStartResponse"))
+    }_`;
     const yesNoInlineKeyboard = this.keyboard.inlineYesNo(
       `${BUTTON_CALLBACK_CALLOUT_INTRO}:${callout.shortSlug}`,
     );
@@ -50,7 +51,6 @@ export class CalloutRenderer {
       inlineKeyboard: yesNoInlineKeyboard,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
-      forceReply: true,
     };
     return result;
   }
@@ -70,8 +70,6 @@ export class CalloutRenderer {
       markdown: `${listChar} ${this.title(callout).markdown}\n`,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
-      removeKeyboard: true,
-      forceReply: false,
     };
 
     return result;
@@ -91,8 +89,6 @@ export class CalloutRenderer {
       markdown: "",
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
-      removeKeyboard: true,
-      forceReply: false,
     };
 
     if (callouts.items.length === 0) {
@@ -102,8 +98,9 @@ export class CalloutRenderer {
       return [listResult];
     }
 
-    listResult.markdown = `*${escapeMd(this.i18n.t("bot.render.callout.list.title"))
-      }*\n\n`;
+    listResult.markdown = `*${
+      escapeMd(this.i18n.t("bot.render.callout.list.title"))
+    }*\n\n`;
     let p = 1;
     for (const callout of callouts.items) {
       listResult.markdown += `${this.listItem(callout, `${p}.`).markdown}`;
@@ -111,8 +108,9 @@ export class CalloutRenderer {
     }
 
     const inlineKeyboard = this.keyboard.inlineCalloutSelection(callouts.items);
-    const keyboardMessageMd = `_${escapeMd(this.i18n.t("bot.keyboard.message.select-detail-callout"))
-      }_`;
+    const keyboardMessageMd = `_${
+      escapeMd(this.i18n.t("bot.keyboard.message.select-detail-callout"))
+    }_`;
 
     const keyboardResult: Render = {
       key: "callout:list:keyboard",
@@ -121,8 +119,6 @@ export class CalloutRenderer {
       inlineKeyboard,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
-      removeKeyboard: true,
-      forceReply: false,
     };
 
     return [listResult, keyboardResult];
@@ -141,7 +137,6 @@ export class CalloutRenderer {
       markdown: "",
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
-      forceReply: false,
     };
 
     const title = escapeMd(callout.title);
@@ -179,8 +174,6 @@ export class CalloutRenderer {
       photo: calloutImage,
       accepted: this.condition.replayConditionNone(),
       parseType: ParsedResponseType.NONE,
-      removeKeyboard: true,
-      forceReply: false,
     };
 
     const keyboardResult = this.startResponseKeyboard(callout);

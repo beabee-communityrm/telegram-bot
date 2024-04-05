@@ -25,19 +25,19 @@ export class EventService extends BaseService {
    * Emits a series of detailed events based on a given event name.
    * The method takes an event name, splits it by the ':' character,
    * and emits progressively more detailed events for each segment.
-   * @param eventName E.g. "callback_query:data:show-callout-slug:my-callout"
+   * @param eventName E.g. "${BUTTON_CALLBACK_PREFIX}:show-callout-slug:my-callout"
    * @param ctx The Telegram context
    *
-   * For example, given the event name 'callback_query:data:show-callout-slug:my-callout',
+   * For example, given the event name '${BUTTON_CALLBACK_PREFIX}:show-callout-slug:my-callout',
    * it emits the following events in order:
    * @fires callback_query
    * @fires callback_query:user-123456789
-   * @fires callback_query:data
-   * @fires callback_query:data:user-123456789
-   * @fires callback_query:data:show-callout-slug
-   * @fires callback_query:data:show-callout-slug:user-123456789
-   * @fires callback_query:data:show-callout-slug:my-callout
-   * @fires callback_query:data:show-callout-slug:my-callout:user-123456789
+   * @fires ${BUTTON_CALLBACK_PREFIX}
+   * @fires ${BUTTON_CALLBACK_PREFIX}:user-123456789
+   * @fires ${BUTTON_CALLBACK_PREFIX}:show-callout-slug
+   * @fires ${BUTTON_CALLBACK_PREFIX}:show-callout-slug:user-123456789
+   * @fires ${BUTTON_CALLBACK_PREFIX}:show-callout-slug:my-callout
+   * @fires ${BUTTON_CALLBACK_PREFIX}:show-callout-slug:my-callout:user-123456789
    *
    * Or given the event name 'message', it emits the following events in order:
    * @fires message

@@ -14,7 +14,7 @@ export const EMPTY_RENDER: RenderEmpty = {
     skipTexts: [],
   },
   parseType: ParsedResponseType.NONE,
-  removeKeyboard: true,
+  removeCustomKeyboard: true,
   forceReply: false,
 };
 

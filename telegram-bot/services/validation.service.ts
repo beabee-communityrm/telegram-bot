@@ -13,6 +13,7 @@ import {
   getTextFromMessage,
   isNumber,
 } from "../utils/index.ts";
+import { CALLOUT_RESPONSE_INTERACTION_PREFIX } from "../constants/index.ts";
 
 import { TransformService } from "./transform.service.ts";
 
@@ -472,6 +473,96 @@ export class ValidationService extends BaseService {
       const isText = this.messageIsText(context, accepted);
       return isText;
     }
+
+    // Selection response is accepted
+    if (accepted.type === ReplayType.SELECTION) {
+      const isSelection = this.messageIsSelection(context, accepted);
+      return isSelection;
+    }
+
+    // Callout component response answer is accepted
+    if (accepted.type === ReplayType.CALLOUT_COMPONENT_SCHEMA) {
+      const isCalloutAnswer = this.messageIsCalloutComponent(context, accepted);
+      return isCalloutAnswer;
+    }
+
+    throw new Error(
+      `Unknown replay until type: "${(accepted as ReplayCondition)?.type}"`,
+    );
+  }
+
+  /**
+   * Check if a message is accepted by a condition
+   * @param accepted
+   * @param context
+   * @returns
+   */
+  public callbackQueryDataIsAccepted(
+    context: AppContext,
+    accepted: ReplayCondition,
+  ): ReplayAccepted {
+    const callbackQueryData = context.callbackQuery?.data;
+
+    const isDoneOrSkip = this.messageIsDoneOrSkipText(context, accepted);
+    if (
+      isDoneOrSkip.accepted &&
+      (isDoneOrSkip.isDoneMessage || isDoneOrSkip.isSkipMessage)
+    ) {
+      return isDoneOrSkip;
+    }
+
+    const isSkip =
+      callbackQueryData === `${CALLOUT_RESPONSE_INTERACTION_PREFIX}:skip`;
+    const isDone =
+      callbackQueryData === `${CALLOUT_RESPONSE_INTERACTION_PREFIX}:done`;
+
+    if (isDone || isSkip) {
+      return {
+        type: ReplayType.CALLBACK_QUERY_DATA,
+        accepted: true,
+        isDoneMessage: isDone,
+        isSkipMessage: isSkip,
+        data: callbackQueryData,
+        context,
+      };
+    }
+
+    // Any response is accepted
+    if (accepted.type === ReplayType.ANY) {
+      return {
+        type: ReplayType.ANY,
+        accepted: true,
+        isDoneMessage: false,
+        isSkipMessage: false,
+        context,
+      };
+    }
+
+    // No response is accepted
+    if (accepted.type === ReplayType.NONE) {
+      return {
+        type: ReplayType.NONE,
+        accepted: false,
+        isDoneMessage: false,
+        isSkipMessage: false,
+        context,
+      };
+    }
+
+    // Callback query data response is not accepted for text or file
+    if (
+      accepted.type === ReplayType.TEXT || accepted.type === ReplayType.FILE
+    ) {
+      return {
+        type: ReplayType.NONE,
+        accepted: false,
+        isDoneMessage: false,
+        isSkipMessage: false,
+        context,
+      };
+    }
+
+    // TODO: The following is not implemented yet and must be ported to query data instead of message
 
     // Selection response is accepted
     if (accepted.type === ReplayType.SELECTION) {

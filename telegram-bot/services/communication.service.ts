@@ -1,12 +1,28 @@
 import { BaseService } from "../core/index.ts";
-import { fmt, Message, ParseModeFlavor, Singleton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply } from "../deps/index.ts";
+import {
+  fmt,
+  ForceReply,
+  InlineKeyboard,
+  InlineKeyboardMarkup,
+  Keyboard,
+  Message,
+  ParseModeFlavor,
+  ReplyKeyboardMarkup,
+  ReplyKeyboardRemove,
+  Singleton,
+} from "../deps/index.ts";
 import { ParsedResponseType, RenderType, ReplayType } from "../enums/index.ts";
 import { EventService } from "./event.service.ts";
+import { KeyboardService } from "./keyboard.service.ts";
 import { TransformService } from "./transform.service.ts";
 import { ConditionService } from "./condition.service.ts";
 import { ValidationService } from "./validation.service.ts";
 import { getIdentifier, sleep } from "../utils/index.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
+import {
+  BUTTON_CALLBACK_PREFIX,
+  CALLOUT_RESPONSE_INTERACTION_PREFIX,
+} from "../constants/index.ts";
 
 import type {
   AppContext,
@@ -15,7 +31,6 @@ import type {
   RenderResponseParsed,
   ReplayAccepted,
 } from "../types/index.ts";
-import { InlineKeyboard } from "../deps/grammy.ts";
 
 /**
  * Service to handle the communication with the telegram bot and the telegram user.
@@ -25,6 +40,7 @@ import { InlineKeyboard } from "../deps/grammy.ts";
 export class CommunicationService extends BaseService {
   constructor(
     protected readonly event: EventService,
+    protected readonly keyboard: KeyboardService,
     protected readonly messageRenderer: MessageRenderer,
     protected readonly transform: TransformService,
     protected readonly condition: ConditionService,
@@ -58,12 +74,14 @@ export class CommunicationService extends BaseService {
       };
     }
 
-    let markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | undefined = render.keyboard || render.inlineKeyboard || undefined;
-    //  (render.removeKeyboard ? { remove_keyboard: true as true } : undefined);
-    (render.forceReply ? { force_reply: true as true } : undefined);
+    let markup:
+      | InlineKeyboardMarkup
+      | ReplyKeyboardMarkup
+      | ReplyKeyboardRemove
+      | ForceReply
+      | undefined = render.keyboard || render.inlineKeyboard || undefined;
 
-
-    if (!markup && render.removeKeyboard) {
+    if (!markup && render.removeCustomKeyboard) {
       markup = { remove_keyboard: true } as ReplyKeyboardRemove;
     }
 
@@ -120,19 +138,34 @@ export class CommunicationService extends BaseService {
         throw new Error("Unknown render type: " + (render as Render).type);
     }
 
-    // Store latest sended keyboard to be able to remove it later if the keyboard is not empty
-    // TODO: Should we move this to the `KeyboardService` or `StateMachineService`?
     if (
-      message && markup && markup instanceof InlineKeyboard &&
-      markup.inline_keyboard.entries.length > 0
+      message && markup
     ) {
-      const session = await ctx.session;
-      session._data.latestKeyboard = {
-        message_id: message.message_id,
-        chat_id: message.chat.id,
-        type: "inline",
-        inlineKeyboard: markup,
-      };
+      // Store latest sended keyboard to be able to remove it later if the keyboard is not empty
+      // TODO: Should we move this to the `KeyboardService` or `StateMachineService`?
+      if (
+        markup instanceof InlineKeyboard &&
+        markup.inline_keyboard.entries.length > 0
+      ) {
+        const session = await ctx.session;
+        session._data.latestKeyboard = {
+          message_id: message.message_id,
+          chat_id: message.chat.id,
+          type: "inline",
+          inlineKeyboard: markup,
+        };
+      } else if (
+        markup instanceof Keyboard &&
+        markup.keyboard.entries.length > 0
+      ) {
+        const session = await ctx.session;
+        session._data.latestKeyboard = {
+          message_id: message.message_id,
+          chat_id: message.chat.id,
+          type: "custom",
+          customKeyboard: markup,
+        };
+      }
     }
 
     if (render.afterDelay) {
@@ -146,13 +179,38 @@ export class CommunicationService extends BaseService {
    * @param ctx
    * @returns
    */
-  public async receiveMessage(ctx: AppContext) {
-    const data = await this.event.onceUserMessageAsync(getIdentifier(ctx));
-    return data;
+  public async receiveMessageOrCallbackQueryData(ctx: AppContext) {
+    const userId = getIdentifier(ctx);
+    const eventName =
+      `${BUTTON_CALLBACK_PREFIX}:${CALLOUT_RESPONSE_INTERACTION_PREFIX}`;
+
+    return await new Promise<AppContext>((resolve) => {
+      const onMessage = (ctx: AppContext) => {
+        console.debug(
+          "[CommunicationService] receive message",
+          ctx,
+        );
+        this.event.off(eventName, onCallbackQueryData);
+        resolve(ctx);
+      };
+
+      const onCallbackQueryData = (ctx: AppContext) => {
+        console.debug(
+          "[CommunicationService] receive callback query data",
+          ctx,
+        );
+        this.event.offUserMessage(userId, onMessage);
+        resolve(ctx);
+      };
+
+      this.event.onceUserMessage(userId, onMessage);
+
+      this.event.once(eventName, onCallbackQueryData);
+    });
   }
 
   /**
-   * Wait for a specific message to be received and collect all messages of type `acceptedBefore` until the specific message is received.
+   * Wait for a specific message to be received and collect all messages of type `render.accepted` until the specific message is received.
    * @param ctx
    * @param render
    * @returns
@@ -163,6 +221,7 @@ export class CommunicationService extends BaseService {
   ) {
     let context: AppContext;
     let message: Message | undefined;
+    let callbackQueryData: string | undefined;
     const replays: ReplayAccepted[] = [];
 
     if (render.accepted.type === ReplayType.NONE) {
@@ -172,18 +231,32 @@ export class CommunicationService extends BaseService {
     let replayAccepted: ReplayAccepted | undefined;
 
     do {
-      context = await this.receiveMessage(ctx);
+      context = await this.receiveMessageOrCallbackQueryData(ctx);
       message = context.message;
+      callbackQueryData = context.callbackQuery?.data;
 
-      if (!message) {
-        console.warn("Message is undefined");
+      if (callbackQueryData) {
+        replayAccepted = this.validation.callbackQueryDataIsAccepted(
+          context,
+          render.accepted,
+        );
+      }
+
+      if (message) {
+        replayAccepted = this.validation.messageIsAccepted(
+          context,
+          render.accepted,
+        );
+      }
+
+      if (!replayAccepted || (!message && !callbackQueryData)) {
+        console.warn("Message and callback query data are undefined");
         continue;
       }
 
-      replayAccepted = this.validation.messageIsAccepted(
-        context,
-        render.accepted,
-      );
+      await this.answerCallbackQuery(replayAccepted.context);
+      // TODO: not for multiple replays
+      await this.keyboard.removeInlineKeyboard(replayAccepted.context);
 
       if (!replayAccepted.accepted) {
         await this.send(

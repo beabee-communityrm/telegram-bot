@@ -2,6 +2,7 @@ import { Singleton } from "../deps/index.ts";
 import { CalloutService } from "../services/callout.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { EventService } from "../services/event.service.ts";
+import { BotService } from "../services/bot.service.ts";
 import { TransformService } from "../services/transform.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
 import { StateMachineService } from "../services/state-machine.service.ts";
@@ -12,6 +13,7 @@ import { ChatState } from "../enums/index.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_INTRO,
   BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
+  BUTTON_CALLBACK_PREFIX,
 } from "../constants/index.ts";
 import { BaseEventManager } from "../core/base.events.ts";
 
@@ -23,6 +25,7 @@ const SHOW_LIST_AFTER_RESPONSE = true;
 export class CalloutResponseEventManager extends BaseEventManager {
   constructor(
     protected readonly event: EventService,
+    protected readonly bot: BotService,
     protected readonly callout: CalloutService,
     protected readonly communication: CommunicationService,
     protected readonly messageRenderer: MessageRenderer,
@@ -40,14 +43,14 @@ export class CalloutResponseEventManager extends BaseEventManager {
   public init() {
     // Listen for the callback query data event with the `callout-respond:yes` data
     this.event.on(
-      `callback_query:data:${BUTTON_CALLBACK_CALLOUT_INTRO}`,
+      `${BUTTON_CALLBACK_PREFIX}:${BUTTON_CALLBACK_CALLOUT_INTRO}`,
       (event) => {
         this.onCalloutIntroKeyboardPressed(event);
       },
     );
 
     this.event.on(
-      `callback_query:data:${BUTTON_CALLBACK_CALLOUT_PARTICIPATE}`,
+      `${BUTTON_CALLBACK_PREFIX}:${BUTTON_CALLBACK_CALLOUT_PARTICIPATE}`,
       (event) => {
         this.onCalloutParticipateKeyboardPressed(event);
       },

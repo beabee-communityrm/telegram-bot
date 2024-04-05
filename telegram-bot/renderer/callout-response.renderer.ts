@@ -29,6 +29,7 @@ import { ConditionService } from "../services/condition.service.ts";
 import { MessageRenderer } from "./message.renderer.ts";
 import {
   BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
+  CALLOUT_RESPONSE_INTERACTION_PREFIX,
   EMPTY_RENDER,
 } from "../constants/index.ts";
 
@@ -124,10 +125,11 @@ export class CalloutResponseRenderer {
     const placeholder = input.placeholder as string | undefined;
 
     if (placeholder) {
-      result.markdown = `_${escapeMd(
-        this.i18n.t("bot.info.messages.placeholder", { placeholder }),
-      )
-        }_`;
+      result.markdown = `_${
+        escapeMd(
+          this.i18n.t("bot.info.messages.placeholder", { placeholder }),
+        )
+      }_`;
     }
 
     return result;
@@ -151,13 +153,15 @@ export class CalloutResponseRenderer {
       forceReply: false,
     };
     if (multiple) {
-      result.markdown += `\n\n_${escapeMd(
-        `${this.i18n.t("bot.info.messages.multipleValuesAllowed")}\n\n${this.messageRenderer.writeDoneMessage(
-          this.i18n.t("bot.reactions.messages.done"),
-        ).text
-        }`,
-      )
-        }_`;
+      result.markdown += `\n\n_${
+        escapeMd(
+          `${this.i18n.t("bot.info.messages.multipleValuesAllowed")}\n\n${
+            this.messageRenderer.writeDoneMessage(
+              this.i18n.t("bot.reactions.messages.done"),
+            ).text
+          }`,
+        )
+      }_`;
     }
 
     return result;
@@ -181,12 +185,13 @@ export class CalloutResponseRenderer {
       forceReply: false,
     };
     if (!required) {
-      result.markdown += `\n\n_${escapeMd(
-        this.messageRenderer.writeSkipMessage(
-          this.i18n.t("bot.reactions.messages.skip"),
-        ).text,
-      )
-        }_`;
+      result.markdown += `\n\n_${
+        escapeMd(
+          this.messageRenderer.writeSkipMessage(
+            this.i18n.t("bot.reactions.messages.skip"),
+          ).text,
+        )
+      }_`;
     }
     return result;
   }
@@ -199,7 +204,7 @@ export class CalloutResponseRenderer {
    * @param component The component to render this note and keyboard for
    * @param prefix The prefix, used to group the answers later (only used to group slides)
    */
-  protected answerOptionsMdKeyboard(
+  protected answerOptionsMdInlineKeyboard(
     result: RenderMarkdown,
     component: CalloutComponentSchema,
     prefix: string,
@@ -209,15 +214,17 @@ export class CalloutResponseRenderer {
     const placeholder = component.placeholder;
 
     if (placeholder) {
-      result.markdown += `\n\n${this.placeholderMd(component, prefix).markdown
-        }`;
+      result.markdown += `\n\n${
+        this.placeholderMd(component, prefix).markdown
+      }`;
     }
 
     result.markdown += `${this.multipleMd(component, prefix).markdown}`;
     result.markdown += `${this.requiredMd(component, prefix).markdown}`;
 
-    result.keyboard = this.keyboard.skipDone(
-      result.keyboard,
+    result.inlineKeyboard = this.keyboard.inlineSkipDone(
+      CALLOUT_RESPONSE_INTERACTION_PREFIX,
+      result.inlineKeyboard,
       required,
       multiple,
     );
@@ -338,12 +345,13 @@ export class CalloutResponseRenderer {
    * @returns The note in Markdown
    */
   protected howManyFilesMd(multiple?: boolean): string {
-    return `_${escapeMd(
-      multiple
-        ? this.i18n.t("bot.info.messages.uploadFilesHere")
-        : this.i18n.t("bot.info.messages.uploadFileHere"),
-    )
-      }_`;
+    return `_${
+      escapeMd(
+        multiple
+          ? this.i18n.t("bot.info.messages.uploadFilesHere")
+          : this.i18n.t("bot.info.messages.uploadFileHere"),
+      )
+    }_`;
   }
 
   /**
@@ -352,12 +360,13 @@ export class CalloutResponseRenderer {
    * @returns The note in Markdown
    */
   protected howManyAddressesMd(multiple?: boolean): string {
-    return `_${escapeMd(
-      multiple
-        ? this.i18n.t("bot.info.messages.multipleAddressesAllowed")
-        : this.i18n.t("bot.info.messages.onlyOneAddressAllowed"),
-    )
-      }_`;
+    return `_${
+      escapeMd(
+        multiple
+          ? this.i18n.t("bot.info.messages.multipleAddressesAllowed")
+          : this.i18n.t("bot.info.messages.onlyOneAddressAllowed"),
+      )
+    }_`;
   }
 
   /**
@@ -366,12 +375,13 @@ export class CalloutResponseRenderer {
    * @returns The note in Markdown
    */
   protected howManyEmailsMd(multiple?: boolean): string {
-    return `_${escapeMd(
-      multiple
-        ? this.i18n.t("bot.info.messages.multipleEmailsAllowed")
-        : this.i18n.t("bot.info.messages.onlyOneEmailAllowed"),
-    )
-      }_`;
+    return `_${
+      escapeMd(
+        multiple
+          ? this.i18n.t("bot.info.messages.multipleEmailsAllowed")
+          : this.i18n.t("bot.info.messages.onlyOneEmailAllowed"),
+      )
+    }_`;
   }
 
   /**
@@ -380,21 +390,23 @@ export class CalloutResponseRenderer {
    * @returns The note in Markdown
    */
   protected howManyNumbersMd(multiple?: boolean): string {
-    return `_${escapeMd(
-      multiple
-        ? this.i18n.t("bot.info.messages.multipleNumbersAllowed")
-        : this.i18n.t("bot.info.messages.onlyOneNumberAllowed"),
-    )
-      }_`;
+    return `_${
+      escapeMd(
+        multiple
+          ? this.i18n.t("bot.info.messages.multipleNumbersAllowed")
+          : this.i18n.t("bot.info.messages.onlyOneNumberAllowed"),
+      )
+    }_`;
   }
 
   protected howManySelectionsMd(multiple?: boolean): string {
-    return `_${escapeMd(
-      multiple
-        ? this.i18n.t("bot.info.messages.multipleSelectionsAllowed")
-        : this.i18n.t("bot.info.messages.onlyOneSelectionAllowed"),
-    )
-      }_`;
+    return `_${
+      escapeMd(
+        multiple
+          ? this.i18n.t("bot.info.messages.multipleSelectionsAllowed")
+          : this.i18n.t("bot.info.messages.onlyOneSelectionAllowed"),
+      )
+    }_`;
   }
 
   protected textTypeMd(
@@ -403,15 +415,17 @@ export class CalloutResponseRenderer {
       | CalloutComponentType.INPUT_TEXT_AREA,
   ) {
     if (type === CalloutComponentType.INPUT_TEXT_FIELD) {
-      return `_${escapeMd(
-        this.i18n.t("bot.info.messages.enterText"),
-      )
-        }_`;
+      return `_${
+        escapeMd(
+          this.i18n.t("bot.info.messages.enterText"),
+        )
+      }_`;
     } else if (type === CalloutComponentType.INPUT_TEXT_AREA) {
-      return `_${escapeMd(
-        this.i18n.t("bot.info.messages.enterLotsOfText"),
-      )
-        }_`;
+      return `_${
+        escapeMd(
+          this.i18n.t("bot.info.messages.enterLotsOfText"),
+        )
+      }_`;
     }
   }
 
@@ -439,7 +453,13 @@ export class CalloutResponseRenderer {
       file.filePattern || file.type === "signature" ? "image/*" : "",
     );
 
-    this.answerOptionsMdKeyboard(result, file, prefix);
+    this.answerOptionsMdInlineKeyboard(
+      result,
+      file,
+      prefix,
+      multiple,
+      required,
+    );
 
     return result;
   }
@@ -479,7 +499,6 @@ export class CalloutResponseRenderer {
         false,
       ),
       parseType: ParsedResponseType.NONE,
-      removeKeyboard: true,
       forceReply: false,
     };
 
@@ -501,13 +520,14 @@ export class CalloutResponseRenderer {
     const multiple = this.isMultiple(input);
     const required = result.accepted.required;
 
-    result.markdown += `_${escapeMd(
-      this.i18n.t("bot.response.messages.answerWithTruthyOrFalsy", {
-        truthy: truthyMessage,
-        falsy: falsyMessage,
-      }),
-    )
-      }_`;
+    result.markdown += `_${
+      escapeMd(
+        this.i18n.t("bot.response.messages.answerWithTruthyOrFalsy", {
+          truthy: truthyMessage,
+          falsy: falsyMessage,
+        }),
+      )
+    }_`;
 
     result.accepted = this.condition.replayConditionText(
       multiple,
@@ -517,13 +537,20 @@ export class CalloutResponseRenderer {
       !required ? [skipMessage] : [],
     );
 
-    result.keyboard = this.keyboard.yesNo(
-      result.keyboard,
+    result.inlineKeyboard = this.keyboard.inlineYesNo(
+      CALLOUT_RESPONSE_INTERACTION_PREFIX,
+      result.inlineKeyboard,
       truthyMessage,
       falsyMessage,
     );
 
-    this.answerOptionsMdKeyboard(result, input, prefix);
+    this.answerOptionsMdInlineKeyboard(
+      result,
+      input,
+      prefix,
+      multiple,
+      required,
+    );
 
     return result;
   }
@@ -557,38 +584,43 @@ export class CalloutResponseRenderer {
         break;
       }
       case CalloutComponentType.INPUT_PHONE_NUMBER: {
-        result.markdown += `_${escapeMd(
-          this.i18n.t("bot.info.messages.enterTelephoneNumber"),
-        )
-          }_`;
+        result.markdown += `_${
+          escapeMd(
+            this.i18n.t("bot.info.messages.enterTelephoneNumber"),
+          )
+        }_`;
         break;
       }
       case CalloutComponentType.INPUT_CURRENCY: {
-        result.markdown += `_${escapeMd(
-          this.i18n.t("bot.info.messages.enterAmountOfMoney"),
-        )
-          }_`;
+        result.markdown += `_${
+          escapeMd(
+            this.i18n.t("bot.info.messages.enterAmountOfMoney"),
+          )
+        }_`;
         break;
       }
       case CalloutComponentType.INPUT_DATE_TIME: {
-        result.markdown += `_${escapeMd(
-          this.i18n.t("bot.info.messages.enterDate"),
-        )
-          }_`;
+        result.markdown += `_${
+          escapeMd(
+            this.i18n.t("bot.info.messages.enterDate"),
+          )
+        }_`;
         break;
       }
       case CalloutComponentType.INPUT_TIME: {
-        result.markdown += `_${escapeMd(
-          this.i18n.t("bot.info.messages.enterTime"),
-        )
-          }_`;
+        result.markdown += `_${
+          escapeMd(
+            this.i18n.t("bot.info.messages.enterTime"),
+          )
+        }_`;
         break;
       }
       case CalloutComponentType.INPUT_URL: {
-        result.markdown += `_${escapeMd(
-          this.i18n.t("bot.info.messages.enterUrl"),
-        )
-          }_`;
+        result.markdown += `_${
+          escapeMd(
+            this.i18n.t("bot.info.messages.enterUrl"),
+          )
+        }_`;
         break;
       }
 
@@ -603,7 +635,7 @@ export class CalloutResponseRenderer {
       }
     }
 
-    this.answerOptionsMdKeyboard(result, input, prefix, multiple);
+    this.answerOptionsMdInlineKeyboard(result, input, prefix, multiple);
 
     return result;
   }
@@ -632,19 +664,27 @@ export class CalloutResponseRenderer {
         valueLabel,
       ),
     };
-    result.markdown += `\n${this.selectValues(select, prefix, valueLabel).markdown
-      }`;
+    result.markdown += `\n${
+      this.selectValues(select, prefix, valueLabel).markdown
+    }`;
 
     result.markdown += `\n\n`;
 
     result.markdown += this.howManySelectionsMd(multiple);
 
-    result.keyboard = this.keyboard.selection(
-      result.keyboard,
+    result.inlineKeyboard = this.keyboard.inlineSelection(
+      CALLOUT_RESPONSE_INTERACTION_PREFIX,
+      result.inlineKeyboard,
       range(1, Object.keys(valueLabel).length).map(String),
     );
 
-    this.answerOptionsMdKeyboard(result, select, prefix);
+    this.answerOptionsMdInlineKeyboard(
+      result,
+      select,
+      prefix,
+      multiple,
+      required,
+    );
 
     return result;
   }
@@ -673,17 +713,19 @@ export class CalloutResponseRenderer {
       ),
     };
 
-    result.markdown += `\n${this.selectableValues(selectable, prefix, valueLabel).markdown
-      }`;
+    result.markdown += `\n${
+      this.selectableValues(selectable, prefix, valueLabel).markdown
+    }`;
 
     result.markdown += this.howManySelectionsMd(multiple);
 
-    result.keyboard = this.keyboard.selection(
-      result.keyboard,
+    result.inlineKeyboard = this.keyboard.inlineSelection(
+      CALLOUT_RESPONSE_INTERACTION_PREFIX,
+      result.inlineKeyboard,
       range(1, Object.keys(valueLabel).length).map(String),
     );
 
-    this.answerOptionsMdKeyboard(
+    this.answerOptionsMdInlineKeyboard(
       result,
       selectable,
       prefix,
@@ -799,7 +841,6 @@ export class CalloutResponseRenderer {
         type: (component as CalloutComponentSchema).type || "undefined",
       }),
       parseType: calloutComponentTypeToParsedResponseType(component),
-      removeKeyboard: true,
       forceReply: false,
     };
     results.push(unknown);
@@ -817,7 +858,6 @@ export class CalloutResponseRenderer {
       accepted: this.condition.replayConditionNone(),
       html: "",
       parseType: ParsedResponseType.NONE,
-      removeKeyboard: true,
       forceReply: false,
     };
     result.html = `${sanitizeHtml(callout.intro)}`;
@@ -840,7 +880,6 @@ export class CalloutResponseRenderer {
       accepted: this.condition.replayConditionNone(),
       html: ``,
       parseType: ParsedResponseType.NONE,
-      removeKeyboard: true,
       forceReply: false,
       afterDelay: 3000,
     };
