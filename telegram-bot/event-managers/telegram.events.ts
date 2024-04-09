@@ -2,7 +2,7 @@ import { Singleton } from "../deps/index.ts";
 import { EventService } from "../services/event.service.ts";
 import { BotService } from "../services/bot.service.ts";
 import { BaseEventManager } from "../core/base.events.ts";
-import { BUTTON_CALLBACK_PREFIX } from "../constants/index.ts";
+import { INLINE_BUTTON_CALLBACK_PREFIX } from "../constants/index.ts";
 
 import type { AppContext } from "../types/index.ts";
 
@@ -22,7 +22,7 @@ export class TelegramEventManager extends BaseEventManager {
   public init() {
     // Forward callback query data, e.g. Telegram keyboard button presses
     this.bot.on(
-      BUTTON_CALLBACK_PREFIX,
+      INLINE_BUTTON_CALLBACK_PREFIX,
       (ctx) => this.onCallbackQueryData(ctx),
     );
 
@@ -37,13 +37,13 @@ export class TelegramEventManager extends BaseEventManager {
   protected onCallbackQueryData(ctx: AppContext) {
     if (!ctx.callbackQuery?.data) {
       // Dispatch general callback event
-      this.event.emit(BUTTON_CALLBACK_PREFIX, ctx);
+      this.event.emit(INLINE_BUTTON_CALLBACK_PREFIX, ctx);
       return;
     }
 
     // Dispatch specific callback events
     this.event.emitDetailedEvents(
-      `${BUTTON_CALLBACK_PREFIX}:${ctx.callbackQuery.data}`,
+      `${INLINE_BUTTON_CALLBACK_PREFIX}:${ctx.callbackQuery.data}`,
       ctx,
     );
   }

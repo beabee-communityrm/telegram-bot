@@ -1,7 +1,7 @@
 import { InputFile, InputMediaBuilder, Singleton } from "../deps/index.ts";
 import { downloadImage, escapeMd } from "../utils/index.ts";
 import { ParsedResponseType, RenderType } from "../enums/index.ts";
-import { BUTTON_CALLBACK_CALLOUT_INTRO } from "../constants/index.ts";
+import { INLINE_BUTTON_CALLBACK_CALLOUT_INTRO } from "../constants/index.ts";
 
 import { ConditionService } from "../services/condition.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
@@ -29,7 +29,7 @@ export class CalloutRenderer {
   }
 
   /**
-   * @fires `${BUTTON_CALLBACK_PREFIX}:${BUTTON_CALLBACK_CALLOUT_INTRO}`
+   * @fires `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_CALLOUT_INTRO}`
    *
    * @param callout
    * @returns
@@ -41,7 +41,7 @@ export class CalloutRenderer {
       escapeMd(this.i18n.t("bot.response.messages.calloutStartResponse"))
     }_`;
     const yesNoInlineKeyboard = this.keyboard.inlineYesNo(
-      `${BUTTON_CALLBACK_CALLOUT_INTRO}:${callout.shortSlug}`,
+      `${INLINE_BUTTON_CALLBACK_CALLOUT_INTRO}:${callout.shortSlug}`,
     );
 
     const result: Render = {

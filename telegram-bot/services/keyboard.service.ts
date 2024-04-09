@@ -1,6 +1,10 @@
 import { BaseService } from "../core/index.ts";
 import { InlineKeyboard, Keyboard, Singleton } from "../deps/index.ts";
-import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants/index.ts";
+import {
+  FALSY_MESSAGE_KEY,
+  INLINE_BUTTON_CALLBACK_SHOW_CALLOUT,
+  TRUTHY_MESSAGE_KEY,
+} from "../constants/index.ts";
 import { I18nService } from "./i18n.service.ts";
 
 import type { AppContext, CalloutDataExt } from "../types/index.ts";
@@ -39,9 +43,9 @@ export class KeyboardService extends BaseService {
   /**
    * Create a keyboard button to select a callout.
    *
-   * To respond to the button press, listen for the `${BUTTON_CALLBACK_PREFIX}:show-callout-slug` event using the EventService.
+   * To respond to the button press, listen for the `${INLINE_BUTTON_CALLBACK_PREFIX}:show-callout-slug` event using the EventService.
    *
-   * @fires `${BUTTON_CALLBACK_PREFIX}:${BUTTON_CALLBACK_SHOW_CALLOUT}`
+   * @fires `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_SHOW_CALLOUT}`
    *
    * @param callouts The Callouts to select from
    * @param startIndex The index of the first callout to show, starting at 1
@@ -70,7 +74,8 @@ export class KeyboardService extends BaseService {
         );
         continue;
       }
-      const callbackData = `${BUTTON_CALLBACK_SHOW_CALLOUT}:${shortSlug}`;
+      const callbackData =
+        `${INLINE_BUTTON_CALLBACK_SHOW_CALLOUT}:${shortSlug}`;
 
       if (callbackData.length > 64) {
         console.error(
@@ -121,8 +126,8 @@ export class KeyboardService extends BaseService {
   /**
    * Create a inline keyboard with Yes and No buttons.
    *
-   * To respond to the button press, listen for the `${BUTTON_CALLBACK_PREFIX}:yes` and `${BUTTON_CALLBACK_PREFIX}:no` events using the EventService.
-   * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `${BUTTON_CALLBACK_PREFIX}:callout-respond:yes`.
+   * To respond to the button press, listen for the `${INLINE_BUTTON_CALLBACK_PREFIX}:yes` and `${INLINE_BUTTON_CALLBACK_PREFIX}:no` events using the EventService.
+   * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `${INLINE_BUTTON_CALLBACK_PREFIX}:callout-respond:yes`.
    *
    * @param ctx The chat context
    * @param prefix A prefix to add to the button data, e.g. "callout-respond"
@@ -135,14 +140,16 @@ export class KeyboardService extends BaseService {
     keyboard = this.inlineEmpty(),
     truthyLabel = this.i18n.t("bot.reactions.messages.truthy"),
     falsyLabel = this.i18n.t("bot.reactions.messages.falsy"),
+    truthyMessageKey = TRUTHY_MESSAGE_KEY,
+    falsyMessageKey = FALSY_MESSAGE_KEY,
   ) {
     keyboard.text(
       truthyLabel,
-      prefix ? `${prefix}:yes` : `yes`,
+      prefix ? `${prefix}:${truthyMessageKey}` : `${truthyMessageKey}`,
     );
     keyboard.text(
       falsyLabel,
-      prefix ? `${prefix}:no` : `no`,
+      prefix ? `${prefix}:${falsyMessageKey}` : `${falsyMessageKey}`,
     );
     return keyboard;
   }
@@ -268,8 +275,8 @@ export class KeyboardService extends BaseService {
   /**
    * Create a inline keyboard with Continue and Cancel buttons.
    *
-   * To respond to the button press, listen for the `${BUTTON_CALLBACK_PREFIX}:continue` and `${BUTTON_CALLBACK_PREFIX}:cancel` events using the EventService.
-   * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `${BUTTON_CALLBACK_PREFIX}:callout-respond:continue`.
+   * To respond to the button press, listen for the `${INLINE_BUTTON_CALLBACK_PREFIX}:continue` and `${INLINE_BUTTON_CALLBACK_PREFIX}:cancel` events using the EventService.
+   * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `${INLINE_BUTTON_CALLBACK_PREFIX}:callout-respond:continue`.
    *
    * @param prefix A prefix to add to the button data, e.g. "callout-respond"
    */

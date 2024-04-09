@@ -20,8 +20,8 @@ import { ValidationService } from "./validation.service.ts";
 import { getIdentifier, sleep } from "../utils/index.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
 import {
-  BUTTON_CALLBACK_PREFIX,
-  CALLOUT_RESPONSE_INTERACTION_PREFIX,
+  INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
+  INLINE_BUTTON_CALLBACK_PREFIX,
 } from "../constants/index.ts";
 
 import type {
@@ -67,7 +67,7 @@ export class CommunicationService extends BaseService {
       await sleep(render.beforeDelay);
     }
 
-    // link previews are disabled by default
+    // link previews are disabled by default, define render.linkPreview to enable them
     if (!render.linkPreview) {
       render.linkPreview = {
         is_disabled: true,
@@ -182,7 +182,7 @@ export class CommunicationService extends BaseService {
   public async receiveMessageOrCallbackQueryData(ctx: AppContext) {
     const userId = getIdentifier(ctx);
     const eventName =
-      `${BUTTON_CALLBACK_PREFIX}:${CALLOUT_RESPONSE_INTERACTION_PREFIX}`;
+      `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}`;
 
     return await new Promise<AppContext>((resolve) => {
       const onMessage = (ctx: AppContext) => {
@@ -190,14 +190,15 @@ export class CommunicationService extends BaseService {
           "[CommunicationService] receive message",
           ctx,
         );
-        this.event.off(eventName, onCallbackQueryData);
+        this.event.off(eventName, onInteractionCallbackQueryData);
         resolve(ctx);
       };
 
-      const onCallbackQueryData = (ctx: AppContext) => {
+      // TODO: Any elegant way to move this to the CalloutResponseEventManager?
+      const onInteractionCallbackQueryData = (ctx: AppContext) => {
         console.debug(
-          "[CommunicationService] receive callback query data",
-          ctx,
+          "[CommunicationService] receive callback query ctx.update.callback_query",
+          JSON.stringify(ctx.update.callback_query, null, 2),
         );
         this.event.offUserMessage(userId, onMessage);
         resolve(ctx);
@@ -205,7 +206,7 @@ export class CommunicationService extends BaseService {
 
       this.event.onceUserMessage(userId, onMessage);
 
-      this.event.once(eventName, onCallbackQueryData);
+      this.event.once(eventName, onInteractionCallbackQueryData);
     });
   }
 

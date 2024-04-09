@@ -28,9 +28,9 @@ import { I18nService } from "../services/i18n.service.ts";
 import { ConditionService } from "../services/condition.service.ts";
 import { MessageRenderer } from "./message.renderer.ts";
 import {
-  BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
-  CALLOUT_RESPONSE_INTERACTION_PREFIX,
   EMPTY_RENDER,
+  INLINE_BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
+  INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
 } from "../constants/index.ts";
 
 import type {
@@ -223,7 +223,7 @@ export class CalloutResponseRenderer {
     result.markdown += `${this.requiredMd(component, prefix).markdown}`;
 
     result.inlineKeyboard = this.keyboard.inlineSkipDone(
-      CALLOUT_RESPONSE_INTERACTION_PREFIX,
+      INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
       result.inlineKeyboard,
       required,
       multiple,
@@ -513,10 +513,16 @@ export class CalloutResponseRenderer {
     result.parseType = ParsedResponseType.BOOLEAN;
     result.markdown += `\n\n`;
 
-    const truthyMessage = this.i18n.t("bot.reactions.messages.truthy");
-    const falsyMessage = this.i18n.t("bot.reactions.messages.falsy");
-    const doneMessage = this.i18n.t("bot.reactions.messages.done");
-    const skipMessage = this.i18n.t("bot.reactions.messages.skip");
+    const truthyMessageKey = "bot.reactions.messages.truthy";
+    const falsyMessageKey = "bot.reactions.messages.falsy";
+    const doneMessageKey = "bot.reactions.messages.done";
+    const skipMessageKey = "bot.reactions.messages.skip";
+
+    const truthyMessage = this.i18n.t(truthyMessageKey);
+    const falsyMessage = this.i18n.t(falsyMessageKey);
+    const doneMessage = this.i18n.t(doneMessageKey);
+    const skipMessage = this.i18n.t(skipMessageKey);
+
     const multiple = this.isMultiple(input);
     const required = result.accepted.required;
 
@@ -538,7 +544,7 @@ export class CalloutResponseRenderer {
     );
 
     result.inlineKeyboard = this.keyboard.inlineYesNo(
-      CALLOUT_RESPONSE_INTERACTION_PREFIX,
+      INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
       result.inlineKeyboard,
       truthyMessage,
       falsyMessage,
@@ -673,7 +679,7 @@ export class CalloutResponseRenderer {
     result.markdown += this.howManySelectionsMd(multiple);
 
     result.inlineKeyboard = this.keyboard.inlineSelection(
-      CALLOUT_RESPONSE_INTERACTION_PREFIX,
+      INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
       result.inlineKeyboard,
       range(1, Object.keys(valueLabel).length).map(String),
     );
@@ -720,7 +726,7 @@ export class CalloutResponseRenderer {
     result.markdown += this.howManySelectionsMd(multiple);
 
     result.inlineKeyboard = this.keyboard.inlineSelection(
-      CALLOUT_RESPONSE_INTERACTION_PREFIX,
+      INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
       result.inlineKeyboard,
       range(1, Object.keys(valueLabel).length).map(String),
     );
@@ -863,7 +869,7 @@ export class CalloutResponseRenderer {
     result.html = `${sanitizeHtml(callout.intro)}`;
 
     const continueKeyboard = this.keyboard.inlineContinueCancel(
-      `${BUTTON_CALLBACK_CALLOUT_PARTICIPATE}:${callout.slug}`,
+      `${INLINE_BUTTON_CALLBACK_CALLOUT_PARTICIPATE}:${callout.slug}`,
     );
     result.inlineKeyboard = continueKeyboard;
 

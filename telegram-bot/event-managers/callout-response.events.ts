@@ -11,9 +11,11 @@ import { ResetCommand } from "../commands/reset.command.ts";
 import { ListCommand } from "../commands/list.command.ts";
 import { ChatState } from "../enums/index.ts";
 import {
-  BUTTON_CALLBACK_CALLOUT_INTRO,
-  BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
-  BUTTON_CALLBACK_PREFIX,
+  FALSY_MESSAGE_KEY,
+  INLINE_BUTTON_CALLBACK_CALLOUT_INTRO,
+  INLINE_BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
+  INLINE_BUTTON_CALLBACK_PREFIX,
+  TRUTHY_MESSAGE_KEY,
 } from "../constants/index.ts";
 import { BaseEventManager } from "../core/base.events.ts";
 
@@ -43,14 +45,14 @@ export class CalloutResponseEventManager extends BaseEventManager {
   public init() {
     // Listen for the callback query data event with the `callout-respond:yes` data
     this.event.on(
-      `${BUTTON_CALLBACK_PREFIX}:${BUTTON_CALLBACK_CALLOUT_INTRO}`,
+      `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_CALLOUT_INTRO}`,
       (event) => {
         this.onCalloutIntroKeyboardPressed(event);
       },
     );
 
     this.event.on(
-      `${BUTTON_CALLBACK_PREFIX}:${BUTTON_CALLBACK_CALLOUT_PARTICIPATE}`,
+      `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_CALLOUT_PARTICIPATE}`,
       (event) => {
         this.onCalloutParticipateKeyboardPressed(event);
       },
@@ -180,7 +182,9 @@ export class CalloutResponseEventManager extends BaseEventManager {
   protected async onCalloutIntroKeyboardPressed(ctx: AppContext) {
     const data = ctx.callbackQuery?.data?.split(":");
     const shortSlug = data?.[1];
-    const startIntro = data?.[2] as "yes" | "no" === "yes"; // This is the key, so it's not localized
+    const startIntro =
+      data?.[2] as typeof TRUTHY_MESSAGE_KEY | typeof FALSY_MESSAGE_KEY ===
+        TRUTHY_MESSAGE_KEY; // This is the key, so it's not localized
 
     // Remove the inline keyboard
     await this.keyboard.removeInlineKeyboard(ctx);
