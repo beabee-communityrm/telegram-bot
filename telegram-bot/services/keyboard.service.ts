@@ -312,13 +312,18 @@ export class KeyboardService extends BaseService {
   /**
    * Remove an existing inline keyboard
    * @param ctx The chat context
-   * @param withMessage If true, the message will be deleted, too
+   * @param withMessage If true, the attached message will be deleted, too
    */
   public async removeInlineKeyboard(ctx: AppContext, withMessage = false) {
     try {
-      // Do not delete keyboard message?
+      // Do not remove attached message?
       if (!withMessage) {
         const inlineKeyboard = new InlineKeyboard();
+        console.debug("ctx.update", JSON.stringify(ctx.update, null, 2));
+        if (!ctx.update.callback_query?.message?.reply_markup) {
+          console.warn("No keyboard to remove");
+          return;
+        }
         return await ctx.editMessageReplyMarkup({
           reply_markup: inlineKeyboard,
         });

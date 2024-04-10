@@ -186,10 +186,6 @@ export class CommunicationService extends BaseService {
 
     return await new Promise<AppContext>((resolve) => {
       const onMessage = (ctx: AppContext) => {
-        console.debug(
-          "[CommunicationService] receive message",
-          ctx,
-        );
         this.event.off(eventName, onInteractionCallbackQueryData);
         resolve(ctx);
       };

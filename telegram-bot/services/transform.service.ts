@@ -68,17 +68,17 @@ export class TransformService extends BaseService {
   }
 
   public parseResponseText(
-    message?: Message,
+    message?: string,
   ): RenderResponseParsedText<false>["data"] {
-    return getTextFromMessage(message);
+    return message?.trim() || "";
   }
 
   public parseResponsesText(
-    messages: Message[],
+    messages: string[],
   ): RenderResponseParsedText<true>["data"] {
     const texts = messages
-      .filter((message) => message.text)
-      .map((message) => getTextFromMessage(message));
+      .filter((message) => message !== undefined)
+      .map((message) => message.trim());
 
     return texts;
   }
@@ -160,9 +160,9 @@ export class TransformService extends BaseService {
   }
 
   public parseResponseBoolean(
-    message?: Message,
+    message?: string,
   ): RenderResponseParsedBoolean<false>["data"] {
-    const boolStr = getTextFromMessage(message).toLowerCase().trim();
+    const boolStr = message?.trim().toLowerCase();
     let bool = false;
     const truthyStr = this.i18n.t("bot.reactions.messages.truthy").toLowerCase()
       .trim();
@@ -179,27 +179,26 @@ export class TransformService extends BaseService {
   }
 
   public parseResponsesBoolean(
-    messages: Message[],
+    messages: string[],
   ): RenderResponseParsedBoolean<true>["data"] {
     const booleans = messages
-      .filter((message) => message.text)
+      .filter((message) => message !== undefined)
       .map(this.parseResponseBoolean);
 
     return booleans;
   }
 
   public parseResponseNumber(
-    message?: Message,
+    message?: string,
   ): RenderResponseParsedNumber<false>["data"] {
-    const text = getTextFromMessage(message);
-    return extractNumbers(text);
+    return extractNumbers(message?.trim());
   }
 
   public parseResponsesNumber(
-    messages: Message[],
+    messages: string[],
   ): RenderResponseParsedNumber<true>["data"] {
     const texts = messages
-      .filter((message) => message.text)
+      .filter((message) => message !== undefined)
       .map(this.parseResponseNumber);
 
     return texts;
@@ -237,7 +236,7 @@ export class TransformService extends BaseService {
   }
 
   public parseResponseCalloutComponentInputUrl(
-    message?: Message,
+    message?: string,
   ): string {
     let text = this.parseResponseText(message);
     if (!text.startsWith("http")) {
@@ -249,7 +248,8 @@ export class TransformService extends BaseService {
   public parseResponseAny(
     message?: Message,
   ): RenderResponseParsedAny<false>["data"] {
-    return this.parseResponseText(message) || this.parseResponseFile(message);
+    return this.parseResponseText(message?.text) ||
+      this.parseResponseFile(message);
   }
 
   public parseResponsesAny(
@@ -296,7 +296,7 @@ export class TransformService extends BaseService {
       case ParsedResponseType.FILE:
         return this.parseResponseFile(replay.context.message);
       case ParsedResponseType.TEXT:
-        return this.parseResponseText(replay.context.message);
+        return this.parseResponseText(replay.context.message?.text);
       case ParsedResponseType.SELECTION:
         if (render.accepted.type !== ReplayType.SELECTION) {
           throw new Error(
@@ -305,9 +305,9 @@ export class TransformService extends BaseService {
         }
         return this.parseResponseSelection(replay, render.accepted.valueLabel);
       case ParsedResponseType.BOOLEAN:
-        return this.parseResponseBoolean(replay.context.message);
+        return this.parseResponseBoolean(replay.context.message?.text);
       case ParsedResponseType.NUMBER:
-        return this.parseResponseNumber(replay.context.message);
+        return this.parseResponseNumber(replay.context.message?.text);
       case ParsedResponseType.ANY:
         return this.parseResponseAny(replay.context.message);
       case ParsedResponseType.NONE:
@@ -329,6 +329,9 @@ export class TransformService extends BaseService {
     const messages = contexts.filter((c) => c.message).map((c) =>
       c.message as (Message & Update.NonChannel)
     );
+    const textMessages = messages.filter((m) => m.text).map((m) =>
+      m.text as string
+    );
     switch (render.parseType) {
       case ParsedResponseType.CALLOUT_COMPONENT:
         // Already parsed for validation
@@ -338,13 +341,13 @@ export class TransformService extends BaseService {
       case ParsedResponseType.FILE:
         return this.parseResponsesFile(messages);
       case ParsedResponseType.TEXT:
-        return this.parseResponsesText(messages);
+        return this.parseResponsesText(textMessages);
       case ParsedResponseType.SELECTION:
         return this.parseResponsesSelection(replays, render);
       case ParsedResponseType.BOOLEAN:
-        return this.parseResponsesBoolean(messages);
+        return this.parseResponsesBoolean(textMessages);
       case ParsedResponseType.NUMBER:
-        return this.parseResponsesNumber(messages);
+        return this.parseResponsesNumber(textMessages);
       case ParsedResponseType.ANY:
         return this.parseResponsesAny(messages);
       case ParsedResponseType.NONE:

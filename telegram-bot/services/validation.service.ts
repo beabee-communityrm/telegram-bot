@@ -5,7 +5,6 @@ import {
   MaybeInaccessibleMessage,
   Message,
   Singleton,
-  Update,
 } from "../deps/index.ts";
 import { RelayAcceptedFileType, ReplayType } from "../enums/index.ts";
 import {
@@ -13,7 +12,6 @@ import {
   getFileIdFromMessage,
   getKeyboardButtonFromCallbackQuery,
   getSimpleMimeTypes,
-  getTextFromMessage,
   isNumber,
 } from "../utils/index.ts";
 
@@ -105,7 +103,9 @@ export class ValidationService extends BaseService {
     context: AppContext,
     accepted: ReplayConditionFile,
     message = context.message,
+    textMessage = message?.text,
   ): ReplayAcceptedFile {
+    textMessage = textMessage?.trim();
     let fileType: RelayAcceptedFileType = RelayAcceptedFileType.ANY;
     // Is not a file message
     if (!message) {
@@ -182,16 +182,11 @@ export class ValidationService extends BaseService {
   protected messageIsDoneOrSkipText(
     context: AppContext,
     accepted: ReplayCondition,
-    message:
-      | MaybeInaccessibleMessage
-      | (Message & Update.NonChannel)
-      | string
-      | undefined = context.message,
+    message = context.message,
+    textMessage = message?.text,
   ): ReplayAcceptedText | ReplayAcceptedNone {
     // Capitalisation should not play a role for done messages, see https://github.com/beabee-communityrm/telegram-bot/issues/5
-    const textMessage = typeof message === "string"
-      ? message
-      : getTextFromMessage(message).toLowerCase();
+    textMessage = textMessage?.trim().toLowerCase();
 
     let isDoneMessage = false;
     let isSkipMessage = false;
@@ -244,10 +239,12 @@ export class ValidationService extends BaseService {
     context: AppContext,
     accepted: ReplayConditionText,
     message = context.message,
+    textMessage = message?.text,
   ): ReplayAcceptedText | ReplayAcceptedNone {
+    textMessage = textMessage?.trim();
     const texts = accepted.texts?.map((t) => t.toLowerCase().trim());
-    const originalText = message?.text?.trim();
-    const lowerCaseText = originalText?.toLowerCase();
+    const originalText = textMessage;
+    const lowerCaseText = textMessage?.toLowerCase();
 
     const baseResult = {
       isDoneMessage: false,
@@ -256,7 +253,7 @@ export class ValidationService extends BaseService {
     };
 
     // Is not a text message
-    if (!message || !originalText || !lowerCaseText) {
+    if (!originalText || !lowerCaseText) {
       return {
         type: ReplayType.NONE,
         accepted: false,
@@ -303,8 +300,9 @@ export class ValidationService extends BaseService {
     context: AppContext,
     accepted: ReplayConditionSelection,
     message = context.message,
+    textMessage = message?.text,
   ): ReplayAcceptedSelection {
-    const text = getTextFromMessage(message).toLowerCase();
+    textMessage = textMessage?.trim().toLowerCase();
 
     const baseResult = {
       isDoneMessage: false,
@@ -313,8 +311,8 @@ export class ValidationService extends BaseService {
     };
 
     // The answer message can be the index of the value but starts with 1
-    if (isNumber(text)) {
-      const index1 = extractNumbers(text);
+    if (isNumber(textMessage)) {
+      const index1 = extractNumbers(textMessage);
       const keys = Object.keys(accepted.valueLabel);
       const value = keys[index1 - 1];
       if (value) {
@@ -329,7 +327,7 @@ export class ValidationService extends BaseService {
 
     // The answer message can be the value directly
     const acceptedValue = Object.keys(accepted.valueLabel).find(
-      (key) => accepted.valueLabel[key].toLowerCase() === text,
+      (key) => accepted.valueLabel[key].toLowerCase() === textMessage,
     );
     const isAccepted = !!acceptedValue;
     return {
@@ -349,8 +347,10 @@ export class ValidationService extends BaseService {
   protected messageIsCalloutComponent(
     context: AppContext,
     accepted: ReplayConditionCalloutComponentSchema,
-    message = context.message,
+    message?: Message,
+    textMessage = message?.text,
   ): ReplayAcceptedCalloutComponentSchema | ReplayAcceptedNone {
+    textMessage = textMessage?.trim();
     const baseResult = {
       isDoneMessage: false,
       isSkipMessage: false,
@@ -374,7 +374,7 @@ export class ValidationService extends BaseService {
         };
       }
       case CalloutComponentType.INPUT_CHECKBOX: {
-        result.answer = this.transform.parseResponseBoolean(message);
+        result.answer = this.transform.parseResponseBoolean(textMessage);
         break;
       }
       case CalloutComponentType.INPUT_FILE:
@@ -390,18 +390,18 @@ export class ValidationService extends BaseService {
       case CalloutComponentType.INPUT_TEXT_AREA:
       case CalloutComponentType.INPUT_TEXT_FIELD:
       case CalloutComponentType.INPUT_TIME: {
-        result.answer = this.transform.parseResponseText(message);
+        result.answer = this.transform.parseResponseText(textMessage);
         break;
       }
       case CalloutComponentType.INPUT_URL: {
         result.answer = this.transform.parseResponseCalloutComponentInputUrl(
-          message,
+          textMessage,
         );
         break;
       }
 
       case CalloutComponentType.INPUT_NUMBER: {
-        result.answer = this.transform.parseResponseNumber(message);
+        result.answer = this.transform.parseResponseNumber(textMessage);
         break;
       }
 
@@ -432,8 +432,6 @@ export class ValidationService extends BaseService {
 
   /**
    * Check if a message is accepted by a condition.
-   * This method is simmilar to {@link callbackQueryDataIsAccepted} but it
-   * checks the message instead of the callback query data.
    * @param accepted
    * @param context
    * @returns
@@ -441,8 +439,15 @@ export class ValidationService extends BaseService {
   public messageIsAccepted(
     context: AppContext,
     accepted: ReplayCondition,
+    message = context.message,
+    textMessage = message?.text,
   ): ReplayAccepted {
-    const isDoneOrSkip = this.messageIsDoneOrSkipText(context, accepted);
+    const isDoneOrSkip = this.messageIsDoneOrSkipText(
+      context,
+      accepted,
+      message,
+      textMessage,
+    );
     if (
       isDoneOrSkip.accepted &&
       (isDoneOrSkip.isDoneMessage || isDoneOrSkip.isSkipMessage)
@@ -474,25 +479,45 @@ export class ValidationService extends BaseService {
 
     // File response is accepted
     if (accepted.type === ReplayType.FILE) {
-      const isFile = this.messageIsFile(context, accepted);
+      const isFile = this.messageIsFile(
+        context,
+        accepted,
+        message,
+        textMessage,
+      );
       return isFile;
     }
 
     // Text response is accepted
     if (accepted.type === ReplayType.TEXT) {
-      const isText = this.messageIsText(context, accepted);
+      const isText = this.messageIsText(
+        context,
+        accepted,
+        message,
+        textMessage,
+      );
       return isText;
     }
 
     // Selection response is accepted
     if (accepted.type === ReplayType.SELECTION) {
-      const isSelection = this.messageIsSelection(context, accepted);
+      const isSelection = this.messageIsSelection(
+        context,
+        accepted,
+        message,
+        textMessage,
+      );
       return isSelection;
     }
 
     // Callout component response answer is accepted
     if (accepted.type === ReplayType.CALLOUT_COMPONENT_SCHEMA) {
-      const isCalloutAnswer = this.messageIsCalloutComponent(context, accepted);
+      const isCalloutAnswer = this.messageIsCalloutComponent(
+        context,
+        accepted,
+        message,
+        textMessage,
+      );
       return isCalloutAnswer;
     }
 
@@ -502,9 +527,9 @@ export class ValidationService extends BaseService {
   }
 
   /**
-   * Check if a message is accepted by a condition.
-   * This method is simmilar to {@link messageIsAccepted} but it
-   * checks the callback query data instead of the message.
+   * Check if a callback query data (inline button event) is accepted by a condition.
+   * This method uses {@link messageIsAccepted} but instead of checking the users message text,
+   * it uses the button label of the callback query data as the message text.
    * @param accepted
    * @param context
    * @returns
@@ -512,10 +537,9 @@ export class ValidationService extends BaseService {
   public callbackQueryDataIsAccepted(
     context: AppContext,
     accepted: ReplayCondition,
+    message = context.message,
   ): ReplayAccepted {
     const callbackQueryData = context.callbackQuery?.data;
-    const callbackQueryDataParts = callbackQueryData?.split(":") || [];
-    const lastKey = callbackQueryDataParts[callbackQueryDataParts.length - 1];
 
     if (!callbackQueryData || !context.callbackQuery) {
       throw new Error(
@@ -523,88 +547,16 @@ export class ValidationService extends BaseService {
       );
     }
 
-    // Use the inline keyboard button text as the message text
+    // Use the inline keyboard button label as the message text
     const fakeMessage = getKeyboardButtonFromCallbackQuery(
       context.callbackQuery,
     )?.text;
 
-    const isDoneOrSkip = this.messageIsDoneOrSkipText(
+    return this.messageIsAccepted(
       context,
       accepted,
+      message,
       fakeMessage,
-    );
-    if (
-      isDoneOrSkip.accepted &&
-      (isDoneOrSkip.isDoneMessage || isDoneOrSkip.isSkipMessage)
-    ) {
-      return isDoneOrSkip;
-    }
-
-    const isSkip = lastKey === `skip`;
-    const isDone = lastKey === `done`;
-
-    if (isDone || isSkip) {
-      return {
-        type: ReplayType.CALLBACK_QUERY_DATA,
-        accepted: true,
-        isDoneMessage: isDone,
-        isSkipMessage: isSkip,
-        data: callbackQueryData,
-        context,
-      };
-    }
-
-    // Any response is accepted
-    if (accepted.type === ReplayType.ANY) {
-      return {
-        type: ReplayType.ANY,
-        accepted: true,
-        isDoneMessage: false,
-        isSkipMessage: false,
-        context,
-      };
-    }
-
-    // No response is accepted
-    if (accepted.type === ReplayType.NONE) {
-      return {
-        type: ReplayType.NONE,
-        accepted: false,
-        isDoneMessage: false,
-        isSkipMessage: false,
-        context,
-      };
-    }
-
-    // Callback query data response is not accepted for text or file
-    if (
-      accepted.type === ReplayType.TEXT || accepted.type === ReplayType.FILE
-    ) {
-      return {
-        type: ReplayType.NONE,
-        accepted: false,
-        isDoneMessage: false,
-        isSkipMessage: false,
-        context,
-      };
-    }
-
-    // TODO: The following is not implemented yet and must be ported to query data instead of message
-
-    // Selection response is accepted
-    if (accepted.type === ReplayType.SELECTION) {
-      const isSelection = this.messageIsSelection(context, accepted);
-      return isSelection;
-    }
-
-    // Callout component response answer is accepted
-    if (accepted.type === ReplayType.CALLOUT_COMPONENT_SCHEMA) {
-      const isCalloutAnswer = this.messageIsCalloutComponent(context, accepted);
-      return isCalloutAnswer;
-    }
-
-    throw new Error(
-      `Unknown replay until type: "${(accepted as ReplayCondition)?.type}"`,
     );
   }
 }
