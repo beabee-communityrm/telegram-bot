@@ -36,6 +36,8 @@
     },
     "info": {
       "messages": {
+        "answer": "",
+        "answers": "",
         "command": {
           "notUsable": ""
         },
@@ -55,6 +57,7 @@
         "multipleNumbersAllowed": "",
         "multipleSelectionsAllowed": "",
         "multipleValuesAllowed": "",
+        "noAnswerYet": "",
         "onlyOneAddressAllowed": "",
         "onlyOneEmailAllowed": "",
         "onlyOneNumberAllowed": "",
