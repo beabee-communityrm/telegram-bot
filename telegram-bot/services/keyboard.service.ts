@@ -1,5 +1,10 @@
 import { BaseService } from "../core/index.ts";
-import { InlineKeyboard, Keyboard, Singleton } from "../deps/index.ts";
+import {
+  InlineKeyboard,
+  InlineKeyboardButton,
+  Keyboard,
+  Singleton,
+} from "../deps/index.ts";
 import {
   FALSY_MESSAGE_KEY,
   INLINE_BUTTON_CALLBACK_SHOW_CALLOUT,
@@ -319,7 +324,6 @@ export class KeyboardService extends BaseService {
       // Do not remove attached message?
       if (!withMessage) {
         const inlineKeyboard = new InlineKeyboard();
-        console.debug("ctx.update", JSON.stringify(ctx.update, null, 2));
         if (!ctx.update.callback_query?.message?.reply_markup) {
           console.warn("No keyboard to remove");
           return;
@@ -333,6 +337,31 @@ export class KeyboardService extends BaseService {
     } catch (error) {
       console.error("Error removing inline keyboard", error);
     }
+  }
+
+  /** Remove a specific inline button from the keyboard */
+  public removeInlineButton(
+    keyboard: InlineKeyboard,
+    buttonCallbackData: string,
+  ) {
+    const inlineKeyboard = new InlineKeyboard();
+
+    for (const row of keyboard.inline_keyboard) {
+      for (const button of row) {
+        if (
+          (button as InlineKeyboardButton.CallbackButton).callback_data !==
+            buttonCallbackData
+        ) {
+          inlineKeyboard.text(
+            button.text,
+            (button as InlineKeyboardButton.CallbackButton).callback_data,
+          );
+        }
+      }
+      inlineKeyboard.row();
+    }
+
+    return inlineKeyboard;
   }
 
   public async removeLastInlineKeyboard(ctx: AppContext) {

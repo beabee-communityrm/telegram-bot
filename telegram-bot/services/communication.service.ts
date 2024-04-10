@@ -18,7 +18,7 @@ import { TransformService } from "./transform.service.ts";
 import { ConditionService } from "./condition.service.ts";
 import { ValidationService } from "./validation.service.ts";
 import { getIdentifier, sleep } from "../utils/index.ts";
-import { MessageRenderer } from "../renderer/message.renderer.ts";
+import { CalloutResponseRenderer, MessageRenderer } from "../renderer/index.ts";
 import {
   INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
   INLINE_BUTTON_CALLBACK_PREFIX,
@@ -42,6 +42,7 @@ export class CommunicationService extends BaseService {
     protected readonly event: EventService,
     protected readonly keyboard: KeyboardService,
     protected readonly messageRenderer: MessageRenderer,
+    protected readonly calloutResponseRenderer: CalloutResponseRenderer,
     protected readonly transform: TransformService,
     protected readonly condition: ConditionService,
     protected readonly validation: ValidationService,
@@ -52,8 +53,6 @@ export class CommunicationService extends BaseService {
 
   /**
    * Reply to a Telegram message or action with a single render object
-   *
-   * @todo: Make use of https://grammy.dev/plugins/parse-mode
    *
    * @param ctx
    * @param res
@@ -192,10 +191,6 @@ export class CommunicationService extends BaseService {
 
       // TODO: Any elegant way to move this to the CalloutResponseEventManager?
       const onInteractionCallbackQueryData = (ctx: AppContext) => {
-        console.debug(
-          "[CommunicationService] receive callback query ctx.update.callback_query",
-          JSON.stringify(ctx.update.callback_query, null, 2),
-        );
         this.event.offUserMessage(userId, onMessage);
         resolve(ctx);
       };
@@ -232,27 +227,23 @@ export class CommunicationService extends BaseService {
       message = context.message;
       callbackQueryData = context.callbackQuery?.data;
 
+      // Answer send using a inline keyboard button
       if (callbackQueryData) {
         replayAccepted = this.validation.callbackQueryDataIsAccepted(
           context,
           render.accepted,
         );
-      }
-
-      if (message) {
+        await this.answerCallbackQuery(replayAccepted.context);
+      } // Answer send using a message
+      else if (message) {
         replayAccepted = this.validation.messageIsAccepted(
           context,
           render.accepted,
         );
+      } else {
+        throw new Error("Message and callback query data are undefined");
       }
 
-      if (!replayAccepted || (!message && !callbackQueryData)) {
-        console.warn("Message and callback query data are undefined");
-        continue;
-      }
-
-      await this.answerCallbackQuery(replayAccepted.context);
-      // TODO: not for multiple replays
       await this.keyboard.removeInlineKeyboard(replayAccepted.context);
 
       if (!replayAccepted.accepted) {
@@ -277,6 +268,22 @@ export class CommunicationService extends BaseService {
       }
 
       replays.push(replayAccepted);
+
+      // Render accepted answers to give the user feedback
+      // TODO: Edit answers message if there was a previous answers message
+      const renderAnswers = this.calloutResponseRenderer.answersGiven(replays);
+
+      if (render.accepted.multiple) {
+        const oldInlineKeyboard = render.inlineKeyboard;
+        if (oldInlineKeyboard) {
+          renderAnswers.inlineKeyboard = this.keyboard.removeInlineButton(
+            oldInlineKeyboard,
+            `${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}:skip`,
+          );
+        }
+      }
+
+      await this.send(replayAccepted.context, renderAnswers);
 
       if (!render.accepted.multiple) {
         return replays;

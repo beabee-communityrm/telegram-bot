@@ -164,6 +164,9 @@ export class TransformService extends BaseService {
   ): RenderResponseParsedBoolean<false>["data"] {
     const boolStr = message?.trim().toLowerCase();
     let bool = false;
+    if (boolStr === undefined) {
+      return bool;
+    }
     const truthyStr = this.i18n.t("bot.reactions.messages.truthy").toLowerCase()
       .trim();
     const falsyStr = this.i18n.t("bot.reactions.messages.falsy").toLowerCase()

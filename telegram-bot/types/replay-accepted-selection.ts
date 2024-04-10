@@ -9,4 +9,5 @@ export interface ReplayAcceptedSelection extends ReplayAcceptedBase {
   accepted: boolean;
   /** The selected option value */
   value?: string;
+  label?: string;
 }

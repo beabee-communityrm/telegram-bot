@@ -315,11 +315,13 @@ export class ValidationService extends BaseService {
       const index1 = extractNumbers(textMessage);
       const keys = Object.keys(accepted.valueLabel);
       const value = keys[index1 - 1];
+      const label = accepted.valueLabel[value];
       if (value) {
         return {
           type: ReplayType.SELECTION,
           accepted: true,
           value,
+          label,
           ...baseResult,
         };
       }
@@ -334,6 +336,7 @@ export class ValidationService extends BaseService {
       type: ReplayType.SELECTION,
       accepted: isAccepted,
       value: acceptedValue,
+      label: acceptedValue ? accepted.valueLabel[acceptedValue] : undefined,
       ...baseResult,
     };
   }

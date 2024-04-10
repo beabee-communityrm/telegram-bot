@@ -65,7 +65,6 @@ export class CalloutResponseEventManager extends BaseEventManager {
     const startResponse = data?.[2] as "continue" | "cancel" === "continue";
     const session = await ctx.session;
 
-    // Remove the inline keyboard
     await this.keyboard.removeInlineKeyboard(ctx);
 
     if (!startResponse) {
@@ -186,7 +185,6 @@ export class CalloutResponseEventManager extends BaseEventManager {
       data?.[2] as typeof TRUTHY_MESSAGE_KEY | typeof FALSY_MESSAGE_KEY ===
         TRUTHY_MESSAGE_KEY; // This is the key, so it's not localized
 
-    // Remove the inline keyboard
     await this.keyboard.removeInlineKeyboard(ctx);
 
     if (!shortSlug) {

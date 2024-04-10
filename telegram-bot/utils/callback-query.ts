@@ -8,7 +8,7 @@ export const getKeyboardButtonFromCallbackQuery = (
     button,
   ) =>
     // TODO: fix type in Grammy?
-    (button as InlineKeyboardButton & { callback_data: string })
+    (button as InlineKeyboardButton.CallbackButton)
       .callback_data === callbackQueryEventName
   );
 };
