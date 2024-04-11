@@ -141,34 +141,8 @@ export class CommunicationService extends BaseService {
         throw new Error("Unknown render type: " + (render as Render).type);
     }
 
-    if (
-      message && markup
-    ) {
-      // Store latest sended keyboard to be able to remove it later if the keyboard is not empty
-      // TODO: Should we move this to the `KeyboardService` or `StateMachineService`?
-      if (
-        markup instanceof InlineKeyboard &&
-        markup.inline_keyboard.entries.length > 0
-      ) {
-        const session = await ctx.session;
-        session._data.latestKeyboard = {
-          message_id: message.message_id,
-          chat_id: message.chat.id,
-          type: "inline",
-          inlineKeyboard: markup,
-        };
-      } else if (
-        markup instanceof Keyboard &&
-        markup.keyboard.entries.length > 0
-      ) {
-        const session = await ctx.session;
-        session._data.latestKeyboard = {
-          message_id: message.message_id,
-          chat_id: message.chat.id,
-          type: "custom",
-          customKeyboard: markup,
-        };
-      }
+    if (message && markup) {
+      await this.storeLatestKeyboardInSession(ctx, markup, message);
     }
 
     if (render.afterDelay) {
@@ -269,34 +243,8 @@ export class CommunicationService extends BaseService {
         throw new Error("Unknown render type: " + (render as Render).type);
     }
 
-    if (
-      message && markup
-    ) {
-      // Store latest sended keyboard to be able to remove it later if the keyboard is not empty
-      // TODO: Should we move this to the `KeyboardService` or `StateMachineService`?
-      if (
-        markup instanceof InlineKeyboard &&
-        markup.inline_keyboard.entries.length > 0
-      ) {
-        const session = await ctx.session;
-        session._data.latestKeyboard = {
-          message_id: message.message_id,
-          chat_id: message.chat.id,
-          type: "inline",
-          inlineKeyboard: markup,
-        };
-      } else if (
-        markup instanceof Keyboard &&
-        markup.keyboard.entries.length > 0
-      ) {
-        const session = await ctx.session;
-        session._data.latestKeyboard = {
-          message_id: message.message_id,
-          chat_id: message.chat.id,
-          type: "custom",
-          customKeyboard: markup,
-        };
-      }
+    if (message && markup) {
+      await this.storeLatestKeyboardInSession(ctx, markup, message);
     }
 
     if (render.afterDelay) {
@@ -304,6 +252,52 @@ export class CommunicationService extends BaseService {
     }
 
     return message;
+  }
+
+  /**
+   * Store the latest keyboard to be able to remove it later
+   * TODO: Should we move this to the `KeyboardService` or `StateMachineService`?
+   * @param ctx
+   * @param markup
+   * @param message
+   */
+  protected async storeLatestKeyboardInSession(
+    ctx: AppContext,
+    markup:
+      | InlineKeyboardMarkup
+      | ReplyKeyboardMarkup
+      | ReplyKeyboardRemove
+      | ForceReply,
+    message: Message | undefined = ctx.message,
+  ) {
+    if (!message) {
+      throw new Error("Message is undefined");
+    }
+    console.debug("Store latest keyboard in session", markup, message);
+    const session = await ctx.session;
+    if (
+      markup instanceof InlineKeyboard &&
+      markup.inline_keyboard.flat().length > 0
+    ) {
+      session._data.latestKeyboard = {
+        message_id: message.message_id,
+        chat_id: message.chat.id,
+        type: "inline",
+        inlineKeyboard: markup,
+      };
+    } else if (
+      markup instanceof Keyboard &&
+      markup.keyboard.flat().length > 0
+    ) {
+      session._data.latestKeyboard = {
+        message_id: message.message_id,
+        chat_id: message.chat.id,
+        type: "custom",
+        customKeyboard: markup,
+      };
+    } else {
+      console.warn("No keyboard to store");
+    }
   }
 
   /**
@@ -379,7 +373,8 @@ export class CommunicationService extends BaseService {
         throw new Error("Message and callback query data are undefined");
       }
 
-      await this.keyboard.removeInlineKeyboard(replayAccepted.context);
+      await this.keyboard.removeInlineKeyboard(context);
+      await this.keyboard.removeLastInlineKeyboard(context);
 
       if (!replayAccepted.accepted) {
         await this.send(

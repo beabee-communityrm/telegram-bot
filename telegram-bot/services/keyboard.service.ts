@@ -307,7 +307,7 @@ export class KeyboardService extends BaseService {
       if (!withMessage) {
         const inlineKeyboard = new InlineKeyboard();
         if (!ctx.update.callback_query?.message?.reply_markup) {
-          console.warn("No keyboard to remove");
+          console.warn("No inline keyboard to remove");
           return;
         }
         return await ctx.editMessageReplyMarkup({
@@ -384,7 +384,10 @@ export class KeyboardService extends BaseService {
     }
     const keyboardData = session._data.latestKeyboard || null;
     if (!keyboardData || !Object.keys(keyboardData).length) {
-      console.debug("No inline keyboard to remove");
+      console.debug(
+        "No last inline keyboard to remove, keyboardData: ",
+        keyboardData,
+      );
       return;
     }
 
