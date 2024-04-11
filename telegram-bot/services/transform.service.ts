@@ -241,7 +241,7 @@ export class TransformService extends BaseService {
   public parseResponseCalloutComponentInputUrl(
     message?: string,
   ): string {
-    let text = this.parseResponseText(message);
+    let text = this.parseResponseText(message?.toLowerCase());
     if (!text.startsWith("http")) {
       text = `https://${text}`;
     }

@@ -343,8 +343,10 @@ export class MessageRenderer {
     } as RenderText;
   }
 
-  public writeDoneMessage(doneText: string): RenderText {
-    const tKey = "bot.info.messages.done";
+  public writeDoneMessage(
+    tKey = "bot.info.messages.done",
+    doneText = this.i18n.t("bot.reactions.messages.done"),
+  ): RenderText {
     return {
       type: RenderType.TEXT,
       text: this.i18n.t(tKey, { done: doneText }),

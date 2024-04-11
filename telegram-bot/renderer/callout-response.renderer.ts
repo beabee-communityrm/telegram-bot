@@ -145,11 +145,9 @@ export class CalloutResponseRenderer {
     if (multiple) {
       return `\n\n_${
         escapeMd(
-          `${this.i18n.t("bot.info.messages.multipleValuesAllowed")}\n\n${
-            this.messageRenderer.writeDoneMessage(
-              this.i18n.t("bot.reactions.messages.done"),
-            ).text
-          }`,
+          `${
+            this.i18n.t("bot.info.messages.multipleValuesAllowed")
+          }\n\n${this.messageRenderer.writeDoneMessage().text}`,
         )
       }_`;
     }
@@ -943,7 +941,9 @@ export class CalloutResponseRenderer {
     }
 
     if (multiple) {
-      result.markdown += `${this.multipleMd(multiple)}`;
+      result.markdown += `\n\n${
+        escapeMd(this.messageRenderer.writeDoneMessage().text)
+      }`;
     }
 
     return result;

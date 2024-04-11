@@ -59,7 +59,7 @@ export class CommunicationService extends BaseService {
    * Reply to a Telegram message or action with a single render object
    *
    * @param ctx
-   * @param res
+   * @param render
    */
   public async send(ctx: AppContext, render: Render) {
     if (render.keyboard && render.inlineKeyboard) {
@@ -92,11 +92,11 @@ export class CommunicationService extends BaseService {
       markup = { force_reply: true } as ForceReply;
     }
 
-    let message: Message.TextMessage | undefined;
+    let message: Message | undefined;
 
     switch (render.type) {
       case RenderType.PHOTO:
-        await ctx.replyWithMediaGroup([render.photo], {});
+        message = (await ctx.replyWithMediaGroup([render.photo], {}))[0];
         if (render.keyboard) {
           message = await ctx.reply("", {
             link_preview_options: render.linkPreview,
@@ -174,6 +174,136 @@ export class CommunicationService extends BaseService {
     if (render.afterDelay) {
       await sleep(render.afterDelay);
     }
+
+    return message;
+  }
+
+  /**
+   * Edit a Telegram message or action with a single render object
+   *
+   * @param ctx
+   * @param render
+   */
+  public async edit(
+    ctx: AppContext,
+    oldMessage: { message_id: number; chat: { id: number } },
+    render: Render,
+  ) {
+    const message = ctx.message;
+    if (render.keyboard && render.inlineKeyboard) {
+      throw new Error("You can only use one keyboard at a time");
+    }
+
+    if (render.beforeDelay) {
+      await sleep(render.beforeDelay);
+    }
+
+    // link previews are disabled by default, define render.linkPreview to enable them
+    if (!render.linkPreview) {
+      render.linkPreview = {
+        is_disabled: true,
+      };
+    }
+
+    if (render.keyboard) {
+      console.warn("Edit message with custom keyboard not implemented");
+    }
+
+    if (render.removeCustomKeyboard) {
+      console.warn("Remove custom keyboard not implemented on edit");
+    }
+
+    if (render.forceReply) {
+      console.warn("Force reply not implemented on edit");
+    }
+
+    const markup:
+      | InlineKeyboardMarkup
+      | undefined = render.inlineKeyboard || undefined;
+
+    switch (render.type) {
+      case RenderType.PHOTO:
+        throw new Error("Edit media not implemented");
+      case RenderType.MARKDOWN:
+        await ctx.api.editMessageText(
+          oldMessage.chat.id,
+          oldMessage.message_id,
+          render.markdown,
+          {
+            parse_mode: "MarkdownV2",
+            link_preview_options: render.linkPreview,
+            reply_markup: markup,
+          },
+        );
+        break;
+      case RenderType.HTML:
+        await ctx.api.editMessageText(
+          oldMessage.chat.id,
+          oldMessage.message_id,
+          render.html,
+          {
+            parse_mode: "HTML",
+            link_preview_options: render.linkPreview,
+            reply_markup: markup,
+          },
+        );
+        break;
+      case RenderType.TEXT:
+        await ctx.api.editMessageText(
+          oldMessage.chat.id,
+          oldMessage.message_id,
+          render.text,
+          {
+            link_preview_options: render.linkPreview,
+            reply_markup: markup,
+          },
+        );
+        break;
+      // See https://grammy.dev/plugins/parse-mode
+      case RenderType.FORMAT:
+        throw new Error("Edit format not implemented on edit");
+      case RenderType.EMPTY:
+        // Do nothing
+        break;
+      default:
+        throw new Error("Unknown render type: " + (render as Render).type);
+    }
+
+    if (
+      message && markup
+    ) {
+      // Store latest sended keyboard to be able to remove it later if the keyboard is not empty
+      // TODO: Should we move this to the `KeyboardService` or `StateMachineService`?
+      if (
+        markup instanceof InlineKeyboard &&
+        markup.inline_keyboard.entries.length > 0
+      ) {
+        const session = await ctx.session;
+        session._data.latestKeyboard = {
+          message_id: message.message_id,
+          chat_id: message.chat.id,
+          type: "inline",
+          inlineKeyboard: markup,
+        };
+      } else if (
+        markup instanceof Keyboard &&
+        markup.keyboard.entries.length > 0
+      ) {
+        const session = await ctx.session;
+        session._data.latestKeyboard = {
+          message_id: message.message_id,
+          chat_id: message.chat.id,
+          type: "custom",
+          customKeyboard: markup,
+        };
+      }
+    }
+
+    if (render.afterDelay) {
+      await sleep(render.afterDelay);
+    }
+
+    return message;
   }
 
   /**
@@ -218,6 +348,7 @@ export class CommunicationService extends BaseService {
     let context: AppContext;
     let message: Message | undefined;
     let callbackQueryData: string | undefined;
+    let lastGivenAnswerMessage: Message | undefined;
     const replays: ReplayAccepted[] = [];
 
     if (render.accepted.type === ReplayType.NONE) {
@@ -294,7 +425,18 @@ export class CommunicationService extends BaseService {
         }
       }
 
-      await this.send(replayAccepted.context, renderAnswers);
+      if (lastGivenAnswerMessage) {
+        this.edit(
+          replayAccepted.context,
+          lastGivenAnswerMessage,
+          renderAnswers,
+        );
+      } else {
+        lastGivenAnswerMessage = await this.send(
+          replayAccepted.context,
+          renderAnswers,
+        );
+      }
 
       if (!render.accepted.multiple) {
         return replays;
