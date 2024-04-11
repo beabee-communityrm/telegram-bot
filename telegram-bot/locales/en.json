@@ -42,7 +42,7 @@
           "notUsable": "You cannot use the {command} command here. If you think this is an error, please use the /reset command."
         },
         "continueList": "Want to take part in a callout? Check out the list of open callouts and see which one piques your interest",
-        "done": "When you are finished with your response, just type \"{done}\".",
+        "done": "When you are finished with your response, just press or type \"{done}\".",
         "enterAmountOfMoney": "Please enter an amount of money.",
         "enterDate": "Please enter a date.",
         "enterLotsOfText": "Please reply with a single message.",

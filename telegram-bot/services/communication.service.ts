@@ -313,27 +313,25 @@ export class CommunicationService extends BaseService {
           this.keyboard.inlineDoneButton(),
         );
         inlineKeyboard = renderAnswers.inlineKeyboard;
-      }
-    }
 
-    // Remove already selected answers from keyboard
-    if (render.accepted.type === ReplayType.SELECTION) {
-      if (inlineKeyboard) {
-        const numberLabels = getSelectionLabelNumberRange(
-          render.accepted.valueLabel,
-        );
-        for (const numberLabel of numberLabels) {
-          const cbQueryData =
-            `${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}:${numberLabel}`;
-          const alreadyUsed = replays.find((replay) =>
-            replay.context.callbackQuery?.data === cbQueryData
+        // Remove already selected answers from keyboard
+        if (render.accepted.type === ReplayType.SELECTION) {
+          const numberLabels = getSelectionLabelNumberRange(
+            render.accepted.valueLabel,
           );
-          if (alreadyUsed) {
-            renderAnswers.inlineKeyboard = this.keyboard.removeInlineButton(
-              inlineKeyboard,
-              cbQueryData,
+          for (const numberLabel of numberLabels) {
+            const cbQueryData =
+              `${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}:${numberLabel}`;
+            const alreadyUsed = replays.find((replay) =>
+              replay.context.callbackQuery?.data === cbQueryData
             );
-            inlineKeyboard = renderAnswers.inlineKeyboard;
+            if (alreadyUsed) {
+              renderAnswers.inlineKeyboard = this.keyboard.removeInlineButton(
+                inlineKeyboard,
+                cbQueryData,
+              );
+              inlineKeyboard = renderAnswers.inlineKeyboard;
+            }
           }
         }
       }
