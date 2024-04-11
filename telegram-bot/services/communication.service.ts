@@ -2,9 +2,7 @@ import { BaseService } from "../core/index.ts";
 import {
   fmt,
   ForceReply,
-  InlineKeyboard,
   InlineKeyboardMarkup,
-  Keyboard,
   Message,
   ParseModeFlavor,
   ReplyKeyboardMarkup,
@@ -20,7 +18,11 @@ import { ConditionService } from "./condition.service.ts";
 import { ValidationService } from "./validation.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
 
-import { getIdentifier, sleep } from "../utils/index.ts";
+import {
+  getIdentifier,
+  getSelectionLabelNumberRange,
+  sleep,
+} from "../utils/index.ts";
 import { CalloutResponseRenderer, MessageRenderer } from "../renderer/index.ts";
 import {
   INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
@@ -142,7 +144,7 @@ export class CommunicationService extends BaseService {
     }
 
     if (message && markup) {
-      await this.storeLatestKeyboardInSession(ctx, markup, message);
+      await this.keyboard.storeLatestInSession(ctx, markup, message);
     }
 
     if (render.afterDelay) {
@@ -244,7 +246,7 @@ export class CommunicationService extends BaseService {
     }
 
     if (message && markup) {
-      await this.storeLatestKeyboardInSession(ctx, markup, message);
+      await this.keyboard.storeLatestInSession(ctx, markup, message);
     }
 
     if (render.afterDelay) {
@@ -252,52 +254,6 @@ export class CommunicationService extends BaseService {
     }
 
     return message;
-  }
-
-  /**
-   * Store the latest keyboard to be able to remove it later
-   * TODO: Should we move this to the `KeyboardService` or `StateMachineService`?
-   * @param ctx
-   * @param markup
-   * @param message
-   */
-  protected async storeLatestKeyboardInSession(
-    ctx: AppContext,
-    markup:
-      | InlineKeyboardMarkup
-      | ReplyKeyboardMarkup
-      | ReplyKeyboardRemove
-      | ForceReply,
-    message: Message | undefined = ctx.message,
-  ) {
-    if (!message) {
-      throw new Error("Message is undefined");
-    }
-    console.debug("Store latest keyboard in session", markup, message);
-    const session = await ctx.session;
-    if (
-      markup instanceof InlineKeyboard &&
-      markup.inline_keyboard.flat().length > 0
-    ) {
-      session._data.latestKeyboard = {
-        message_id: message.message_id,
-        chat_id: message.chat.id,
-        type: "inline",
-        inlineKeyboard: markup,
-      };
-    } else if (
-      markup instanceof Keyboard &&
-      markup.keyboard.flat().length > 0
-    ) {
-      session._data.latestKeyboard = {
-        message_id: message.message_id,
-        chat_id: message.chat.id,
-        type: "custom",
-        customKeyboard: markup,
-      };
-    } else {
-      console.warn("No keyboard to store");
-    }
   }
 
   /**
@@ -327,6 +283,76 @@ export class CommunicationService extends BaseService {
 
       this.event.once(eventName, onInteractionCallbackQueryData);
     });
+  }
+
+  /**
+   * Render or update accepted answers to give the user feedback, also renders updates the inline keyboard
+   * @param ctx
+   * @param render
+   * @param replays
+   * @param lastGivenAnswerMessage
+   */
+  protected async sendOrEditAnswersGiven(
+    ctx: AppContext,
+    render: Render,
+    replays: ReplayAccepted[],
+    lastGivenAnswerMessage: Message | undefined,
+  ) {
+    const renderAnswers = this.calloutResponseRenderer.answersGiven(
+      replays,
+      render.accepted.multiple,
+    );
+
+    let inlineKeyboard = renderAnswers.inlineKeyboard || render.inlineKeyboard;
+
+    if (render.accepted.multiple) {
+      if (inlineKeyboard) {
+        renderAnswers.inlineKeyboard = this.keyboard.replaceInlineButton(
+          inlineKeyboard,
+          `${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}:skip`,
+          this.keyboard.inlineDoneButton(),
+        );
+        inlineKeyboard = renderAnswers.inlineKeyboard;
+      }
+    }
+
+    // Remove already selected answers from keyboard
+    if (render.accepted.type === ReplayType.SELECTION) {
+      if (inlineKeyboard) {
+        const numberLabels = getSelectionLabelNumberRange(
+          render.accepted.valueLabel,
+        );
+        for (const numberLabel of numberLabels) {
+          const cbQueryData =
+            `${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}:${numberLabel}`;
+          const alreadyUsed = replays.find((replay) =>
+            replay.context.callbackQuery?.data === cbQueryData
+          );
+          if (alreadyUsed) {
+            renderAnswers.inlineKeyboard = this.keyboard.removeInlineButton(
+              inlineKeyboard,
+              cbQueryData,
+            );
+            inlineKeyboard = renderAnswers.inlineKeyboard;
+          }
+        }
+      }
+    }
+
+    if (lastGivenAnswerMessage) {
+      this.edit(
+        ctx,
+        lastGivenAnswerMessage,
+        renderAnswers,
+      );
+    } else {
+      lastGivenAnswerMessage = await this.send(
+        ctx,
+        renderAnswers,
+      );
+    }
+
+    return lastGivenAnswerMessage;
   }
 
   /**
@@ -393,45 +419,20 @@ export class CommunicationService extends BaseService {
       }
 
       if (replayAccepted.isSkipMessage) {
-        // Only return the skip message
+        // Only return the skip message (handled later)
         return [replayAccepted];
       }
 
+      // Answer accepted
       replays.push(replayAccepted);
 
-      // Render accepted answers to give the user feedback
-      // TODO: Edit answers message if there was a previous answers message
-      const renderAnswers = this.calloutResponseRenderer.answersGiven(
+      // Send or edit given answers message
+      lastGivenAnswerMessage = await this.sendOrEditAnswersGiven(
+        context,
+        render,
         replays,
-        render.accepted.multiple,
+        lastGivenAnswerMessage,
       );
-
-      if (render.accepted.multiple) {
-        const oldInlineKeyboard = render.inlineKeyboard;
-        if (oldInlineKeyboard) {
-          renderAnswers.inlineKeyboard = this.keyboard.replaceInlineButton(
-            oldInlineKeyboard,
-            `${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}:skip`,
-            this.keyboard.inlineDoneButton(
-              `${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}:done`,
-              this.i18n.t("bot.reactions.messages.done"),
-            ),
-          );
-        }
-      }
-
-      if (lastGivenAnswerMessage) {
-        this.edit(
-          replayAccepted.context,
-          lastGivenAnswerMessage,
-          renderAnswers,
-        );
-      } else {
-        lastGivenAnswerMessage = await this.send(
-          replayAccepted.context,
-          renderAnswers,
-        );
-      }
 
       if (!render.accepted.multiple) {
         return replays;

@@ -1,8 +1,13 @@
 import { BaseService } from "../core/index.ts";
 import {
+  ForceReply,
   InlineKeyboard,
   InlineKeyboardButton,
+  InlineKeyboardMarkup,
   Keyboard,
+  Message,
+  ReplyKeyboardMarkup,
+  ReplyKeyboardRemove,
   Singleton,
 } from "../deps/index.ts";
 import {
@@ -119,7 +124,7 @@ export class KeyboardService extends BaseService {
    * @returns
    */
   public inlineSelection(
-    prefix: string,
+    prefix = INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
     keyboard = this.inlineEmpty(),
     selections: string[],
   ) {
@@ -212,7 +217,7 @@ export class KeyboardService extends BaseService {
    * @param doneLabel The label for the done button
    */
   public inlineDoneButton(
-    prefix: string,
+    prefix = `${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}:done`,
     doneLabel = this.i18n.t("bot.reactions.messages.done"),
   ): InlineKeyboardButton.CallbackButton {
     return {
@@ -408,6 +413,56 @@ export class KeyboardService extends BaseService {
       }
     }
 
+    await this.resetKeyboardInSession(ctx);
+  }
+
+  protected async resetKeyboardInSession(ctx: AppContext) {
+    const session = await ctx.session;
     session._data.latestKeyboard = null;
+    return session;
+  }
+
+  /**
+   * Store the latest keyboard in the session to be able to remove it later
+   * @param ctx
+   * @param markup
+   * @param message
+   */
+  public async storeLatestInSession(
+    ctx: AppContext,
+    markup:
+      | InlineKeyboardMarkup
+      | ReplyKeyboardMarkup
+      | ReplyKeyboardRemove
+      | ForceReply,
+    message: Message | undefined = ctx.message,
+  ) {
+    if (!message) {
+      throw new Error("Message is undefined");
+    }
+    const session = await ctx.session;
+    if (
+      markup instanceof InlineKeyboard &&
+      markup.inline_keyboard.flat().length > 0
+    ) {
+      session._data.latestKeyboard = {
+        message_id: message.message_id,
+        chat_id: message.chat.id,
+        type: "inline",
+        inlineKeyboard: markup,
+      };
+    } else if (
+      markup instanceof Keyboard &&
+      markup.keyboard.flat().length > 0
+    ) {
+      session._data.latestKeyboard = {
+        message_id: message.message_id,
+        chat_id: message.chat.id,
+        type: "custom",
+        customKeyboard: markup,
+      };
+    } else {
+      console.warn("No keyboard to store");
+    }
   }
 }

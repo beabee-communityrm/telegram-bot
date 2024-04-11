@@ -19,7 +19,7 @@ import {
   createCalloutGroupKey,
   escapeHtml,
   escapeMd,
-  range,
+  getSelectionLabelNumberRange,
   sanitizeHtml,
 } from "../utils/index.ts";
 import { ParsedResponseType, RenderType, ReplayType } from "../enums/index.ts";
@@ -656,7 +656,7 @@ export class CalloutResponseRenderer {
     result.inlineKeyboard = this.keyboard.inlineSelection(
       INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
       result.inlineKeyboard,
-      range(1, Object.keys(valueLabel).length).map(String),
+      getSelectionLabelNumberRange(valueLabel),
     );
 
     this.answerOptionsMdInlineKeyboard(
@@ -702,7 +702,7 @@ export class CalloutResponseRenderer {
     result.inlineKeyboard = this.keyboard.inlineSelection(
       INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
       result.inlineKeyboard,
-      range(1, Object.keys(valueLabel).length).map(String),
+      getSelectionLabelNumberRange(valueLabel),
     );
 
     this.answerOptionsMdInlineKeyboard(
