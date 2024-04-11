@@ -138,23 +138,12 @@ export class CalloutResponseRenderer {
 
   /**
    * Render a note to the user how many answers are expected
-   * @param component The component to render this note for
-   * @param prefix The prefix, used to group the answers later (only used to group slides)
+   * @param multiple If multiple answers are expected
    * @returns
    */
-  protected multipleMd(component: CalloutComponentSchema, prefix: string) {
-    const multiple = this.isMultiple(component);
-    const required = component.validate?.required || false;
-    const result: Render = {
-      key: createCalloutGroupKey(component.key, prefix),
-      type: RenderType.MARKDOWN,
-      accepted: this.condition.replayConditionNone(multiple, required),
-      markdown: ``,
-      parseType: ParsedResponseType.NONE,
-      forceReply: false,
-    };
+  protected multipleMd(multiple: boolean) {
     if (multiple) {
-      result.markdown += `\n\n_${
+      return `\n\n_${
         escapeMd(
           `${this.i18n.t("bot.info.messages.multipleValuesAllowed")}\n\n${
             this.messageRenderer.writeDoneMessage(
@@ -165,28 +154,17 @@ export class CalloutResponseRenderer {
       }_`;
     }
 
-    return result;
+    return "";
   }
 
   /**
    * Render a note to the user if the answer is required
-   * @param component The component to render this note for
-   * @param prefix The prefix, used to group the answers later (only used to group slides)
+   * @param required If the answer is required
    * @returns
    */
-  protected requiredMd(component: CalloutComponentSchema, prefix: string) {
-    const multiple = this.isMultiple(component);
-    const required = component.validate?.required || false;
-    const result: Render = {
-      key: createCalloutGroupKey(component.key, prefix),
-      type: RenderType.MARKDOWN,
-      accepted: this.condition.replayConditionNone(multiple, required),
-      markdown: ``,
-      parseType: ParsedResponseType.NONE,
-      forceReply: false,
-    };
+  protected requiredMd(required: boolean) {
     if (!required) {
-      result.markdown += `\n\n_${
+      return `\n\n_${
         escapeMd(
           this.messageRenderer.writeSkipMessage(
             this.i18n.t("bot.reactions.messages.skip"),
@@ -194,7 +172,7 @@ export class CalloutResponseRenderer {
         )
       }_`;
     }
-    return result;
+    return "";
   }
 
   /**
@@ -209,10 +187,10 @@ export class CalloutResponseRenderer {
     result: RenderMarkdown,
     component: CalloutComponentSchema,
     prefix: string,
-    multiple = this.isMultiple(component),
     required = component.validate?.required || false,
   ) {
     const placeholder = component.placeholder;
+    const multiple = this.isMultiple(component);
 
     if (placeholder) {
       result.markdown += `\n\n${
@@ -220,14 +198,13 @@ export class CalloutResponseRenderer {
       }`;
     }
 
-    result.markdown += `${this.multipleMd(component, prefix).markdown}`;
-    result.markdown += `${this.requiredMd(component, prefix).markdown}`;
+    result.markdown += `${this.multipleMd(multiple)}`;
+    result.markdown += `${this.requiredMd(required)}`;
 
-    result.inlineKeyboard = this.keyboard.inlineSkipDone(
+    result.inlineKeyboard = this.keyboard.inlineSkip(
       INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
       result.inlineKeyboard,
       required,
-      multiple,
     );
 
     return result;
@@ -458,7 +435,6 @@ export class CalloutResponseRenderer {
       result,
       file,
       prefix,
-      multiple,
       required,
     );
 
@@ -555,7 +531,6 @@ export class CalloutResponseRenderer {
       result,
       input,
       prefix,
-      multiple,
       required,
     );
 
@@ -571,6 +546,7 @@ export class CalloutResponseRenderer {
     const result = this.baseComponent(input, prefix);
     result.markdown += `\n\n`;
     const multiple = this.isMultiple(input);
+    const required = result.accepted.required;
 
     switch (input.type) {
       case CalloutComponentType.INPUT_ADDRESS: {
@@ -642,7 +618,7 @@ export class CalloutResponseRenderer {
       }
     }
 
-    this.answerOptionsMdInlineKeyboard(result, input, prefix, multiple);
+    this.answerOptionsMdInlineKeyboard(result, input, prefix, required);
 
     return result;
   }
@@ -689,7 +665,6 @@ export class CalloutResponseRenderer {
       result,
       select,
       prefix,
-      multiple,
       required,
     );
 
@@ -736,7 +711,6 @@ export class CalloutResponseRenderer {
       result,
       selectable,
       prefix,
-      multiple,
       required,
     );
 
@@ -924,7 +898,7 @@ export class CalloutResponseRenderer {
     return [...slidesRenders, thankYou];
   }
 
-  public answersGiven(answers: ReplayAccepted[]) {
+  public answersGiven(answers: ReplayAccepted[], multiple: boolean) {
     const tKey = answers.length === 0
       ? "bot.info.messages.no-answer-yet"
       : answers.length === 1
@@ -966,6 +940,10 @@ export class CalloutResponseRenderer {
           }
           break;
       }
+    }
+
+    if (multiple) {
+      result.markdown += `${this.multipleMd(multiple)}`;
     }
 
     return result;

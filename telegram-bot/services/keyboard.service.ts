@@ -7,6 +7,7 @@ import {
 } from "../deps/index.ts";
 import {
   FALSY_MESSAGE_KEY,
+  INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
   INLINE_BUTTON_CALLBACK_SHOW_CALLOUT,
   TRUTHY_MESSAGE_KEY,
 } from "../constants/index.ts";
@@ -175,34 +176,6 @@ export class KeyboardService extends BaseService {
   }
 
   /**
-   * Creates or extends a custom keyboard with a skip button.
-   *
-   * @param keyboard The keyboard to extend
-   * @param skipLabel The label for the skip button
-   */
-  public skip(
-    keyboard = this.empty(),
-    skipLabel = this.i18n.t("bot.reactions.messages.skip"),
-  ) {
-    return keyboard.text(skipLabel).row();
-  }
-
-  /**
-   * Creates or extends a inline keyboard with a skip button.
-   *
-   * @param prefix A prefix to add to the button data, used to subscribe to the events
-   * @param keyboard The keyboard to extend
-   * @param skipLabel The label for the skip button
-   */
-  public inlineSkip(
-    prefix: string,
-    keyboard = this.inlineEmpty(),
-    skipLabel = this.i18n.t("bot.reactions.messages.skip"),
-  ) {
-    return keyboard.text(skipLabel, `${prefix}:skip`).row();
-  }
-
-  /**
    * Creates or extends a custom keyboard with a done button.
    *
    * @param keyboard The keyboard to extend
@@ -223,56 +196,65 @@ export class KeyboardService extends BaseService {
    * @param doneLabel The label for the done button
    */
   public inlineDone(
-    prefix: string,
+    prefix = INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
     keyboard = this.inlineEmpty(),
     doneLabel = this.i18n.t("bot.reactions.messages.done"),
   ) {
-    return keyboard.text(doneLabel, `${prefix}:done`).row();
+    const button = this.inlineDoneButton(prefix, doneLabel);
+    return keyboard.text(button.text, button.callback_data).row();
   }
 
   /**
-   * Create a keyboard for a callout response
+   * Creates or extends a inline keyboard with a done button.
+   *
+   * @param prefix A prefix to add to the button data, used to subscribe to the events
+   * @param keyboard The keyboard to extend
+   * @param doneLabel The label for the done button
+   */
+  public inlineDoneButton(
+    prefix: string,
+    doneLabel = this.i18n.t("bot.reactions.messages.done"),
+  ): InlineKeyboardButton.CallbackButton {
+    return {
+      text: doneLabel,
+      callback_data: `${prefix}:done`,
+    };
+  }
+
+  /**
+   * Create a keyboard for a callout response with a skip button.
    * @param keyboard The keyboard to extend
    * @param required
    * @param multiple
    */
-  public skipDone(
+  public skip(
     keyboard = this.empty(),
     required = false,
-    multiple = false,
+    skipLabel = this.i18n.t("bot.reactions.messages.skip"),
   ) {
-    if (multiple) {
-      this.done(keyboard);
-    }
-
     if (!required) {
-      this.skip(keyboard);
+      return keyboard.text(skipLabel).row();
     }
 
     return keyboard;
   }
 
   /**
-   * Create a inline keyboard for a callout response
+   * Creates or extends a inline keyboard with a skip button.
+   * @param prefix A prefix to add to the button data, used to subscribe to the events
    * @param keyboard The keyboard to extend
    * @param required
-   * @param multiple
+   * @param skipLabel The label for the skip button
    */
-  public inlineSkipDone(
+  public inlineSkip(
     prefix: string,
     keyboard = this.inlineEmpty(),
     required = false,
-    multiple = false,
+    skipLabel = this.i18n.t("bot.reactions.messages.skip"),
   ) {
-    if (multiple) {
-      this.inlineDone(prefix, keyboard);
-    }
-
     if (!required) {
-      this.inlineSkip(prefix, keyboard);
+      return keyboard.text(skipLabel, `${prefix}:skip`).row();
     }
-
-    console.debug(`inlineSkipDone: ${prefix}`);
 
     return keyboard;
   }
@@ -352,6 +334,37 @@ export class KeyboardService extends BaseService {
           (button as InlineKeyboardButton.CallbackButton).callback_data !==
             buttonCallbackData
         ) {
+          inlineKeyboard.text(
+            button.text,
+            (button as InlineKeyboardButton.CallbackButton).callback_data,
+          );
+        }
+      }
+      inlineKeyboard.row();
+    }
+
+    return inlineKeyboard;
+  }
+
+  /** Replace a specific inline button from the keyboard */
+  public replaceInlineButton(
+    keyboard: InlineKeyboard,
+    buttonCallbackData: string,
+    newButton: InlineKeyboardButton.CallbackButton,
+  ) {
+    const inlineKeyboard = new InlineKeyboard();
+
+    for (const row of keyboard.inline_keyboard) {
+      for (const button of row) {
+        if (
+          (button as InlineKeyboardButton.CallbackButton).callback_data ===
+            buttonCallbackData
+        ) {
+          inlineKeyboard.text(
+            newButton.text,
+            newButton.callback_data,
+          );
+        } else {
           inlineKeyboard.text(
             button.text,
             (button as InlineKeyboardButton.CallbackButton).callback_data,

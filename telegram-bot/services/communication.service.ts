@@ -12,11 +12,14 @@ import {
   Singleton,
 } from "../deps/index.ts";
 import { ParsedResponseType, RenderType, ReplayType } from "../enums/index.ts";
+
 import { EventService } from "./event.service.ts";
 import { KeyboardService } from "./keyboard.service.ts";
 import { TransformService } from "./transform.service.ts";
 import { ConditionService } from "./condition.service.ts";
 import { ValidationService } from "./validation.service.ts";
+import { I18nService } from "../services/i18n.service.ts";
+
 import { getIdentifier, sleep } from "../utils/index.ts";
 import { CalloutResponseRenderer, MessageRenderer } from "../renderer/index.ts";
 import {
@@ -46,6 +49,7 @@ export class CommunicationService extends BaseService {
     protected readonly transform: TransformService,
     protected readonly condition: ConditionService,
     protected readonly validation: ValidationService,
+    protected readonly i18n: I18nService,
   ) {
     super();
     console.debug(`${this.constructor.name} created`);
@@ -271,14 +275,21 @@ export class CommunicationService extends BaseService {
 
       // Render accepted answers to give the user feedback
       // TODO: Edit answers message if there was a previous answers message
-      const renderAnswers = this.calloutResponseRenderer.answersGiven(replays);
+      const renderAnswers = this.calloutResponseRenderer.answersGiven(
+        replays,
+        render.accepted.multiple,
+      );
 
       if (render.accepted.multiple) {
         const oldInlineKeyboard = render.inlineKeyboard;
         if (oldInlineKeyboard) {
-          renderAnswers.inlineKeyboard = this.keyboard.removeInlineButton(
+          renderAnswers.inlineKeyboard = this.keyboard.replaceInlineButton(
             oldInlineKeyboard,
             `${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}:skip`,
+            this.keyboard.inlineDoneButton(
+              `${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}:done`,
+              this.i18n.t("bot.reactions.messages.done"),
+            ),
           );
         }
       }
