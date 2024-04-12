@@ -269,7 +269,7 @@ export class CommunicationService extends BaseService {
 
     return await new Promise<AppContext>((resolve) => {
       const onMessage = (ctx: AppContext) => {
-        this.event.off(eventName, onInteractionCallbackQueryData);
+        this.event.offUser(eventName, userId, onInteractionCallbackQueryData);
         resolve(ctx);
       };
 
@@ -281,7 +281,7 @@ export class CommunicationService extends BaseService {
 
       this.event.onceUserMessage(userId, onMessage);
 
-      this.event.once(eventName, onInteractionCallbackQueryData);
+      this.event.onceUser(eventName, userId, onInteractionCallbackQueryData);
     });
   }
 
@@ -386,7 +386,7 @@ export class CommunicationService extends BaseService {
           context,
           render.accepted,
         );
-        await this.answerCallbackQuery(replayAccepted.context);
+        await this.answerCallbackQuery(context);
       } // Answer send using a message
       else if (message) {
         replayAccepted = this.validation.messageIsAccepted(

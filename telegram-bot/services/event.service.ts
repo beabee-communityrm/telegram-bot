@@ -94,8 +94,22 @@ export class EventService extends BaseService {
   }
 
   /**
+   * Listen for a Telegram bot user event
+   * @param eventName The event name to listen for, e.g. "message"
+   * @param id The Telegram user id
+   * @param callback The callback function to call when the event is emitted
+   */
+  public onUser<T = AppContext>(
+    eventName: string,
+    id: number,
+    callback: EventTelegramBotListener<T>,
+  ) {
+    return this._events.on(eventName + ":user-" + id, callback);
+  }
+
+  /**
    * Listen for a Telegram bot event, but only once
-   * @param eventName
+   * @param eventName The event name to listen for, e.g. "message"
    * @param callback The callback function to call when the event is emitted
    * @returns
    */
@@ -104,6 +118,21 @@ export class EventService extends BaseService {
     callback: EventTelegramBotListener<T>,
   ) {
     return this._events.once(eventName, callback);
+  }
+
+  /**
+   * Listen for a Telegram bot event, but only once
+   * @param eventName The event name to listen for, e.g. "message"
+   * @param id The Telegram user id
+   * @param callback The callback function to call when the event is emitted
+   * @returns
+   */
+  public onceUser<T = AppContext>(
+    eventName: string,
+    id: number,
+    callback: EventTelegramBotListener<T>,
+  ) {
+    return this._events.once(eventName + ":user-" + id, callback);
   }
 
   /**
@@ -132,6 +161,23 @@ export class EventService extends BaseService {
   ) {
     return this._events.off(
       eventName,
+      callback,
+    );
+  }
+
+  /**
+   * Stop listening for a Telegram bot user event
+   * @param eventName The event name to listen for, e.g. "message"
+   * @param id The Telegram user id
+   * @param callback The callback function to call when the event is emitted
+   */
+  public offUser<T = Context>(
+    eventName: string,
+    id: number,
+    callback: EventTelegramBotListener<T>,
+  ) {
+    return this._events.off(
+      eventName + ":user-" + id,
       callback,
     );
   }
