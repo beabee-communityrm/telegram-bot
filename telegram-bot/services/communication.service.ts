@@ -478,7 +478,6 @@ export class CommunicationService extends BaseService {
       }
 
       await this.keyboard.removeLastInlineKeyboard(context);
-      // await this.keyboard.removeInlineKeyboard(context);
 
       if (replayAccepted.isDoneMessage) {
         // Return what we have

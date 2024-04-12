@@ -17,7 +17,6 @@ import {
 import {
   calloutComponentTypeToParsedResponseType,
   createCalloutGroupKey,
-  escapeHtml,
   escapeMd,
   getSelectionLabelNumberRange,
   sanitizeHtml,
@@ -437,10 +436,11 @@ export class CalloutResponseRenderer {
   ) {
     let html = "";
 
-    if (content.label) {
-      `<b>${escapeHtml(content.label)}</b>`;
-      html += `%0A%0A`; // %0A is a newline
-    }
+    // TODO: Should the label rendered?
+    // if (content.label.trim().length) {
+    //   `<strong>${escapeHtml(content.label)}</strong>`;
+    //   html += `\n\n`;
+    // }
 
     html += `${sanitizeHtml(content.html)}`;
 
