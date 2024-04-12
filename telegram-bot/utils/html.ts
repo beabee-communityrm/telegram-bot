@@ -39,6 +39,7 @@ export const sanitizeHtml = (htmlContent: string): string => {
   const tagsToReplace: { [key: string]: string } = {
     "<p\\s+.*?>": "\n", // Replace <p> tags with attributes, e.g. <p style="text-align: center;"> but not <pre>
     "<p>": "\n", // Replace <p> tags without attributes
+    "</p>": "",
     "<br\/?>": "\n", // Replace <br> and <br/> tags
     "&nbsp;": " ", // Replace &nbsp; with a space
     // Additional specific replacements can be added here

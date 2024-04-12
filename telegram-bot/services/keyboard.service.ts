@@ -311,7 +311,10 @@ export class KeyboardService extends BaseService {
       // Do not remove attached message?
       if (!withMessage) {
         const inlineKeyboard = new InlineKeyboard();
-        if (!ctx.update.callback_query?.message?.reply_markup) {
+        if (
+          !ctx.update.callback_query?.message?.reply_markup?.inline_keyboard
+            .flat().length
+        ) {
           console.warn("No inline keyboard to remove");
           return;
         }
@@ -417,6 +420,7 @@ export class KeyboardService extends BaseService {
 
   public async removeLastInlineKeyboard(ctx: AppContext) {
     const session = await ctx.session;
+    let removed = false;
     if (!session) {
       throw new Error("ctx with a session is required when once is true");
     }
@@ -431,7 +435,7 @@ export class KeyboardService extends BaseService {
 
     if (
       keyboardData.message_id && keyboardData.chat_id &&
-      keyboardData.inlineKeyboard
+      keyboardData.inlineKeyboard?.inline_keyboard.flat().length
     ) {
       try {
         await ctx.api.editMessageReplyMarkup(
@@ -441,12 +445,15 @@ export class KeyboardService extends BaseService {
             reply_markup: new InlineKeyboard(),
           },
         );
+        removed = true;
       } catch (error) {
         console.error("Error removing last inline keyboard", error);
+        removed = false;
       }
     }
 
     await this.resetKeyboardInSession(ctx);
+    return removed;
   }
 
   protected async resetKeyboardInSession(ctx: AppContext) {
