@@ -263,7 +263,10 @@ export class CommunicationService extends BaseService {
    * @param ctx
    * @returns
    */
-  public async receiveMessageOrCallbackQueryData(ctx: AppContext) {
+  public async receiveMessageOrCallbackQueryData(
+    ctx: AppContext,
+    signal: AbortSignal | null,
+  ) {
     const userId = getIdentifier(ctx);
     const eventName =
       `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}`;
@@ -271,17 +274,24 @@ export class CommunicationService extends BaseService {
     return await new Promise<AppContext>((resolve) => {
       const onMessage = (ctx: AppContext) => {
         this.event.offUser(eventName, userId, onInteractionCallbackQueryData);
+        signal?.removeEventListener("abort", onAbort);
         resolve(ctx);
       };
 
       // TODO: Any elegant way to move this to the CalloutResponseEventManager?
       const onInteractionCallbackQueryData = (ctx: AppContext) => {
         this.event.offUserMessage(userId, onMessage);
+        signal?.removeEventListener("abort", onAbort);
         resolve(ctx);
       };
 
-      this.event.onceUserMessage(userId, onMessage);
+      const onAbort = () => {
+        this.event.offUser(eventName, userId, onInteractionCallbackQueryData);
+        this.event.offUserMessage(userId, onMessage);
+      };
 
+      signal?.addEventListener("abort", onAbort, { once: true });
+      this.event.onceUserMessage(userId, onMessage);
       this.event.onceUser(eventName, userId, onInteractionCallbackQueryData);
     });
   }
@@ -416,6 +426,7 @@ export class CommunicationService extends BaseService {
   protected async acceptedUntilSpecificMessage(
     ctx: AppContext,
     render: Render,
+    signal: AbortSignal | null,
   ) {
     let context: AppContext;
     let message: Message | undefined;
@@ -430,7 +441,11 @@ export class CommunicationService extends BaseService {
     let replayAccepted: ReplayAccepted | undefined;
 
     do {
-      context = await this.receiveMessageOrCallbackQueryData(ctx);
+      if (signal?.aborted) {
+        return replays;
+      }
+
+      context = await this.receiveMessageOrCallbackQueryData(ctx, signal);
       message = context.message;
       callbackQueryData = context.callbackQuery?.data;
 
@@ -512,6 +527,7 @@ export class CommunicationService extends BaseService {
   public async receive(
     ctx: AppContext,
     render: Render,
+    signal: AbortSignal | null,
   ): Promise<RenderResponseParsed<boolean>> {
     // Do not wait for any specific message
     if (!render.accepted || render.accepted.type === ReplayType.NONE) {
@@ -524,7 +540,11 @@ export class CommunicationService extends BaseService {
     }
 
     // Receive all messages of specific type until a message of specific type is received
-    const replays = await this.acceptedUntilSpecificMessage(ctx, render);
+    const replays = await this.acceptedUntilSpecificMessage(
+      ctx,
+      render,
+      signal,
+    );
 
     // Parse multiple messages
     if (render.accepted.multiple) {
@@ -555,10 +575,14 @@ export class CommunicationService extends BaseService {
    * @param render
    * @returns
    */
-  public async sendAndReceive(ctx: AppContext, render: Render) {
+  public async sendAndReceive(
+    ctx: AppContext,
+    render: Render,
+    signal: AbortSignal | null,
+  ) {
     await this.send(ctx, render);
 
-    const responses = await this.receive(ctx, render);
+    const responses = await this.receive(ctx, render, signal);
     const response: RenderResponse = {
       render,
       responses,
@@ -582,7 +606,7 @@ export class CommunicationService extends BaseService {
         return signal;
       }
       try {
-        const response = await this.sendAndReceive(ctx, render);
+        const response = await this.sendAndReceive(ctx, render, signal);
         if (response) {
           responses.push(response);
         }

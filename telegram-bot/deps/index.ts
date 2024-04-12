@@ -5,7 +5,6 @@ export * from "./beabee-common.ts";
 export * from "./djwt.ts";
 export * from "./googleapis.ts";
 export * from "./grammy.ts";
-export * from "./html-entities.ts";
 export * from "./jsonc.ts";
 export * from "./markdown-it.ts";
 export * from "./std.ts";

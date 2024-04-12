@@ -2,7 +2,6 @@ import {
   AmmoniaBuilder,
   ammoniaCleanText,
   ammoniaInit,
-  Html5Entities,
 } from "../deps/index.ts";
 import { ALLOWED_TAGS } from "../constants/index.ts";
 
@@ -34,13 +33,14 @@ export const escapeHtml = ammoniaCleanText;
  * @returns The sanitized HTML content.
  */
 export const sanitizeHtml = (htmlContent: string): string => {
-  let sanitizedContent = Html5Entities.decode(htmlContent);
+  let sanitizedContent = htmlContent;
 
   // Replace specific tags with corresponding replacements
   const tagsToReplace: { [key: string]: string } = {
     "<p\\s+.*?>": "\n", // Replace <p> tags with attributes, e.g. <p style="text-align: center;"> but not <pre>
     "<p>": "\n", // Replace <p> tags without attributes
     "<br\/?>": "\n", // Replace <br> and <br/> tags
+    "&nbsp;": " ", // Replace &nbsp; with a space
     // Additional specific replacements can be added here
   };
 
