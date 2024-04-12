@@ -2,6 +2,7 @@ import {
   AmmoniaBuilder,
   ammoniaCleanText,
   ammoniaInit,
+  Html5Entities,
 } from "../deps/index.ts";
 import { ALLOWED_TAGS } from "../constants/index.ts";
 
@@ -33,7 +34,7 @@ export const escapeHtml = ammoniaCleanText;
  * @returns The sanitized HTML content.
  */
 export const sanitizeHtml = (htmlContent: string): string => {
-  let sanitizedContent = htmlContent;
+  let sanitizedContent = Html5Entities.decode(htmlContent);
 
   // Replace specific tags with corresponding replacements
   const tagsToReplace: { [key: string]: string } = {
