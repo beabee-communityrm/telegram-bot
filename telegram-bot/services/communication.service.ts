@@ -25,6 +25,7 @@ import {
 } from "../utils/index.ts";
 import { CalloutResponseRenderer, MessageRenderer } from "../renderer/index.ts";
 import {
+  CHECKMARK,
   INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
   INLINE_BUTTON_CALLBACK_PREFIX,
 } from "../constants/index.ts";
@@ -292,7 +293,7 @@ export class CommunicationService extends BaseService {
    * @param replays
    * @param lastGivenAnswerMessage
    */
-  protected async sendOrEditAnswersGiven(
+  protected async sendOrEditAnswersGivenAndKeyboard(
     ctx: AppContext,
     render: Render,
     replays: ReplayAccepted[],
@@ -307,9 +308,16 @@ export class CommunicationService extends BaseService {
 
     if (render.accepted.multiple) {
       if (inlineKeyboard) {
-        renderAnswers.inlineKeyboard = this.keyboard.replaceInlineButton(
+        // Remove skip button
+        renderAnswers.inlineKeyboard = this.keyboard.removeInlineButton(
           inlineKeyboard,
           `${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}:skip`,
+        );
+        inlineKeyboard = renderAnswers.inlineKeyboard;
+
+        // Add done button
+        renderAnswers.inlineKeyboard = this.keyboard.addInlineButton(
+          inlineKeyboard,
           this.keyboard.inlineDoneButton(),
         );
         inlineKeyboard = renderAnswers.inlineKeyboard;
@@ -326,9 +334,17 @@ export class CommunicationService extends BaseService {
               replay.context.callbackQuery?.data === cbQueryData
             );
             if (alreadyUsed) {
-              renderAnswers.inlineKeyboard = this.keyboard.removeInlineButton(
+              renderAnswers.inlineKeyboard = this.keyboard.renameInlineButton(
                 inlineKeyboard,
                 cbQueryData,
+                numberLabel + " " + CHECKMARK,
+              );
+              inlineKeyboard = renderAnswers.inlineKeyboard;
+            } else {
+              renderAnswers.inlineKeyboard = this.keyboard.renameInlineButton(
+                inlineKeyboard,
+                cbQueryData,
+                numberLabel,
               );
               inlineKeyboard = renderAnswers.inlineKeyboard;
             }
@@ -353,6 +369,44 @@ export class CommunicationService extends BaseService {
     return lastGivenAnswerMessage;
   }
 
+  protected equalReplayAnswer(
+    replay1: ReplayAccepted,
+    replay2: ReplayAccepted,
+  ) {
+    // If the replay is the same reference, return true
+    if (replay1 === replay2) {
+      return true;
+    }
+
+    if (replay1.type !== replay2.type) {
+      return false;
+    }
+
+    if (replay1.isDoneMessage !== replay2.isDoneMessage) {
+      return false;
+    }
+
+    if (replay1.isSkipMessage !== replay2.isSkipMessage) {
+      return false;
+    }
+
+    switch (replay1.type) {
+      case ReplayType.NONE:
+        return true;
+      case ReplayType.TEXT:
+        return replay1.text === (replay2 as typeof replay1).text;
+      case ReplayType.SELECTION:
+        return replay1.value === (replay2 as typeof replay1).value;
+      case ReplayType.FILE:
+        return replay1.fileId === (replay2 as typeof replay1).fileId;
+      case ReplayType.CALLOUT_COMPONENT_SCHEMA:
+        return replay1.answer === (replay2 as typeof replay1).answer;
+    }
+
+    console.warn("Unknown replay type", replay1.type);
+    return false;
+  }
+
   /**
    * Wait for a specific message to be received and collect all messages of type `render.accepted` until the specific message is received.
    * @param ctx
@@ -367,7 +421,7 @@ export class CommunicationService extends BaseService {
     let message: Message | undefined;
     let callbackQueryData: string | undefined;
     let lastGivenAnswerMessage: Message | undefined;
-    const replays: ReplayAccepted[] = [];
+    let replays: ReplayAccepted[] = [];
 
     if (render.accepted.type === ReplayType.NONE) {
       return [];
@@ -397,9 +451,6 @@ export class CommunicationService extends BaseService {
         throw new Error("Message and callback query data are undefined");
       }
 
-      await this.keyboard.removeInlineKeyboard(context);
-      await this.keyboard.removeLastInlineKeyboard(context);
-
       if (!replayAccepted.accepted) {
         await this.send(
           ctx,
@@ -411,6 +462,9 @@ export class CommunicationService extends BaseService {
         continue;
       }
 
+      await this.keyboard.removeInlineKeyboard(context);
+      await this.keyboard.removeLastInlineKeyboard(context);
+
       if (replayAccepted.isDoneMessage) {
         // Return what we have
         return replays;
@@ -421,11 +475,20 @@ export class CommunicationService extends BaseService {
         return [replayAccepted];
       }
 
-      // Answer accepted
-      replays.push(replayAccepted);
+      const replayAlreadyTaken = replays.find((replay) =>
+        this.equalReplayAnswer(replay, replayAccepted as ReplayAccepted)
+      );
+
+      // If answewr is a selection and it is already in the replays, remove it
+      if (replayAccepted.type === ReplayType.SELECTION && replayAlreadyTaken) {
+        replays = replays.filter((replay) => replay !== replayAlreadyTaken);
+      } else {
+        // Answer accepted
+        replays.push(replayAccepted);
+      }
 
       // Send or edit given answers message
-      lastGivenAnswerMessage = await this.sendOrEditAnswersGiven(
+      lastGivenAnswerMessage = await this.sendOrEditAnswersGivenAndKeyboard(
         context,
         render,
         replays,

@@ -137,25 +137,6 @@ export class CalloutResponseRenderer {
   }
 
   /**
-   * Render a note to the user how many answers are expected
-   * @param multiple If multiple answers are expected
-   * @returns
-   */
-  protected multipleMd(multiple: boolean) {
-    if (multiple) {
-      return `\n\n_${
-        escapeMd(
-          `${
-            this.i18n.t("bot.info.messages.multipleValuesAllowed")
-          }\n\n${this.messageRenderer.writeDoneMessage().text}`,
-        )
-      }_`;
-    }
-
-    return "";
-  }
-
-  /**
    * Render a note to the user if the answer is required
    * @param required If the answer is required
    * @returns
@@ -188,7 +169,6 @@ export class CalloutResponseRenderer {
     required = component.validate?.required || false,
   ) {
     const placeholder = component.placeholder;
-    const multiple = this.isMultiple(component);
 
     if (placeholder) {
       result.markdown += `\n\n${
@@ -196,7 +176,6 @@ export class CalloutResponseRenderer {
       }`;
     }
 
-    result.markdown += `${this.multipleMd(multiple)}`;
     result.markdown += `${this.requiredMd(required)}`;
 
     result.inlineKeyboard = this.keyboard.inlineSkip(

@@ -31,6 +31,7 @@ import type {
   ReplayConditionText,
 } from "../types/index.ts";
 import { ReplayAcceptedCalloutComponentSchema } from "../types/replay-accepted-callout-component-schema.ts";
+import { CHECKMARK } from "../constants/index.ts";
 
 /**
  * Check conditions for a replay.
@@ -302,7 +303,8 @@ export class ValidationService extends BaseService {
     message = context.message,
     textMessage = message?.text,
   ): ReplayAcceptedSelection {
-    textMessage = textMessage?.trim().toLowerCase();
+    // Remove the checkmark from the message to match the label
+    textMessage = textMessage?.replace(CHECKMARK, "").trim().toLowerCase();
 
     const baseResult = {
       isDoneMessage: false,

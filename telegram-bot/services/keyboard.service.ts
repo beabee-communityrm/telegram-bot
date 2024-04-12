@@ -382,6 +382,39 @@ export class KeyboardService extends BaseService {
     return inlineKeyboard;
   }
 
+  /** Add a specific inline button to the keyboard */
+  public addInlineButton(
+    keyboard: InlineKeyboard,
+    newButton: InlineKeyboardButton.CallbackButton,
+  ) {
+    keyboard.text(
+      newButton.text,
+      newButton.callback_data,
+    );
+
+    return keyboard;
+  }
+
+  /** Rename a specific inline button from the keyboard */
+  public renameInlineButton(
+    keyboard: InlineKeyboard,
+    buttonCallbackData: string,
+    newButtonText: string,
+  ) {
+    for (const row of keyboard.inline_keyboard) {
+      for (const button of row) {
+        if (
+          (button as InlineKeyboardButton.CallbackButton).callback_data ===
+            buttonCallbackData
+        ) {
+          button.text = newButtonText;
+        }
+      }
+    }
+
+    return keyboard;
+  }
+
   public async removeLastInlineKeyboard(ctx: AppContext) {
     const session = await ctx.session;
     if (!session) {

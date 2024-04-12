@@ -6,4 +6,6 @@ export {
   dirname,
   fromFileUrl,
   join,
-} from "https://deno.land/std@0.211.0/path/mod.ts";
+} from "https://deno.land/std@0.222.1/path/mod.ts";
+
+export { equal } from "https://deno.land/std@0.222.1/assert/mod.ts";
