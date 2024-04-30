@@ -1,5 +1,6 @@
 import type {
   ReplayAcceptedAny,
+  ReplayAcceptedCallbackQueryData,
   ReplayAcceptedCalloutComponentSchema,
   ReplayAcceptedFile,
   ReplayAcceptedNone,
@@ -13,4 +14,5 @@ export type ReplayAccepted =
   | ReplayAcceptedAny
   | ReplayAcceptedNone
   | ReplayAcceptedSelection
-  | ReplayAcceptedCalloutComponentSchema;
+  | ReplayAcceptedCalloutComponentSchema
+  | ReplayAcceptedCallbackQueryData;

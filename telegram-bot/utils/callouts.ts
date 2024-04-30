@@ -1,4 +1,4 @@
-// TODO: Move to common or use common utils
+import { range } from "./number.ts";
 
 import { CALLOUT_RESPONSE_GROUP_KEY_SEPARATOR } from "../constants/index.ts";
 import { ParsedResponseType } from "../enums/index.ts";
@@ -77,4 +77,10 @@ export const calloutComponentTypeToParsedResponseType = (
       return ParsedResponseType.NONE;
     }
   }
+};
+
+export const getSelectionLabelNumberRange = (
+  valueLabel: Record<string, string>,
+) => {
+  return range(1, Object.keys(valueLabel).length).map(String);
 };

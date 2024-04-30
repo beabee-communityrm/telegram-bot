@@ -3,7 +3,6 @@ export * from "./ammonia.ts";
 export * from "./beabee-client.ts";
 export * from "./beabee-common.ts";
 export * from "./djwt.ts";
-export * from "./dotenv.ts";
 export * from "./googleapis.ts";
 export * from "./grammy.ts";
 export * from "./jsonc.ts";

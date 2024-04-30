@@ -33,6 +33,7 @@ export * from "./render-text.ts";
 export * from "./render.ts";
 export * from "./replay-accepted-any.ts";
 export * from "./replay-accepted-base.ts";
+export * from "./replay-accepted-callback-query.ts";
 export * from "./replay-accepted-callout-component-schema.ts";
 export * from "./replay-accepted-file.ts";
 export * from "./replay-accepted-none.ts";

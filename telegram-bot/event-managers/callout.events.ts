@@ -5,7 +5,10 @@ import { CalloutRenderer } from "../renderer/index.ts";
 import { EventService } from "../services/event.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
 import { StateMachineService } from "../services/state-machine.service.ts";
-import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants/index.ts";
+import {
+  INLINE_BUTTON_CALLBACK_PREFIX,
+  INLINE_BUTTON_CALLBACK_SHOW_CALLOUT,
+} from "../constants/index.ts";
 import { BaseEventManager } from "../core/base.events.ts";
 import { ChatState } from "../enums/index.ts";
 
@@ -26,9 +29,9 @@ export class CalloutEventManager extends BaseEventManager {
   }
 
   public init() {
-    // Listen for the callback query data event with the `BUTTON_CALLBACK_SHOW_CALLOUT` data
+    // Listen for the callback query data event with the `INLINE_BUTTON_CALLBACK_SHOW_CALLOUT` data
     this.event.on(
-      `callback_query:data:${BUTTON_CALLBACK_SHOW_CALLOUT}`,
+      `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_SHOW_CALLOUT}`,
       (event) => {
         this.onCalloutSelectionKeyboardPressed(event);
       },

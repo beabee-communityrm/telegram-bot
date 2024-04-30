@@ -25,19 +25,19 @@ export class EventService extends BaseService {
    * Emits a series of detailed events based on a given event name.
    * The method takes an event name, splits it by the ':' character,
    * and emits progressively more detailed events for each segment.
-   * @param eventName E.g. "callback_query:data:show-callout-slug:my-callout"
+   * @param eventName E.g. "${INLINE_BUTTON_CALLBACK_PREFIX}:show-callout-slug:my-callout"
    * @param ctx The Telegram context
    *
-   * For example, given the event name 'callback_query:data:show-callout-slug:my-callout',
+   * For example, given the event name '${INLINE_BUTTON_CALLBACK_PREFIX}:show-callout-slug:my-callout',
    * it emits the following events in order:
    * @fires callback_query
    * @fires callback_query:user-123456789
-   * @fires callback_query:data
-   * @fires callback_query:data:user-123456789
-   * @fires callback_query:data:show-callout-slug
-   * @fires callback_query:data:show-callout-slug:user-123456789
-   * @fires callback_query:data:show-callout-slug:my-callout
-   * @fires callback_query:data:show-callout-slug:my-callout:user-123456789
+   * @fires ${INLINE_BUTTON_CALLBACK_PREFIX}
+   * @fires ${INLINE_BUTTON_CALLBACK_PREFIX}:user-123456789
+   * @fires ${INLINE_BUTTON_CALLBACK_PREFIX}:show-callout-slug
+   * @fires ${INLINE_BUTTON_CALLBACK_PREFIX}:show-callout-slug:user-123456789
+   * @fires ${INLINE_BUTTON_CALLBACK_PREFIX}:show-callout-slug:my-callout
+   * @fires ${INLINE_BUTTON_CALLBACK_PREFIX}:show-callout-slug:my-callout:user-123456789
    *
    * Or given the event name 'message', it emits the following events in order:
    * @fires message
@@ -94,8 +94,22 @@ export class EventService extends BaseService {
   }
 
   /**
+   * Listen for a Telegram bot user event
+   * @param eventName The event name to listen for, e.g. "message"
+   * @param id The Telegram user id
+   * @param callback The callback function to call when the event is emitted
+   */
+  public onUser<T = AppContext>(
+    eventName: string,
+    id: number,
+    callback: EventTelegramBotListener<T>,
+  ) {
+    return this._events.on(eventName + ":user-" + id, callback);
+  }
+
+  /**
    * Listen for a Telegram bot event, but only once
-   * @param eventName
+   * @param eventName The event name to listen for, e.g. "message"
    * @param callback The callback function to call when the event is emitted
    * @returns
    */
@@ -104,6 +118,21 @@ export class EventService extends BaseService {
     callback: EventTelegramBotListener<T>,
   ) {
     return this._events.once(eventName, callback);
+  }
+
+  /**
+   * Listen for a Telegram bot event, but only once
+   * @param eventName The event name to listen for, e.g. "message"
+   * @param id The Telegram user id
+   * @param callback The callback function to call when the event is emitted
+   * @returns
+   */
+  public onceUser<T = AppContext>(
+    eventName: string,
+    id: number,
+    callback: EventTelegramBotListener<T>,
+  ) {
+    return this._events.once(eventName + ":user-" + id, callback);
   }
 
   /**
@@ -132,6 +161,23 @@ export class EventService extends BaseService {
   ) {
     return this._events.off(
       eventName,
+      callback,
+    );
+  }
+
+  /**
+   * Stop listening for a Telegram bot user event
+   * @param eventName The event name to listen for, e.g. "message"
+   * @param id The Telegram user id
+   * @param callback The callback function to call when the event is emitted
+   */
+  public offUser<T = Context>(
+    eventName: string,
+    id: number,
+    callback: EventTelegramBotListener<T>,
+  ) {
+    return this._events.off(
+      eventName + ":user-" + id,
       callback,
     );
   }

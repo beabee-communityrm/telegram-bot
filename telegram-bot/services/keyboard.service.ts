@@ -1,6 +1,21 @@
 import { BaseService } from "../core/index.ts";
-import { InlineKeyboard, Keyboard, Singleton } from "../deps/index.ts";
-import { BUTTON_CALLBACK_SHOW_CALLOUT } from "../constants/index.ts";
+import {
+  ForceReply,
+  InlineKeyboard,
+  InlineKeyboardButton,
+  InlineKeyboardMarkup,
+  Keyboard,
+  Message,
+  ReplyKeyboardMarkup,
+  ReplyKeyboardRemove,
+  Singleton,
+} from "../deps/index.ts";
+import {
+  FALSY_MESSAGE_KEY,
+  INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
+  INLINE_BUTTON_CALLBACK_SHOW_CALLOUT,
+  TRUTHY_MESSAGE_KEY,
+} from "../constants/index.ts";
 import { I18nService } from "./i18n.service.ts";
 
 import type { AppContext, CalloutDataExt } from "../types/index.ts";
@@ -39,9 +54,9 @@ export class KeyboardService extends BaseService {
   /**
    * Create a keyboard button to select a callout.
    *
-   * To respond to the button press, listen for the `callback_query:data:show-callout-slug` event using the EventService.
+   * To respond to the button press, listen for the `${INLINE_BUTTON_CALLBACK_PREFIX}:show-callout-slug` event using the EventService.
    *
-   * @fires `callback_query:data:${BUTTON_CALLBACK_SHOW_CALLOUT}`
+   * @fires `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_SHOW_CALLOUT}`
    *
    * @param callouts The Callouts to select from
    * @param startIndex The index of the first callout to show, starting at 1
@@ -70,7 +85,8 @@ export class KeyboardService extends BaseService {
         );
         continue;
       }
-      const callbackData = `${BUTTON_CALLBACK_SHOW_CALLOUT}:${shortSlug}`;
+      const callbackData =
+        `${INLINE_BUTTON_CALLBACK_SHOW_CALLOUT}:${shortSlug}`;
 
       if (callbackData.length > 64) {
         console.error(
@@ -88,7 +104,7 @@ export class KeyboardService extends BaseService {
   }
 
   /**
-   * Create a keyboard with a list of selections
+   * Create or extends a custom keyboard with a list of selections
    * @param keyboard
    * @param selections
    * @returns
@@ -101,29 +117,52 @@ export class KeyboardService extends BaseService {
   }
 
   /**
+   * Create or extends a inline keyboard with a list of selections
+   * @param prefix A prefix to add to the button data, used to subscribe to the events
+   * @param keyboard The inline keyboard to extend
+   * @param selections The selections to add
+   * @returns
+   */
+  public inlineSelection(
+    prefix = INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
+    keyboard = this.inlineEmpty(),
+    selections: string[],
+  ) {
+    for (const selection of selections) {
+      keyboard.text(selection, `${prefix}:${selection}`);
+    }
+    return keyboard.row();
+  }
+
+  /**
    * Create a inline keyboard with Yes and No buttons.
    *
-   * To respond to the button press, listen for the `callback_query:data:yes` and `callback_query:data:no` events using the EventService.
-   * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `callback_query:data:callout-respond:yes`.
+   * To respond to the button press, listen for the `${INLINE_BUTTON_CALLBACK_PREFIX}:yes` and `${INLINE_BUTTON_CALLBACK_PREFIX}:no` events using the EventService.
+   * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `${INLINE_BUTTON_CALLBACK_PREFIX}:callout-respond:yes`.
    *
    * @param ctx The chat context
    * @param prefix A prefix to add to the button data, e.g. "callout-respond"
+   * @param keyboard The keyboard to extend
+   * @param truthyLabel The label for the truthy button
+   * @param falsyLabel The label for the falsy button
    */
   public inlineYesNo(
     prefix: string,
+    keyboard = this.inlineEmpty(),
     truthyLabel = this.i18n.t("bot.reactions.messages.truthy"),
     falsyLabel = this.i18n.t("bot.reactions.messages.falsy"),
+    truthyMessageKey = TRUTHY_MESSAGE_KEY,
+    falsyMessageKey = FALSY_MESSAGE_KEY,
   ) {
-    const inlineKeyboard = new InlineKeyboard();
-    inlineKeyboard.text(
+    keyboard.text(
       truthyLabel,
-      prefix ? `${prefix}:yes` : `yes`,
+      prefix ? `${prefix}:${truthyMessageKey}` : `${truthyMessageKey}`,
     );
-    inlineKeyboard.text(
+    keyboard.text(
       falsyLabel,
-      prefix ? `${prefix}:no` : `no`,
+      prefix ? `${prefix}:${falsyMessageKey}` : `${falsyMessageKey}`,
     );
-    return inlineKeyboard;
+    return keyboard;
   }
 
   /**
@@ -142,48 +181,84 @@ export class KeyboardService extends BaseService {
   }
 
   /**
-   * Creates a extends a custom keyboard with a skip button.
-   *
-   * @param keyboard The keyboard to extend
-   * @param skipLabel The label for the skip button
-   */
-  public skip(
-    keyboard = this.empty(),
-    skipLabel = this.i18n.t("bot.reactions.messages.skip"),
-  ) {
-    return keyboard.text(skipLabel).row();
-  }
-
-  /**
-   * Creates a extends a custom keyboard with a done button.
+   * Creates or extends a custom keyboard with a done button.
    *
    * @param keyboard The keyboard to extend
    * @param doneLabel The label for the done button
    */
   public done(
     keyboard = this.empty(),
-    skipLabel = this.i18n.t("bot.reactions.messages.done"),
+    doneLabel = this.i18n.t("bot.reactions.messages.done"),
   ) {
-    return keyboard.text(skipLabel).row();
+    return keyboard.text(doneLabel).row();
   }
 
   /**
-   * Create a keyboard for a callout response
+   * Creates or extends a inline keyboard with a done button.
+   *
+   * @param prefix A prefix to add to the button data, used to subscribe to the events
+   * @param keyboard The keyboard to extend
+   * @param doneLabel The label for the done button
+   */
+  public inlineDone(
+    prefix = INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
+    keyboard = this.inlineEmpty(),
+    doneLabel = this.i18n.t("bot.reactions.messages.done"),
+  ) {
+    const button = this.inlineDoneButton(prefix, doneLabel);
+    return keyboard.text(button.text, button.callback_data).row();
+  }
+
+  /**
+   * Creates or extends a inline keyboard with a done button.
+   *
+   * @param prefix A prefix to add to the button data, used to subscribe to the events
+   * @param keyboard The keyboard to extend
+   * @param doneLabel The label for the done button
+   */
+  public inlineDoneButton(
+    prefix = `${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}:done`,
+    doneLabel = this.i18n.t("bot.reactions.messages.done"),
+  ): InlineKeyboardButton.CallbackButton {
+    return {
+      text: doneLabel,
+      callback_data: `${prefix}:done`,
+    };
+  }
+
+  /**
+   * Create a keyboard for a callout response with a skip button.
    * @param keyboard The keyboard to extend
    * @param required
    * @param multiple
    */
-  public skipDone(
+  public skip(
     keyboard = this.empty(),
     required = false,
-    multiple = false,
+    skipLabel = this.i18n.t("bot.reactions.messages.skip"),
   ) {
-    if (multiple) {
-      this.done(keyboard);
+    if (!required) {
+      return keyboard.text(skipLabel).row();
     }
 
+    return keyboard;
+  }
+
+  /**
+   * Creates or extends a inline keyboard with a skip button.
+   * @param prefix A prefix to add to the button data, used to subscribe to the events
+   * @param keyboard The keyboard to extend
+   * @param required
+   * @param skipLabel The label for the skip button
+   */
+  public inlineSkip(
+    prefix: string,
+    keyboard = this.inlineEmpty(),
+    required = false,
+    skipLabel = this.i18n.t("bot.reactions.messages.skip"),
+  ) {
     if (!required) {
-      this.skip(keyboard);
+      return keyboard.text(skipLabel, `${prefix}:skip`).row();
     }
 
     return keyboard;
@@ -192,8 +267,8 @@ export class KeyboardService extends BaseService {
   /**
    * Create a inline keyboard with Continue and Cancel buttons.
    *
-   * To respond to the button press, listen for the `callback_query:data:continue` and `callback_query:data:cancel` events using the EventService.
-   * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `callback_query:data:callout-respond:continue`.
+   * To respond to the button press, listen for the `${INLINE_BUTTON_CALLBACK_PREFIX}:continue` and `${INLINE_BUTTON_CALLBACK_PREFIX}:cancel` events using the EventService.
+   * If you have defined a prefix, the event names will be prefixed with the prefix, e.g. `${INLINE_BUTTON_CALLBACK_PREFIX}:callout-respond:continue`.
    *
    * @param prefix A prefix to add to the button data, e.g. "callout-respond"
    */
@@ -229,13 +304,20 @@ export class KeyboardService extends BaseService {
   /**
    * Remove an existing inline keyboard
    * @param ctx The chat context
-   * @param withMessage If true, the message will be deleted, too
+   * @param withMessage If true, the attached message will be deleted, too
    */
   public async removeInlineKeyboard(ctx: AppContext, withMessage = false) {
     try {
-      // Do not delete keyboard message?
+      // Do not remove attached message?
       if (!withMessage) {
         const inlineKeyboard = new InlineKeyboard();
+        if (
+          !ctx.update.callback_query?.message?.reply_markup?.inline_keyboard
+            .flat().length
+        ) {
+          console.warn("No inline keyboard to remove");
+          return;
+        }
         return await ctx.editMessageReplyMarkup({
           reply_markup: inlineKeyboard,
         });
@@ -247,31 +329,180 @@ export class KeyboardService extends BaseService {
     }
   }
 
+  /** Remove a specific inline button from the keyboard */
+  public removeInlineButton(
+    keyboard: InlineKeyboard,
+    buttonCallbackData: string,
+  ) {
+    const inlineKeyboard = new InlineKeyboard();
+
+    for (const row of keyboard.inline_keyboard) {
+      for (const button of row) {
+        if (
+          (button as InlineKeyboardButton.CallbackButton).callback_data !==
+            buttonCallbackData
+        ) {
+          inlineKeyboard.text(
+            button.text,
+            (button as InlineKeyboardButton.CallbackButton).callback_data,
+          );
+        }
+      }
+      inlineKeyboard.row();
+    }
+
+    return inlineKeyboard;
+  }
+
+  /** Replace a specific inline button from the keyboard */
+  public replaceInlineButton(
+    keyboard: InlineKeyboard,
+    buttonCallbackData: string,
+    newButton: InlineKeyboardButton.CallbackButton,
+  ) {
+    const inlineKeyboard = new InlineKeyboard();
+
+    for (const row of keyboard.inline_keyboard) {
+      for (const button of row) {
+        if (
+          (button as InlineKeyboardButton.CallbackButton).callback_data ===
+            buttonCallbackData
+        ) {
+          inlineKeyboard.text(
+            newButton.text,
+            newButton.callback_data,
+          );
+        } else {
+          inlineKeyboard.text(
+            button.text,
+            (button as InlineKeyboardButton.CallbackButton).callback_data,
+          );
+        }
+      }
+      inlineKeyboard.row();
+    }
+
+    return inlineKeyboard;
+  }
+
+  /** Add a specific inline button to the keyboard */
+  public addInlineButton(
+    keyboard: InlineKeyboard,
+    newButton: InlineKeyboardButton.CallbackButton,
+  ) {
+    keyboard.text(
+      newButton.text,
+      newButton.callback_data,
+    );
+
+    return keyboard;
+  }
+
+  /** Rename a specific inline button from the keyboard */
+  public renameInlineButton(
+    keyboard: InlineKeyboard,
+    buttonCallbackData: string,
+    newButtonText: string,
+  ) {
+    for (const row of keyboard.inline_keyboard) {
+      for (const button of row) {
+        if (
+          (button as InlineKeyboardButton.CallbackButton).callback_data ===
+            buttonCallbackData
+        ) {
+          button.text = newButtonText;
+        }
+      }
+    }
+
+    return keyboard;
+  }
+
   public async removeLastInlineKeyboard(ctx: AppContext) {
     const session = await ctx.session;
+    let removed = false;
     if (!session) {
       throw new Error("ctx with a session is required when once is true");
     }
-    const inlineKeyboardData = session._data.latestKeyboard;
-    if (!inlineKeyboardData || !Object.keys(inlineKeyboardData).length) {
-      console.debug("No inline keyboard to remove");
+    const keyboardData = session._data.latestKeyboard || null;
+    if (!keyboardData || !Object.keys(keyboardData).length) {
+      console.debug(
+        "No last inline keyboard to remove, keyboardData: ",
+        keyboardData,
+      );
       return;
     }
 
-    if (inlineKeyboardData.message_id && inlineKeyboardData.chat_id) {
+    if (
+      keyboardData.message_id && keyboardData.chat_id &&
+      keyboardData.inlineKeyboard?.inline_keyboard.flat().length
+    ) {
       try {
         await ctx.api.editMessageReplyMarkup(
-          inlineKeyboardData.chat_id,
-          inlineKeyboardData.message_id,
+          keyboardData.chat_id,
+          keyboardData.message_id,
           {
             reply_markup: new InlineKeyboard(),
           },
         );
+        removed = true;
       } catch (error) {
         console.error("Error removing last inline keyboard", error);
+        removed = false;
       }
     }
 
+    await this.resetKeyboardInSession(ctx);
+    return removed;
+  }
+
+  protected async resetKeyboardInSession(ctx: AppContext) {
+    const session = await ctx.session;
     session._data.latestKeyboard = null;
+    return session;
+  }
+
+  /**
+   * Store the latest keyboard in the session to be able to remove it later
+   * @param ctx
+   * @param markup
+   * @param message
+   */
+  public async storeLatestInSession(
+    ctx: AppContext,
+    markup:
+      | InlineKeyboardMarkup
+      | ReplyKeyboardMarkup
+      | ReplyKeyboardRemove
+      | ForceReply,
+    message: Message | undefined = ctx.message,
+  ) {
+    if (!message) {
+      throw new Error("Message is undefined");
+    }
+    const session = await ctx.session;
+    if (
+      markup instanceof InlineKeyboard &&
+      markup.inline_keyboard.flat().length > 0
+    ) {
+      session._data.latestKeyboard = {
+        message_id: message.message_id,
+        chat_id: message.chat.id,
+        type: "inline",
+        inlineKeyboard: markup,
+      };
+    } else if (
+      markup instanceof Keyboard &&
+      markup.keyboard.flat().length > 0
+    ) {
+      session._data.latestKeyboard = {
+        message_id: message.message_id,
+        chat_id: message.chat.id,
+        type: "custom",
+        customKeyboard: markup,
+      };
+    } else {
+      console.warn("No keyboard to store");
+    }
   }
 }

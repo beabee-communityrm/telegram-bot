@@ -42,7 +42,7 @@ export class ShowCommand extends BaseCommand {
     }
 
     // Get the slug from the `/show slug` message text
-    const slug = ctx.message?.text?.split(" ")[1];
+    const slug = ctx.message?.text?.split(" ")[1]; // Alternatively, use ctx.match
 
     if (!slug) {
       await ctx.reply("Please specify a callout slug. E.g. `/show my-callout`");

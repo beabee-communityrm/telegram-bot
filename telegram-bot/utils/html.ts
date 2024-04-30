@@ -3,7 +3,7 @@ import {
   ammoniaCleanText,
   ammoniaInit,
 } from "../deps/index.ts";
-import { ALLOWED_TAGS } from "../constants/index.ts";
+import { ALLOWED_TAGS, DOT } from "../constants/index.ts";
 
 const initAmmonia = async () => {
   await ammoniaInit();
@@ -39,7 +39,23 @@ export const sanitizeHtml = (htmlContent: string): string => {
   const tagsToReplace: { [key: string]: string } = {
     "<p\\s+.*?>": "\n", // Replace <p> tags with attributes, e.g. <p style="text-align: center;"> but not <pre>
     "<p>": "\n", // Replace <p> tags without attributes
+    "</p>": "",
     "<br\/?>": "\n", // Replace <br> and <br/> tags
+    "<h1>": "<strong>",
+    "</h1>": "</strong>",
+    "<h2>": "<strong>",
+    "</h2>": "</strong>",
+    "<h3>": "<strong>",
+    "</h3>": "</strong>",
+    "<h4>": "<strong>",
+    "</h4>": "</strong>",
+    "<h5>": "<strong>",
+    "</h5>": "</strong>",
+    "<h6>": "<strong>",
+    "</h6>": "</strong>",
+    "<li>": ` \n${DOT} `,
+    "</li>": "",
+    "&nbsp;": " ", // Replace &nbsp; with a space
     // Additional specific replacements can be added here
   };
 

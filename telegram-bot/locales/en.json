@@ -36,11 +36,13 @@
     },
     "info": {
       "messages": {
+        "answer": "Your answer:",
+        "answers": "Your answers:",
         "command": {
           "notUsable": "You cannot use the {command} command here. If you think this is an error, please use the /reset command."
         },
         "continueList": "Want to take part in a callout? Check out the list of open callouts and see which one piques your interest",
-        "done": "When you are finished with your response, just type \"{done}\".",
+        "done": "When you are finished with your response, just press or type \"{done}\".",
         "enterAmountOfMoney": "Please enter an amount of money.",
         "enterDate": "Please enter a date.",
         "enterLotsOfText": "Please reply with a single message.",
@@ -55,6 +57,7 @@
         "multipleNumbersAllowed": "Enter one or more numbers.",
         "multipleSelectionsAllowed": "Please type in the answer number.",
         "multipleValuesAllowed": "You can enter multiple values by sending each value in a separate message.",
+        "noAnswerYet": "You haven't given an answer yet",
         "onlyOneAddressAllowed": "Please enter an address.",
         "onlyOneEmailAllowed": "Please enter an e-mail address.",
         "onlyOneNumberAllowed": "Please enter a number.",

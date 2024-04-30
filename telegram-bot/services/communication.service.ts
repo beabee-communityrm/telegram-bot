@@ -1,12 +1,34 @@
 import { BaseService } from "../core/index.ts";
-import { fmt, Message, ParseModeFlavor, Singleton, InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply } from "../deps/index.ts";
+import {
+  fmt,
+  ForceReply,
+  InlineKeyboardMarkup,
+  Message,
+  ParseModeFlavor,
+  ReplyKeyboardMarkup,
+  ReplyKeyboardRemove,
+  Singleton,
+} from "../deps/index.ts";
 import { ParsedResponseType, RenderType, ReplayType } from "../enums/index.ts";
+
 import { EventService } from "./event.service.ts";
+import { KeyboardService } from "./keyboard.service.ts";
 import { TransformService } from "./transform.service.ts";
 import { ConditionService } from "./condition.service.ts";
 import { ValidationService } from "./validation.service.ts";
-import { getIdentifier, sleep } from "../utils/index.ts";
-import { MessageRenderer } from "../renderer/message.renderer.ts";
+import { I18nService } from "../services/i18n.service.ts";
+
+import {
+  getIdentifier,
+  getSelectionLabelNumberRange,
+  sleep,
+} from "../utils/index.ts";
+import { CalloutResponseRenderer, MessageRenderer } from "../renderer/index.ts";
+import {
+  CHECKMARK,
+  INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
+  INLINE_BUTTON_CALLBACK_PREFIX,
+} from "../constants/index.ts";
 
 import type {
   AppContext,
@@ -15,7 +37,6 @@ import type {
   RenderResponseParsed,
   ReplayAccepted,
 } from "../types/index.ts";
-import { InlineKeyboard } from "../deps/grammy.ts";
 
 /**
  * Service to handle the communication with the telegram bot and the telegram user.
@@ -25,10 +46,13 @@ import { InlineKeyboard } from "../deps/grammy.ts";
 export class CommunicationService extends BaseService {
   constructor(
     protected readonly event: EventService,
+    protected readonly keyboard: KeyboardService,
     protected readonly messageRenderer: MessageRenderer,
+    protected readonly calloutResponseRenderer: CalloutResponseRenderer,
     protected readonly transform: TransformService,
     protected readonly condition: ConditionService,
     protected readonly validation: ValidationService,
+    protected readonly i18n: I18nService,
   ) {
     super();
     console.debug(`${this.constructor.name} created`);
@@ -37,10 +61,8 @@ export class CommunicationService extends BaseService {
   /**
    * Reply to a Telegram message or action with a single render object
    *
-   * @todo: Make use of https://grammy.dev/plugins/parse-mode
-   *
    * @param ctx
-   * @param res
+   * @param render
    */
   public async send(ctx: AppContext, render: Render) {
     if (render.keyboard && render.inlineKeyboard) {
@@ -51,19 +73,21 @@ export class CommunicationService extends BaseService {
       await sleep(render.beforeDelay);
     }
 
-    // link previews are disabled by default
+    // link previews are disabled by default, define render.linkPreview to enable them
     if (!render.linkPreview) {
       render.linkPreview = {
         is_disabled: true,
       };
     }
 
-    let markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | undefined = render.keyboard || render.inlineKeyboard || undefined;
-    //  (render.removeKeyboard ? { remove_keyboard: true as true } : undefined);
-    (render.forceReply ? { force_reply: true as true } : undefined);
+    let markup:
+      | InlineKeyboardMarkup
+      | ReplyKeyboardMarkup
+      | ReplyKeyboardRemove
+      | ForceReply
+      | undefined = render.keyboard || render.inlineKeyboard || undefined;
 
-
-    if (!markup && render.removeKeyboard) {
+    if (!markup && render.removeCustomKeyboard) {
       markup = { remove_keyboard: true } as ReplyKeyboardRemove;
     }
 
@@ -71,11 +95,11 @@ export class CommunicationService extends BaseService {
       markup = { force_reply: true } as ForceReply;
     }
 
-    let message: Message.TextMessage | undefined;
+    let message: Message | undefined;
 
     switch (render.type) {
       case RenderType.PHOTO:
-        await ctx.replyWithMediaGroup([render.photo], {});
+        message = (await ctx.replyWithMediaGroup([render.photo], {}))[0];
         if (render.keyboard) {
           message = await ctx.reply("", {
             link_preview_options: render.linkPreview,
@@ -120,24 +144,117 @@ export class CommunicationService extends BaseService {
         throw new Error("Unknown render type: " + (render as Render).type);
     }
 
-    // Store latest sended keyboard to be able to remove it later if the keyboard is not empty
-    // TODO: Should we move this to the `KeyboardService` or `StateMachineService`?
-    if (
-      message && markup && markup instanceof InlineKeyboard &&
-      markup.inline_keyboard.entries.length > 0
-    ) {
-      const session = await ctx.session;
-      session._data.latestKeyboard = {
-        message_id: message.message_id,
-        chat_id: message.chat.id,
-        type: "inline",
-        inlineKeyboard: markup,
-      };
+    if (message && markup) {
+      await this.keyboard.storeLatestInSession(ctx, markup, message);
     }
 
     if (render.afterDelay) {
       await sleep(render.afterDelay);
     }
+
+    return message;
+  }
+
+  /**
+   * Edit a Telegram message or action with a single render object
+   *
+   * @param ctx
+   * @param render
+   */
+  public async edit(
+    ctx: AppContext,
+    oldMessage: { message_id: number; chat: { id: number } },
+    render: Render,
+  ) {
+    const message = ctx.message;
+    if (render.keyboard && render.inlineKeyboard) {
+      throw new Error("You can only use one keyboard at a time");
+    }
+
+    if (render.beforeDelay) {
+      await sleep(render.beforeDelay);
+    }
+
+    // link previews are disabled by default, define render.linkPreview to enable them
+    if (!render.linkPreview) {
+      render.linkPreview = {
+        is_disabled: true,
+      };
+    }
+
+    if (render.keyboard) {
+      console.warn("Edit message with custom keyboard not implemented");
+    }
+
+    if (render.removeCustomKeyboard) {
+      console.warn("Remove custom keyboard not implemented on edit");
+    }
+
+    if (render.forceReply) {
+      console.warn("Force reply not implemented on edit");
+    }
+
+    const markup:
+      | InlineKeyboardMarkup
+      | undefined = render.inlineKeyboard || undefined;
+
+    switch (render.type) {
+      case RenderType.PHOTO:
+        throw new Error("Edit media not implemented");
+      case RenderType.MARKDOWN:
+        await ctx.api.editMessageText(
+          oldMessage.chat.id,
+          oldMessage.message_id,
+          render.markdown,
+          {
+            parse_mode: "MarkdownV2",
+            link_preview_options: render.linkPreview,
+            reply_markup: markup,
+          },
+        );
+        break;
+      case RenderType.HTML:
+        await ctx.api.editMessageText(
+          oldMessage.chat.id,
+          oldMessage.message_id,
+          render.html,
+          {
+            parse_mode: "HTML",
+            link_preview_options: render.linkPreview,
+            reply_markup: markup,
+          },
+        );
+        break;
+      case RenderType.TEXT:
+        await ctx.api.editMessageText(
+          oldMessage.chat.id,
+          oldMessage.message_id,
+          render.text,
+          {
+            link_preview_options: render.linkPreview,
+            reply_markup: markup,
+          },
+        );
+        break;
+      // See https://grammy.dev/plugins/parse-mode
+      case RenderType.FORMAT:
+        throw new Error("Edit format not implemented on edit");
+      case RenderType.EMPTY:
+        // Do nothing
+        break;
+      default:
+        throw new Error("Unknown render type: " + (render as Render).type);
+    }
+
+    if (message && markup) {
+      await this.keyboard.storeLatestInSession(ctx, markup, message);
+    }
+
+    if (render.afterDelay) {
+      await sleep(render.afterDelay);
+    }
+
+    return message;
   }
 
   /**
@@ -146,13 +263,162 @@ export class CommunicationService extends BaseService {
    * @param ctx
    * @returns
    */
-  public async receiveMessage(ctx: AppContext) {
-    const data = await this.event.onceUserMessageAsync(getIdentifier(ctx));
-    return data;
+  public async receiveMessageOrCallbackQueryData(
+    ctx: AppContext,
+    signal: AbortSignal | null,
+  ) {
+    const userId = getIdentifier(ctx);
+    const eventName =
+      `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}`;
+
+    return await new Promise<AppContext>((resolve) => {
+      const onMessage = (ctx: AppContext) => {
+        this.event.offUser(eventName, userId, onInteractionCallbackQueryData);
+        signal?.removeEventListener("abort", onAbort);
+        resolve(ctx);
+      };
+
+      // TODO: Any elegant way to move this to the CalloutResponseEventManager?
+      const onInteractionCallbackQueryData = (ctx: AppContext) => {
+        this.event.offUserMessage(userId, onMessage);
+        signal?.removeEventListener("abort", onAbort);
+        resolve(ctx);
+      };
+
+      const onAbort = () => {
+        this.event.offUser(eventName, userId, onInteractionCallbackQueryData);
+        this.event.offUserMessage(userId, onMessage);
+      };
+
+      signal?.addEventListener("abort", onAbort, { once: true });
+      this.event.onceUserMessage(userId, onMessage);
+      this.event.onceUser(eventName, userId, onInteractionCallbackQueryData);
+    });
   }
 
   /**
-   * Wait for a specific message to be received and collect all messages of type `acceptedBefore` until the specific message is received.
+   * Render or update accepted answers to give the user feedback, also renders updates the inline keyboard
+   * @param ctx
+   * @param render
+   * @param replays
+   * @param lastGivenAnswerMessage
+   */
+  protected async sendOrEditAnswersGivenAndKeyboard(
+    ctx: AppContext,
+    render: Render,
+    replays: ReplayAccepted[],
+    lastGivenAnswerMessage: Message | undefined,
+  ) {
+    const renderAnswers = this.calloutResponseRenderer.answersGiven(
+      replays,
+      render.accepted.multiple,
+    );
+
+    let inlineKeyboard = renderAnswers.inlineKeyboard || render.inlineKeyboard;
+
+    if (render.accepted.multiple) {
+      if (inlineKeyboard) {
+        // Remove skip button
+        renderAnswers.inlineKeyboard = this.keyboard.removeInlineButton(
+          inlineKeyboard,
+          `${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}:skip`,
+        );
+        inlineKeyboard = renderAnswers.inlineKeyboard;
+
+        // Add done button
+        renderAnswers.inlineKeyboard = this.keyboard.addInlineButton(
+          inlineKeyboard,
+          this.keyboard.inlineDoneButton(),
+        );
+        inlineKeyboard = renderAnswers.inlineKeyboard;
+
+        // Remove already selected answers from keyboard
+        if (render.accepted.type === ReplayType.SELECTION) {
+          const numberLabels = getSelectionLabelNumberRange(
+            render.accepted.valueLabel,
+          );
+          for (const numberLabel of numberLabels) {
+            const cbQueryData =
+              `${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}:${numberLabel}`;
+            const alreadyUsed = replays.find((replay) =>
+              replay.context.callbackQuery?.data === cbQueryData
+            );
+            if (alreadyUsed) {
+              renderAnswers.inlineKeyboard = this.keyboard.renameInlineButton(
+                inlineKeyboard,
+                cbQueryData,
+                numberLabel + " " + CHECKMARK,
+              );
+              inlineKeyboard = renderAnswers.inlineKeyboard;
+            } else {
+              renderAnswers.inlineKeyboard = this.keyboard.renameInlineButton(
+                inlineKeyboard,
+                cbQueryData,
+                numberLabel,
+              );
+              inlineKeyboard = renderAnswers.inlineKeyboard;
+            }
+          }
+        }
+      }
+    }
+
+    if (lastGivenAnswerMessage) {
+      this.edit(
+        ctx,
+        lastGivenAnswerMessage,
+        renderAnswers,
+      );
+    } else {
+      lastGivenAnswerMessage = await this.send(
+        ctx,
+        renderAnswers,
+      );
+    }
+
+    return lastGivenAnswerMessage;
+  }
+
+  protected equalReplayAnswer(
+    replay1: ReplayAccepted,
+    replay2: ReplayAccepted,
+  ) {
+    // If the replay is the same reference, return true
+    if (replay1 === replay2) {
+      return true;
+    }
+
+    if (replay1.type !== replay2.type) {
+      return false;
+    }
+
+    if (replay1.isDoneMessage !== replay2.isDoneMessage) {
+      return false;
+    }
+
+    if (replay1.isSkipMessage !== replay2.isSkipMessage) {
+      return false;
+    }
+
+    switch (replay1.type) {
+      case ReplayType.NONE:
+        return true;
+      case ReplayType.TEXT:
+        return replay1.text === (replay2 as typeof replay1).text;
+      case ReplayType.SELECTION:
+        return replay1.value === (replay2 as typeof replay1).value;
+      case ReplayType.FILE:
+        return replay1.fileId === (replay2 as typeof replay1).fileId;
+      case ReplayType.CALLOUT_COMPONENT_SCHEMA:
+        return replay1.answer === (replay2 as typeof replay1).answer;
+    }
+
+    console.warn("Unknown replay type", replay1.type);
+    return false;
+  }
+
+  /**
+   * Wait for a specific message to be received and collect all messages of type `render.accepted` until the specific message is received.
    * @param ctx
    * @param render
    * @returns
@@ -160,10 +426,13 @@ export class CommunicationService extends BaseService {
   protected async acceptedUntilSpecificMessage(
     ctx: AppContext,
     render: Render,
+    signal: AbortSignal | null,
   ) {
     let context: AppContext;
     let message: Message | undefined;
-    const replays: ReplayAccepted[] = [];
+    let callbackQueryData: string | undefined;
+    let lastGivenAnswerMessage: Message | undefined;
+    let replays: ReplayAccepted[] = [];
 
     if (render.accepted.type === ReplayType.NONE) {
       return [];
@@ -172,18 +441,30 @@ export class CommunicationService extends BaseService {
     let replayAccepted: ReplayAccepted | undefined;
 
     do {
-      context = await this.receiveMessage(ctx);
-      message = context.message;
-
-      if (!message) {
-        console.warn("Message is undefined");
-        continue;
+      if (signal?.aborted) {
+        return replays;
       }
 
-      replayAccepted = this.validation.messageIsAccepted(
-        context,
-        render.accepted,
-      );
+      context = await this.receiveMessageOrCallbackQueryData(ctx, signal);
+      message = context.message;
+      callbackQueryData = context.callbackQuery?.data;
+
+      // Answer send using a inline keyboard button
+      if (callbackQueryData) {
+        replayAccepted = this.validation.callbackQueryDataIsAccepted(
+          context,
+          render.accepted,
+        );
+        await this.answerCallbackQuery(context);
+      } // Answer send using a message
+      else if (message) {
+        replayAccepted = this.validation.messageIsAccepted(
+          context,
+          render.accepted,
+        );
+      } else {
+        throw new Error("Message and callback query data are undefined");
+      }
 
       if (!replayAccepted.accepted) {
         await this.send(
@@ -196,17 +477,37 @@ export class CommunicationService extends BaseService {
         continue;
       }
 
+      await this.keyboard.removeLastInlineKeyboard(context);
+
       if (replayAccepted.isDoneMessage) {
         // Return what we have
         return replays;
       }
 
       if (replayAccepted.isSkipMessage) {
-        // Only return the skip message
+        // Only return the skip message (handled later)
         return [replayAccepted];
       }
 
-      replays.push(replayAccepted);
+      const replayAlreadyTaken = replays.find((replay) =>
+        this.equalReplayAnswer(replay, replayAccepted as ReplayAccepted)
+      );
+
+      // If answewr is a selection and it is already in the replays, remove it
+      if (replayAccepted.type === ReplayType.SELECTION && replayAlreadyTaken) {
+        replays = replays.filter((replay) => replay !== replayAlreadyTaken);
+      } else {
+        // Answer accepted
+        replays.push(replayAccepted);
+      }
+
+      // Send or edit given answers message
+      lastGivenAnswerMessage = await this.sendOrEditAnswersGivenAndKeyboard(
+        context,
+        render,
+        replays,
+        lastGivenAnswerMessage,
+      );
 
       if (!render.accepted.multiple) {
         return replays;
@@ -225,6 +526,7 @@ export class CommunicationService extends BaseService {
   public async receive(
     ctx: AppContext,
     render: Render,
+    signal: AbortSignal | null,
   ): Promise<RenderResponseParsed<boolean>> {
     // Do not wait for any specific message
     if (!render.accepted || render.accepted.type === ReplayType.NONE) {
@@ -237,7 +539,11 @@ export class CommunicationService extends BaseService {
     }
 
     // Receive all messages of specific type until a message of specific type is received
-    const replays = await this.acceptedUntilSpecificMessage(ctx, render);
+    const replays = await this.acceptedUntilSpecificMessage(
+      ctx,
+      render,
+      signal,
+    );
 
     // Parse multiple messages
     if (render.accepted.multiple) {
@@ -268,10 +574,14 @@ export class CommunicationService extends BaseService {
    * @param render
    * @returns
    */
-  public async sendAndReceive(ctx: AppContext, render: Render) {
+  public async sendAndReceive(
+    ctx: AppContext,
+    render: Render,
+    signal: AbortSignal | null,
+  ) {
     await this.send(ctx, render);
 
-    const responses = await this.receive(ctx, render);
+    const responses = await this.receive(ctx, render, signal);
     const response: RenderResponse = {
       render,
       responses,
@@ -295,7 +605,7 @@ export class CommunicationService extends BaseService {
         return signal;
       }
       try {
-        const response = await this.sendAndReceive(ctx, render);
+        const response = await this.sendAndReceive(ctx, render, signal);
         if (response) {
           responses.push(response);
         }

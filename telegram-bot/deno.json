@@ -9,8 +9,6 @@
   },
   "imports": {
     "alosaur/": "https://deno.land/x/alosaur@v0.38.0/",
-    "grammy/": "https://deno.land/x/grammy@v1.21.1/",
-    "grammy_types/": "https://deno.land/x/grammy_types@v3.5.2/",
     "std/": "https://deno.land/std@0.207.0/",
     "typeorm": "npm:typeorm@0.3.17",
     "sqlite3": "https://deno.land/x/sqlite3@0.10.0/mod.ts",

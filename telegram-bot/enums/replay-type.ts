@@ -11,4 +11,6 @@ export enum ReplayType {
   CALLOUT_COMPONENT_SCHEMA = "callout-component-schema",
   /** No answer is needed */
   NONE = "none",
+  /** Accept callback query */
+  CALLBACK_QUERY_DATA = "callback_query",
 }

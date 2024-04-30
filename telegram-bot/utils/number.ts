@@ -15,7 +15,10 @@ export const isNumber = (
 /**
  * Just get the numbers of a string
  */
-export const extractNumbers = (str: string | number) => {
+export const extractNumbers = (str: string | number | undefined) => {
+  if (str === undefined) {
+    return NaN;
+  }
   if (typeof str === "number") {
     return str;
   }

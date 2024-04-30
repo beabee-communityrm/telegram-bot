@@ -35,7 +35,7 @@ export interface RenderBase {
   /**
    * Remove the custom keyboard after the user has replied.
    */
-  removeKeyboard?: boolean;
+  removeCustomKeyboard?: boolean;
 
   /**
    * Define the types of the replay you are accepting.

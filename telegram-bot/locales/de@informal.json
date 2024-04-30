@@ -36,6 +36,8 @@
     },
     "info": {
       "messages": {
+        "answer": "Deine Antwort:",
+        "answers": "Deine Antworten:",
         "command": {
           "notUsable": "Das Kommando {command} kann hier nicht verwendet werden. Wenn du glaubst, dass es sich um einen Fehler handelt, verwende bitte den Befehl /reset."
         },
@@ -55,6 +57,7 @@
         "multipleNumbersAllowed": "Gib eine oder mehrere Zahlen ein.",
         "multipleSelectionsAllowed": "Bitte gib die Antwortnummer ein. Du kannst mehrere Optionen wählen, sende einfach für jede eine separate Nachricht.",
         "multipleValuesAllowed": "Du kannst mehrere Werte eingeben, indem du jeden Wert in einer separaten Nachricht sendest.",
+        "noAnswerYet": "Sie haben bisher keine Antwort gegeben",
         "onlyOneAddressAllowed": "Bitte gib eine Adresse ein.",
         "onlyOneEmailAllowed": "Bitte gib eine E-Mail-Adresse ein.",
         "onlyOneNumberAllowed": "Bitte gib eine Zahl ein.",

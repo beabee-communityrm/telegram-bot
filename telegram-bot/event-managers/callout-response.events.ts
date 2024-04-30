@@ -2,6 +2,7 @@ import { Singleton } from "../deps/index.ts";
 import { CalloutService } from "../services/callout.service.ts";
 import { CommunicationService } from "../services/communication.service.ts";
 import { EventService } from "../services/event.service.ts";
+import { BotService } from "../services/bot.service.ts";
 import { TransformService } from "../services/transform.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
 import { StateMachineService } from "../services/state-machine.service.ts";
@@ -10,8 +11,11 @@ import { ResetCommand } from "../commands/reset.command.ts";
 import { ListCommand } from "../commands/list.command.ts";
 import { ChatState } from "../enums/index.ts";
 import {
-  BUTTON_CALLBACK_CALLOUT_INTRO,
-  BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
+  FALSY_MESSAGE_KEY,
+  INLINE_BUTTON_CALLBACK_CALLOUT_INTRO,
+  INLINE_BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
+  INLINE_BUTTON_CALLBACK_PREFIX,
+  TRUTHY_MESSAGE_KEY,
 } from "../constants/index.ts";
 import { BaseEventManager } from "../core/base.events.ts";
 
@@ -23,6 +27,7 @@ const SHOW_LIST_AFTER_RESPONSE = true;
 export class CalloutResponseEventManager extends BaseEventManager {
   constructor(
     protected readonly event: EventService,
+    protected readonly bot: BotService,
     protected readonly callout: CalloutService,
     protected readonly communication: CommunicationService,
     protected readonly messageRenderer: MessageRenderer,
@@ -40,14 +45,14 @@ export class CalloutResponseEventManager extends BaseEventManager {
   public init() {
     // Listen for the callback query data event with the `callout-respond:yes` data
     this.event.on(
-      `callback_query:data:${BUTTON_CALLBACK_CALLOUT_INTRO}`,
+      `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_CALLOUT_INTRO}`,
       (event) => {
         this.onCalloutIntroKeyboardPressed(event);
       },
     );
 
     this.event.on(
-      `callback_query:data:${BUTTON_CALLBACK_CALLOUT_PARTICIPATE}`,
+      `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_CALLOUT_PARTICIPATE}`,
       (event) => {
         this.onCalloutParticipateKeyboardPressed(event);
       },
@@ -60,7 +65,6 @@ export class CalloutResponseEventManager extends BaseEventManager {
     const startResponse = data?.[2] as "continue" | "cancel" === "continue";
     const session = await ctx.session;
 
-    // Remove the inline keyboard
     await this.keyboard.removeInlineKeyboard(ctx);
 
     if (!startResponse) {
@@ -177,9 +181,10 @@ export class CalloutResponseEventManager extends BaseEventManager {
   protected async onCalloutIntroKeyboardPressed(ctx: AppContext) {
     const data = ctx.callbackQuery?.data?.split(":");
     const shortSlug = data?.[1];
-    const startIntro = data?.[2] as "yes" | "no" === "yes"; // This is the key, so it's not localized
+    const startIntro =
+      data?.[2] as typeof TRUTHY_MESSAGE_KEY | typeof FALSY_MESSAGE_KEY ===
+        TRUTHY_MESSAGE_KEY; // This is the key, so it's not localized
 
-    // Remove the inline keyboard
     await this.keyboard.removeInlineKeyboard(ctx);
 
     if (!shortSlug) {
