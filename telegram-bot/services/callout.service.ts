@@ -12,19 +12,19 @@ import {
 } from "../utils/index.ts";
 
 import type {
-  CalloutData,
   CalloutDataExt,
-  CreateCalloutResponseData,
-  GetCalloutData,
   GetCalloutDataExt,
-  GetCalloutDataWith,
   GetCalloutDataWithExt,
-  GetCalloutsQuery,
-  GetCalloutWith,
 } from "../types/index.ts";
 
 import type {
   CalloutComponentNestableSchema,
+  CalloutData,
+  CreateCalloutResponseData,
+  GetCalloutData,
+  GetCalloutDataWith,
+  GetCalloutsQuery,
+  GetCalloutWith,
   Paginated,
 } from "../deps/index.ts";
 

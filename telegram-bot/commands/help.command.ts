@@ -33,7 +33,7 @@ export class HelpCommand extends BaseCommand {
 
     await this.communication.send(
       ctx,
-      await this.messageRenderer.help(session.state),
+      this.messageRenderer.help(session.state),
     );
 
     return successful;

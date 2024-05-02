@@ -44,6 +44,8 @@ export class AppService extends BaseService {
     this.networkCommunicator.startServer();
     await this.command.initAllCommands();
     await this.initEventManagers();
+    // Trigger a reload event to load the content
+    await this.networkCommunicator.emitReload({ triggered: "manually" });
 
     // Start the bot
     console.debug("Start the bot...");
@@ -65,16 +67,6 @@ export class AppService extends BaseService {
 
     const me = await this.bot.api.getMe();
     console.info(`\nBot will start as "${me.username}"`);
-  }
-
-  protected async initBeabeeContent() {
-    const beabeeGeneralContent = await this.beabeeContent.get("general");
-    console.debug("beabeeGeneralContent", beabeeGeneralContent);
-
-    // Initialize the localization
-    await this.i18n.setActiveLang(beabeeGeneralContent.locale);
-
-    return beabeeGeneralContent;
   }
 
   protected async initEventManagers() {

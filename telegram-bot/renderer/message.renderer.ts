@@ -5,8 +5,8 @@ import { ConditionService } from "../services/condition.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import { BotService } from "../services/bot.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
-import { BeabeeContentService } from "../services/beabee-content.service.ts";
 import { CommandService } from "../services/command.service.ts";
+import { StateMachineService } from "../services/state-machine.service.ts";
 
 import type {
   Render,
@@ -31,8 +31,8 @@ export class MessageRenderer {
     protected readonly condition: ConditionService,
     protected readonly i18n: I18nService,
     protected readonly bot: BotService,
-    protected readonly beabeeContent: BeabeeContentService,
     protected readonly keyboard: KeyboardService,
+    protected readonly stateMachine: StateMachineService,
   ) {
     console.debug(`${this.constructor.name} created`);
   }
@@ -42,12 +42,9 @@ export class MessageRenderer {
    * @returns
    */
   public welcome(): RenderMarkdown {
-    // TODO: This message should be customizable via Beabee's Content API
-    const WELCOME_MD = "*Hi\\!* _Welcome_ to [beabee](https://beabee.io/)\\.";
-
     const result: RenderMarkdown = {
       type: RenderType.MARKDOWN,
-      markdown: WELCOME_MD,
+      markdown: this.stateMachine.settings.telegram.welcomeMessageMd,
       key: "welcome",
       ...this.noResponse(),
     };
@@ -108,18 +105,17 @@ export class MessageRenderer {
         strings.push(fmt`${bold("AbortController: ")} null\n`);
       } else {
         strings.push(
-          fmt`${bold("AbortController: ")} ${
-            session._data.abortController.signal.aborted
-              ? "aborted"
-              : "not aborted"
-          }\n`,
+          fmt`${bold("AbortController: ")} ${session._data.abortController.signal.aborted
+            ? "aborted"
+            : "not aborted"
+            }\n`,
         );
       }
 
       // TODO: Make debug message configurable
-      strings.push(fmt`${bold("beabee general content:")}\n`);
-      const content = await this.beabeeContent.get("general");
-      strings.push(code(JSON.stringify(content, null, 2)));
+      strings.push(fmt`${bold("beabee settings:")}\n`);
+      const settings = this.stateMachine.settings;
+      strings.push(code(JSON.stringify(settings, null, 2)));
     }
 
     // Add more debug info here if needed
@@ -141,29 +137,28 @@ export class MessageRenderer {
     };
   }
 
-  protected async getGeneralContentPlaceholdersMarkdown() {
-    const content = await this.beabeeContent.get("general");
+  protected getGeneralContentPlaceholdersMarkdown() {
+    const general = this.stateMachine.settings.general;
     return {
       botFirstName: this.bot.botInfo.first_name,
       botLastName: this.bot.botInfo.last_name || "Error: last_name not set",
       botUsername: this.bot.botInfo.username,
-      organisationName: `[${escapeMd(content.organisationName)}](${
-        escapeMd(content.siteUrl)
-      })`,
-      siteUrl: content.siteUrl,
-      supportEmail: content.supportEmail,
-      privacyLink: content.privacyLink || "Error: privacyLink not set",
-      termsLink: content.termsLink || "Error: termsLink not set",
-      impressumLink: content.impressumLink || "Error: impressumLink not set",
+      organisationName: `[${escapeMd(general.organisationName)}](${escapeMd(general.siteUrl)
+        })`,
+      siteUrl: general.siteUrl,
+      supportEmail: general.supportEmail,
+      privacyLink: general.privacyLink || "Error: privacyLink not set",
+      termsLink: general.termsLink || "Error: termsLink not set",
+      impressumLink: general.impressumLink || "Error: impressumLink not set",
     };
   }
 
   /**
    * Render the help message
    */
-  public async help(state: ChatState): Promise<RenderMarkdown> {
+  public help(state: ChatState): RenderMarkdown {
     const tKey = "bot.info.messages.help";
-    const generalContentPlaceholders = await this
+    const generalContentPlaceholders = this
       .getGeneralContentPlaceholdersMarkdown();
     const commands = this.commands(state).markdown;
     const intro = this.i18n.t(tKey, {

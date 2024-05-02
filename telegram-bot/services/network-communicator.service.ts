@@ -2,9 +2,11 @@ import { BaseService } from "../core/index.ts";
 import { djwt, Singleton } from "../deps/index.ts";
 import { createSecretKeyFromSecret, extractToken } from "../utils/index.ts";
 import { EventService } from "./event.service.ts";
+import { BeabeeContentService } from "../services/beabee-content.service.ts";
 import { NetworkCommunicatorEvents } from "../enums/index.ts";
 
 import type {
+  EventNetworkCommunicatorReloadData,
   EventTelegramBotListener,
   NetworkServiceMap,
 } from "../types/index.ts";
@@ -23,7 +25,10 @@ export class NetworkCommunicatorService extends BaseService {
     // At the moment the telegram bot does not require the ability to contact other services
   };
 
-  constructor(protected readonly event: EventService) {
+  constructor(
+    protected readonly event: EventService,
+    protected readonly beabeeContent: BeabeeContentService,
+  ) {
     super();
     const secret = Deno.env.get("BEABEE_SERVICE_SECRET");
     if (!secret) {
@@ -127,18 +132,36 @@ export class NetworkCommunicatorService extends BaseService {
     const eventName = actionPath.replaceAll("/", ":");
     try {
       const payload = await this.verify(req.headers.get("authorization"));
-      this.event.emit(
-        `network-communicator:${eventName}` as NetworkCommunicatorEvents,
-        payload,
-      );
+      if (eventName === "reload") {
+        this.emitReload(payload);
+      } else {
+        throw new Error(`Unknown internal service event "${eventName}"`);
+      }
       return new Response(null, {
         status: 200,
       });
     } catch (error) {
+      console.error(error);
       return new Response(error.message, {
         status: 401,
       });
     }
+  }
+
+  public async emitReload(payload: unknown) {
+    const general = await this.beabeeContent.get("general");
+    const telegram = await this.beabeeContent.get("telegram");
+
+    const data: EventNetworkCommunicatorReloadData = {
+      payload,
+      general,
+      telegram,
+    };
+
+    this.event.emit(
+      NetworkCommunicatorEvents.RELOAD,
+      data,
+    );
   }
 
   /**

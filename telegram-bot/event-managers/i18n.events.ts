@@ -24,7 +24,7 @@ export class I18nEventManager extends BaseEventManager {
   }
 
   protected onLanguageChanged(data: EventTelegramBot<string>) {
-    console.debug("Language changed to: ", data);
+    console.debug(`Language changed to: "${data}"`);
     this.AppService.changeLocale(data);
   }
 }

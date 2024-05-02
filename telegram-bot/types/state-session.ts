@@ -2,7 +2,7 @@ import type { ChatState } from "../enums/index.ts";
 import type { AppContext } from "./index.ts";
 import type { InlineKeyboard, Keyboard } from "../deps/index.ts";
 
-export interface SessionState {
+export interface StateSession {
   state: ChatState;
 
   /** Additional untracked data, this data should not be stored in a database */
