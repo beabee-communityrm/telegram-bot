@@ -55,8 +55,8 @@
     // TODO Add check:types, see https://github.com/denoland/deno/issues/22353
     "cache": "deno task cache:telegram-bot && deno task cache:beabee-common && deno task cache:beabee-client",
     "cache:telegram-bot": "cd telegram-bot && deno task cache",
-    "cache:beabee-client": "cd beabee-client && deno task cache",
-    "cache:beabee-common": "cd beabee-common && deno task cache",
+    "cache:beabee-client": "cd beabee-client && npm install && deno task cache",
+    "cache:beabee-common": "cd beabee-common && npm install && deno task cache",
     "generate:index": "deno task generate:index:telegram-bot && deno task generate:index:beabee-client && deno task generate:index:beabee-common",
     "generate:index:telegram-bot": "cd telegram-bot && deno task generate:index",
     "generate:index:beabee-client": "cd beabee-client && deno task generate:index",
