@@ -43,6 +43,9 @@ jobs:
         with:
           deno-version: ${{ matrix.deno-version }}
 
+      - name: Build node and browser bundles
+        run: deno task build
+
       - name: Verify formatting
         run: deno task check
 
@@ -51,9 +54,6 @@ jobs:
 
       - name: Cache dependencies
         run: deno task cache
-
-      - name: Build node and browser bundles
-        run: deno task build
 
       - name: Run tests
         run: deno task test
