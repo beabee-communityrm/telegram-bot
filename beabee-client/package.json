@@ -14,6 +14,8 @@
   },
   "scripts": {
     "prepare": "npm run build",
+    "lint": "deno task lint",
+    "format": "deno task format",
     "build": "deno task build",
     "build:node": "deno task build:node",
     "build:node:esm": "deno task build:node:esm",
