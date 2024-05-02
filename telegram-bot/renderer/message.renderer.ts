@@ -105,10 +105,11 @@ export class MessageRenderer {
         strings.push(fmt`${bold("AbortController: ")} null\n`);
       } else {
         strings.push(
-          fmt`${bold("AbortController: ")} ${session._data.abortController.signal.aborted
-            ? "aborted"
-            : "not aborted"
-            }\n`,
+          fmt`${bold("AbortController: ")} ${
+            session._data.abortController.signal.aborted
+              ? "aborted"
+              : "not aborted"
+          }\n`,
         );
       }
 
@@ -143,8 +144,9 @@ export class MessageRenderer {
       botFirstName: this.bot.botInfo.first_name,
       botLastName: this.bot.botInfo.last_name || "Error: last_name not set",
       botUsername: this.bot.botInfo.username,
-      organisationName: `[${escapeMd(general.organisationName)}](${escapeMd(general.siteUrl)
-        })`,
+      organisationName: `[${escapeMd(general.organisationName)}](${
+        escapeMd(general.siteUrl)
+      })`,
       siteUrl: general.siteUrl,
       supportEmail: general.supportEmail,
       privacyLink: general.privacyLink || "Error: privacyLink not set",

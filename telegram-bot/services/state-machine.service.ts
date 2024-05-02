@@ -11,7 +11,11 @@ import { EventService } from "./event.service.ts";
 import { KeyboardService } from "./keyboard.service.ts";
 import { ChatState, StateMachineEvent } from "../enums/index.ts";
 
-import type { AppContext, StateSession, StateSettings } from "../types/index.ts";
+import type {
+  AppContext,
+  StateSession,
+  StateSettings,
+} from "../types/index.ts";
 
 /**
  * State machine service
@@ -22,7 +26,6 @@ import type { AppContext, StateSession, StateSettings } from "../types/index.ts"
  */
 @Singleton()
 export class StateMachineService extends BaseService {
-
   private _settings: StateSettings;
 
   get settings(): StateSettings {
@@ -55,36 +58,50 @@ export class StateMachineService extends BaseService {
   public createSettingsProxy(): StateSettings {
     this._settings = this.create<StateSettings>({
       general: {
-        organisationName: '',
-        logoUrl: '',
-        siteUrl: '',
-        supportEmail: '',
-        privacyLink: '',
-        termsLink: '',
-        impressumLink: '',
-        locale: 'en',
+        organisationName: "",
+        logoUrl: "",
+        siteUrl: "",
+        supportEmail: "",
+        privacyLink: "",
+        termsLink: "",
+        impressumLink: "",
+        locale: "en",
         theme: {},
-        currencyCode: 'EUR',
-        currencySymbol: '€',
-        backgroundUrl: '',
+        currencyCode: "EUR",
+        currencySymbol: "€",
+        backgroundUrl: "",
         hideContribution: false,
         footerLinks: [],
       },
       telegram: {
-        welcomeMessageMd: '',
+        welcomeMessageMd: "",
       },
     });
 
     // Auto-subscribe to general settings changes and forward them as events
     this.subscribe(this._settings.general, (_ops) => {
-      console.debug("General Beabee settings updated", this.settings.general, _ops);
-      this.event.emit(StateMachineEvent.SETTINGS_GENERAL_CHANGED, this.settings.general);
+      console.debug(
+        "General Beabee settings updated",
+        this.settings.general,
+        _ops,
+      );
+      this.event.emit(
+        StateMachineEvent.SETTINGS_GENERAL_CHANGED,
+        this.settings.general,
+      );
     });
 
     // Auto-subscribe to telegram settings changes and forward them as events
     this.subscribe(this._settings.telegram, (_ops) => {
-      console.debug("Telegram Beabee settings updated", this._settings.telegram, _ops);
-      this.event.emit(StateMachineEvent.SETTINGS_TELEGRAM_CHANGED, this._settings.telegram);
+      console.debug(
+        "Telegram Beabee settings updated",
+        this._settings.telegram,
+        _ops,
+      );
+      this.event.emit(
+        StateMachineEvent.SETTINGS_TELEGRAM_CHANGED,
+        this._settings.telegram,
+      );
     });
 
     return this._settings;
