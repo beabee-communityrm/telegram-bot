@@ -14,7 +14,7 @@
     "test:node": "npm run test:node",
     "test:web": "npm run test:web",
     "lint": "deno lint mod.ts src",
-    "format": "deno fmt",
+    "format": "deno fmt src scripts test",
     "check": "deno task check:types && deno task check:format",
     "check:format": "deno task format --check",
     "check:types": "deno check mod.ts",
