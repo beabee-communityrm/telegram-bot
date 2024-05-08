@@ -61,7 +61,7 @@ export class CalloutRenderer {
    * @param listChar
    * @returns
    */
-  public listItem(callout: CalloutDataExt, listChar = "\\-") {
+  public listItem(callout: GetCalloutDataExt, listChar = "\\-") {
     listChar = escapeMd(listChar);
 
     const result: Render = {
@@ -130,7 +130,7 @@ export class CalloutRenderer {
    * @param withUrl Whether to include the URL in the title
    * @returns
    */
-  public title(callout: CalloutDataExt, withUrl = true) {
+  public title(callout: GetCalloutDataExt, withUrl = true) {
     const result: Render = {
       key: `callout:title:${callout.shortSlug}`,
       type: RenderType.MARKDOWN,
@@ -156,7 +156,7 @@ export class CalloutRenderer {
    * @param callout
    * @returns
    */
-  public async calloutDetails(callout: CalloutDataExt) {
+  public async calloutDetails(callout: GetCalloutDataExt) {
     const imagePath = await downloadImage(callout.image);
     const inputFile = new InputFile(await Deno.open(imagePath), callout.title);
 
