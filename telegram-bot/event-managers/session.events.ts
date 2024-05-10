@@ -2,7 +2,7 @@ import { Singleton } from "../deps/index.ts";
 import { EventService } from "../services/event.service.ts";
 import { CommandService } from "../services/command.service.ts";
 import { BaseEventManager } from "../core/base.events.ts";
-import { SessionEvent } from "../enums/index.ts";
+import { StateMachineEvent } from "../enums/index.ts";
 
 import type { EventTelegramBot } from "../types/index.ts";
 
@@ -18,7 +18,7 @@ export class SessionEventManager extends BaseEventManager {
 
   public init() {
     this.event.on(
-      SessionEvent.SESSION_CHANGED,
+      StateMachineEvent.SESSION_CHANGED,
       (event) => this.onSessionChanged(event),
     );
   }

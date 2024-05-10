@@ -1,17 +1,18 @@
 import { BaseClient } from "./base-client.ts";
 import { cleanUrl } from "../utils/index.ts";
 
+import type { BaseClientOptions } from "../types/index.ts";
+
 import type {
-  BaseClientOptions,
   CreateCalloutData,
   GetCalloutData,
   GetCalloutDataWith,
   GetCalloutsQuery,
   GetCalloutWith,
+  Paginated,
   Serial,
   UpdateCalloutData,
-} from "../types/index.ts";
-import type { Paginated } from "../deps.ts";
+} from "../deps.ts";
 
 export class CalloutClient extends BaseClient {
   constructor(protected readonly options: BaseClientOptions) {

@@ -9,9 +9,13 @@ import {
 } from "../deps/index.ts";
 import { EventService } from "./event.service.ts";
 import { KeyboardService } from "./keyboard.service.ts";
-import { ChatState, SessionEvent } from "../enums/index.ts";
+import { ChatState, StateMachineEvent } from "../enums/index.ts";
 
-import type { AppContext, SessionState } from "../types/index.ts";
+import type {
+  AppContext,
+  StateSession,
+  StateSettings,
+} from "../types/index.ts";
 
 /**
  * State machine service
@@ -22,11 +26,19 @@ import type { AppContext, SessionState } from "../types/index.ts";
  */
 @Singleton()
 export class StateMachineService extends BaseService {
+  private _settings: StateSettings;
+
+  get settings(): StateSettings {
+    return this._settings;
+  }
+
   constructor(
     protected readonly event: EventService,
     protected readonly keyboard: KeyboardService,
   ) {
     super();
+    this._settings = this.createSettingsProxy();
+    console.debug(`${this.constructor.name} created`);
   }
 
   /**
@@ -43,8 +55,64 @@ export class StateMachineService extends BaseService {
    * Create a new session state object for a chat session handled by Grammy's session plugin.
    * @returns
    */
-  public createSession() {
-    const sessionProxy = this.create<SessionState>({
+  public createSettingsProxy(): StateSettings {
+    this._settings = this.create<StateSettings>({
+      general: {
+        organisationName: "",
+        logoUrl: "",
+        siteUrl: "",
+        supportEmail: "",
+        privacyLink: "",
+        termsLink: "",
+        impressumLink: "",
+        locale: "en",
+        theme: {},
+        currencyCode: "EUR",
+        currencySymbol: "€",
+        backgroundUrl: "",
+        hideContribution: false,
+        footerLinks: [],
+      },
+      telegram: {
+        welcomeMessageMd: "",
+      },
+    });
+
+    // Auto-subscribe to general settings changes and forward them as events
+    this.subscribe(this._settings.general, (_ops) => {
+      console.debug(
+        "General Beabee settings updated",
+        this.settings.general,
+        _ops,
+      );
+      this.event.emit(
+        StateMachineEvent.SETTINGS_GENERAL_CHANGED,
+        this.settings.general,
+      );
+    });
+
+    // Auto-subscribe to telegram settings changes and forward them as events
+    this.subscribe(this._settings.telegram, (_ops) => {
+      console.debug(
+        "Telegram Beabee settings updated",
+        this._settings.telegram,
+        _ops,
+      );
+      this.event.emit(
+        StateMachineEvent.SETTINGS_TELEGRAM_CHANGED,
+        this._settings.telegram,
+      );
+    });
+
+    return this._settings;
+  }
+
+  /**
+   * Create a new session state object for a chat session handled by Grammy's session plugin.
+   * @returns
+   */
+  public createSessionProxy(): StateSession {
+    const sessionProxy = this.create<StateSession>({
       state: ChatState.Initial,
       _data: this.ref({
         ctx: null,
@@ -58,7 +126,7 @@ export class StateMachineService extends BaseService {
       console.debug("Session updated", sessionProxy.state, _ops);
       const ctx = sessionProxy._data.ctx;
       if (!ctx) return;
-      this.event.emit(SessionEvent.SESSION_CHANGED, ctx);
+      this.event.emit(StateMachineEvent.SESSION_CHANGED, ctx);
     });
 
     return sessionProxy;
@@ -72,7 +140,7 @@ export class StateMachineService extends BaseService {
    * @returns The abort signal if the state change is cancellable, otherwise null
    */
   public setSessionState(
-    session: SessionState,
+    session: StateSession,
     newState: ChatState,
     cancellable: boolean,
   ) {

@@ -1,10 +1,9 @@
 import { BaseClient } from "./base-client.ts";
 import { cleanUrl } from "../utils/index.ts";
 
-import type {
-  BaseClientOptions,
-  CreateCalloutResponseData,
-} from "../types/index.ts";
+import type { BaseClientOptions } from "../types/index.ts";
+
+import type { CreateCalloutResponseData } from "../deps.ts";
 
 export class CalloutResponseClient extends BaseClient {
   constructor(protected readonly options: BaseClientOptions) {

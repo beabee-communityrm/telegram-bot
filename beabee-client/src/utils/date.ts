@@ -3,7 +3,7 @@
 
 import { millisecondsInHour, millisecondsInMinute } from "../constants.ts";
 
-import type { ParseISOOptions } from "../types/index.ts";
+import type { ParseISOOptions } from "../deps.ts";
 
 /**
  * @name parseISO

@@ -21,7 +21,7 @@ export class BotService extends Bot<AppContext> {
 
     // See https://grammy.dev/plugins/session
     this.use(lazySession({
-      initial: this.stateMachine.createSession.bind(this.stateMachine),
+      initial: this.stateMachine.createSessionProxy.bind(this.stateMachine),
     }));
 
     // See https://grammy.dev/plugins/parse-mode

@@ -6,4 +6,4 @@ export * from "./parsed-response-type.ts";
 export * from "./relay-accepted-file-type.ts";
 export * from "./render-result-type.ts";
 export * from "./replay-type.ts";
-export * from "./session-event.ts";
+export * from "./state-machine-event.ts";

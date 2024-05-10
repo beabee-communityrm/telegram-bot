@@ -1,7 +1,10 @@
 import { BaseService } from "../core/index.ts";
-import { ContentClient, Singleton } from "../deps/index.ts";
-
-import type { Content, ContentId } from "../types/index.ts";
+import {
+  ContentClient,
+  ContentData,
+  ContentId,
+  Singleton,
+} from "../deps/index.ts";
 
 @Singleton()
 export class BeabeeContentService extends BaseService {
@@ -45,7 +48,7 @@ export class BeabeeContentService extends BaseService {
    */
   public async update<Id extends ContentId>(
     id: Id,
-    content: Partial<Content<Id>>,
+    content: Partial<ContentData<Id>>,
   ) {
     return await this.client.update(id, content);
   }
