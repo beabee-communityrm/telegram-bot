@@ -28,13 +28,14 @@ import type {
   Paginated,
 } from "../deps/index.ts";
 
-const CALLOUTS_ACTIVE_QUERY: GetCalloutsQuery = {
+const CALLOUTS_ACTIVE_TELEGRAM_QUERY: GetCalloutsQuery = {
   rules: {
     condition: "AND",
     rules: [
       { field: "status", operator: "equal", value: [ItemStatus.Open] },
       { field: "expires", operator: "is_empty", value: [] },
       { field: "hidden", operator: "equal", value: [false] },
+      { field: "channels", operator: "contains", value: ["telegram"] },
     ],
   },
 };
@@ -122,7 +123,7 @@ export class CalloutService extends BaseService {
 
   public async list(limit = 10) {
     const data = await this.client.list({
-      ...CALLOUTS_ACTIVE_QUERY,
+      ...CALLOUTS_ACTIVE_TELEGRAM_QUERY,
       limit,
       sort: "title",
     });
