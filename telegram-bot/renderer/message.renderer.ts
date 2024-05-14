@@ -61,7 +61,9 @@ export class MessageRenderer {
     let markdown = "";
 
     for (const command of commands) {
-      markdown += `${("/" + command.command)}: _${command.description}_\n`;
+      markdown += `/${escapeMd(command.command)}: ${
+        escapeMd(command.description)
+      }\n`;
     }
 
     const result: RenderMarkdown = {
@@ -159,36 +161,38 @@ export class MessageRenderer {
    * Render the help message
    */
   public help(state: ChatState): RenderMarkdown {
-    const tKey = "bot.info.messages.help";
+    const key = "bot.info.messages.help";
     const generalContentPlaceholders = this
       .getGeneralContentPlaceholdersMarkdown();
     const commands = this.commands(state).markdown;
-    const intro = this.i18n.t(tKey, {
+    const markdown = this.i18n.t(key, {
       ...generalContentPlaceholders,
       commands: commands,
     }, { escapeMd: true });
 
+    console.debug("help markdown:", markdown);
+
     const result: RenderMarkdown = {
       type: RenderType.MARKDOWN,
-      markdown: intro,
-      key: tKey,
+      markdown,
+      key,
       ...this.noResponse(),
     };
     return result;
   }
 
   public async continueList(): Promise<RenderMarkdown> {
-    const tKey = "bot.info.messages.continueList";
+    const key = "bot.info.messages.continueList";
     const generalContentPlaceholders = await this
       .getGeneralContentPlaceholdersMarkdown();
-    const intro = this.i18n.t(tKey, {
+    const markdown = this.i18n.t(key, {
       ...generalContentPlaceholders,
     }, { escapeMd: true });
 
     const result: RenderMarkdown = {
       type: RenderType.MARKDOWN,
-      markdown: intro,
-      key: tKey,
+      markdown,
+      key,
       keyboard: this.keyboard.empty(), // To replace the old one
       ...this.noResponse(),
     };

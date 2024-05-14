@@ -272,7 +272,6 @@ export class CommunicationService extends BaseService {
       `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}`;
 
     return await new Promise<AppContext | AbortSignal>((resolve) => {
-
       const onMessage = (ctx: AppContext) => {
         this.event.offUser(eventName, userId, onInteractionCallbackQueryData);
         unsubscribeEvents();
@@ -557,7 +556,7 @@ export class CommunicationService extends BaseService {
       signal,
     );
 
-    if(replays instanceof AbortSignal) {
+    if (replays instanceof AbortSignal) {
       return replays;
     }
 
@@ -598,7 +597,7 @@ export class CommunicationService extends BaseService {
     await this.send(ctx, render);
 
     const responses = await this.receive(ctx, render, signal);
-    if(responses instanceof AbortSignal) {
+    if (responses instanceof AbortSignal) {
       return responses;
     }
     const response: RenderResponse = {
@@ -626,7 +625,7 @@ export class CommunicationService extends BaseService {
       try {
         const response = await this.sendAndReceive(ctx, render, signal);
 
-        if(response instanceof AbortSignal) {
+        if (response instanceof AbortSignal) {
           return response;
         }
 

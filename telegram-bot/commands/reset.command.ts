@@ -42,7 +42,7 @@ export class ResetCommand extends BaseCommand {
     // Always allow this command to reset the state even if an error occurs, so we not use `this.checkAction` here
     const session = await ctx.session;
     const abortController = session._data.abortController;
-    let successful = true; 
+    let successful = true;
 
     if (abortController) {
       // Already cancelled
@@ -77,7 +77,6 @@ export class ResetCommand extends BaseCommand {
 
       // Reset the state and unsubscribe all events
       // successful = successful && await this.stateMachine.resetSessionState(ctx);
-
 
       successful = successful && await this.listCommand.action(ctx, true);
     } else {

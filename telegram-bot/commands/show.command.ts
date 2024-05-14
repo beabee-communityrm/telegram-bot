@@ -61,7 +61,7 @@ export class ShowCommand extends BaseCommand {
         true,
       );
 
-      if(!signal) {
+      if (!signal) {
         throw new Error("The AbortSignal is required!");
       }
 

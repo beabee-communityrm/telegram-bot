@@ -72,7 +72,7 @@ export class CalloutEventManager extends BaseEventManager {
         true,
       );
 
-      if(!signal) {
+      if (!signal) {
         throw new Error("The AbortSignal is required!");
       }
 

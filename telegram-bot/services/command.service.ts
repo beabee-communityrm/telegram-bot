@@ -61,7 +61,7 @@ export class CommandService extends BaseService {
       await this.stateMachine.setSessionState(
         ctx,
         ChatState.Start,
-        true
+        true,
       );
     }
 
