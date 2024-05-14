@@ -139,11 +139,14 @@ export class StateMachineService extends BaseService {
    * @param cancellable If the state change should be cancellable
    * @returns The abort signal if the state change is cancellable, otherwise null
    */
-  public setSessionState(
-    session: StateSession,
+  public async setSessionState(
+    ctx: AppContext,
     newState: ChatState,
     cancellable: boolean,
   ) {
+    // Reset the last session state
+    await this.resetSessionState(ctx);
+    const session = await ctx.session;
     session.state = newState;
     session._data.abortController = cancellable ? new AbortController() : null;
     return session._data.abortController?.signal ?? null;
@@ -154,19 +157,18 @@ export class StateMachineService extends BaseService {
    * @param session The session to reset the state for
    * @returns True if the state was cancelled, false otherwise
    */
-  public async resetSessionState(ctx: AppContext) {
+  protected async resetSessionState(ctx: AppContext) {
     const session = await ctx.session;
 
     await this.keyboard.removeLastInlineKeyboard(ctx);
 
-    session.state = ChatState.Start;
-    if (
-      session._data.abortController &&
-      !session._data.abortController.signal.aborted
-    ) {
+    // session.state = ChatState.Start;
+    if (session._data.abortController) {
+      console.debug("Aborting session");
       session._data.abortController.abort();
       return true;
     }
+    console.debug("Session is not cancellable");
     return false;
   }
 

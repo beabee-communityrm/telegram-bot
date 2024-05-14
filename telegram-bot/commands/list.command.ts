@@ -31,23 +31,26 @@ export class ListCommand extends BaseCommand {
 
   // Handle the /list command
   public async action(ctx: AppContext, force = false) {
-    const session = await ctx.session;
     const successful = await this.checkAction(ctx, force);
     if (!force && !successful) {
       return false;
     }
 
-    const signal = this.stateMachine.setSessionState(
-      session,
+    // await this.keyboard.removeLastInlineKeyboard(ctx);
+
+    const signal = await this.stateMachine.setSessionState(
+      ctx,
       ChatState.CalloutList,
       true,
     );
 
-    await this.keyboard.removeLastInlineKeyboard(ctx);
+    if(!signal) {
+      throw new Error("The AbortSignal is required!");
+    }
 
     const callouts = await this.callout.list();
     const render = this.calloutRenderer.listItems(callouts);
     await this.communication.sendAndReceiveAll(ctx, render, signal);
-    return successful;
+    return signal?.aborted ? false : successful;
   }
 }

@@ -104,11 +104,15 @@ export class CalloutResponseEventManager extends BaseEventManager {
       ctx,
     );
 
-    const abortSignal = this.stateMachine.setSessionState(
-      session,
+    const abortSignal = await this.stateMachine.setSessionState(
+      ctx,
       ChatState.CalloutAnswer,
       true,
     );
+
+    if(!abortSignal) {
+      throw new Error("The AbortSignal is required!");
+    }
 
     // Wait for all responses
     const responses = await this.communication.sendAndReceiveAll(
@@ -158,8 +162,8 @@ export class CalloutResponseEventManager extends BaseEventManager {
     }
 
     try {
-      this.stateMachine.setSessionState(
-        session,
+      await this.stateMachine.setSessionState(
+        ctx,
         ChatState.CalloutAnswered,
         false,
       );

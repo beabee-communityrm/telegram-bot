@@ -51,15 +51,19 @@ export class ShowCommand extends BaseCommand {
     }
 
     try {
-      const session = await ctx.session;
+      // const session = await ctx.session;
       const callout = await this.callout.get(slug);
       const render = await this.calloutRenderer.calloutDetails(callout);
 
-      const signal = this.stateMachine.setSessionState(
-        session,
+      const signal = await this.stateMachine.setSessionState(
+        ctx,
         ChatState.CalloutDetails,
         true,
       );
+
+      if(!signal) {
+        throw new Error("The AbortSignal is required!");
+      }
 
       await this.communication.sendAndReceiveAll(ctx, render, signal);
     } catch (error) {
