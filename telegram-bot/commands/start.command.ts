@@ -53,7 +53,7 @@ export class StartCommand extends BaseCommand {
 
       // Otherwise show initial help and set the state to start
 
-      this.stateMachine.setSessionState(session, ChatState.Start, false);
+      await this.stateMachine.setSessionState(ctx, ChatState.Start, false);
 
       await this.communication.send(
         ctx,

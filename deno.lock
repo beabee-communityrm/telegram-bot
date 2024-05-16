@@ -23,7 +23,8 @@
     }
   },
   "redirects": {
-    "https://lib.deno.dev/x/grammy@^1.20/mod.ts": "https://deno.land/x/grammy@v1.21.1/mod.ts"
+    "https://lib.deno.dev/x/grammy@^1.20/mod.ts": "https://deno.land/x/grammy@v1.21.1/mod.ts",
+    "https://lib.deno.dev/x/grammy@^1.20/types.ts": "https://deno.land/x/grammy@v1.23.0/types.ts"
   },
   "remote": {},
   "workspace": {
