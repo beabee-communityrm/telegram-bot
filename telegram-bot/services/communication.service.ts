@@ -261,33 +261,39 @@ export class CommunicationService extends BaseService {
    * Wait for any message to be received.
    * TODO: Store event to be able to unsubscribe all unused events if the user stops the conversation or presses a button to answer instead
    * @param ctx
-   * @returns
+   * @returns The context of the message or callback query data or AbortSignal if the signal is aborted
    */
   public async receiveMessageOrCallbackQueryData(
     ctx: AppContext,
     signal: AbortSignal | null,
-  ) {
+  ): Promise<AppContext | AbortSignal> {
     const userId = getIdentifier(ctx);
     const eventName =
       `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}`;
 
-    return await new Promise<AppContext>((resolve) => {
+    return await new Promise<AppContext | AbortSignal>((resolve) => {
       const onMessage = (ctx: AppContext) => {
         this.event.offUser(eventName, userId, onInteractionCallbackQueryData);
-        signal?.removeEventListener("abort", onAbort);
+        unsubscribeEvents();
         resolve(ctx);
       };
 
       // TODO: Any elegant way to move this to the CalloutResponseEventManager?
       const onInteractionCallbackQueryData = (ctx: AppContext) => {
         this.event.offUserMessage(userId, onMessage);
-        signal?.removeEventListener("abort", onAbort);
+        unsubscribeEvents();
         resolve(ctx);
       };
 
-      const onAbort = () => {
+      const unsubscribeEvents = () => {
         this.event.offUser(eventName, userId, onInteractionCallbackQueryData);
         this.event.offUserMessage(userId, onMessage);
+        signal?.removeEventListener("abort", unsubscribeEvents);
+      };
+
+      const onAbort = () => {
+        unsubscribeEvents();
+        resolve(signal!);
       };
 
       signal?.addEventListener("abort", onAbort, { once: true });
@@ -364,7 +370,7 @@ export class CommunicationService extends BaseService {
     }
 
     if (lastGivenAnswerMessage) {
-      this.edit(
+      await this.edit(
         ctx,
         lastGivenAnswerMessage,
         renderAnswers,
@@ -421,14 +427,14 @@ export class CommunicationService extends BaseService {
    * Wait for a specific message to be received and collect all messages of type `render.accepted` until the specific message is received.
    * @param ctx
    * @param render
-   * @returns
+   * @returns The replays of the message or callback query data or AbortSignal if the signal is aborted
    */
   protected async acceptedUntilSpecificMessage(
     ctx: AppContext,
     render: Render,
-    signal: AbortSignal | null,
+    signal: AbortSignal,
   ) {
-    let context: AppContext;
+    let context: AppContext | AbortSignal;
     let message: Message | undefined;
     let callbackQueryData: string | undefined;
     let lastGivenAnswerMessage: Message | undefined;
@@ -442,10 +448,15 @@ export class CommunicationService extends BaseService {
 
     do {
       if (signal?.aborted) {
-        return replays;
+        return signal;
       }
 
       context = await this.receiveMessageOrCallbackQueryData(ctx, signal);
+
+      if (context instanceof AbortSignal) {
+        return context;
+      }
+
       message = context.message;
       callbackQueryData = context.callbackQuery?.data;
 
@@ -493,7 +504,7 @@ export class CommunicationService extends BaseService {
         this.equalReplayAnswer(replay, replayAccepted as ReplayAccepted)
       );
 
-      // If answewr is a selection and it is already in the replays, remove it
+      // If answer is a selection and it is already in the replays, remove it
       if (replayAccepted.type === ReplayType.SELECTION && replayAlreadyTaken) {
         replays = replays.filter((replay) => replay !== replayAlreadyTaken);
       } else {
@@ -526,8 +537,8 @@ export class CommunicationService extends BaseService {
   public async receive(
     ctx: AppContext,
     render: Render,
-    signal: AbortSignal | null,
-  ): Promise<RenderResponseParsed<boolean>> {
+    signal: AbortSignal,
+  ): Promise<RenderResponseParsed<boolean> | AbortSignal> {
     // Do not wait for any specific message
     if (!render.accepted || render.accepted.type === ReplayType.NONE) {
       return {
@@ -544,6 +555,10 @@ export class CommunicationService extends BaseService {
       render,
       signal,
     );
+
+    if (replays instanceof AbortSignal) {
+      return replays;
+    }
 
     // Parse multiple messages
     if (render.accepted.multiple) {
@@ -572,16 +587,19 @@ export class CommunicationService extends BaseService {
    * Send a render result and wait for a message response until a specific message or file is received.
    * @param ctx
    * @param render
-   * @returns
+   * @returns The render response or AbortSignal if the signal is aborted
    */
   public async sendAndReceive(
     ctx: AppContext,
     render: Render,
-    signal: AbortSignal | null,
+    signal: AbortSignal,
   ) {
     await this.send(ctx, render);
 
     const responses = await this.receive(ctx, render, signal);
+    if (responses instanceof AbortSignal) {
+      return responses;
+    }
     const response: RenderResponse = {
       render,
       responses,
@@ -597,7 +615,7 @@ export class CommunicationService extends BaseService {
   public async sendAndReceiveAll(
     ctx: AppContext,
     renders: Render[],
-    signal: AbortSignal | null,
+    signal: AbortSignal,
   ) {
     const responses: RenderResponse[] = [];
     for (const render of renders) {
@@ -606,6 +624,11 @@ export class CommunicationService extends BaseService {
       }
       try {
         const response = await this.sendAndReceive(ctx, render, signal);
+
+        if (response instanceof AbortSignal) {
+          return response;
+        }
+
         if (response) {
           responses.push(response);
         }

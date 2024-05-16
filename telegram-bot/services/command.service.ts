@@ -58,8 +58,10 @@ export class CommandService extends BaseService {
 
     if (session.state === ChatState.Start) {
       // Cancel old process for the case there is one
-      await this.stateMachine.resetSessionState(
+      await this.stateMachine.setSessionState(
         ctx,
+        ChatState.Start,
+        true,
       );
     }
 

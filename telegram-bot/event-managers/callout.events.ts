@@ -40,7 +40,6 @@ export class CalloutEventManager extends BaseEventManager {
 
   protected async onCalloutSelectionKeyboardPressed(ctx: AppContext) {
     const shortSlug = ctx.callbackQuery?.data?.split(":")[1];
-    const session = await ctx.session;
 
     // Remove the inline keyboard
     await this.keyboard.removeInlineKeyboard(ctx);
@@ -67,11 +66,15 @@ export class CalloutEventManager extends BaseEventManager {
         callout,
       );
 
-      const signal = this.stateMachine.setSessionState(
-        session,
+      const signal = await this.stateMachine.setSessionState(
+        ctx,
         ChatState.CalloutDetails,
         true,
       );
+
+      if (!signal) {
+        throw new Error("The AbortSignal is required!");
+      }
 
       await this.communication.sendAndReceiveAll(
         ctx,
