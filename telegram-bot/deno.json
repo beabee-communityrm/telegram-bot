@@ -1,6 +1,6 @@
 {
   "name": "telegram-bot",
-  "version": "0.0.2",
+  "version": "0.14.0",
   "compilerOptions": {
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
