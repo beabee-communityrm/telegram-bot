@@ -1,6 +1,6 @@
 {
   "name": "telegram-bot",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "compilerOptions": {
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -33,9 +33,9 @@
     "check:format": "deno task format --check",
     "check:types": "deno check main.ts",
     "cache": "deno cache --reload main.ts",
-    "docker:build": "docker build -f ../Dockerfile -t beabee/telegram-bot:latest .. && docker tag beabee/telegram-bot:latest beabee/telegram-bot:0.3.1",
+    "docker:build": "docker build -f ../Dockerfile -t beabee/telegram-bot:latest .. && docker tag beabee/telegram-bot:latest beabee/telegram-bot:0.3.2",
     "docker:start": "docker run -it --init -p 3003:3003 beabee/telegram-bot",
-    "docker:push": "docker push beabee/telegram-bot:latest && docker push beabee/telegram-bot:0.3.1",
+    "docker:push": "docker push beabee/telegram-bot:latest && docker push beabee/telegram-bot:0.3.2",
     "i18n": "deno run --allow-read --allow-write --allow-env --allow-net scripts/i18n.ts && deno task format"
   }
 }

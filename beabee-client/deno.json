@@ -1,6 +1,6 @@
 {
   "name": "beabee-client",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "tasks": {
     "clear": "rm -rf ./dist/",
     "dev": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --watch ./mod.ts",
