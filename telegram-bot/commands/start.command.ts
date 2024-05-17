@@ -5,7 +5,8 @@ import { CommunicationService } from "../services/communication.service.ts";
 import { StateMachineService } from "../services/state-machine.service.ts";
 import { MessageRenderer } from "../renderer/message.renderer.ts";
 import { ChatState } from "../enums/index.ts";
-import { ListCommand, ResetCommand } from "./index.ts";
+import { ListCommand, ResetCommand, ShowCommand } from "./index.ts";
+import { START_CALLOUT_PREFIX } from "../constants/index.ts";
 
 import type { AppContext } from "../types/index.ts";
 
@@ -25,6 +26,7 @@ export class StartCommand extends BaseCommand {
     protected readonly stateMachine: StateMachineService,
     protected readonly listCommand: ListCommand,
     protected readonly resetCommand: ResetCommand,
+    protected readonly showCommand: ShowCommand,
   ) {
     super();
   }
@@ -34,9 +36,20 @@ export class StartCommand extends BaseCommand {
     const session = await ctx.session;
 
     try {
+      const payload = ctx.match;
+
+      // If the payload is a callout slug, show the callout
+      // We check if the payload starts with "c_" to indicate that the payload is a callout slug
+      if (
+        typeof payload === "string" && payload.startsWith(START_CALLOUT_PREFIX)
+      ) {
+        const slug = payload.substring(START_CALLOUT_PREFIX.length);
+        return await this.showCommand.action(ctx, slug);
+      }
+
       // Always allow the start command, automatically reset the session if it is not on the initial state
-      const startCanUsed = await this.checkAction(ctx, true);
-      if (!startCanUsed) {
+      const startAlreadyUsed = await this.checkAction(ctx, true);
+      if (!startAlreadyUsed) {
         // Send the welcome message before the reset command
         await this.communication.send(ctx, this.messageRenderer.welcome());
         // Execute the reset command
