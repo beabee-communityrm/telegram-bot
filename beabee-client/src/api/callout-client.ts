@@ -42,16 +42,16 @@ export class CalloutClient extends BaseClient {
 
   /**
    * Get a callout
-   * @param slug The slug of the callout to get
+   * @param slugOrId The slug or id of the callout to get
    * @param _with The relations to include
    * @returns The callout
    */
   async get<With extends GetCalloutWith = void>(
-    slug: string,
+    slugOrId: string,
     _with?: readonly With[],
   ) {
     const { data } = await this.fetch.get<Serial<GetCalloutDataWith<With>>>(
-      `/${slug}`,
+      `/${slugOrId}`,
       { with: _with },
     );
     return this.deserialize(data);

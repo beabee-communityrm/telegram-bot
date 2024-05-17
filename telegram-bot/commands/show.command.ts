@@ -35,16 +35,16 @@ export class ShowCommand extends BaseCommand {
   }
 
   // Handle the /show command
-  async action(ctx: AppContext) {
-    let successful = await this.checkAction(ctx);
-    if (!successful) {
+  async action(ctx: AppContext, forceSlug?: string) {
+    let successful = await this.checkAction(ctx, forceSlug !== undefined);
+    if (!forceSlug && !successful) {
       return false;
     }
 
     // Get the slug from the `/show slug` message text
-    const slug = ctx.message?.text?.split(" ")[1]; // Alternatively, use ctx.match
+    const slug = forceSlug ?? ctx.match;
 
-    if (!slug) {
+    if (typeof slug !== "string") {
       await ctx.reply("Please specify a callout slug. E.g. `/show my-callout`");
       successful = false;
       return successful;
