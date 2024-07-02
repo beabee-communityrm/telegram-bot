@@ -12,7 +12,6 @@ import { ListCommand } from "../commands/list.command.ts";
 import { ChatState } from "../enums/index.ts";
 import {
   FALSY_MESSAGE_KEY,
-  INLINE_BUTTON_CALLBACK_CALLOUT_INTRO,
   INLINE_BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
   INLINE_BUTTON_CALLBACK_PREFIX,
   TRUTHY_MESSAGE_KEY,
@@ -43,14 +42,6 @@ export class CalloutResponseEventManager extends BaseEventManager {
   }
 
   public init() {
-    // Listen for the callback query data event with the `callout-respond:yes` data
-    this.event.on(
-      `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_CALLOUT_INTRO}`,
-      (event) => {
-        this.onCalloutIntroKeyboardPressed(event);
-      },
-    );
-
     this.event.on(
       `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_CALLOUT_PARTICIPATE}`,
       (event) => {
@@ -61,8 +52,12 @@ export class CalloutResponseEventManager extends BaseEventManager {
 
   protected async onCalloutParticipateKeyboardPressed(ctx: AppContext) {
     const data = ctx.callbackQuery?.data?.split(":");
-    const slug = data?.[1];
-    const startResponse = data?.[2] as "continue" | "cancel" === "continue";
+    // const slug = data?.[1];
+    const shortSlug = data?.[1];
+    // const startResponse = data?.[2] as "continue" | "cancel" === "continue";
+    const startResponse =
+      data?.[2] as typeof TRUTHY_MESSAGE_KEY | typeof FALSY_MESSAGE_KEY ===
+        TRUTHY_MESSAGE_KEY; // This is the key, so it's not localized
     const session = await ctx.session;
 
     await this.keyboard.removeInlineKeyboard(ctx);
@@ -75,14 +70,21 @@ export class CalloutResponseEventManager extends BaseEventManager {
       return;
     }
 
+    if (!shortSlug) {
+      await this.communication.send(
+        ctx,
+        this.messageRenderer.calloutNotFound(),
+      );
+      return;
+    }
+
+    const slug = this.callout.getSlug(shortSlug);
+
     if (!slug) {
       await this.communication.send(
         ctx,
         this.messageRenderer.calloutNotFound(),
       );
-
-      // remove loading animation
-      await this.communication.answerCallbackQuery(ctx);
       return;
     }
 
@@ -175,51 +177,5 @@ export class CalloutResponseEventManager extends BaseEventManager {
     } catch (error) {
       console.error(error);
     }
-  }
-
-  /**
-   * Handle the callback query data event with the `callout-respond:yes` or `callout-respond:no` data.
-   * Called when the user presses the "Yes" or "No" button on the callout response keyboard.
-   * @param ctx
-   */
-  protected async onCalloutIntroKeyboardPressed(ctx: AppContext) {
-    const data = ctx.callbackQuery?.data?.split(":");
-    const shortSlug = data?.[1];
-    const startIntro =
-      data?.[2] as typeof TRUTHY_MESSAGE_KEY | typeof FALSY_MESSAGE_KEY ===
-        TRUTHY_MESSAGE_KEY; // This is the key, so it's not localized
-
-    await this.keyboard.removeInlineKeyboard(ctx);
-
-    if (!shortSlug) {
-      await this.communication.send(
-        ctx,
-        this.messageRenderer.calloutNotFound(),
-      );
-      return;
-    }
-
-    const slug = this.callout.getSlug(shortSlug);
-
-    if (!slug) {
-      await this.communication.send(
-        ctx,
-        this.messageRenderer.calloutNotFound(),
-      );
-      return;
-    }
-
-    if (!startIntro) {
-      await this.communication.send(ctx, this.messageRenderer.stop());
-      // Forward cancel to the cancel command
-      await this.resetCommand.action(ctx);
-      return;
-    }
-
-    // Start intro
-    const calloutWithForm = await this.callout.get(slug, ["form"]);
-
-    const res = this.calloutResponseRenderer.intro(calloutWithForm);
-    await this.communication.send(ctx, res);
   }
 }

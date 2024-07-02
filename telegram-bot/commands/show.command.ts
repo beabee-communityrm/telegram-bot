@@ -51,9 +51,17 @@ export class ShowCommand extends BaseCommand {
     }
 
     try {
-      // const session = await ctx.session;
-      const callout = await this.callout.get(slug);
-      const render = await this.calloutRenderer.calloutDetails(callout);
+      const callout = await this.callout.get(slug, ["form"]);
+      const calloutDetailsRender = await this.calloutRenderer.calloutDetails(
+        callout,
+      );
+      const calloutIntroRender = this.calloutRenderer.intro(
+        callout,
+      );
+      const calloutStartResponseKeyboard = this.calloutRenderer
+        .startResponseKeyboard(
+          callout,
+        );
 
       const signal = await this.stateMachine.setSessionState(
         ctx,
@@ -65,7 +73,11 @@ export class ShowCommand extends BaseCommand {
         throw new Error("The AbortSignal is required!");
       }
 
-      await this.communication.sendAndReceiveAll(ctx, render, signal);
+      await this.communication.sendAndReceiveAll(ctx, [
+        calloutDetailsRender,
+        calloutIntroRender,
+        calloutStartResponseKeyboard,
+      ], signal);
     } catch (error) {
       console.error("Error sending callout", error);
       successful = false;
