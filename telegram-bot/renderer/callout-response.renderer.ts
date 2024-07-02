@@ -28,7 +28,6 @@ import { ConditionService } from "../services/condition.service.ts";
 import { MessageRenderer } from "./message.renderer.ts";
 import {
   EMPTY_RENDER,
-  INLINE_BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
   INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE,
 } from "../constants/index.ts";
 
@@ -804,28 +803,6 @@ export class CalloutResponseRenderer {
     results.push(unknown);
 
     return results;
-  }
-
-  /**
-   * Render a callout response intro in HTML
-   */
-  public intro(callout: GetCalloutDataWithExt<"form">) {
-    const result: Render = {
-      key: callout.slug,
-      type: RenderType.HTML,
-      accepted: this.condition.replayConditionNone(),
-      html: "",
-      parseType: ParsedResponseType.NONE,
-      forceReply: false,
-    };
-    result.html = `${sanitizeHtml(callout.intro)}`;
-
-    const continueKeyboard = this.keyboard.inlineContinueCancel(
-      `${INLINE_BUTTON_CALLBACK_CALLOUT_PARTICIPATE}:${callout.slug}`,
-    );
-    result.inlineKeyboard = continueKeyboard;
-
-    return result;
   }
 
   /**

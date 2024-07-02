@@ -60,11 +60,17 @@ export class CalloutEventManager extends BaseEventManager {
     }
 
     try {
-      const callout = await this.callout.get(slug);
-
-      const calloutFormRender = await this.calloutRenderer.calloutDetails(
+      const callout = await this.callout.get(slug, ["form"]);
+      const calloutDetailsRender = await this.calloutRenderer.calloutDetails(
         callout,
       );
+      const calloutIntroRender = this.calloutRenderer.intro(
+        callout,
+      );
+      const calloutStartResponseKeyboard = this.calloutRenderer
+        .startResponseKeyboard(
+          callout,
+        );
 
       const signal = await this.stateMachine.setSessionState(
         ctx,
@@ -78,7 +84,11 @@ export class CalloutEventManager extends BaseEventManager {
 
       await this.communication.sendAndReceiveAll(
         ctx,
-        calloutFormRender,
+        [
+          calloutDetailsRender,
+          calloutIntroRender,
+          calloutStartResponseKeyboard,
+        ],
         signal,
       );
     } catch (error) {
