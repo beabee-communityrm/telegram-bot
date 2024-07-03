@@ -20,7 +20,7 @@ import { BaseEventManager } from "../core/base.events.ts";
 
 import type { AppContext } from "../types/index.ts";
 
-const SHOW_LIST_AFTER_RESPONSE = true;
+const SHOW_LIST_AFTER_DONE = true;
 
 @Singleton()
 export class CalloutResponseEventManager extends BaseEventManager {
@@ -154,7 +154,7 @@ export class CalloutResponseEventManager extends BaseEventManager {
 
     // TODO: Send success message and a summary of answers to the chat
 
-    if (SHOW_LIST_AFTER_RESPONSE) {
+    if (SHOW_LIST_AFTER_DONE) {
       await this.communication.send(
         ctx,
         await this.messageRenderer.continueList(),

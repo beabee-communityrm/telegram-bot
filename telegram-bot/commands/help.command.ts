@@ -23,9 +23,9 @@ export class HelpCommand extends BaseCommand {
   }
 
   // Handle the /help command
-  async action(ctx: AppContext) {
-    const successful = await this.checkAction(ctx);
-    if (!successful) {
+  async action(ctx: AppContext, force = false) {
+    const successful = await this.checkAction(ctx, force);
+    if (!force && !successful) {
       return false;
     }
     // Use session.state to get context related help

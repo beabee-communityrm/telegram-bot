@@ -10,7 +10,7 @@ import { START_CALLOUT_PREFIX } from "../constants/index.ts";
 
 import type { AppContext } from "../types/index.ts";
 
-const SHOW_LIST_AFTER_START = true;
+const SHOW_LIST_AFTER_DONE = true;
 
 @Singleton()
 export class StartCommand extends BaseCommand {
@@ -59,7 +59,7 @@ export class StartCommand extends BaseCommand {
       await this.communication.send(ctx, this.messageRenderer.welcome());
 
       // Show list if the constant is set to true
-      if (SHOW_LIST_AFTER_START) {
+      if (SHOW_LIST_AFTER_DONE) {
         const successful = await this.listCommand.action(ctx, true);
         return successful;
       }

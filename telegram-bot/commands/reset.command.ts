@@ -11,7 +11,7 @@ import { ListCommand } from "./index.ts";
 import type { AppContext } from "../types/index.ts";
 
 // Temporary constant until it is certain that we want to do this, I am not happy with it because we are no longer able to reset the state to to the `start` state
-const SHOW_LIST_AFTER_RESET = true;
+const SHOW_LIST_AFTER_DONE = true;
 
 @Singleton()
 export class ResetCommand extends BaseCommand {
@@ -69,7 +69,7 @@ export class ResetCommand extends BaseCommand {
     await this.keyboard.removeLastInlineKeyboard(ctx);
 
     // Show list if the constant is set to true
-    if (SHOW_LIST_AFTER_RESET) {
+    if (SHOW_LIST_AFTER_DONE) {
       await this.communication.send(
         ctx,
         await this.messageRenderer.continueList(),
@@ -79,16 +79,17 @@ export class ResetCommand extends BaseCommand {
       // successful = successful && await this.stateMachine.resetSessionState(ctx);
 
       successful = successful && await this.listCommand.action(ctx, true);
-    } else {
-      // Otherwise show continue help
-      await this.communication.send(
-        ctx,
-        await this.messageRenderer.continueHelp(session.state),
-      );
-
-      // Reset the state and unsubscribe all events
-      await this.stateMachine.setSessionState(ctx, ChatState.Start, true);
+      return successful;
     }
+
+    // Otherwise show continue help
+    await this.communication.send(
+      ctx,
+      await this.messageRenderer.continueHelp(session.state),
+    );
+
+    // Reset the state and unsubscribe all events
+    await this.stateMachine.setSessionState(ctx, ChatState.Start, true);
 
     return successful;
   }

@@ -51,7 +51,7 @@
         "enterTime": "Bitte gib eine Zeit ein. (z.B. 20:45)",
         "enterUrl": "Bitte gib eine Webadresse ein. (z.B. https://www.beispiel.de)",
         "help": "Über den Telegram-Chat kannst du an den laufenden Umfragen von {organisationName} teilnehmen.\nDu kannst die Liste der offenen Umfragen einsehen und auswählen, an welchen du teilnehmen möchtest.\n\n{commands}",
-        "helpContinue": "Jetzt kannst du die Liste der offenen Umfragen überprüfen und eine andere auswählen, an der du teilnehmen möchten.\n\n{commands}",
+        "helpContinue": "Jetzt kannst du die Liste der offenen Umfragen überprüfen und eine andere auswählen, an der du teilnehmen möchten:\n\n{commands}",
         "multipleAddressesAllowed": "Gib eine oder mehrere Adressen ein.",
         "multipleEmailsAllowed": "Du kannst eine oder mehrere E-Mail-Adressen eingeben.",
         "multipleNumbersAllowed": "Gib eine oder mehrere Zahlen ein.",
