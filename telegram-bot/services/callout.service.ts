@@ -36,6 +36,8 @@ const CALLOUTS_ACTIVE_TELEGRAM_QUERY: GetCalloutsQuery = {
       { field: "expires", operator: "is_empty", value: [] },
       { field: "hidden", operator: "equal", value: [false] },
       { field: "channels", operator: "contains", value: ["telegram"] },
+      // TODO: Add access filter to the API
+      // { field: "access", operator: "equal", value: ["anonymous"] },
     ],
   },
 };

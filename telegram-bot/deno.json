@@ -14,7 +14,10 @@
     "sqlite3": "https://deno.land/x/sqlite3@0.10.0/mod.ts",
     "date-fns": "npm:date-fns@3.3.1",
     "@beabee/beabee-common": "../beabee-common/mod.ts",
-    "@beabee/beabee-client": "../beabee-client/mod.ts"
+    "@beabee/beabee-client": "../beabee-client/mod.ts",
+    "https://lib.deno.dev/x/grammy@^1.20/": "https://lib.deno.dev/x/grammy@^1.26.0/",
+    "https://deno.land/x/grammy@v1.21.1/": "https://deno.land/x/grammy@v1.26.0/",
+    "https://deno.land/x/grammy_types@v3.5.2/": "https://deno.land/x/grammy_types@v3.10.0/"
   },
   "scopes": {
     "https://raw.githubusercontent.com/Zhomart/dex/": {
