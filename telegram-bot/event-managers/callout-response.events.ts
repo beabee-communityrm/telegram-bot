@@ -6,7 +6,11 @@ import { BotService } from "../services/bot.service.ts";
 import { TransformService } from "../services/transform.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
 import { StateMachineService } from "../services/state-machine.service.ts";
-import { CalloutResponseRenderer, MessageRenderer } from "../renderer/index.ts";
+import {
+  CalloutRenderer,
+  CalloutResponseRenderer,
+  MessageRenderer,
+} from "../renderer/index.ts";
 import { ResetCommand } from "../commands/reset.command.ts";
 import { ListCommand } from "../commands/list.command.ts";
 import { ChatState } from "../enums/index.ts";
@@ -20,7 +24,8 @@ import { BaseEventManager } from "../core/base.events.ts";
 
 import type { AppContext } from "../types/index.ts";
 
-const SHOW_LIST_AFTER_DONE = true;
+const SHOW_LIST_AFTER_DONE = false;
+const ASK_SHOW_LIST_AFTER_DONE = true;
 
 @Singleton()
 export class CalloutResponseEventManager extends BaseEventManager {
@@ -30,6 +35,7 @@ export class CalloutResponseEventManager extends BaseEventManager {
     protected readonly callout: CalloutService,
     protected readonly communication: CommunicationService,
     protected readonly messageRenderer: MessageRenderer,
+    protected readonly calloutRenderer: CalloutRenderer,
     protected readonly calloutResponseRenderer: CalloutResponseRenderer,
     protected readonly transform: TransformService,
     protected readonly keyboard: KeyboardService,
@@ -154,6 +160,7 @@ export class CalloutResponseEventManager extends BaseEventManager {
 
     // TODO: Send success message and a summary of answers to the chat
 
+    // Show the list of callouts
     if (SHOW_LIST_AFTER_DONE) {
       await this.communication.send(
         ctx,
@@ -163,6 +170,16 @@ export class CalloutResponseEventManager extends BaseEventManager {
       return await this.listCommand.action(ctx, true);
     }
 
+    // Ask if the user wants to see the list of callouts
+    if (ASK_SHOW_LIST_AFTER_DONE) {
+      await this.communication.send(
+        ctx,
+        await this.calloutRenderer.listCalloutsKeyboard(),
+      );
+      return;
+    }
+
+    // Show help
     try {
       await this.stateMachine.setSessionState(
         ctx,

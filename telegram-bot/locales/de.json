@@ -102,10 +102,12 @@
     "response": {
       "messages": {
         "answerWithTruthyOrFalsy": "🤔 Bitte antworten Sie mit \"{truthy}\" oder \"{falsy}\".",
+        "calloutList": "Möchten Sie fortfahren und die aktiven Callouts erneut auflisten?",
         "calloutNotFound": "Es tut mir leid, ich konnte diesen Callout nicht finden.",
         "calloutStartResponse": "Möchten Sie auf diesen Callout beantworten?",
         "componentNotSupported": "\"{type}\" nicht implementiert..",
         "componentUnknown": "Unbekannter Komponententyp \"{type}\"..",
+        "howToShowHelp": "Wenn Sie fortfahren möchten können Sie jederzeit über das Menü die Hilfe aufrufen oder /help schreiben.",
         "noActiveCallouts": "Derzeit gibt es keine offenen Callouts.",
         "notACalloutComponent": {
           "address": "Ihre Antwort ist keine valide Adresse. Bitte versuchen Sie es erneut.",
