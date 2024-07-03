@@ -63,7 +63,7 @@ export class CalloutResponseEventManager extends BaseEventManager {
     // const startResponse = data?.[2] as "continue" | "cancel" === "continue";
     const startResponse =
       data?.[2] as typeof TRUTHY_MESSAGE_KEY | typeof FALSY_MESSAGE_KEY ===
-        TRUTHY_MESSAGE_KEY; // This is the key, so it's not localized
+      TRUTHY_MESSAGE_KEY; // This is the key, so it's not localized
     const session = await ctx.session;
 
     await this.keyboard.removeInlineKeyboard(ctx);
@@ -142,9 +142,9 @@ export class CalloutResponseEventManager extends BaseEventManager {
 
     try {
       // TODO: Ask for contact details if callout requires it
-      const _response = await this.callout.createResponse(slug, {
+      await this.callout.createResponse(slug, {
         answers,
-        guestName: ctx.from?.username,
+        //guestName: ctx.from?.username,
         // guestEmail: "test@beabee.io",
       });
     } catch (error) {
@@ -153,9 +153,7 @@ export class CalloutResponseEventManager extends BaseEventManager {
         error,
       );
 
-      // TODO: Send error message to the chat
-
-      return;
+      // TODO: Send error message to the chat?
     }
 
     // TODO: Send success message and a summary of answers to the chat
