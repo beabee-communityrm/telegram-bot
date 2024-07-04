@@ -1,6 +1,5 @@
 import { BaseService } from "../core/index.ts";
-import {  Singleton,
-} from "../deps/index.ts";
+import { Singleton } from "../deps/index.ts";
 import { EventService } from "./event.service.ts";
 import { KeyboardService } from "./keyboard.service.ts";
 import { ChatState, StateMachineEvent } from "../enums/index.ts";

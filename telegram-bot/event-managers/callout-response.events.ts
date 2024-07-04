@@ -63,7 +63,7 @@ export class CalloutResponseEventManager extends BaseEventManager {
     // const startResponse = data?.[2] as "continue" | "cancel" === "continue";
     const startResponse =
       data?.[2] as typeof TRUTHY_MESSAGE_KEY | typeof FALSY_MESSAGE_KEY ===
-      TRUTHY_MESSAGE_KEY; // This is the key, so it's not localized
+        TRUTHY_MESSAGE_KEY; // This is the key, so it's not localized
     const session = await ctx.session;
 
     await this.keyboard.removeInlineKeyboard(ctx);

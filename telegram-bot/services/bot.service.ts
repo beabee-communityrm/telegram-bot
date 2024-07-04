@@ -6,12 +6,23 @@ import {
   Singleton,
 } from "../deps/index.ts";
 
+import { KeyValueStorageAdapter } from "../adapters/key-value-storage-adapter.ts";
+
 import { StateMachineService } from "./state-machine.service.ts";
 
 import type { AppContext } from "../types/index.ts";
 
+/**
+ * key-value store
+ * @see https://docs.deno.com/examples/kv/
+ * @see https://github.com/grammyjs/storages/tree/main/packages/denokv
+ */
+const kv = await Deno.openKv("./kv.db");
+
 @Singleton()
 export class BotService extends Bot<AppContext> {
+  kv: Deno.Kv;
+
   constructor(
     protected readonly stateMachine: StateMachineService,
   ) {
@@ -19,9 +30,12 @@ export class BotService extends Bot<AppContext> {
     if (!token) throw new Error("TELEGRAM_TOKEN is not set");
     super(token);
 
+    this.kv = kv;
+
     // See https://grammy.dev/plugins/session
     this.use(lazySession({
-      initial: this.stateMachine.createSessionProxy.bind(this.stateMachine),
+      initial: this.stateMachine.getInitialSession.bind(this.stateMachine),
+      storage: new KeyValueStorageAdapter(this.kv),
     }));
 
     // See https://grammy.dev/plugins/parse-mode
