@@ -1,32 +1,31 @@
 import { BaseService } from "../core/index.ts";
-import {
-  proxy,
-  ref,
-  Singleton,
-  snapshot,
-  subscribe,
-  watch,
-} from "../deps/index.ts";
+import { Singleton } from "../deps/index.ts";
 import { EventService } from "./event.service.ts";
 import { KeyboardService } from "./keyboard.service.ts";
-import { ChatState, StateMachineEvent } from "../enums/index.ts";
+import {
+  AbortControllerState,
+  ChatState,
+  StateMachineEvent,
+} from "../enums/index.ts";
+import { getSessionKey } from "../utils/index.ts";
 
 import type {
   AppContext,
-  StateSession,
+  SessionNonPersisted,
+  SessionPersisted,
   StateSettings,
 } from "../types/index.ts";
 
 /**
- * State machine service
- * * More or less just a injectable wrapper for [valtio](https://github.com/pmndrs/valtio) (vanillla-version)
- * * Can be enriched with its own functionalities if needed
- * * Used to create a proxy state object using {@link StateMachineService.create} for each chat session (sessions are handled using [Grammy's session plugin](https://grammy.dev/plugins/session))
- * * Changes on the state (or any sub property) can be subscribed using {@link StateMachineService.subscribe}.
+ * State machine service.
+ * Contains the current settings, session data which can't be persisted for each chat session
+ * and methods to handle the session state.
  */
 @Singleton()
 export class StateMachineService extends BaseService {
-  private _settings: StateSettings;
+  protected _settings = this.getInitialSettings();
+
+  protected _nonPersisted: { [sessionKey: string]: SessionNonPersisted } = {};
 
   get settings(): StateSettings {
     return this._settings;
@@ -37,26 +36,16 @@ export class StateMachineService extends BaseService {
     protected readonly keyboard: KeyboardService,
   ) {
     super();
-    this._settings = this.createSettingsProxy();
+    this._settings = this.getInitialSettings();
     console.debug(`${this.constructor.name} created`);
-  }
-
-  /**
-   * Create a new proxy state object.
-   * The [proxy](https://valtio.pmnd.rs/docs/api/basic/proxy) tracks changes to the original object and all nested objects, notifying listeners when an object is modified.
-   * @param baseObject
-   * @returns
-   */
-  public create<T extends object>(baseObject?: T): T {
-    return proxy(baseObject);
   }
 
   /**
    * Create a new session state object for a chat session handled by Grammy's session plugin.
    * @returns
    */
-  public createSettingsProxy(): StateSettings {
-    this._settings = this.create<StateSettings>({
+  public getInitialSettings(): StateSettings {
+    const _settings = {
       general: {
         organisationName: "",
         logoUrl: "",
@@ -76,65 +65,41 @@ export class StateMachineService extends BaseService {
       telegram: {
         welcomeMessageMd: "",
       },
-    });
+    };
 
-    // Auto-subscribe to general settings changes and forward them as events
-    this.subscribe(this._settings.general, (_ops) => {
-      console.debug(
-        "General Beabee settings updated",
-        this.settings.general,
-        _ops,
-      );
-      this.event.emit(
-        StateMachineEvent.SETTINGS_GENERAL_CHANGED,
-        this.settings.general,
-      );
-    });
-
-    // Auto-subscribe to telegram settings changes and forward them as events
-    this.subscribe(this._settings.telegram, (_ops) => {
-      console.debug(
-        "Telegram Beabee settings updated",
-        this._settings.telegram,
-        _ops,
-      );
-      this.event.emit(
-        StateMachineEvent.SETTINGS_TELEGRAM_CHANGED,
-        this._settings.telegram,
-      );
-    });
-
-    return this._settings;
+    return _settings;
   }
 
-  /**
-   * Create a new session state object for a chat session handled by Grammy's session plugin.
-   * @returns
-   */
-  public createSessionProxy(): StateSession {
-    const sessionProxy = this.create<StateSession>({
+  public getInitialSession(): SessionPersisted {
+    return {
       state: ChatState.Initial,
-      _data: this.ref({
-        ctx: null,
-        abortController: null,
-        latestKeyboard: null,
-      }),
-    });
+      latestKeyboard: null,
+      abortControllerState: AbortControllerState.NULL,
+    };
+  }
 
-    // Auto-subscribe to session changes and forward them as events
-    this.subscribe(sessionProxy, (_ops) => {
-      console.debug("Session updated", sessionProxy.state, _ops);
-      const ctx = sessionProxy._data.ctx;
-      if (!ctx) return;
-      this.event.emit(StateMachineEvent.SESSION_CHANGED, ctx);
-    });
+  public getInitialNonPersisted(): SessionNonPersisted {
+    return {
+      abortController: null,
+    };
+  }
 
-    return sessionProxy;
+  protected onSessionChanged(ctx: AppContext) {
+    this.event.emit(StateMachineEvent.SESSION_CHANGED, ctx);
+  }
+
+  public async getNonPersisted(ctx: AppContext): Promise<SessionNonPersisted> {
+    const sessionKey = getSessionKey(ctx);
+    if (!this._nonPersisted[sessionKey]) {
+      this._nonPersisted[sessionKey] = this.getInitialNonPersisted();
+      await this.restoreAbortController(ctx);
+    }
+    return this._nonPersisted[sessionKey];
   }
 
   /**
    * Set the state of a session
-   * @param session The session to set the state for
+   * @param ctx The context which contains the session
    * @param newState The new state
    * @param cancellable If the state change should be cancellable
    * @returns The abort signal if the state change is cancellable, otherwise null
@@ -148,103 +113,79 @@ export class StateMachineService extends BaseService {
     await this.resetSessionState(ctx);
     const session = await ctx.session;
     session.state = newState;
-    session._data.abortController = cancellable ? new AbortController() : null;
-    return session._data.abortController?.signal ?? null;
+    const abortController = await this.setAbortController(
+      ctx,
+      cancellable ? new AbortController() : null,
+    );
+    this.onSessionChanged(ctx);
+    return abortController ? abortController.signal : null;
   }
 
   /**
-   * Reset the state of a session to `ChatState.Start`
-   * @param session The session to reset the state for
+   * Reset the state of a session
+   * @param ctx The context which contains the session
    * @returns True if the state was cancelled, false otherwise
    */
   protected async resetSessionState(ctx: AppContext) {
-    const session = await ctx.session;
-
     await this.keyboard.removeLastInlineKeyboard(ctx);
+    const nonPersisted = await this.getNonPersisted(ctx);
 
-    // session.state = ChatState.Start;
-    if (session._data.abortController) {
+    if (nonPersisted.abortController) {
       console.debug("Aborting session");
-      session._data.abortController.abort();
+      nonPersisted.abortController.abort();
       return true;
     }
     console.debug("Session is not cancellable");
     return false;
   }
 
-  /**
-   * [Subscribe](https://valtio.pmnd.rs/docs/api/advanced/subscribe) to changes in the state.
-   * @example
-   * ```ts
-   * const state = stateMachine.create({ count: 0 });
-   * stateMachine.subscribe(state, (value) => console.log(value.count));
-   * state.count++;
-   * ```
-   *
-   * You can also subscribe to a portion of state.
-   * @example
-   * ```ts
-   * const state = stateMachine.create(({ obj: { foo: 'bar' }, arr: ['hello'] });
-   * stateMachine.subscribe(.obj, () => console.log('state.obj has changed to', state.obj));
-   * state.count++;
-   * ```
-   * @param proxy
-   * @param callback
-   * @returns
-   */
-  public subscribe = subscribe;
+  protected async setAbortController(
+    ctx: AppContext,
+    abortController: AbortController | null,
+  ) {
+    const session = await ctx.session;
+    const nonPersisted = await this.getNonPersisted(ctx);
+    nonPersisted.abortController = abortController;
+    session.abortControllerState = this.determineAbortControllerState(
+      nonPersisted.abortController,
+    );
+    if (abortController) {
+      abortController.signal.addEventListener("abort", () => {
+        session.abortControllerState = AbortControllerState.ABORTED;
+      }, { once: true });
+    }
+
+    return abortController;
+  }
 
   /**
-   * [snapshot](https://valtio.pmnd.rs/docs/api/advanced/snapshot) takes a proxy and returns an immutable object, unwrapped from the proxy.
-   * Immutability is achieved by *efficiently* deep copying & freezing the object.
-   *
-   * @example
-   * ```ts
-   * const store = stateMachine.create({ name: 'Mika' })
-   * const snap1 = stateMachine.snapshot(store) // an efficient copy of the current store values, unproxied
-   * const snap2 = stateMachine.snapshot(store)
-   * console.log(snap1 === snap2) // true, no need to re-render
-   *
-   * store.name = 'Hanna'
-   * const snap3 = stateMachine.snapshot(store)
-   * console.log(snap1 === snap3) // false, should re-render
-
-   * ```
+   * Determine the state of the abort controller
+   * @param abortController The abort controller
+   * @returns The state of the abort controller
    */
-  public snapshot = snapshot;
+  protected determineAbortControllerState(
+    abortController: AbortController | null,
+  ) {
+    if (!abortController) {
+      return AbortControllerState.NULL;
+    }
+    return abortController.signal.aborted
+      ? AbortControllerState.ABORTED
+      : AbortControllerState.ACTIVE;
+  }
 
-  /**
-   * A [ref](https://valtio.pmnd.rs/docs/api/advanced/ref) allows unproxied state in a proxy state.
-   * A `ref` is useful in the rare instances you to nest an object in a `proxy` that is not wrapped in an inner proxy and, therefore, is not tracked.
-   * @example
-   * ```ts
-   * const store = stateMachine.create({
-   *     users: [
-   *         { id: 1, name: 'Juho', uploads: ref([]) },
-   *     ]
-   *   })
-   * })
-   * ```
-   * Once an object is wrapped in a ref, it should be mutated without resetting the object or rewrapping in a new ref.
-   * @example
-   * ```ts
-   * // do mutate
-   * store.users[0].uploads.push({ id: 1, name: 'Juho' })
-   * // do reset
-   * store.users[0].uploads.splice(0)
-   *
-   * // don't
-   * store.users[0].uploads = []
-   * ```
-   * A ref should also not be used as the only state in a proxy, making the proxy usage pointless.
-   */
-  public ref = ref;
-
-  /**
-   * subscription via a getter.
-   * [watch](https://valtio.pmnd.rs/docs/api/utils/watch) supports subscribing to multiple proxy objects (unlike `subscribe` which listens to only a single proxy). Proxy objects are subscribed with a `get` function passed to the callback.
-   *
-   * Any changes to the proxy object (or its child proxies) will rerun the callback.
-   */
-  public watch = watch;
+  protected async restoreAbortController(ctx: AppContext) {
+    const session = await ctx.session;
+    const nonPersisted = await this.getNonPersisted(ctx);
+    // Already restored
+    if (nonPersisted.abortController) {
+      return;
+    }
+    this.setAbortController(
+      ctx,
+      session.abortControllerState === AbortControllerState.ACTIVE
+        ? new AbortController()
+        : null,
+    );
+  }
 }

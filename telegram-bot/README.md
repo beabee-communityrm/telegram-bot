@@ -106,7 +106,7 @@ parts of the application:
   implement a new Telegram Command and the `EventManager` to implement a new
   event manger.
 - `data`: Contains data which can be persisted in docker volumes such the
-  `database.sql`.
+  `kv.db`.
 - `deps`: In Deno it is common to import all dependencies in a central deps.ts
   file, we want to follow this but due to many dependencies we have split them
   cleanly in this folder.

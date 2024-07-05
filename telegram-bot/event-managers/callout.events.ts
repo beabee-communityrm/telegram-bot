@@ -52,28 +52,18 @@ export class CalloutEventManager extends BaseEventManager {
   }
 
   protected async onShowCalloutKeyboardPressed(ctx: AppContext) {
-    const shortSlug = ctx.callbackQuery?.data?.split(":")[1];
+    const id = ctx.callbackQuery?.data?.split(":")[1];
 
     // Remove the inline keyboard
     await this.keyboard.removeInlineKeyboard(ctx);
 
-    const noSlugMessage =
-      "This button has not a callout slug associated with it";
-
-    if (!shortSlug) {
-      await ctx.reply(noSlugMessage);
-      return;
-    }
-
-    const slug = this.callout.getSlug(shortSlug);
-
-    if (!slug) {
-      await ctx.reply(noSlugMessage);
+    if (!id) {
+      await ctx.reply("This button has not a callout id associated with it");
       return;
     }
 
     try {
-      const callout = await this.callout.get(slug, ["form"]);
+      const callout = await this.callout.get(id, ["form"]);
       const calloutDetailsRender = await this.calloutRenderer.calloutDetails(
         callout,
       );

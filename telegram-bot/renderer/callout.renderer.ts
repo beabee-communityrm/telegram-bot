@@ -11,7 +11,6 @@ import { KeyboardService } from "../services/keyboard.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
 
 import type {
-  CalloutDataExt,
   GetCalloutDataExt,
   GetCalloutDataWithExt,
   Render,
@@ -40,17 +39,17 @@ export class CalloutRenderer {
    * @returns
    */
   public startResponseKeyboard(
-    callout: CalloutDataExt,
+    callout: GetCalloutDataExt,
   ): Render {
     const keyboardMessageMd = `_${
       escapeMd(this.i18n.t("bot.response.messages.calloutStartResponse"))
     }_`;
     const yesNoInlineKeyboard = this.keyboard.inlineYesNo(
-      `${INLINE_BUTTON_CALLBACK_CALLOUT_PARTICIPATE}:${callout.shortSlug}`,
+      `${INLINE_BUTTON_CALLBACK_CALLOUT_PARTICIPATE}:${callout.id}`,
     );
 
     const result: Render = {
-      key: `callout:start-response:${callout.shortSlug}`,
+      key: `callout:start-response:${callout.id}`,
       type: RenderType.MARKDOWN,
       markdown: keyboardMessageMd,
       inlineKeyboard: yesNoInlineKeyboard,
@@ -93,7 +92,7 @@ export class CalloutRenderer {
     listChar = escapeMd(listChar);
 
     const result: Render = {
-      key: `callout:list:${callout.shortSlug}`,
+      key: `callout:list:${callout.id}`,
       type: RenderType.MARKDOWN,
       markdown: `${listChar} ${this.title(callout).markdown}\n`,
       accepted: this.condition.replayConditionNone(),
@@ -160,7 +159,7 @@ export class CalloutRenderer {
    */
   public title(callout: GetCalloutDataExt, withUrl = true) {
     const result: Render = {
-      key: `callout:title:${callout.shortSlug}`,
+      key: `callout:title:${callout.id}`,
       type: RenderType.MARKDOWN,
       markdown: "",
       accepted: this.condition.replayConditionNone(),
@@ -213,7 +212,7 @@ export class CalloutRenderer {
     });
 
     const calloutResult: Render = {
-      key: `callout:photo:${callout.shortSlug}`,
+      key: `callout:photo:${callout.id}`,
       type: RenderType.PHOTO,
       photo: calloutImage,
       accepted: this.condition.replayConditionNone(),

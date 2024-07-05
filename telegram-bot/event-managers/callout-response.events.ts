@@ -59,7 +59,7 @@ export class CalloutResponseEventManager extends BaseEventManager {
   protected async onCalloutParticipateKeyboardPressed(ctx: AppContext) {
     const data = ctx.callbackQuery?.data?.split(":");
     // const slug = data?.[1];
-    const shortSlug = data?.[1];
+    const id = data?.[1];
     // const startResponse = data?.[2] as "continue" | "cancel" === "continue";
     const startResponse =
       data?.[2] as typeof TRUTHY_MESSAGE_KEY | typeof FALSY_MESSAGE_KEY ===
@@ -76,17 +76,7 @@ export class CalloutResponseEventManager extends BaseEventManager {
       return;
     }
 
-    if (!shortSlug) {
-      await this.communication.send(
-        ctx,
-        this.messageRenderer.calloutNotFound(),
-      );
-      return;
-    }
-
-    const slug = this.callout.getSlug(shortSlug);
-
-    if (!slug) {
+    if (!id) {
       await this.communication.send(
         ctx,
         this.messageRenderer.calloutNotFound(),
@@ -97,11 +87,11 @@ export class CalloutResponseEventManager extends BaseEventManager {
     console.debug(
       "onCalloutParticipateKeyboardPressed",
       data,
-      slug,
+      id,
       // startResponse,
     );
 
-    const calloutWithForm = await this.callout.get(slug, ["form"]);
+    const calloutWithForm = await this.callout.get(id, ["form"]);
 
     // Render the callout with the form
     const questions = this.calloutResponseRenderer
@@ -142,7 +132,7 @@ export class CalloutResponseEventManager extends BaseEventManager {
 
     try {
       // TODO: Ask for contact details if callout requires it
-      await this.callout.createResponse(slug, {
+      await this.callout.createResponse(id, {
         answers,
         //guestName: ctx.from?.username,
         // guestEmail: "test@beabee.io",

@@ -129,9 +129,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# SQLlite files
-*.sqlite
-
 # deno2node
 deno_cache/
 
@@ -140,4 +137,8 @@ telegram-bot/telegram-bot
 
 .credentials.json
 
-# Temporary type build files
+# Database files
+*.sqlite
+*.db
+*.db-shm
+*.db-wal

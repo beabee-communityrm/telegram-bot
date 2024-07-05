@@ -3,7 +3,7 @@ import type { ChatState } from "../enums/index.ts";
 import type { I18nService } from "../services/i18n.service.ts";
 import type { CommunicationService } from "../services/communication.service.ts";
 import type { MessageRenderer } from "../renderer/message.renderer.ts";
-import type { AppContext, StateSession } from "../types/index.ts";
+import type { AppContext, SessionPersisted } from "../types/index.ts";
 
 /**
  * Base class for all bot commands
@@ -69,7 +69,7 @@ export abstract class BaseCommand implements BotCommand {
    * @param session The current session
    * @returns True if the command is usable, false otherwise
    */
-  public isCommandUsable(session: StateSession): boolean {
+  public isCommandUsable(session: SessionPersisted): boolean {
     return this.visibleOnStates.length === 0 ||
       this.visibleOnStates.includes(session.state);
   }

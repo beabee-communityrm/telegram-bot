@@ -3,7 +3,7 @@ import type {
   LazySessionFlavor,
   ParseModeFlavor,
 } from "../deps/index.ts";
-import type { StateSession } from "./index.ts";
+import type { SessionPersisted } from "./index.ts";
 
 /**
  * Extended Grammy {@link Context} for plugins and custom data used in this bot
@@ -11,4 +11,4 @@ import type { StateSession } from "./index.ts";
 export type AppContext =
   & Context
   & ParseModeFlavor<Context>
-  & LazySessionFlavor<StateSession>;
+  & LazySessionFlavor<SessionPersisted>;
