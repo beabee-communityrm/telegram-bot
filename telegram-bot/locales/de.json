@@ -41,7 +41,7 @@
         "command": {
           "notUsable": "Der Befehl {command} kann hier nicht verwendet werden. Wenn Sie glauben, dass es sich um einen Fehler handelt, verwenden Sie bitte den Befehl /reset."
         },
-        "continueList": "Jetzt können Sie die Liste der offenen Umfragen überprüfen und eine andere auswählen, an der Sie teilnehmen möchten:",
+        "continueList": "Jetzt können Sie die Liste der offenen Umfragen überprüfen und eine andere auswählen, an der Sie teilnehmen möchten.",
         "done": "Wenn Sie mit Ihrer Antwort fertig sind, tippen Sie einfach \"{done}\".",
         "enterAmountOfMoney": "Bitte geben Sie einen Geldbetrag ein.",
         "enterDate": "Bitte geben Sie ein Datum ein.",
@@ -51,7 +51,7 @@
         "enterTime": "Bitte geben Sie eine Zeit ein. (z.B. 20:45)",
         "enterUrl": "Bitte geben Sie eine Webadresse ein. (z.B. https://www.beispiel.de)",
         "help": "Über den Telegram-Chat können Sie an den laufenden Umfragen von {organisationName} teilnehmen.\nSie können die Liste der offenen Umfragen einsehen und auswählen, an welchen Sie teilnehmen möchten.\n\n{commands}",
-        "helpContinue": "Jetzt können Sie die Liste der offenen Umfragen überprüfen und eine andere auswählen, an der Sie teilnehmen möchten.\n\n{commands}",
+        "helpContinue": "Jetzt können Sie die Liste der offenen Umfragen überprüfen und eine andere auswählen, an der Sie teilnehmen möchten:\n\n{commands}",
         "multipleAddressesAllowed": "Geben Sie eine oder mehrere Adressen ein.",
         "multipleEmailsAllowed": "Sie können eine oder mehrere E-Mail-Adressen eingeben.",
         "multipleNumbersAllowed": "Geben Sie eine oder mehrere Zahlen ein.",
@@ -102,10 +102,12 @@
     "response": {
       "messages": {
         "answerWithTruthyOrFalsy": "🤔 Bitte antworten Sie mit \"{truthy}\" oder \"{falsy}\".",
+        "calloutList": "Möchten Sie fortfahren und die aktiven Callouts erneut auflisten?",
         "calloutNotFound": "Es tut mir leid, ich konnte diesen Callout nicht finden.",
         "calloutStartResponse": "Möchten Sie auf diesen Callout beantworten?",
         "componentNotSupported": "\"{type}\" nicht implementiert..",
         "componentUnknown": "Unbekannter Komponententyp \"{type}\"..",
+        "howToShowHelp": "Wenn Sie fortfahren möchten können Sie jederzeit über das Menü die Hilfe aufrufen oder /help schreiben.",
         "noActiveCallouts": "Derzeit gibt es keine offenen Callouts.",
         "notACalloutComponent": {
           "address": "Ihre Antwort ist keine valide Adresse. Bitte versuchen Sie es erneut.",

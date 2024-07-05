@@ -149,7 +149,11 @@ export class CommandService extends BaseService {
         });
       }
       // Also remove global commands
-      await this.bot.api.deleteMyCommands();
+      try {
+        await this.bot.api.deleteMyCommands();
+      } catch (error) {
+        console.error("Error deleting global commands", error);
+      }
     }
 
     await this.bot.api.setMyCommands(commands, {

@@ -41,7 +41,7 @@
         "command": {
           "notUsable": "You cannot use the {command} command here. If you think this is an error, please use the /reset command."
         },
-        "continueList": "Want to take part in a callout? Check out the list of open callouts and see which one piques your interest",
+        "continueList": "Want to take part in a callout? Check out the list of open callouts and see which one piques your interest.",
         "done": "When you are finished with your response, just press or type \"{done}\".",
         "enterAmountOfMoney": "Please enter an amount of money.",
         "enterDate": "Please enter a date.",
@@ -51,7 +51,7 @@
         "enterTime": "Please enter a time. (e.g. 20:45)",
         "enterUrl": "Please enter a web address. (e.g. https://example.com)",
         "help": "From the Telegram chat you'll be able to take part in ongoing investigations run by {organisationName}. Want to get involved? Take a look at the list of open callouts and see what piques your interest\n\n{commands}",
-        "helpContinue": "Want to take part in a callout? Check out the list of open callouts and see which one piques your interest",
+        "helpContinue": "Want to take part in a callout? Check out the list of open callouts and see which one piques your interest:\n\n{commands}",
         "multipleAddressesAllowed": "Enter one or more addresses.",
         "multipleEmailsAllowed": "You can enter one or more e-mail addresses.",
         "multipleNumbersAllowed": "Enter one or more numbers.",
@@ -102,10 +102,12 @@
     "response": {
       "messages": {
         "answerWithTruthyOrFalsy": "🤔 Please answer with \"{truthy}\" or \"{falsy}\".",
+        "calloutList": "Would you like to continue and list the active callouts again?",
         "calloutNotFound": "I'm sorry, I couldn't find this callout.",
         "calloutStartResponse": "Do you want to answer this callout?",
         "componentNotSupported": "\"{type}\" not implemented..",
         "componentUnknown": "Unknown component type \"{type}\"..",
+        "howToShowHelp": "If you still want to continue, you can always access the help via the menu or write /help.",
         "noActiveCallouts": "There are currently no open callouts.",
         "notACalloutComponent": {
           "address": "🤔 Sorry, I'm expecting a valid address here. Can you try again?",

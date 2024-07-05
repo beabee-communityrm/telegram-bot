@@ -407,7 +407,7 @@ export class TransformService extends BaseService {
         const [_, key] = splitCalloutGroupKey(response.render.key);
         slideAnswers[key] = response.responses.type === ParsedResponseType.NONE
           ? undefined
-          : response.responses.data;
+          : response.responses.data || undefined;
       }
       answers[slideId] = slideAnswers;
     }

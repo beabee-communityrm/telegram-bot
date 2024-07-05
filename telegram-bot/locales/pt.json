@@ -102,10 +102,12 @@
     "response": {
       "messages": {
         "answerWithTruthyOrFalsy": "",
+        "calloutList": "",
         "calloutNotFound": "",
         "calloutStartResponse": "",
         "componentNotSupported": "",
         "componentUnknown": "",
+        "howToShowHelp": "",
         "noActiveCallouts": "",
         "notACalloutComponent": {
           "address": "",

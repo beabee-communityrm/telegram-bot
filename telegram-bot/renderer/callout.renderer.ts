@@ -1,7 +1,10 @@
 import { InputFile, InputMediaBuilder, Singleton } from "../deps/index.ts";
-import { downloadImage, escapeMd } from "../utils/index.ts";
+import { downloadImage, escapeMd, sanitizeHtml } from "../utils/index.ts";
 import { ParsedResponseType, RenderType } from "../enums/index.ts";
-import { INLINE_BUTTON_CALLBACK_CALLOUT_INTRO } from "../constants/index.ts";
+import {
+  INLINE_BUTTON_CALLBACK_CALLOUT_LIST,
+  INLINE_BUTTON_CALLBACK_CALLOUT_PARTICIPATE,
+} from "../constants/index.ts";
 
 import { ConditionService } from "../services/condition.service.ts";
 import { KeyboardService } from "../services/keyboard.service.ts";
@@ -10,6 +13,7 @@ import { I18nService } from "../services/i18n.service.ts";
 import type {
   CalloutDataExt,
   GetCalloutDataExt,
+  GetCalloutDataWithExt,
   Render,
 } from "../types/index.ts";
 
@@ -29,23 +33,47 @@ export class CalloutRenderer {
   }
 
   /**
-   * @fires `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_CALLOUT_INTRO}`
+   * Renders a start response keyboard for a callout
+   * @fires `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_CALLOUT_PARTICIPATE}`
    *
    * @param callout
    * @returns
    */
-  protected startResponseKeyboard(
+  public startResponseKeyboard(
     callout: CalloutDataExt,
   ): Render {
     const keyboardMessageMd = `_${
       escapeMd(this.i18n.t("bot.response.messages.calloutStartResponse"))
     }_`;
     const yesNoInlineKeyboard = this.keyboard.inlineYesNo(
-      `${INLINE_BUTTON_CALLBACK_CALLOUT_INTRO}:${callout.shortSlug}`,
+      `${INLINE_BUTTON_CALLBACK_CALLOUT_PARTICIPATE}:${callout.shortSlug}`,
     );
 
     const result: Render = {
       key: `callout:start-response:${callout.shortSlug}`,
+      type: RenderType.MARKDOWN,
+      markdown: keyboardMessageMd,
+      inlineKeyboard: yesNoInlineKeyboard,
+      accepted: this.condition.replayConditionNone(),
+      parseType: ParsedResponseType.NONE,
+    };
+    return result;
+  }
+
+  /**
+   * Renders a list callouts keyboard
+   * @fires `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_CALLOUT_LIST}`
+   */
+  public listCalloutsKeyboard(): Render {
+    const keyboardMessageMd = `_${
+      escapeMd(this.i18n.t("bot.response.messages.calloutList"))
+    }_`;
+    const yesNoInlineKeyboard = this.keyboard.inlineYesNo(
+      INLINE_BUTTON_CALLBACK_CALLOUT_LIST,
+    );
+
+    const result: Render = {
+      key: `callout:callouts-list`,
       type: RenderType.MARKDOWN,
       markdown: keyboardMessageMd,
       inlineKeyboard: yesNoInlineKeyboard,
@@ -151,6 +179,22 @@ export class CalloutRenderer {
   }
 
   /**
+   * Render a callout response intro in HTML
+   */
+  public intro(callout: GetCalloutDataWithExt<"form">) {
+    const result: Render = {
+      key: callout.slug,
+      type: RenderType.HTML,
+      accepted: this.condition.replayConditionNone(),
+      html: "",
+      parseType: ParsedResponseType.NONE,
+      forceReply: false,
+    };
+    result.html = `${sanitizeHtml(callout.intro)}`;
+    return result;
+  }
+
+  /**
    * Render a callout with photo.
    *
    * @param callout
@@ -176,8 +220,6 @@ export class CalloutRenderer {
       parseType: ParsedResponseType.NONE,
     };
 
-    const keyboardResult = this.startResponseKeyboard(callout);
-
-    return [calloutResult, keyboardResult];
+    return calloutResult;
   }
 }

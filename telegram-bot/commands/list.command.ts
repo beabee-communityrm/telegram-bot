@@ -36,8 +36,6 @@ export class ListCommand extends BaseCommand {
       return false;
     }
 
-    // await this.keyboard.removeLastInlineKeyboard(ctx);
-
     const signal = await this.stateMachine.setSessionState(
       ctx,
       ChatState.CalloutList,

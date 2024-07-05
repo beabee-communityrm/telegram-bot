@@ -51,7 +51,7 @@
         "enterTime": "Bitte gib eine Zeit ein. (z.B. 20:45)",
         "enterUrl": "Bitte gib eine Webadresse ein. (z.B. https://www.beispiel.de)",
         "help": "Über den Telegram-Chat kannst du an den laufenden Umfragen von {organisationName} teilnehmen.\nDu kannst die Liste der offenen Umfragen einsehen und auswählen, an welchen du teilnehmen möchtest.\n\n{commands}",
-        "helpContinue": "Jetzt kannst du die Liste der offenen Umfragen überprüfen und eine andere auswählen, an der du teilnehmen möchten.\n\n{commands}",
+        "helpContinue": "Jetzt kannst du die Liste der offenen Umfragen überprüfen und eine andere auswählen, an der du teilnehmen möchten:\n\n{commands}",
         "multipleAddressesAllowed": "Gib eine oder mehrere Adressen ein.",
         "multipleEmailsAllowed": "Du kannst eine oder mehrere E-Mail-Adressen eingeben.",
         "multipleNumbersAllowed": "Gib eine oder mehrere Zahlen ein.",
@@ -102,10 +102,12 @@
     "response": {
       "messages": {
         "answerWithTruthyOrFalsy": "🤔 Bitte antworte mit \"{truthy}\" oder \"{falsy}\".",
+        "calloutList": "Möchten du weiter machen und die aktiven Callouts erneut auflisten?",
         "calloutNotFound": "Tut mir leid, ich konnte diesen Callout nicht finden.",
         "calloutStartResponse": "Möchtest du auf diesen Callout reagieren?",
         "componentNotSupported": "\"{type}\" ist noch nicht implementiert..",
         "componentUnknown": "Unbekannter Komponententyp \"{type}\"..",
+        "howToShowHelp": "Wenn du doch weiter machen möchtest kannst du jederzeit über das Menü die Hilfe aufrufen oder /help schreiben.",
         "noActiveCallouts": "Aktuell gibt es keine offenen Callouts.",
         "notACalloutComponent": {
           "address": "Dies ist keine valide Adresse. Bitte versuche es noch einmal.",

@@ -230,6 +230,18 @@ export class MessageRenderer {
     return result;
   }
 
+  public howToShowHelp(): RenderText {
+    const tKey = "bot.response.messages.howToShowHelp";
+    const result: Render = {
+      type: RenderType.TEXT,
+      text: this.i18n.t(tKey),
+      key: tKey,
+      ...this.noResponse(),
+    };
+
+    return result;
+  }
+
   public calloutNotFound(): RenderText {
     const tKey = "bot.response.messages.calloutNotFound";
     const result: Render = {

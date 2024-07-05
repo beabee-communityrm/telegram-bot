@@ -1,7 +1,7 @@
 {
   "name": "@beabee/client",
   "description": "The Beabee API Client for Deno, Node.js, and the browser",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "license": "Apache-2.0",
   "type": "module",
   "engines": {
