@@ -1,4 +1,4 @@
-import type { ChatState } from "../enums/index.ts";
+import type { AbortControllerState, ChatState } from "../enums/index.ts";
 
 /**
  * SessionPersisted is used for data of a chat session handled by Grammy's session plugin and
@@ -10,8 +10,6 @@ export interface SessionPersisted {
   latestKeyboard: {
     message_id: number;
     chat_id: number;
-    // inlineKeyboard?: InlineKeyboard;
-    // customKeyboard?: Keyboard;
     /** The number of buttons in the keyboard */
     buttonCount: number;
     /**
@@ -20,4 +18,10 @@ export interface SessionPersisted {
      */
     type: "inline" | "custom";
   } | null;
+
+  /**
+   * The state of the abort controller.
+   * Used to restore the abort controller state when the session is restored.
+   */
+  abortControllerState: AbortControllerState;
 }

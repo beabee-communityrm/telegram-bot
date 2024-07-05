@@ -1,10 +1,4 @@
-import {
-  Bot,
-  hydrateReply,
-  lazySession,
-  NextFunction,
-  Singleton,
-} from "../deps/index.ts";
+import { Bot, hydrateReply, lazySession, Singleton } from "../deps/index.ts";
 
 import { KeyValueStorageAdapter } from "../adapters/key-value-storage-adapter.ts";
 
@@ -43,16 +37,5 @@ export class BotService extends Bot<AppContext> {
 
     // See https://grammy.dev/plugins/parse-mode
     this.use(hydrateReply);
-
-    /**
-     * Custom middleware to add the context to the session
-     * @see https://grammy.dev/guide/middleware#writing-custom-middleware
-     */
-    this.use(async (ctx: AppContext, next: NextFunction) => {
-      // const session = await ctx.session;
-      const nonPersisted = this.stateMachine.getNonPersisted(ctx);
-      nonPersisted.ctx = ctx;
-      await next();
-    });
   }
 }

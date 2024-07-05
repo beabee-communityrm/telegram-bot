@@ -2,7 +2,11 @@ import { BaseService } from "../core/index.ts";
 import { Singleton } from "../deps/index.ts";
 import { EventService } from "./event.service.ts";
 import { KeyboardService } from "./keyboard.service.ts";
-import { ChatState, StateMachineEvent } from "../enums/index.ts";
+import {
+  AbortControllerState,
+  ChatState,
+  StateMachineEvent,
+} from "../enums/index.ts";
 import { getSessionKey } from "../utils/index.ts";
 
 import type {
@@ -13,11 +17,9 @@ import type {
 } from "../types/index.ts";
 
 /**
- * State machine service
- * * More or less just a injectable wrapper for [valtio](https://github.com/pmndrs/valtio) (vanillla-version)
- * * Can be enriched with its own functionalities if needed
- * * Used to create a proxy state object using {@link StateMachineService.create} for each chat session (sessions are handled using [Grammy's session plugin](https://grammy.dev/plugins/session))
- * * Changes on the state (or any sub property) can be subscribed using {@link StateMachineService.subscribe}.
+ * State machine service.
+ * Contains the current settings, session data which can't be persisted for each chat session
+ * and methods to handle the session state.
  */
 @Singleton()
 export class StateMachineService extends BaseService {
@@ -72,12 +74,12 @@ export class StateMachineService extends BaseService {
     return {
       state: ChatState.Initial,
       latestKeyboard: null,
+      abortControllerState: AbortControllerState.NULL,
     };
   }
 
   public getInitialNonPersisted(): SessionNonPersisted {
     return {
-      ctx: null,
       abortController: null,
     };
   }
@@ -86,15 +88,18 @@ export class StateMachineService extends BaseService {
     this.event.emit(StateMachineEvent.SESSION_CHANGED, ctx);
   }
 
-  public getNonPersisted(ctx: AppContext): SessionNonPersisted {
+  public async getNonPersisted(ctx: AppContext): Promise<SessionNonPersisted> {
     const sessionKey = getSessionKey(ctx);
-    this._nonPersisted[sessionKey] ||= this.getInitialNonPersisted();
+    if (!this._nonPersisted[sessionKey]) {
+      this._nonPersisted[sessionKey] = this.getInitialNonPersisted();
+      await this.restoreAbortController(ctx);
+    }
     return this._nonPersisted[sessionKey];
   }
 
   /**
    * Set the state of a session
-   * @param session The session to set the state for
+   * @param ctx The context which contains the session
    * @param newState The new state
    * @param cancellable If the state change should be cancellable
    * @returns The abort signal if the state change is cancellable, otherwise null
@@ -104,24 +109,26 @@ export class StateMachineService extends BaseService {
     newState: ChatState,
     cancellable: boolean,
   ) {
-    const nonPersisted = this.getNonPersisted(ctx);
     // Reset the last session state
     await this.resetSessionState(ctx);
     const session = await ctx.session;
     session.state = newState;
-    nonPersisted.abortController = cancellable ? new AbortController() : null;
+    const abortController = await this.setAbortController(
+      ctx,
+      cancellable ? new AbortController() : null,
+    );
     this.onSessionChanged(ctx);
-    return nonPersisted.abortController?.signal ?? null;
+    return abortController ? abortController.signal : null;
   }
 
   /**
    * Reset the state of a session
-   * @param ctx The context to reset the state for
+   * @param ctx The context which contains the session
    * @returns True if the state was cancelled, false otherwise
    */
   protected async resetSessionState(ctx: AppContext) {
     await this.keyboard.removeLastInlineKeyboard(ctx);
-    const nonPersisted = this.getNonPersisted(ctx);
+    const nonPersisted = await this.getNonPersisted(ctx);
 
     if (nonPersisted.abortController) {
       console.debug("Aborting session");
@@ -130,5 +137,55 @@ export class StateMachineService extends BaseService {
     }
     console.debug("Session is not cancellable");
     return false;
+  }
+
+  protected async setAbortController(
+    ctx: AppContext,
+    abortController: AbortController | null,
+  ) {
+    const session = await ctx.session;
+    const nonPersisted = await this.getNonPersisted(ctx);
+    nonPersisted.abortController = abortController;
+    session.abortControllerState = this.determineAbortControllerState(
+      nonPersisted.abortController,
+    );
+    if (abortController) {
+      abortController.signal.addEventListener("abort", () => {
+        session.abortControllerState = AbortControllerState.ABORTED;
+      }, { once: true });
+    }
+
+    return abortController;
+  }
+
+  /**
+   * Determine the state of the abort controller
+   * @param abortController The abort controller
+   * @returns The state of the abort controller
+   */
+  protected determineAbortControllerState(
+    abortController: AbortController | null,
+  ) {
+    if (!abortController) {
+      return AbortControllerState.NULL;
+    }
+    return abortController.signal.aborted
+      ? AbortControllerState.ABORTED
+      : AbortControllerState.ACTIVE;
+  }
+
+  protected async restoreAbortController(ctx: AppContext) {
+    const session = await ctx.session;
+    const nonPersisted = await this.getNonPersisted(ctx);
+    // Already restored
+    if (nonPersisted.abortController) {
+      return;
+    }
+    this.setAbortController(
+      ctx,
+      session.abortControllerState === AbortControllerState.ACTIVE
+        ? new AbortController()
+        : null,
+    );
   }
 }

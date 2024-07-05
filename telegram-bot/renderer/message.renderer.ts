@@ -103,24 +103,16 @@ export class MessageRenderer {
   public async debug(ctx: AppContext): Promise<RenderFormat> {
     const strings: FormattedString[] = [];
     const session = await ctx.session;
-    const nonPersisted = this.stateMachine.getNonPersisted(ctx);
+    // const nonPersisted = await this.stateMachine.getNonPersisted(ctx);
 
     strings.push(fmt`${bold("State: ")} ${session.state}\n`);
     if (ctx.chat) {
       strings.push(fmt`${bold("Chat ID: ")} ${getChatId(ctx)}\n`);
       strings.push(fmt`${bold("Session ID: ")} ${getSessionKey(ctx)}\n`);
       strings.push(fmt`${bold("Chat type: ")} ${ctx.chat?.type}\n`);
-      if (!nonPersisted.abortController) {
-        strings.push(fmt`${bold("AbortController: ")} null\n`);
-      } else {
-        strings.push(
-          fmt`${bold("AbortController: ")} ${
-            nonPersisted.abortController.signal.aborted
-              ? "aborted"
-              : "not aborted"
-          }\n`,
-        );
-      }
+      strings.push(
+        fmt`${bold("AbortController: ")} ${session.abortControllerState}\n`,
+      );
 
       // TODO: Make debug message configurable
       strings.push(fmt`${bold("beabee settings:")}\n`);

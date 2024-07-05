@@ -1,5 +1,4 @@
 export * from "./app-context.ts";
-export * from "./callout-data-ext.ts";
 export * from "./command-class.ts";
 export * from "./event-manager-class.ts";
 export * from "./event-network-communicator-reload-data.ts";

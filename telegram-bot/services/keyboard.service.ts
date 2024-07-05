@@ -18,7 +18,7 @@ import {
 } from "../constants/index.ts";
 import { I18nService } from "./i18n.service.ts";
 
-import type { AppContext, CalloutDataExt } from "../types/index.ts";
+import type { AppContext, GetCalloutDataExt } from "../types/index.ts";
 
 /**
  * Service to create Telegram keyboard buttons
@@ -65,7 +65,7 @@ export class KeyboardService extends BaseService {
    * @param endIndex The index of the last callout to show, starting at 1 and must be larger than startIndex
    */
   public inlineCalloutSelection(
-    callouts: CalloutDataExt[],
+    callouts: GetCalloutDataExt[],
     startIndex = 1,
     endIndex = callouts.length,
   ) {
@@ -80,15 +80,14 @@ export class KeyboardService extends BaseService {
       throw new Error("endIndex is larger than callouts.length");
     }
     for (let i = startIndex; i <= endIndex; i++) {
-      const shortSlug = callouts[i - 1].shortSlug;
-      if (!shortSlug) {
+      const id = callouts[i - 1].id;
+      if (!id) {
         console.error(
           `Callout ${i} has no slug.\nSkipping...`,
         );
         continue;
       }
-      const callbackData =
-        `${INLINE_BUTTON_CALLBACK_SHOW_CALLOUT}:${shortSlug}`;
+      const callbackData = `${INLINE_BUTTON_CALLBACK_SHOW_CALLOUT}:${id}`;
 
       if (callbackData.length > 64) {
         console.error(
