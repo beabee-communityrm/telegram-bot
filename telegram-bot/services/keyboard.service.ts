@@ -25,7 +25,9 @@ import type { AppContext, CalloutDataExt } from "../types/index.ts";
  */
 @Singleton()
 export class KeyboardService extends BaseService {
-  constructor(protected readonly i18n: I18nService) {
+  constructor(
+    protected readonly i18n: I18nService,
+  ) {
     super();
     console.debug(`${this.constructor.name} created`);
   }
@@ -424,7 +426,7 @@ export class KeyboardService extends BaseService {
     if (!session) {
       throw new Error("ctx with a session is required when once is true");
     }
-    const keyboardData = session._data.latestKeyboard || null;
+    const keyboardData = session.latestKeyboard || null;
     if (!keyboardData || !Object.keys(keyboardData).length) {
       console.debug(
         "No last inline keyboard to remove, keyboardData: ",
@@ -435,7 +437,7 @@ export class KeyboardService extends BaseService {
 
     if (
       keyboardData.message_id && keyboardData.chat_id &&
-      keyboardData.inlineKeyboard?.inline_keyboard.flat().length
+      keyboardData.buttonCount
     ) {
       try {
         await ctx.api.editMessageReplyMarkup(
@@ -458,7 +460,7 @@ export class KeyboardService extends BaseService {
 
   protected async resetKeyboardInSession(ctx: AppContext) {
     const session = await ctx.session;
-    session._data.latestKeyboard = null;
+    session.latestKeyboard = null;
     return session;
   }
 
@@ -485,21 +487,23 @@ export class KeyboardService extends BaseService {
       markup instanceof InlineKeyboard &&
       markup.inline_keyboard.flat().length > 0
     ) {
-      session._data.latestKeyboard = {
+      session.latestKeyboard = {
         message_id: message.message_id,
         chat_id: message.chat.id,
         type: "inline",
-        inlineKeyboard: markup,
+        buttonCount: markup.inline_keyboard.flat().length,
+        // inlineKeyboard: markup,
       };
     } else if (
       markup instanceof Keyboard &&
       markup.keyboard.flat().length > 0
     ) {
-      session._data.latestKeyboard = {
+      session.latestKeyboard = {
         message_id: message.message_id,
         chat_id: message.chat.id,
         type: "custom",
-        customKeyboard: markup,
+        buttonCount: markup.keyboard.flat().length,
+        // customKeyboard: markup,
       };
     } else {
       console.warn("No keyboard to store");

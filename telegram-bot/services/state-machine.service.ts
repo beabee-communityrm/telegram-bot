@@ -3,10 +3,12 @@ import { Singleton } from "../deps/index.ts";
 import { EventService } from "./event.service.ts";
 import { KeyboardService } from "./keyboard.service.ts";
 import { ChatState, StateMachineEvent } from "../enums/index.ts";
+import { getSessionKey } from "../utils/index.ts";
 
 import type {
   AppContext,
-  StateSession,
+  SessionNonPersisted,
+  SessionPersisted,
   StateSettings,
 } from "../types/index.ts";
 
@@ -19,7 +21,9 @@ import type {
  */
 @Singleton()
 export class StateMachineService extends BaseService {
-  private _settings: StateSettings;
+  protected _settings = this.getInitialSettings();
+
+  protected _nonPersisted: { [sessionKey: string]: SessionNonPersisted } = {};
 
   get settings(): StateSettings {
     return this._settings;
@@ -64,19 +68,28 @@ export class StateMachineService extends BaseService {
     return _settings;
   }
 
-  public getInitialSession(): StateSession {
+  public getInitialSession(): SessionPersisted {
     return {
       state: ChatState.Initial,
-      _data: {
-        ctx: null,
-        abortController: null,
-        latestKeyboard: null,
-      },
+      latestKeyboard: null,
+    };
+  }
+
+  public getInitialNonPersisted(): SessionNonPersisted {
+    return {
+      ctx: null,
+      abortController: null,
     };
   }
 
   protected onSessionChanged(ctx: AppContext) {
     this.event.emit(StateMachineEvent.SESSION_CHANGED, ctx);
+  }
+
+  public getNonPersisted(ctx: AppContext): SessionNonPersisted {
+    const sessionKey = getSessionKey(ctx);
+    this._nonPersisted[sessionKey] ||= this.getInitialNonPersisted();
+    return this._nonPersisted[sessionKey];
   }
 
   /**
@@ -91,28 +104,28 @@ export class StateMachineService extends BaseService {
     newState: ChatState,
     cancellable: boolean,
   ) {
+    const nonPersisted = this.getNonPersisted(ctx);
     // Reset the last session state
     await this.resetSessionState(ctx);
     const session = await ctx.session;
     session.state = newState;
-    session._data.abortController = cancellable ? new AbortController() : null;
+    nonPersisted.abortController = cancellable ? new AbortController() : null;
     this.onSessionChanged(ctx);
-    return session._data.abortController?.signal ?? null;
+    return nonPersisted.abortController?.signal ?? null;
   }
 
   /**
    * Reset the state of a session
-   * @param session The session to reset the state for
+   * @param ctx The context to reset the state for
    * @returns True if the state was cancelled, false otherwise
    */
   protected async resetSessionState(ctx: AppContext) {
-    const session = await ctx.session;
-
     await this.keyboard.removeLastInlineKeyboard(ctx);
+    const nonPersisted = this.getNonPersisted(ctx);
 
-    if (session._data.abortController) {
+    if (nonPersisted.abortController) {
       console.debug("Aborting session");
-      session._data.abortController.abort();
+      nonPersisted.abortController.abort();
       return true;
     }
     console.debug("Session is not cancellable");

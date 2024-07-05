@@ -41,12 +41,12 @@ export class ResetCommand extends BaseCommand {
   async action(ctx: AppContext) {
     // Always allow this command to reset the state even if an error occurs, so we not use `this.checkAction` here
     const session = await ctx.session;
-    const abortController = session._data.abortController;
+    const nonPersisted = this.stateMachine.getNonPersisted(ctx);
     let successful = true;
 
-    if (abortController) {
+    if (nonPersisted.abortController) {
       // Already cancelled
-      if (abortController.signal.aborted) {
+      if (nonPersisted.abortController.signal.aborted) {
         await this.communication.send(
           ctx,
           this.messageRenderer.resetCancelledMessage(),

@@ -7,6 +7,7 @@ import {
 } from "../deps/index.ts";
 import { I18nService } from "./i18n.service.ts";
 import { BotService } from "./bot.service.ts";
+import { getSessionKey } from "../utils/index.ts";
 import { StateMachineService } from "./state-machine.service.ts";
 import { ChatState } from "../enums/index.ts";
 
@@ -45,14 +46,15 @@ export class CommandService extends BaseService {
    */
   public async onSessionChanged(ctx: AppContext) {
     const session = await ctx.session;
+    const sessionId = getSessionKey(ctx);
 
-    console.debug(`Session for chat ID "${ctx.chat?.id}" changed:`, {
+    console.debug(`Session for session ID "${sessionId}" changed:`, {
       ...session,
       _data: "<hidden>",
     });
 
-    if (!ctx.chat?.id) {
-      console.warn("No chat id found");
+    if (!sessionId) {
+      console.warn("No session id found");
       return;
     }
 
@@ -67,7 +69,7 @@ export class CommandService extends BaseService {
 
     const scope: BotCommandScopeChat = {
       type: "chat",
-      chat_id: ctx.chat.id,
+      chat_id: sessionId,
     };
 
     await this.updateCommands({

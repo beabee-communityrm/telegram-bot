@@ -2,7 +2,7 @@ import { BaseService } from "../core/index.ts";
 import { Singleton } from "../deps/index.ts";
 import { SubscriberModel } from "../models/index.ts";
 import { DatabaseService } from "./database.service.ts";
-import { getIdentifier } from "../utils/index.ts";
+import { getChatId } from "../utils/index.ts";
 
 import type { AppContext, Subscriber } from "../types/index.ts";
 
@@ -26,7 +26,7 @@ export class SubscriberService extends BaseService {
    * @returns
    */
   private transformAnonymous(ctx: AppContext) {
-    const id = getIdentifier(ctx);
+    const id = getChatId(ctx);
     const subscriber = new SubscriberModel();
     subscriber.id = id;
     subscriber.anonymityStatus = "full";
@@ -41,7 +41,7 @@ export class SubscriberService extends BaseService {
    */
   private transform(ctx: AppContext, forceAnonymous = false) {
     if (!ctx.from || forceAnonymous) return this.transformAnonymous(ctx);
-    const id = getIdentifier(ctx);
+    const id = getChatId(ctx);
 
     const subscriber = new SubscriberModel();
     subscriber.id = id;
@@ -73,7 +73,7 @@ export class SubscriberService extends BaseService {
   public async create(
     ctx: AppContext,
   ): Promise<(SubscriberModel & Subscriber) | null> {
-    const id = getIdentifier(ctx);
+    const id = getChatId(ctx);
     if (await this.exists(id)) {
       console.debug("Subscriber already exists", id);
       return null;
@@ -102,7 +102,7 @@ export class SubscriberService extends BaseService {
    * @returns
    */
   public async delete(ctx: AppContext) {
-    const id = getIdentifier(ctx);
+    const id = getChatId(ctx);
     const result = await this.db.manager.delete(SubscriberModel, id);
     return result;
   }
