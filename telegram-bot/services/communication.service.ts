@@ -19,7 +19,7 @@ import { ValidationService } from "./validation.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
 
 import {
-  getIdentifier,
+  getChatId,
   getSelectionLabelNumberRange,
   sleep,
 } from "../utils/index.ts";
@@ -267,27 +267,27 @@ export class CommunicationService extends BaseService {
     ctx: AppContext,
     signal: AbortSignal | null,
   ): Promise<AppContext | AbortSignal> {
-    const userId = getIdentifier(ctx);
+    const chatId = getChatId(ctx);
     const eventName =
       `${INLINE_BUTTON_CALLBACK_PREFIX}:${INLINE_BUTTON_CALLBACK_CALLOUT_RESPONSE}`;
 
     return await new Promise<AppContext | AbortSignal>((resolve) => {
       const onMessage = (ctx: AppContext) => {
-        this.event.offUser(eventName, userId, onInteractionCallbackQueryData);
+        this.event.offUser(eventName, chatId, onInteractionCallbackQueryData);
         unsubscribeEvents();
         resolve(ctx);
       };
 
       // TODO: Any elegant way to move this to the CalloutResponseEventManager?
       const onInteractionCallbackQueryData = (ctx: AppContext) => {
-        this.event.offUserMessage(userId, onMessage);
+        this.event.offUserMessage(chatId, onMessage);
         unsubscribeEvents();
         resolve(ctx);
       };
 
       const unsubscribeEvents = () => {
-        this.event.offUser(eventName, userId, onInteractionCallbackQueryData);
-        this.event.offUserMessage(userId, onMessage);
+        this.event.offUser(eventName, chatId, onInteractionCallbackQueryData);
+        this.event.offUserMessage(chatId, onMessage);
         signal?.removeEventListener("abort", unsubscribeEvents);
       };
 
@@ -297,8 +297,8 @@ export class CommunicationService extends BaseService {
       };
 
       signal?.addEventListener("abort", onAbort, { once: true });
-      this.event.onceUserMessage(userId, onMessage);
-      this.event.onceUser(eventName, userId, onInteractionCallbackQueryData);
+      this.event.onceUserMessage(chatId, onMessage);
+      this.event.onceUser(eventName, chatId, onInteractionCallbackQueryData);
     });
   }
 

@@ -4,12 +4,20 @@ import type { AppContext } from "../types/index.ts";
 /**
  * Extract the chat id from a context
  */
-export const getIdentifier = (ctx: AppContext) => {
+export const getChatId = (ctx: AppContext) => {
   const id = ctx.chat?.id || ctx.from?.id;
   if (!id) {
     throw new Error("No id found on context");
   }
   return id;
+};
+
+/**
+ * Extract the session id from a context
+ * * We use the chat id as the session id for now
+ */
+export const getSessionKey = (ctx: AppContext) => {
+  return getChatId(ctx).toString();
 };
 
 /**

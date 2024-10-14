@@ -9,4 +9,3 @@ export * from "./jsonc.ts";
 export * from "./markdown-it.ts";
 export * from "./std.ts";
 export * from "./typeorm.ts";
-export * from "./valtio.ts";

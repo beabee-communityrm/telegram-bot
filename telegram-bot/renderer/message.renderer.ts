@@ -1,6 +1,11 @@
 import { bold, fmt, FormattedString, Singleton } from "../deps/index.ts";
 import { ChatState, RenderType } from "../enums/index.ts";
-import { escapeMd, getSimpleMimeTypes } from "../utils/index.ts";
+import {
+  escapeMd,
+  getChatId,
+  getSessionKey,
+  getSimpleMimeTypes,
+} from "../utils/index.ts";
 import { ConditionService } from "../services/condition.service.ts";
 import { I18nService } from "../services/i18n.service.ts";
 import { BotService } from "../services/bot.service.ts";
@@ -98,22 +103,16 @@ export class MessageRenderer {
   public async debug(ctx: AppContext): Promise<RenderFormat> {
     const strings: FormattedString[] = [];
     const session = await ctx.session;
+    // const nonPersisted = await this.stateMachine.getNonPersisted(ctx);
 
     strings.push(fmt`${bold("State: ")} ${session.state}\n`);
     if (ctx.chat) {
-      strings.push(fmt`${bold("Chat ID: ")} ${ctx.chat?.id}\n`);
+      strings.push(fmt`${bold("Chat ID: ")} ${getChatId(ctx)}\n`);
+      strings.push(fmt`${bold("Session ID: ")} ${getSessionKey(ctx)}\n`);
       strings.push(fmt`${bold("Chat type: ")} ${ctx.chat?.type}\n`);
-      if (!session._data.abortController) {
-        strings.push(fmt`${bold("AbortController: ")} null\n`);
-      } else {
-        strings.push(
-          fmt`${bold("AbortController: ")} ${
-            session._data.abortController.signal.aborted
-              ? "aborted"
-              : "not aborted"
-          }\n`,
-        );
-      }
+      strings.push(
+        fmt`${bold("AbortController: ")} ${session.abortControllerState}\n`,
+      );
 
       // TODO: Make debug message configurable
       strings.push(fmt`${bold("beabee settings:")}\n`);
